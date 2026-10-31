@@ -363,7 +363,12 @@ class Achievement(Base):
             unique=True,
             postgresql_nulls_not_distinct=True,
         ),
-        Index("ix_achievements_player_id_earned_at", "player_id", text("earned_at DESC")),
+        Index(
+            "ix_achievements_player_id_earned_at",
+            "player_id",
+            text("earned_at DESC"),
+            text("id DESC"),
+        ),
         Index("ix_achievements_code_period", "code", "period"),
         Index("ix_achievements_game_id", "game_id"),
         Index("ix_achievements_earned_at_id", text("earned_at DESC"), text("id DESC")),
