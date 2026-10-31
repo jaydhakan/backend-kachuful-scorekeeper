@@ -74,6 +74,7 @@ class SummaryPlayerOut(CamelModel):
     name: str
     emoji: str
     color: str
+    photo_url: str | None = Field(..., description="The registry player's photo, or null")
     points: int
     place: int | None = Field(..., description="Null until the game has ended")
 

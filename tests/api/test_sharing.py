@@ -146,7 +146,7 @@ async def test_recap_image_is_a_png_cached_by_token_and_rev(
     assert response.status_code == 200
     assert response.headers["content-type"] == "image/png"
     assert response.content[:8] == b"\x89PNG\r\n\x1a\n"
-    assert (Path(settings.OG_CACHE_DIR) / f"{link['token']}-1.png").exists()
+    assert (Path(settings.OG_CACHE_DIR) / f"{link['token']}.1.--.png").exists()
     assert cached.content == response.content
 
 

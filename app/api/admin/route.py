@@ -28,9 +28,9 @@ admin_router = APIRouter(prefix="/admin", tags=["Admin"])
 
 
 @admin_router.get("/users", response_model=list[AdminUserRow])
-async def list_users(_: AdminAuth, service: _AdminServiceDep) -> list[AdminUserRow]:
+async def list_users(ctx: AdminAuth, service: _AdminServiceDep) -> list[AdminUserRow]:
     """Every account and pending invite."""
-    return await service.list_users()
+    return await service.list_users(ctx.user)
 
 
 @admin_router.post("/invites", response_model=InviteLinkOut, status_code=201)
@@ -69,11 +69,11 @@ async def update_user(
 async def merge_player(
     player_id: Annotated[uuid.UUID, Path(description="The player that goes away")],
     body: MergeIn,
-    _: AdminAuth,
+    ctx: AdminAuth,
     service: _MergeServiceDep,
 ) -> PlayerEnvelopeOut:
-    """Merge a duplicate player into another; every game and badge moves with it."""
-    return await service.merge(player_id, body.into_id)
+    """Merge a duplicate player into another; games, badges, email and photo move with it."""
+    return await service.merge(player_id, body.into_id, ctx.user)
 
 
 @admin_router.get("/overview", response_model=OverviewOut)

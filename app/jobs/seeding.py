@@ -38,11 +38,12 @@ async def wipe(session: AsyncSession) -> None:
 
 
 async def add_player(session: AsyncSession, name: str, index: int) -> Player:
-    """A registry player with a stable emoji and colour."""
+    """A registry player with a stable emoji, colour and a test email (<name>@kachuful.test)."""
     player = Player(
         id=uuid.uuid4(),
         display_name=name,
         name_key=name_key(name),
+        email=f"{name_key(name).replace(' ', '.')}@kachuful.test",
         emoji=EMOJI[index % len(EMOJI)],
         color=COLORS[index % len(COLORS)],
     )

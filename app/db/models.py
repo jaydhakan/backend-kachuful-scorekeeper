@@ -12,6 +12,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    LargeBinary,
     MetaData,
     SmallInteger,
     Text,
@@ -144,6 +145,12 @@ class Player(Base):
         ),
         Index("ix_players_updated_at_id", "updated_at", "id"),
         Index(
+            "uq_players_email_active",
+            "email",
+            unique=True,
+            postgresql_where=text("merged_into IS NULL AND email IS NOT NULL"),
+        ),
+        Index(
             "ix_players_name_key_trgm",
             "name_key",
             postgresql_using="gin",
@@ -154,6 +161,9 @@ class Player(Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     display_name: Mapped[str] = mapped_column(Text)
     name_key: Mapped[str] = mapped_column(Text)
+    # Identifies the person (with the name); never used to send mail.
+    email: Mapped[str | None] = mapped_column(CITEXT)
+    photo_rev: Mapped[int] = mapped_column(Integer, server_default="0")
     first_name: Mapped[str | None] = mapped_column(Text)
     last_name: Mapped[str | None] = mapped_column(Text)
     emoji: Mapped[str] = mapped_column(Text)
@@ -440,3 +450,15 @@ class ShareLink(Base):
     created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     revoked_at: Mapped[datetime | None]
+
+
+class PlayerPhoto(Base):
+    """A player's photo: 256x256 WebP, re-encoded on upload (no EXIF)."""
+
+    __tablename__ = "player_photos"
+
+    player_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("players.id", ondelete="CASCADE"), primary_key=True
+    )
+    image: Mapped[bytes] = mapped_column(LargeBinary)
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now())

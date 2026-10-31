@@ -5,7 +5,17 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import ColumnElement, and_, func, or_, select, text, update
+from sqlalchemy import (
+    ColumnClause,
+    ColumnElement,
+    and_,
+    func,
+    literal_column,
+    or_,
+    select,
+    text,
+    update,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
@@ -23,6 +33,7 @@ class SummaryRow:
     updated_at: datetime
     deleted_at: datetime | None
     live: bool
+    photos: dict[str, int]
 
 
 _owner = aliased(User)
@@ -42,6 +53,14 @@ def live_link_exists() -> ColumnElement[bool]:
     )
 
 
+# playerId → photo_rev for the seated players that have a photo (photos change after upload).
+_PHOTOS: ColumnClause[Any] = literal_column(
+    "(SELECT coalesce(jsonb_object_agg(gp.player_id::text, p.photo_rev), '{}'::jsonb)"
+    " FROM game_players gp JOIN players p ON p.id = gp.player_id"
+    " JOIN player_photos ph ON ph.player_id = p.id WHERE gp.game_id = games.id)"
+)
+
+
 def _summary_columns() -> tuple[Any, ...]:
     return (
         Game.id,
@@ -51,6 +70,7 @@ def _summary_columns() -> tuple[Any, ...]:
         Game.updated_at,
         Game.deleted_at,
         live_link_exists(),
+        _PHOTOS,
     )
 
 
@@ -70,6 +90,7 @@ def _rows(result: Any) -> list[SummaryRow]:
             updated_at=r[4],
             deleted_at=r[5],
             live=bool(r[6]),
+            photos=dict(r[7] or {}),
         )
         for r in result
     ]

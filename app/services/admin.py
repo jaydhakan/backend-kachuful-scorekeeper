@@ -1,12 +1,12 @@
 """Admin use cases: users, invites, reset links."""
 
-import re
 import uuid
 from datetime import timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Invite, User
+from app.domain.names import clean_email
 from app.domain.time import now_utc, to_ms, to_ms_or_none
 from app.exceptions import ApiError, ErrorCode
 from app.logger import get_logger
@@ -36,13 +36,12 @@ logger = get_logger(__name__)
 
 INVITE_TTL = timedelta(days=7)
 RESET_TTL = timedelta(hours=24)
-_EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 def normalize_email(raw: str) -> str:
     """Trimmed and lower-cased; 422 `invalid` when it can't be an email."""
-    email = raw.strip().lower()
-    if len(email) > 254 or not _EMAIL.match(email):
+    email = clean_email(raw)
+    if email is None:
         raise ApiError(
             422, ErrorCode.INVALID, "That is not an email address.", fields={"email": "invalid"}
         )
@@ -79,9 +78,11 @@ def _pending_out(invite: Invite | None) -> PendingInviteOut | None:
     return PendingInviteOut(email=invite.email, expires_at=to_ms(invite.expires_at))
 
 
-def _player_of(views: dict[uuid.UUID, PlayerView], player_id: uuid.UUID | None) -> PlayerOut | None:
+def _player_of(
+    views: dict[uuid.UUID, PlayerView], player_id: uuid.UUID | None, admin: User
+) -> PlayerOut | None:
     view = views.get(player_id) if player_id else None
-    return None if view is None else player_out(view)
+    return None if view is None else player_out(view, admin)
 
 
 class AdminService:
@@ -90,7 +91,7 @@ class AdminService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def list_users(self) -> list[AdminUserRow]:
+    async def list_users(self, admin: User) -> list[AdminUserRow]:
         """Every user, then invites that have no account yet."""
         users = await users_repository.list_all(self.session)
         pending: dict[str, Invite] = {}
@@ -104,7 +105,7 @@ class AdminService:
         rows = [
             AdminUserRow(
                 user=user_out(user),
-                player=_player_of(views, user.player_id),
+                player=_player_of(views, user.player_id, admin),
                 active=user.active,
                 last_seen_at=to_ms_or_none(user.last_seen_at),
                 invite=_pending_out(pending.pop(user.email.lower(), None)),
@@ -114,7 +115,7 @@ class AdminService:
         rows.extend(
             AdminUserRow(
                 user=None,
-                player=_player_of(views, invite.player_id),
+                player=_player_of(views, invite.player_id, admin),
                 active=False,
                 last_seen_at=None,
                 invite=_pending_out(invite),

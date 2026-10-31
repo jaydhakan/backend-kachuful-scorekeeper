@@ -34,7 +34,7 @@ async def test_prune_removes_expired_sessions_and_old_windows_only(
         other.add(RateLimit(key="login:old", window_start=now - timedelta(days=2), count=3))
         other.add(RateLimit(key="login:new", window_start=now, count=1))
         await other.commit()
-    Path(settings.OG_CACHE_DIR, "gone-token-3.png").write_bytes(b"x")
+    Path(settings.OG_CACHE_DIR, "gone-token.3.x.png").write_bytes(b"x")
 
     assert await prune.run(argparse.Namespace()) == 0
 
@@ -46,13 +46,13 @@ async def test_prune_removes_expired_sessions_and_old_windows_only(
 
 
 def test_prune_deletes_cached_images_of_revoked_links_only(tmp_path: Path) -> None:
-    (tmp_path / "revoked0000000000000000-2.png").write_bytes(b"x")
-    (tmp_path / "keepme0000000000000000-1.png").write_bytes(b"x")
+    (tmp_path / "revoked-token_000000000.2.x.png").write_bytes(b"x")
+    (tmp_path / "keepme-token_0000000000.1.3.png").write_bytes(b"x")
 
-    removed = prune.remove_images(tmp_path, {"revoked0000000000000000"})
+    removed = prune.remove_images(tmp_path, {"revoked-token_000000000"})
 
     assert removed == 1
-    assert [p.name for p in tmp_path.iterdir()] == ["keepme0000000000000000-1.png"]
+    assert [p.name for p in tmp_path.iterdir()] == ["keepme-token_0000000000.1.3.png"]
 
 
 def test_backup_rotation_keeps_14_days_and_8_sundays() -> None:

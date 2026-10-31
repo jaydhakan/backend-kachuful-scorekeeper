@@ -20,10 +20,24 @@ def user_out(user: User) -> UserOut:
     )
 
 
-def _player_fields(player: Player) -> dict[str, object]:
+def photo_url(player_id: object, photo_rev: int) -> str:
+    """Where a player's photo is served; the rev makes each version a new, cacheable URL."""
+    return f"/api/players/{player_id}/photo?v={photo_rev}"
+
+
+def can_see_email(viewer: User | None, player: Player) -> bool:
+    """Only the admin, the player's creator and the player's linked user see an email."""
+    if viewer is None:
+        return False
+    return viewer.role == "admin" or viewer.id == player.created_by or viewer.player_id == player.id
+
+
+def _player_fields(view: PlayerView) -> dict[str, object]:
+    player = view.player
     return {
         "id": player.id,
         "display_name": player.display_name,
+        "photo_url": photo_url(player.id, player.photo_rev) if view.has_photo else None,
         "first_name": player.first_name,
         "last_name": player.last_name,
         "emoji": player.emoji,
@@ -35,18 +49,20 @@ def _player_fields(player: Player) -> dict[str, object]:
     }
 
 
-def player_out(view: PlayerView) -> PlayerOut:
-    """The contract's Player."""
+def player_out(view: PlayerView, viewer: User | None) -> PlayerOut:
+    """The contract's Player, with the email only for those allowed to see it."""
+    email = view.player.email if can_see_email(viewer, view.player) else None
     return PlayerOut.model_validate(
-        {**_player_fields(view.player), "linked_user_id": view.linked_user_id}
+        {**_player_fields(view), "email": email, "linked_user_id": view.linked_user_id}
     )
 
 
 def player_summary_out(view: PlayerView) -> PlayerSummaryOut:
-    """The contract's PlayerSummary."""
+    """The contract's PlayerSummary: never an email."""
     return PlayerSummaryOut.model_validate(
         {
-            **_player_fields(view.player),
+            **_player_fields(view),
+            "email": None,
             "linked_user_id": view.linked_user_id,
             "games": view.player.games_count,
             "last_played_at": to_ms_or_none(view.player.last_played_at),
@@ -58,12 +74,23 @@ def player_summary_out(view: PlayerView) -> PlayerSummaryOut:
 def summary_out(row: SummaryRow, *, public: bool = False) -> GameSummaryOut:
     """The contract's GameSummary; `public` hides the owner's user id."""
     stored = row.summary
+    players = [
+        {**seat, "photoUrl": _seat_photo(row.photos, seat.get("playerId"))}
+        for seat in stored["players"]
+    ]
     return GameSummaryOut.model_validate(
         {
             **stored,
+            "players": players,
             "id": row.game_id,
             "owner": {"id": None if public else row.owner_id, "name": row.owner_name},
             "updatedAt": to_ms(row.updated_at),
             "live": row.live,
         }
     )
+
+
+def _seat_photo(photos: dict[str, int], player_id: str | None) -> str | None:
+    if player_id is None or player_id not in photos:
+        return None
+    return photo_url(player_id, photos[player_id])

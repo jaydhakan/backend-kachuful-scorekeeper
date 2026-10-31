@@ -22,12 +22,14 @@ async def make_player(
     created_by: uuid.UUID | None = None,
     player_id: uuid.UUID | None = None,
     first_name: str | None = None,
+    email: str | None = None,
 ) -> Player:
-    """A registry player."""
+    """A registry player (no email unless given, like players from before emails)."""
     player = Player(
         id=player_id or uuid.uuid4(),
         display_name=name,
         name_key=name_key(name),
+        email=email,
         first_name=first_name,
         emoji="🦊",
         color="#ff8a65",
@@ -110,10 +112,11 @@ async def sign_in(client: httpx.AsyncClient, user: User, password: str = PASSWOR
 
 
 def new_player_body(name: str = "Asha", **extra: str) -> dict[str, str]:
-    """A NewPlayer request body."""
+    """A NewPlayer request body with a unique email."""
     return {
         "id": str(uuid.uuid4()),
         "displayName": name,
+        "email": f"{uuid.uuid4().hex[:10]}@example.com",
         "emoji": "🐯",
         "color": "#60a5fa",
         **extra,

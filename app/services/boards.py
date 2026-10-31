@@ -351,8 +351,8 @@ class BoardsService:
             etag=etag,
             body=BootstrapOut(
                 user=user_out(user),
-                player=None if mine is None else player_out(mine),
-                players=[player_out(v) for v in views],
+                player=None if mine is None else player_out(mine, user),
+                players=[player_out(v, user) for v in views],
                 my_games=[summary_out(g) for g in games],
                 my_achievements=achievements,
                 data_version=data_version,

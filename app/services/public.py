@@ -14,6 +14,7 @@ from app.exceptions import ApiError, ErrorCode
 from app.render import run_in_thread
 from app.render.og import CardRow, render_recap
 from app.repositories.games import games_repository
+from app.repositories.players import players_repository
 from app.repositories.share_links import share_links_repository
 from app.repositories.users import users_repository
 from app.schemas.games import GameSummaryOut
@@ -97,16 +98,23 @@ class PublicService:
         )
 
     async def og_png(self, token: str) -> bytes:
-        """The recap card, cached on disk by (token, rev)."""
+        """The recap card, cached on disk by token, game rev and the photos it shows."""
         _, game = await self._shared_game(token, "recap")
-        path = Path(settings.OG_CACHE_DIR) / f"{token}-{game.rev}.png"
+        summary = await self._summary(game)
+        ranked = sorted(summary.players, key=lambda p: -p.points)[:3]
+        photos = "-".join((p.photo_url or "").rsplit("=", 1)[-1] for p in ranked)
+        path = Path(settings.OG_CACHE_DIR) / f"{token}.{game.rev}.{photos or 'x'}.png"
         cached = await run_in_thread(_read_if_exists, path)
         if cached is not None:
             return cached
-        summary = await self._summary(game)
-        ranked = sorted(summary.players, key=lambda p: -p.points)
         rows = [
-            CardRow(place=p.place or i + 1, emoji=p.emoji, name=p.name, points=p.points)
+            CardRow(
+                place=p.place or i + 1,
+                emoji=p.emoji,
+                name=p.name,
+                points=p.points,
+                photo=await self._photo_of(p.player_id, p.photo_url),
+            )
             for i, p in enumerate(ranked)
         ]
         stamp = summary.ended_at or to_ms(game.client_updated_at)
@@ -114,6 +122,11 @@ class PublicService:
         png = await run_in_thread(render_recap, "Kachuful recap", rows, subtitle)
         await run_in_thread(_write_atomically, path, png)
         return png
+
+    async def _photo_of(self, player_id: str | None, url: str | None) -> bytes | None:
+        if player_id is None or url is None:
+            return None
+        return await players_repository.photo(self.session, uuid.UUID(player_id))
 
     async def preview_page(self, kind: str, token: str) -> tuple[int, str]:
         """The tiny HTML page WhatsApp reads for a rich preview; it redirects into the app."""

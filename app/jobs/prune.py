@@ -27,7 +27,8 @@ def remove_images(cache_dir: Path, tokens: set[str]) -> int:
         return 0
     removed = 0
     for image in cache_dir.glob("*.png"):
-        if image.stem.rsplit("-", 1)[0] in tokens:
+        # Files are <token>.<rev>.<photos>.png and tokens never contain a dot.
+        if image.name.split(".", 1)[0] in tokens:
             image.unlink(missing_ok=True)
             removed += 1
     return removed

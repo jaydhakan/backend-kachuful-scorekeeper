@@ -21,6 +21,7 @@ class Limit:
 LOGIN = Limit("login", 10, 600)
 TOKEN = Limit("token", 30, 600)
 UPLOAD = Limit("upload", 120, 60)
+PLAYER_CHECK = Limit("check", 60, 60)
 
 
 async def enforce(limit: Limit, key: str) -> None:

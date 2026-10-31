@@ -6,7 +6,7 @@ from datetime import timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import Invite, User
+from app.db.models import Invite, Player, User
 from app.domain.time import now_utc
 from app.exceptions import ApiError, ErrorCode
 from app.logger import get_logger
@@ -29,7 +29,7 @@ from app.schemas.auth import (
 from app.schemas.players import NewPlayerIn
 from app.security.passwords import hash_password, is_valid_password, needs_rehash, verify_password
 from app.security.tokens import hash_token, new_token
-from app.services.players import PlayersService
+from app.services.players import PlayersService, email_taken
 from app.services.presenters import player_out, player_summary_out, user_out
 from app.settings import settings
 
@@ -121,7 +121,8 @@ class AuthService:
         view = None
         if user.player_id is not None:
             view = await players_repository.get_view(self.session, user.player_id)
-        return AuthOut(user=user_out(user), player=None if view is None else player_out(view))
+        player = None if view is None else player_out(view, user)
+        return AuthOut(user=user_out(user), player=player)
 
     async def login(self, body: LoginIn, user_agent: str | None) -> SignedIn:
         """Email + password. Same error for an unknown email and a wrong password."""
@@ -150,13 +151,16 @@ class AuthService:
         return invite
 
     async def invite_info(self, token: str) -> InviteInfoOut:
-        """Who an invite is for, and its pre-chosen player."""
+        """Who an invite is for, and their player: the pre-chosen one, else the one with this email."""
         invite = await self._usable_invite(token)
-        player = None
+        view = None
         if invite.player_id is not None:
             view = await players_repository.get_view(self.session, invite.player_id)
-            player = None if view is None else player_summary_out(view)
-        return InviteInfoOut(email=invite.email, player=player)
+        else:
+            view = await players_repository.unlinked_by_email(self.session, invite.email)
+        return InviteInfoOut(
+            email=invite.email, player=None if view is None else player_summary_out(view)
+        )
 
     async def accept_invite(
         self, token: str, body: AcceptInviteIn, user_agent: str | None
@@ -206,21 +210,32 @@ class AuthService:
                 fields={"player.id": "must be the invite's player"},
             )
         if isinstance(chosen, NewPlayerIn):
-            created = await PlayersService(self.session).create(chosen, created_by=created_by)
-            view = created.view
-        else:
-            found = await players_repository.get_view(self.session, chosen.id)
-            if found is None or found.player.merged_into is not None:
-                raise ApiError(
-                    422,
-                    ErrorCode.UNKNOWN_PLAYER,
-                    "No such player.",
-                    playerIds=[str(chosen.id)],
-                )
-            view = found
-        if view.linked_user_id is not None:
+            # A new player always gets the invite's email; a full match is never revealed here.
+            created = await PlayersService(self.session).create(
+                chosen, created_by=created_by, email=invite.email, reveal_match=False
+            )
+            return created.view
+        found = await players_repository.get_view(self.session, chosen.id)
+        if found is None or found.player.merged_into is not None:
+            raise ApiError(
+                422, ErrorCode.UNKNOWN_PLAYER, "No such player.", playerIds=[str(chosen.id)]
+            )
+        if found.linked_user_id is not None:
             raise ApiError(409, ErrorCode.PLAYER_LINKED, "That player already has an account.")
-        return view
+        await self._claim_email(found.player, invite)
+        return found
+
+    async def _claim_email(self, player: Player, invite: Invite) -> None:
+        """A claimed player gets the invite's email if it has none; another person's is refused."""
+        if player.email is None:
+            holder = await players_repository.get_active_by_email(self.session, invite.email)
+            if holder is not None and holder.id != player.id:
+                raise email_taken()
+            player.email = invite.email
+            await players_repository.touch(self.session, player)
+        elif player.email.lower() != invite.email.lower() and invite.player_id is None:
+            # Unless the admin chose this player for the invite, it must be the invitee's own.
+            raise email_taken()
 
     async def reset_info(self, token: str) -> ResetInfoOut:
         """Whose password a reset link is for."""

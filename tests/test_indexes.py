@@ -23,6 +23,10 @@ CASES = [
         "uq_players_name_key_active",
         "SELECT id FROM players WHERE name_key = 'riya' AND merged_into IS NULL",
     ),
+    (
+        "uq_players_email_active",
+        "SELECT id FROM players WHERE email = 'a@b.co' AND merged_into IS NULL",
+    ),
     ("ix_players_updated_at_id", "SELECT id FROM players ORDER BY updated_at, id LIMIT 50"),
     ("ix_players_name_key_trgm", "SELECT id FROM players WHERE name_key % 'riy'"),
     ("ix_games_updated_at_id", "SELECT id FROM games ORDER BY updated_at DESC, id DESC LIMIT 50"),

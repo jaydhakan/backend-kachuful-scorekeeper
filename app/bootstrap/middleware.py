@@ -1,5 +1,6 @@
 """Pure ASGI middleware (BaseHTTPMiddleware would buffer SSE streams)."""
 
+import re
 import time
 
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
@@ -10,6 +11,14 @@ from app.logger import get_logger
 logger = get_logger("app.access")
 
 MAX_BODY_BYTES = 1024 * 1024
+# Player photos may be up to 2 MB before they are re-encoded.
+PHOTO_BODY_BYTES = 2 * 1024 * 1024
+_PHOTO_PATH = re.compile(r"^/api/players/[^/]+/photo$")
+
+
+def body_limit(path: str) -> int:
+    """The largest request body accepted on a path."""
+    return PHOTO_BODY_BYTES if _PHOTO_PATH.match(path) else MAX_BODY_BYTES
 
 
 class BodyTooLargeError(Exception):
@@ -27,9 +36,10 @@ class BodySizeLimitMiddleware:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
+        limit = body_limit(scope["path"])
         length = dict(scope["headers"]).get(b"content-length")
-        if length is not None and length.isdigit() and int(length) > MAX_BODY_BYTES:
-            await send_error(send, 413, ErrorCode.TOO_LARGE, "Request body over 1 MB.")
+        if length is not None and length.isdigit() and int(length) > limit:
+            await send_error(send, 413, ErrorCode.TOO_LARGE, "Request body too large.")
             return
         received = 0
 
@@ -37,14 +47,14 @@ class BodySizeLimitMiddleware:
             nonlocal received
             message = await receive()
             received += len(message.get("body", b""))
-            if received > MAX_BODY_BYTES:
+            if received > limit:
                 raise BodyTooLargeError
             return message
 
         try:
             await self.app(scope, counting_receive, send)
         except BodyTooLargeError:
-            await send_error(send, 413, ErrorCode.TOO_LARGE, "Request body over 1 MB.")
+            await send_error(send, 413, ErrorCode.TOO_LARGE, "Request body too large.")
 
 
 class AccessLogMiddleware:

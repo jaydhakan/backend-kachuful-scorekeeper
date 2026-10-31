@@ -25,6 +25,7 @@ class CardRow:
     emoji: str
     name: str
     points: int
+    photo: bytes | None = None
 
 
 @cache
@@ -46,6 +47,18 @@ def _emoji(char: str, size: int) -> Image.Image:
     return tile.crop(box).resize((size, size), Image.Resampling.LANCZOS)
 
 
+def _avatar(row: CardRow, size: int) -> Image.Image:
+    """The player's photo in a circle, or their emoji."""
+    if row.photo is None:
+        return _emoji(row.emoji or "🙂", size)
+    with Image.open(io.BytesIO(row.photo)) as photo:
+        square = photo.convert("RGBA").resize((size, size), Image.Resampling.LANCZOS)
+    mask = Image.new("L", (size, size), 0)
+    ImageDraw.Draw(mask).ellipse((0, 0, size - 1, size - 1), fill=255)
+    square.putalpha(mask)
+    return square
+
+
 def render_recap(title: str, rows: list[CardRow], subtitle: str) -> bytes:
     """PNG bytes for a recap card."""
     image = Image.new("RGB", (WIDTH, HEIGHT), FELT)
@@ -59,8 +72,8 @@ def render_recap(title: str, rows: list[CardRow], subtitle: str) -> bytes:
         top = 240 + i * 92
         colour = GOLD if row.place == 1 else TEXT
         draw.text((90, top + 8), f"{row.place}", font=points_font, fill=MUTED)
-        emoji = _emoji(row.emoji or "🙂", 64)
-        image.paste(emoji, (150, top), emoji)
+        avatar = _avatar(row, 64)
+        image.paste(avatar, (150, top), avatar)
         draw.text((240, top + 4), row.name, font=name_font, fill=colour)
         score = f"{row.points:+d}" if row.points else "0"
         width = draw.textlength(score, font=points_font)

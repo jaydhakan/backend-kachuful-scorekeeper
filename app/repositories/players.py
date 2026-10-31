@@ -6,11 +6,12 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import Select, and_, func, or_, select, update
+from sqlalchemy import Select, and_, delete, func, or_, select, update
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
-from app.db.models import Player, User
+from app.db.models import Player, PlayerPhoto, User
 
 
 @dataclass(frozen=True)
@@ -20,6 +21,7 @@ class PlayerView:
     player: Player
     linked_user_id: uuid.UUID | None
     created_by_name: str
+    has_photo: bool = False
 
 
 _linked = aliased(User)
@@ -27,21 +29,27 @@ _creator = aliased(User)
 _creator_player = aliased(Player)
 
 
-def _view_query() -> Select[Player, uuid.UUID | None, str]:
+def _view_query() -> Select[Player, uuid.UUID | None, str, bool]:
+    # Joins only the photo's key: the image bytes are never loaded here.
     return (
         select(
             Player,
             _linked.id,
             func.coalesce(_creator_player.display_name, ""),
+            PlayerPhoto.player_id.is_not(None),
         )
         .outerjoin(_linked, _linked.player_id == Player.id)
         .outerjoin(_creator, _creator.id == Player.created_by)
         .outerjoin(_creator_player, _creator_player.id == _creator.player_id)
+        .outerjoin(PlayerPhoto, PlayerPhoto.player_id == Player.id)
     )
 
 
 def _to_views(rows: Sequence[Any]) -> list[PlayerView]:
-    return [PlayerView(player=r[0], linked_user_id=r[1], created_by_name=r[2]) for r in rows]
+    return [
+        PlayerView(player=r[0], linked_user_id=r[1], created_by_name=r[2], has_photo=bool(r[3]))
+        for r in rows
+    ]
 
 
 class PlayersRepository:
@@ -107,6 +115,67 @@ class PlayersRepository:
         """The unmerged player holding a name key."""
         stmt = select(Player).where(Player.name_key == key, Player.merged_into.is_(None))
         return (await session.execute(stmt)).scalar_one_or_none()
+
+    async def get_active_by_email(self, session: AsyncSession, email: str) -> Player | None:
+        """The unmerged player holding an email (case-insensitive)."""
+        stmt = select(Player).where(Player.email == email, Player.merged_into.is_(None))
+        return (await session.execute(stmt)).scalar_one_or_none()
+
+    async def unlinked_by_email(self, session: AsyncSession, email: str) -> PlayerView | None:
+        """The unmerged player with this email, if no account is linked to it."""
+        stmt = _view_query().where(
+            Player.email == email, Player.merged_into.is_(None), _linked.id.is_(None)
+        )
+        views = _to_views((await session.execute(stmt)).all())
+        return views[0] if views else None
+
+    async def photo(self, session: AsyncSession, player_id: uuid.UUID) -> bytes | None:
+        """A player's stored photo (WebP bytes)."""
+        stmt = select(PlayerPhoto.image).where(PlayerPhoto.player_id == player_id)
+        image: bytes | None = (await session.execute(stmt)).scalar_one_or_none()
+        return image
+
+    async def save_photo(self, session: AsyncSession, player_id: uuid.UUID, image: bytes) -> None:
+        """Insert or replace a player's photo."""
+        stmt = (
+            insert(PlayerPhoto)
+            .values(player_id=player_id, image=image)
+            .on_conflict_do_update(
+                index_elements=[PlayerPhoto.player_id],
+                set_={"image": image, "updated_at": func.now()},
+            )
+        )
+        await session.execute(stmt)
+
+    async def delete_photo(self, session: AsyncSession, player_id: uuid.UUID) -> bool:
+        """Remove a player's photo; False when there was none."""
+        stmt = (
+            delete(PlayerPhoto)
+            .where(PlayerPhoto.player_id == player_id)
+            .returning(PlayerPhoto.player_id)
+        )
+        return (await session.execute(stmt)).first() is not None
+
+    async def move_photo(
+        self, session: AsyncSession, from_id: uuid.UUID, into_id: uuid.UUID
+    ) -> None:
+        """Give `into_id` the photo of `from_id` (merge)."""
+        await session.execute(
+            update(PlayerPhoto).where(PlayerPhoto.player_id == from_id).values(player_id=into_id)
+        )
+
+    async def photo_revs(
+        self, session: AsyncSession, player_ids: Sequence[uuid.UUID]
+    ) -> dict[uuid.UUID, int]:
+        """photo_rev of the players that have a photo (one query)."""
+        if not player_ids:
+            return {}
+        stmt = (
+            select(Player.id, Player.photo_rev)
+            .join(PlayerPhoto, PlayerPhoto.player_id == Player.id)
+            .where(Player.id.in_(set(player_ids)))
+        )
+        return {row.id: row.photo_rev for row in (await session.execute(stmt)).all()}
 
     async def create(self, session: AsyncSession, player: Player) -> Player:
         """Insert a player (the caller has checked the name)."""

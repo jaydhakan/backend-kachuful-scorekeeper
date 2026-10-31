@@ -3,18 +3,18 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, Query, Response
+from fastapi import APIRouter, Depends, Path, Query, Request, Response
 
 from app.api.deps import CurrentAuth, get_boards_service, get_players_service
 from app.api.etag import IfNoneMatch, respond
 from app.schemas.boards import CalendarOut, HeadToHeadOut, PlayerPageOut, PlayerStatsOut
 from app.schemas.common import Page
 from app.schemas.games import GameSummaryOut
-from app.schemas.players import NameCheckOut, NewPlayerIn, PlayerOut, PlayerPatchIn
+from app.schemas.players import NewPlayerIn, PhotoOut, PlayerCheckOut, PlayerOut, PlayerPatchIn
+from app.security import rate_limit
 from app.services.boards import ALL_TIME_TO, BoardsService
 from app.services.pagination import DEFAULT_LIMIT, MAX_LIMIT
 from app.services.players import PlayersService
-from app.services.presenters import player_out
 
 _PlayersServiceDep = Annotated[PlayersService, Depends(get_players_service)]
 _PlayerId = Annotated[uuid.UUID, Path(description="Registry player id")]
@@ -27,35 +27,39 @@ players_router = APIRouter(prefix="/players", tags=["Players"])
 
 @players_router.get("", response_model=Page[PlayerOut])
 async def list_players(
-    _: CurrentAuth,
+    ctx: CurrentAuth,
     service: _PlayersServiceDep,
     updated_since: Annotated[int | None, Query(alias="updatedSince", ge=0)] = None,
     cursor: Annotated[str | None, Query(max_length=200)] = None,
     limit: Annotated[int, Query(ge=1, le=MAX_LIMIT)] = DEFAULT_LIMIT,
 ) -> Page[PlayerOut]:
     """The whole registry in sync order (oldest change first), merged players included."""
-    return await service.list_page(updated_since=updated_since, cursor=cursor, limit=limit)
+    return await service.list_page(
+        updated_since=updated_since, cursor=cursor, limit=limit, viewer=ctx.user
+    )
 
 
-@players_router.get("/check", response_model=NameCheckOut)
-async def check_name(
-    _: CurrentAuth,
+@players_router.get("/check", response_model=PlayerCheckOut)
+async def check_player(
+    ctx: CurrentAuth,
     service: _PlayersServiceDep,
     name: Annotated[str, Query(min_length=1, max_length=100)],
-) -> NameCheckOut:
-    """Whether a display name is free (case and extra spaces ignored)."""
-    return await service.check(name)
+    email: Annotated[str, Query(min_length=1, max_length=254)],
+) -> PlayerCheckOut:
+    """Is this person already a player? Only a full name + email match names the player."""
+    await rate_limit.enforce(rate_limit.PLAYER_CHECK, f"user:{ctx.user.id}")
+    return await service.check(name, email)
 
 
 @players_router.post("", response_model=PlayerOut, status_code=201)
 async def create_player(
     body: NewPlayerIn, ctx: CurrentAuth, service: _PlayersServiceDep, response: Response
 ) -> PlayerOut:
-    """Add a player. The same id and body again answers 200 with the stored player."""
-    result = await service.create_and_commit(body, ctx.user)
-    if not result.created:
+    """Add a player (email required). The same id and body again answers 200."""
+    player, created = await service.create_and_commit(body, ctx.user)
+    if not created:
         response.status_code = 200
-    return player_out(result.view)
+    return player
 
 
 @players_router.patch("/{player_id}", response_model=PlayerOut)
@@ -136,3 +140,31 @@ async def get_head_to_head(
     """Two players over the games they both finished."""
     cached = await service.head_to_head(a, b, range_from, range_to, if_none_match)
     return respond(cached, response)
+
+
+@players_router.put("/{player_id}/photo", response_model=PhotoOut)
+async def put_player_photo(
+    player_id: _PlayerId, request: Request, ctx: CurrentAuth, service: _PlayersServiceDep
+) -> PhotoOut:
+    """Raw WebP/JPEG/PNG bytes (at most 2 MB); stored as a 256x256 WebP without metadata."""
+    data = await request.body()
+    return await service.set_photo(player_id, data, request.headers.get("content-type"), ctx.user)
+
+
+@players_router.delete("/{player_id}/photo", status_code=204)
+async def delete_player_photo(
+    player_id: _PlayerId, ctx: CurrentAuth, service: _PlayersServiceDep
+) -> None:
+    """Remove the photo; the player shows the emoji again."""
+    await service.delete_photo(player_id, ctx.user)
+
+
+@players_router.get("/{player_id}/photo", response_model=None, response_class=Response)
+async def get_player_photo(player_id: _PlayerId, service: _PlayersServiceDep) -> Response:
+    """Public (shared links show photos). Each version has its own URL, so it caches forever."""
+    image = await service.photo(player_id)
+    return Response(
+        image,
+        media_type="image/webp",
+        headers={"Cache-Control": "public, max-age=31536000, immutable"},
+    )

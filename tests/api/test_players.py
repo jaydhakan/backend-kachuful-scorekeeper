@@ -44,6 +44,8 @@ async def test_create_player_returns_201_with_the_creator(
     player = response.json()
     assert player["id"] == body["id"]
     assert player["displayName"] == "Neha K"
+    assert player["email"] == body["email"]
+    assert player["photoUrl"] is None
     assert player["firstName"] == "Neha"
     assert player["createdBy"] == str(user.id)
     assert player["linkedUserId"] is None
@@ -76,18 +78,18 @@ async def test_create_player_with_a_used_id_and_other_body_returns_id_conflict(
     assert response.json()["code"] == "id_conflict"
 
 
-async def test_create_player_with_a_taken_name_returns_name_taken(
+async def test_create_player_with_a_taken_name_returns_name_taken_without_details(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     await _member(client, session)
-    riya = await make_player(session, name="Riya")
+    riya = await make_player(session, name="Riya", email="riya@example.com")
 
     response = await client.post("/api/players", json=new_player_body("RIYA "))
 
     assert response.status_code == 409
     assert response.json()["code"] == "name_taken"
-    assert response.json()["existing"]["id"] == str(riya.id)
-    assert response.json()["existing"]["games"] == 0
+    assert set(response.json()) == {"code", "message"}
+    assert str(riya.id) not in response.text
 
 
 @pytest.mark.parametrize("name", ["", "   ", "x" * 15])
@@ -100,20 +102,6 @@ async def test_create_player_with_a_bad_name_returns_invalid(
 
     assert response.status_code == 422
     assert response.json()["code"] == "invalid"
-
-
-async def test_check_name_reports_free_and_taken_names(
-    client: httpx.AsyncClient, session: AsyncSession
-) -> None:
-    await _member(client, session)
-    riya = await make_player(session, name="Riya")
-
-    taken = await client.get("/api/players/check", params={"name": " riya"})
-    free = await client.get("/api/players/check", params={"name": "Zoya"})
-
-    assert taken.json()["available"] is False
-    assert taken.json()["existing"]["id"] == str(riya.id)
-    assert free.json() == {"available": True, "existing": None}
 
 
 async def test_list_players_pages_in_sync_order_with_cursor(

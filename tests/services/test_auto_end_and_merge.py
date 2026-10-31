@@ -82,7 +82,8 @@ async def test_merge_moves_games_rounds_and_days_to_the_kept_player(
     keep = await make_player(session, name="Keep")
     payload = await _upload(session, owner, [dupe, *others], hours_ago=2)
 
-    await MergeService(session).merge(dupe.id, keep.id)
+    admin = await make_user(session, email="admin@example.com", role="admin", player_name="Adm")
+    await MergeService(session).merge(dupe.id, keep.id, admin)
 
     row = await session.get(Game, uuid.UUID(str(payload["syncId"])), populate_existing=True)
     assert row is not None
@@ -104,6 +105,6 @@ async def test_merge_of_players_from_the_same_table_is_refused(session: AsyncSes
     await _upload(session, owner, players, hours_ago=2)
 
     with pytest.raises(ApiError) as caught:
-        await MergeService(session).merge(players[0].id, players[1].id)
+        await MergeService(session).merge(players[0].id, players[1].id, owner)
 
     assert caught.value.status == 422

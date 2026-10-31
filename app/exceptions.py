@@ -29,6 +29,8 @@ class ErrorCode(StrEnum):
     INACTIVE = "inactive"
     WEAK_PASSWORD = "weak_password"  # noqa: S105 - an error code, not a password
     NAME_TAKEN = "name_taken"
+    EMAIL_TAKEN = "email_taken"
+    SAME_PLAYER = "same_player"
     PLAYER_LINKED = "player_linked"
     USER_EXISTS = "user_exists"
     LAST_ADMIN = "last_admin"
@@ -38,6 +40,7 @@ class ErrorCode(StrEnum):
     UNKNOWN_PLAYER = "unknown_player"
     INVALID_GAME = "invalid_game"
     TOO_LARGE = "too_large"
+    UNSUPPORTED_MEDIA_TYPE = "unsupported_media_type"
     METHOD_NOT_ALLOWED = "method_not_allowed"
     INTERNAL = "internal"
 
@@ -80,6 +83,7 @@ _STATUS_CODES = {
     404: ErrorCode.NOT_FOUND,
     405: ErrorCode.METHOD_NOT_ALLOWED,
     413: ErrorCode.TOO_LARGE,
+    415: ErrorCode.UNSUPPORTED_MEDIA_TYPE,
 }
 
 

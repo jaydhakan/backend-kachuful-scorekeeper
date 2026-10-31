@@ -242,7 +242,7 @@ async def test_accept_invite_for_a_linked_player_returns_player_linked(
     assert response.json()["code"] == "player_linked"
 
 
-async def test_accept_invite_with_a_taken_name_returns_name_taken_with_the_holder(
+async def test_accept_invite_with_a_taken_name_returns_name_taken_without_details(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     holder = await make_player(session, name="Riya")
@@ -255,7 +255,8 @@ async def test_accept_invite_with_a_taken_name_returns_name_taken_with_the_holde
 
     assert response.status_code == 409
     assert response.json()["code"] == "name_taken"
-    assert response.json()["existing"]["id"] == str(holder.id)
+    assert "existing" not in response.json()
+    assert str(holder.id) not in response.text
 
 
 async def test_accept_invite_with_an_unknown_player_returns_unknown_player(
