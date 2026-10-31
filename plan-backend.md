@@ -190,7 +190,7 @@ rate_limits      key text, window_start timestamptz, count int, PRIMARY KEY (key
 | 2026-10-31 | `PUT /api/games/{id}` on a deleted game → `410 gone`. `GET /api/games?updatedSince=` also returns tombstones `{id, deleted: true, updatedAt}` for games deleted since then.        |
 | 2026-10-31 | New codes: `409 last_admin`, `409 id_conflict` (`POST /api/players`, same id with a different body), `422 invalid_game {reason: "id"}` (path id ≠ payload id).                    |
 | 2026-10-31 | Defined: `invalid.fields` is `{"<camelCaseField>": "message"}`; `retryAfter` is in seconds; `accuracy` and `winRate` are fractions 0–1; `DELETE /api/admin/invites/{email}` is `204` even when none is pending; `createdByName` and `owner.name` are the user's linked player's display name; registry display names are 1–14 characters (same as in a game). |
-| 2026-10-31 | §8.3 career repeat rules (see there).                                                                                                                                              |
+| 2026-10-31 | §8.3 career repeat rules: as the app's engine and golden fixtures (see there). Game id = the app's `syncId` (else `id`). |                                                                                                                                              |
 
 General rules:
 
@@ -425,11 +425,12 @@ The app shows the same catalogue live during play (from its own TypeScript engin
 | `crew_10` `crew_25`                  | 👥 Crew                                     | Shared a table with 10 / 25 different players           |
 | `rivalry_20`                         | ⚔️ Rivalry                                  | 20 games with the same other player (`data.with`)       |
 
-Repeat rules (approved 2026-10-31; golden fixtures override if the app differs):
+Repeat rules (approved 2026-10-31; updated the same day to the app's engine, which the golden fixtures prove):
 
-- **Repeatable streaks** (`back_to_back`, `hat_trick`, `dynasty`, `spoon_collector`, `podium_regular`, `personal_best`) store the `game_id` of the game that completed them, so each new streak or best earns again.
-- **Milestones** (`first_win`, `games_*`, `rounds_*`, `made_*`, `points_*`, `crew_*`) are earned once per player (`game_id` and `period` null).
-- **`rivalry_20`** is earned once per rival: the rival's player id goes in `period` (and in `data.with`).
+- **Every career row carries the `game_id` where it was earned**; `rounds_*`, `made_*` and `points_*` also carry the `round_index` of the round that crossed the line.
+- **Repeatable streaks** (`back_to_back`, `hat_trick`, `dynasty`, `spoon_collector`, `podium_regular`) and `personal_best` earn again on each new streak or best.
+- **Milestones** (`first_win`, `games_*`, `rounds_*`, `made_*`, `points_*`, `crew_*`) are earned once per player.
+- **`rivalry_20`** is earned once per rival (`data.with`), on the game where the pair reaches 20; when two rivalries reach 20 in one game, only the alphabetically first earns that game.
 
 ### 8.4 Daily awards (per `APP_TZ` day; `period = 'YYYY-MM-DD'`; provisional until the day closes)
 
