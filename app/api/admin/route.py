@@ -5,18 +5,22 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path
 
-from app.api.deps import AdminAuth, get_admin_service
+from app.api.deps import AdminAuth, get_admin_service, get_merge_service
 from app.schemas.admin import (
     AdminUserRow,
     CreateInviteIn,
     InviteLinkOut,
+    MergeIn,
+    PlayerEnvelopeOut,
     ResetLinkOut,
     UpdateUserIn,
     UserEnvelopeOut,
 )
 from app.services.admin import AdminService
+from app.services.merge import MergeService
 
 _AdminServiceDep = Annotated[AdminService, Depends(get_admin_service)]
+_MergeServiceDep = Annotated[MergeService, Depends(get_merge_service)]
 _UserId = Annotated[uuid.UUID, Path(description="User id")]
 
 admin_router = APIRouter(prefix="/admin", tags=["Admin"])
@@ -58,3 +62,14 @@ async def update_user(
 ) -> UserEnvelopeOut:
     """Switch an account on or off."""
     return await service.update_user(user_id, body)
+
+
+@admin_router.post("/players/{player_id}/merge", response_model=PlayerEnvelopeOut)
+async def merge_player(
+    player_id: Annotated[uuid.UUID, Path(description="The player that goes away")],
+    body: MergeIn,
+    _: AdminAuth,
+    service: _MergeServiceDep,
+) -> PlayerEnvelopeOut:
+    """Merge a duplicate player into another; every game and badge moves with it."""
+    return await service.merge(player_id, body.into_id)

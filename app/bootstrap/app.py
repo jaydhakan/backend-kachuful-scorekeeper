@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from app.api.admin import admin_router
 from app.api.auth import auth_router, me_router
 from app.api.core import core_router
+from app.api.players import players_router
 from app.bootstrap.lifespan import lifespan
 from app.bootstrap.middleware import AccessLogMiddleware, BodySizeLimitMiddleware
 from app.exceptions import register_exception_handlers
@@ -28,7 +29,7 @@ def create_app() -> FastAPI:
     app.add_middleware(CsrfMiddleware)
     app.add_middleware(BodySizeLimitMiddleware)
     app.add_middleware(AccessLogMiddleware)
-    for router in (core_router, auth_router, me_router, admin_router):
+    for router in (core_router, auth_router, me_router, admin_router, players_router):
         app.include_router(router, prefix="/api")
     return app
 

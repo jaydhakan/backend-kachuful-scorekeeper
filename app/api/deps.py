@@ -12,6 +12,7 @@ from app.security.cookies import SESSION_COOKIE, set_session_cookie
 from app.services.admin import AdminService
 from app.services.auth import AuthContext, AuthService
 from app.services.core import CoreService
+from app.services.merge import MergeService
 from app.services.players import PlayersService
 
 
@@ -88,3 +89,8 @@ def get_admin_service(session: SessionDep) -> AdminService:
 def get_players_service(session: SessionDep) -> PlayersService:
     """PlayersService for a request."""
     return PlayersService(session)
+
+
+def get_merge_service(session: SessionDep) -> MergeService:
+    """MergeService for a request."""
+    return MergeService(session)
