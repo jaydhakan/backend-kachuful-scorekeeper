@@ -7,7 +7,9 @@ from app.api.auth import auth_router, me_router
 from app.api.boards import boards_router
 from app.api.core import core_router
 from app.api.games import games_router
+from app.api.pages import pages_router
 from app.api.players import players_router
+from app.api.public import public_router
 from app.bootstrap.lifespan import lifespan
 from app.bootstrap.middleware import AccessLogMiddleware, BodySizeLimitMiddleware
 from app.exceptions import register_exception_handlers
@@ -39,8 +41,10 @@ def create_app() -> FastAPI:
         players_router,
         games_router,
         boards_router,
+        public_router,
     ):
         app.include_router(router, prefix="/api")
+    app.include_router(pages_router)
     return app
 
 

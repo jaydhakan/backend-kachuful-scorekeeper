@@ -14,7 +14,8 @@ _Work in progress. Updated at the end of every backend milestone; complete at B1
 | B5 boards | done (SQL leaderboards equal the app for every metric and range) |
 | B6 achievements | done (stored rows equal the app's full set) |
 | B7 daily, seasons, Wrapped | done (daily and season awards equal the app) |
-| B8–B10 | not started |
+| B8 live + recap | done (SSE tested on a real server) |
+| B9–B10 | not started |
 
 ## Endpoints so far
 
@@ -57,3 +58,11 @@ _Work in progress. Updated at the end of every backend milestone; complete at B1
 | `GET /api/seasons` | done, tested |
 | `GET /api/seasons/{yyyy-mm}` | done, tested (closed seasons: immutable cache) |
 | `GET /api/wrapped/{year}/{playerId}` | done, tested |
+| `POST /api/games/{id}/links` | done, tested |
+| `DELETE /api/games/{id}/links/{kind}` | done, tested |
+| `GET /api/games/{id}/links/{kind}/qr.svg` | done, tested |
+| `GET /api/public/live/{token}` | done, tested |
+| `GET /api/public/live/{token}/events` | done, tested (SSE) |
+| `GET /api/public/recap/{token}` | done, tested |
+| `GET /api/public/recap/{token}/og.png` | done, tested |
+| `GET /r/{token}`, `GET /l/{token}` | done, tested |
