@@ -33,7 +33,8 @@ app/
   api/                one package per resource: core (health), auth, admin, players, games, boards,
                       public, pages; each `__init__.py` exports `<resource>_router`
   schemas/            Pydantic request/response models, one module per resource
-  services/           one module per resource: `<Resource>Service` + `get_<resource>_service()`
+  services/           one module per resource: `<Resource>Service(session)`; no FastAPI imports
+  api/deps.py         request session (`SessionDep`), auth dependencies, `get_<resource>_service()` factories
   repositories/       one module per aggregate: `<Aggregate>Repository` + module-level singleton,
                       both exported from `repositories/__init__.py`
   domain/             rules, validate, derive, stats, leaderboard, achievements, awards, seasons,
@@ -160,6 +161,7 @@ logger = get_logger(__name__)
 - Contract: if §6 is wrong or missing something, stop and tell Jay; never change it silently. Approved changes go in `HANDOFF.md` with their date.
 - Touch only the files a change needs and mirror existing patterns. If a change touches more than ~3 files, outline the plan first.
 - `HANDOFF.md` is updated at the end of every milestone (plan §16).
+- **Progress:** after every milestone, tell Jay where the build stands as a percentage, using these weights (cumulative): B0 5% · B1 15% · B2 23% · B3 33% · B4 45% · B5 59% · B6 71% · B7 80% · B8 90% · B9 96% · B10 100%.
 - Jay deploys. `DEPLOY.md` is his step-by-step runbook (GitHub secrets and variables, CD workflow, VPS setup, Postgres, systemd, nginx, Cloudflare DNS, staging and production); keep it in step with `deploy/` and the workflows.
 
 ## Pre-Submit Checklist

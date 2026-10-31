@@ -1,0 +1,87 @@
+[project]
+name = "kachuful-api"
+version = "0.1.0"
+description = "Backend for the Kachuful scorekeeper PWA: accounts, sync, registry, boards, achievements, live and recap links."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "alembic>=1.20.1",
+    "argon2-cffi>=25.1.0",
+    "asyncpg>=0.32.0",
+    "fastapi>=0.162.0",
+    "pillow>=13.0.0",
+    "pydantic>=2.14.2",
+    "python-dotenv>=1.2.4",
+    "segno>=1.6.6",
+    "sqlalchemy[asyncio]>=2.1.6",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = [
+    "anyio>=4.15.1",
+    "httpx>=0.28.1",
+    "hypothesis>=6.170.14",
+    "mypy>=2.4.1",
+    "pytest>=9.2.0",
+    "ruff>=0.17.3",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["alembic/versions/_template"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F",  # pycodestyle, pyflakes
+    "I",            # import sorting
+    "UP",           # modern Python syntax
+    "B",            # bugbear: likely bugs
+    "SIM",          # simplifications
+    "C4",           # comprehensions
+    "ASYNC",        # blocking calls in async code
+    "BLE",          # blind `except Exception`
+    "G", "LOG",     # logging misuse
+    "T20",          # stray print()
+    "RUF",          # Ruff-specific
+    "N",            # pep8 naming
+    "S",            # security
+    "DTZ",          # naive datetimes
+]
+ignore = ["E501", "S101"]
+
+[tool.ruff.lint.isort]
+# The local alembic/ folder would otherwise make the package look first-party.
+known-third-party = ["alembic"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S105", "S106", "S311"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's `param = Depends(...)` defaults are intentional (B008).
+extend-immutable-calls = [
+    "fastapi.Depends", "fastapi.Query", "fastapi.Path",
+    "fastapi.Body", "fastapi.Header", "fastapi.Cookie",
+]
+
+[tool.mypy]
+strict = true
+python_version = "3.12"
+plugins = ["pydantic.mypy"]
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["segno.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers -m 'not perf'"
+markers = [
+    "perf: performance budgets (plan §15); run with -m perf against the load dataset",
+]
+filterwarnings = ["error::DeprecationWarning:app.*"]
