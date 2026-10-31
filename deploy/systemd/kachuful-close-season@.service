@@ -1,0 +1,14 @@
+# kachuful-close-season@staging / kachuful-close-season@production: freeze last month's season
+[Unit]
+Description=Kachuful close-season (%i)
+After=network-online.target postgresql.service
+
+[Service]
+Type=oneshot
+User=deploy
+Group=deploy
+WorkingDirectory=/srv/kachuful/%i/current
+EnvironmentFile=/srv/kachuful/%i/shared/env
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+ExecStart=/srv/kachuful/%i/current/.venv/bin/python -m app.cli close-season
+NoNewPrivileges=true

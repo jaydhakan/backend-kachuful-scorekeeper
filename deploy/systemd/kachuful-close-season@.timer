@@ -1,0 +1,10 @@
+[Unit]
+Description=Run kachuful-close-season (%i): freeze last month's season
+
+[Timer]
+OnCalendar=*-*-01 00:10:00 Asia/Kolkata
+Persistent=true
+RandomizedDelaySec=30
+
+[Install]
+WantedBy=timers.target
