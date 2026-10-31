@@ -3,16 +3,18 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, Response
+from fastapi import APIRouter, Depends, Path, Query, Response
 
 from app.api.deps import CurrentAuth, SessionDep, get_boards_service
 from app.api.etag import IfNoneMatch, respond
 from app.domain.leaderboard import Metric
+from app.schemas.awards import DailyAwardsOut, SeasonListItemOut, SeasonOut, WrappedOut
 from app.schemas.boards import ActivityItemOut, BootstrapOut, LeaderboardOut
 from app.schemas.common import Page
 from app.schemas.games import AchievementOut
 from app.services.achievements_read import achievements_page
 from app.services.activity import ActivityService
+from app.services.awards import AwardsService
 from app.services.boards import ALL_TIME_TO, BoardsService
 from app.services.pagination import DEFAULT_LIMIT, MAX_LIMIT
 
@@ -75,3 +77,50 @@ async def list_activity(
 ) -> Page[ActivityItemOut]:
     """The feed: achievements, finished games, closed seasons and new players."""
     return await ActivityService(session).page(cursor, limit)
+
+
+@boards_router.get("/awards/daily", response_model=DailyAwardsOut)
+async def get_daily_awards(
+    _: CurrentAuth,
+    session: SessionDep,
+    response: Response,
+    day: Annotated[str, Query(alias="date", min_length=10, max_length=10)],
+    if_none_match: IfNoneMatch = None,
+) -> DailyAwardsOut | Response:
+    """A day's awards (APP_TZ day). Provisional until the day is closed; then cached forever."""
+    cached, final = await AwardsService(session).daily(day, if_none_match)
+    return respond(cached, response, immutable=final)
+
+
+@boards_router.get("/seasons", response_model=list[SeasonListItemOut])
+async def list_seasons(
+    _: CurrentAuth, session: SessionDep, response: Response, if_none_match: IfNoneMatch = None
+) -> list[SeasonListItemOut] | Response:
+    """Every month since the first game, newest first, with its champion."""
+    return respond(await AwardsService(session).seasons(if_none_match), response)
+
+
+@boards_router.get("/seasons/{season}", response_model=SeasonOut)
+async def get_season(
+    season: Annotated[str, Path(pattern=r"^\d{4}-\d{2}$", description="YYYY-MM")],
+    _: CurrentAuth,
+    session: SessionDep,
+    response: Response,
+    if_none_match: IfNoneMatch = None,
+) -> SeasonOut | Response:
+    """A month's standings and awards; live during the month, frozen once closed."""
+    cached, final = await AwardsService(session).season(season, if_none_match)
+    return respond(cached, response, immutable=final)
+
+
+@boards_router.get("/wrapped/{year}/{player_id}", response_model=WrappedOut)
+async def get_wrapped(
+    year: Annotated[int, Path(ge=2000, le=2099)],
+    player_id: Annotated[uuid.UUID, Path(description="Registry player id")],
+    _: CurrentAuth,
+    session: SessionDep,
+    response: Response,
+    if_none_match: IfNoneMatch = None,
+) -> WrappedOut | Response:
+    """A player's year as plain data (the app animates it as story slides)."""
+    return respond(await AwardsService(session).wrapped(year, player_id, if_none_match), response)

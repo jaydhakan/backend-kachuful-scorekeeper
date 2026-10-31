@@ -1,12 +1,38 @@
 """Daily awards and season awards (plan §8.4-8.5; app: src/domain/awards.ts)."""
 
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
+from typing import Protocol
 
-from app.domain.derive import RoundFact
 from app.domain.leaderboard import Board, Tally, accuracy_of
 
 SEASON_MIN_ROUNDS = 50
+
+
+class ScoredRound(Protocol):
+    """What daily awards read from a round (RoundFact and stored rows both fit)."""
+
+    @property
+    def player_id(self) -> str: ...
+    @property
+    def game_id(self) -> str: ...
+    @property
+    def round_index(self) -> int: ...
+    @property
+    def done_at(self) -> int: ...
+    @property
+    def points(self) -> int: ...
+
+
+@dataclass(frozen=True)
+class DayRound:
+    """A stored round, as daily awards need it."""
+
+    player_id: str
+    game_id: str
+    round_index: int
+    done_at: int
+    points: int
 
 
 @dataclass(frozen=True)
@@ -35,9 +61,9 @@ def _best(
     return sorted((Award(code, pid, top) for pid, v in good if v == top), key=lambda a: a.player_id)
 
 
-def _best_round(rounds: list[RoundFact], code: str, *, lowest: bool) -> list[Award]:
+def _best_round(rounds: Sequence[ScoredRound], code: str, *, lowest: bool) -> list[Award]:
     """The single best round; the earliest (then player id) wins a tie."""
-    winner: RoundFact | None = None
+    winner: ScoredRound | None = None
     for r in sorted(rounds, key=lambda r: (r.done_at, r.player_id)):
         if winner is None or (r.points < winner.points if lowest else r.points > winner.points):
             winner = r
@@ -46,7 +72,7 @@ def _best_round(rounds: list[RoundFact], code: str, *, lowest: bool) -> list[Awa
     return [Award(code, winner.player_id, winner.points, winner.game_id, winner.round_index)]
 
 
-def daily_awards(rounds: list[RoundFact], tallies: Iterable[Tally]) -> list[Award]:
+def daily_awards(rounds: Sequence[ScoredRound], tallies: Iterable[Tally]) -> list[Award]:
     """§8.4 from the day's rounds and each player's tally for the day."""
     if not rounds:
         return []

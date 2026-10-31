@@ -13,7 +13,8 @@ _Work in progress. Updated at the end of every backend milestone; complete at B1
 | B4 domain port + derived tables | done (all golden fixtures pass) |
 | B5 boards | done (SQL leaderboards equal the app for every metric and range) |
 | B6 achievements | done (stored rows equal the app's full set) |
-| B7–B10 | not started |
+| B7 daily, seasons, Wrapped | done (daily and season awards equal the app) |
+| B8–B10 | not started |
 
 ## Endpoints so far
 
@@ -52,3 +53,7 @@ _Work in progress. Updated at the end of every backend milestone; complete at B1
 | `GET /api/players/{a}/vs/{b}` | done, tested |
 | `GET /api/achievements` | done, tested |
 | `GET /api/activity` | done, tested |
+| `GET /api/awards/daily` | done, tested (closed days: immutable cache) |
+| `GET /api/seasons` | done, tested |
+| `GET /api/seasons/{yyyy-mm}` | done, tested (closed seasons: immutable cache) |
+| `GET /api/wrapped/{year}/{playerId}` | done, tested |

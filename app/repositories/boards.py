@@ -9,7 +9,9 @@ from typing import Any
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domain.awards import DayRound
 from app.domain.leaderboard import Tally, merge_tallies
+from app.domain.time import to_ms
 
 # One round trip: four parts per player, merged in Python. {filter} is a constant clause.
 _TALLY_SQL = """
@@ -265,6 +267,94 @@ class BoardsRepository:
             },
         )
         return [(row[0], row[1]) for row in rows]
+
+    async def day_rounds(self, session: AsyncSession, window: Window) -> list[DayRound]:
+        """Every round done in a window (daily awards; uses the done_at index)."""
+        stmt = text(
+            "SELECT player_id, game_id, round_index, done_at, points FROM round_scores "
+            "WHERE done_at >= :range_from AND done_at < :range_to"
+        )
+        rows = await session.execute(
+            stmt, {"range_from": window.range_from, "range_to": window.range_to}
+        )
+        return [
+            DayRound(str(p), str(g), int(i), to_ms(at), int(points)) for p, g, i, at, points in rows
+        ]
+
+    async def player_days(
+        self, session: AsyncSession, player_id: uuid.UUID, start: date, end: date
+    ) -> list[tuple[date, int, int]]:
+        """(day, points, rounds) per played day, in day order."""
+        stmt = text(
+            "SELECT day, points, rounds FROM player_day "
+            "WHERE player_id = :player_id AND day >= :start AND day < :end AND rounds > 0 "
+            "ORDER BY day"
+        )
+        rows = await session.execute(stmt, {"player_id": player_id, "start": start, "end": end})
+        return [(d, int(points), int(rounds)) for d, points, rounds in rows]
+
+    async def opponents(
+        self, session: AsyncSession, player_id: uuid.UUID, window: Window
+    ) -> list[tuple[uuid.UUID, int, int]]:
+        """(other player, games together, times they finished above) over ended games."""
+        stmt = text(
+            """
+            SELECT o.player_id, count(*), count(*) FILTER (WHERE o.place < me.place)
+            FROM game_players me
+            JOIN game_players o ON o.game_id = me.game_id AND o.player_id <> me.player_id
+            WHERE me.player_id = :player_id AND me.place IS NOT NULL AND o.place IS NOT NULL
+              AND me.ended_at >= :range_from AND me.ended_at < :range_to
+            GROUP BY o.player_id
+            ORDER BY o.player_id
+            """
+        )
+        rows = await session.execute(
+            stmt,
+            {"player_id": player_id, "range_from": window.range_from, "range_to": window.range_to},
+        )
+        return [(p, int(together), int(losses)) for p, together, losses in rows]
+
+    async def biggest_round(
+        self, session: AsyncSession, player_id: uuid.UUID, window: Window
+    ) -> tuple[int, uuid.UUID, int] | None:
+        """(points, game, round) of the best round in a window; the earliest wins a tie."""
+        stmt = text(
+            "SELECT points, game_id, round_index FROM round_scores "
+            "WHERE player_id = :player_id AND done_at >= :range_from AND done_at < :range_to "
+            "ORDER BY points DESC, done_at, game_id, round_index LIMIT 1"
+        )
+        row = (
+            await session.execute(
+                stmt,
+                {
+                    "player_id": player_id,
+                    "range_from": window.range_from,
+                    "range_to": window.range_to,
+                },
+            )
+        ).first()
+        return None if row is None else (int(row[0]), row[1], int(row[2]))
+
+    async def achievements_earned(
+        self, session: AsyncSession, player_id: uuid.UUID, window: Window
+    ) -> int:
+        """Round, game and career achievements earned in a window (not awards)."""
+        stmt = text(
+            "SELECT count(*) FROM achievements WHERE player_id = :player_id AND period IS NULL "
+            "AND earned_at >= :range_from AND earned_at < :range_to"
+        )
+        params = {
+            "player_id": player_id,
+            "range_from": window.range_from,
+            "range_to": window.range_to,
+        }
+        return int((await session.execute(stmt, params)).scalar_one())
+
+    async def first_played_day(self, session: AsyncSession) -> date | None:
+        """The earliest day anyone played."""
+        result = await session.execute(text("SELECT min(day) FROM player_day"))
+        first: date | None = result.scalar_one()
+        return first
 
 
 boards_repository = BoardsRepository()

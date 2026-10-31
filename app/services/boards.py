@@ -121,9 +121,10 @@ class BoardsService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def _cached[T](
+    async def cached[T](
         self, if_none_match: str | None, key: tuple[object, ...], build: Callable[[], Awaitable[T]]
     ) -> Cached[T]:
+        """A body keyed by the data version: 304 when current, else from the cache or `build`."""
         data_version = await app_state_repository.data_version(self.session)
         etag = etag_for(data_version, *key)
         if etag_matches(if_none_match, etag):
@@ -182,7 +183,7 @@ class BoardsService:
         """`GET /api/leaderboard`."""
         start, end = check_range(range_from, range_to)
         build = partial(self._leaderboard_body, start, end, metric, min_rounds)
-        return await self._cached(if_none_match, ("board", start, end, metric, min_rounds), build)
+        return await self.cached(if_none_match, ("board", start, end, metric, min_rounds), build)
 
     async def _leaderboard_body(
         self, start: int, end: int, metric: Metric, min_rounds: int | None
@@ -224,7 +225,7 @@ class BoardsService:
         start, end = check_range(range_from, range_to)
         await self._view(player_id)
         build = partial(self.stats, player_id, start, end)
-        return await self._cached(if_none_match, ("stats", player_id, start, end), build)
+        return await self.cached(if_none_match, ("stats", player_id, start, end), build)
 
     async def player_page(
         self, player_id: uuid.UUID, if_none_match: str | None
@@ -232,7 +233,7 @@ class BoardsService:
         """`GET /api/players/{id}`: summary, all-time totals, achievements and global rank."""
         view = await self._view(player_id)
         build = partial(self._page_body, view)
-        return await self._cached(if_none_match, ("page", player_id), build)
+        return await self.cached(if_none_match, ("page", player_id), build)
 
     async def _page_body(self, view: PlayerView) -> PlayerPageOut:
         player_id = view.player.id
@@ -283,7 +284,7 @@ class BoardsService:
         """`GET /api/players/{id}/calendar`."""
         await self._view(player_id)
         build = partial(self._calendar_body, player_id, year)
-        return await self._cached(if_none_match, ("calendar", player_id, year), build)
+        return await self.cached(if_none_match, ("calendar", player_id, year), build)
 
     async def _calendar_body(self, player_id: uuid.UUID, year: int) -> CalendarOut:
         days = await boards_repository.calendar(
@@ -303,7 +304,7 @@ class BoardsService:
         start, end = check_range(range_from, range_to)
         view_a, view_b = await self._view(a), await self._view(b)
         build = partial(self._vs_body, view_a, view_b, make_window(start, end))
-        return await self._cached(if_none_match, ("vs", a, b, start, end), build)
+        return await self.cached(if_none_match, ("vs", a, b, start, end), build)
 
     async def _vs_body(
         self, view_a: PlayerView, view_b: PlayerView, window: Window

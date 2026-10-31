@@ -26,7 +26,7 @@ from app.settings import settings
 SEQUENCE_CODES = CAREER_CODES - ROUND_MILESTONE_CODES
 
 
-def _activity_rows(rows: Sequence[Achievement]) -> list[dict[str, Any]]:
+def activity_rows(rows: Sequence[Achievement]) -> list[dict[str, Any]]:
     return [
         {
             "kind": "achievement",
@@ -56,7 +56,7 @@ class AchievementsEngine:
         inserted = await achievements_repository.insert(
             self.session, [e for key, e in wanted.items() if key not in stored]
         )
-        await achievements_repository.add_activity(self.session, _activity_rows(inserted))
+        await achievements_repository.add_activity(self.session, activity_rows(inserted))
         return inserted
 
     async def game(
