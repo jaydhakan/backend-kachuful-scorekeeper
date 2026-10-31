@@ -27,12 +27,14 @@ from app.domain.rules import standings
 from app.domain.time import day_of, from_ms, now_utc, to_ms
 from app.domain.validate import validate
 from app.exceptions import ApiError, ErrorCode
+from app.live.hub import notify
 from app.logger import get_logger
 from app.repositories.achievements import achievements_repository
 from app.repositories.app_state import app_state_repository
 from app.repositories.derived import derived_repository
 from app.repositories.games import SummaryRow, games_repository
 from app.repositories.players import players_repository
+from app.repositories.share_links import share_links_repository
 from app.schemas.games import (
     GameDetailOut,
     GamePayloadIn,
@@ -349,6 +351,7 @@ class GamesService:
         elif was_ended and not ended:
             await achievements_repository.delete_activity(self.session, row.id, "game_finished")
         await app_state_repository.bump(self.session)
+        await notify(self.session, row.id, "game")
         return Stored(players=players, earned=earned)
 
     async def rederive(
@@ -443,6 +446,8 @@ class GamesService:
                 sequence_changed=row.ended_at is not None,
             )
         await achievements_repository.delete_activity(self.session, game_id, "game_finished")
+        await share_links_repository.revoke(self.session, game_id, ("live", "recap"))
+        await notify(self.session, game_id, "revoked")
         await app_state_repository.bump(self.session)
         await self.session.commit()
         logger.info("game deleted", extra={"game_id": str(game_id)})

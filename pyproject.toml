@@ -75,7 +75,7 @@ plugins = ["pydantic.mypy"]
 warn_unreachable = true
 
 [[tool.mypy.overrides]]
-module = ["segno.*"]
+module = ["segno.*", "asyncpg.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

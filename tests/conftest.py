@@ -1,7 +1,10 @@
 """Test harness: a real Postgres, one rolled-back transaction per test."""
 
+import asyncio
 import inspect
 import os
+import socket
+import tempfile
 from collections.abc import AsyncIterator, Iterator
 from pathlib import Path
 
@@ -14,8 +17,10 @@ os.environ["DATABASE_URL"] = os.environ.get(
     "TEST_DATABASE_URL", "postgresql+asyncpg://kachuful:kachuful@localhost:5433/kachuful_test"
 )
 os.environ["APP_ORIGIN"] = "http://test"
+os.environ["OG_CACHE_DIR"] = tempfile.mkdtemp(prefix="kachuful-og-")
 
 import httpx  # noqa: E402
+import uvicorn  # noqa: E402
 from alembic import command  # noqa: E402
 from alembic.config import Config  # noqa: E402
 from sqlalchemy import event, text  # noqa: E402
@@ -24,6 +29,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession, async_sessionm
 from app.bootstrap.app import create_app  # noqa: E402
 from app.db import session as db_session  # noqa: E402
 from app.db.session import build_engine  # noqa: E402
+from app.live.hub import hub  # noqa: E402
 from app.security import rate_limit  # noqa: E402
 from app.services.cache import response_cache  # noqa: E402
 
@@ -182,5 +188,34 @@ async def committed_client(
         ) as c:
             yield c
     finally:
+        await db_session.dispose_engine()
+        await _empty_all_tables()
+
+
+def _free_port() -> int:
+    with socket.socket() as probe:
+        probe.bind(("127.0.0.1", 0))
+        port: int = probe.getsockname()[1]
+        return port
+
+
+@pytest.fixture
+async def live_server(
+    rate_limit_factory: async_sessionmaker[AsyncSession],
+) -> AsyncIterator[str]:
+    """A real uvicorn server on this event loop (SSE needs real streaming and real commits)."""
+    port = _free_port()
+    server = uvicorn.Server(
+        uvicorn.Config(create_app(), host="127.0.0.1", port=port, log_config=None, lifespan="off")
+    )
+    task = asyncio.create_task(server.serve())
+    while not server.started:  # noqa: ASYNC110 - uvicorn exposes a flag, not an event
+        await asyncio.sleep(0.02)
+    try:
+        yield f"http://127.0.0.1:{port}"
+    finally:
+        server.should_exit = True
+        await task
+        await hub.close()
         await db_session.dispose_engine()
         await _empty_all_tables()
