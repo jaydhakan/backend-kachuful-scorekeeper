@@ -7,12 +7,14 @@ from collections.abc import Awaitable, Callable
 from types import ModuleType
 
 from app.db.session import dispose_engine, use_job_timeouts
-from app.jobs import auto_end, seed_admin
+from app.jobs import auto_end, close_day, close_season, seed_admin
 from app.logger import configure_logging
 from app.settings import settings
 
 JOBS: dict[str, ModuleType] = {
     "auto-end": auto_end,
+    "close-day": close_day,
+    "close-season": close_season,
     "seed-admin": seed_admin,
 }
 
