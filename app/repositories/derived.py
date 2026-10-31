@@ -15,10 +15,10 @@ _REBUILD_PLAYER_DAYS = text(
     """
     INSERT INTO player_day (
         player_id, day, rounds, points, made, missed, best_round, worst_round,
-        max_hot, max_cold, hook_hits, games, games_ended, wins
+        max_hot, max_cold, hook_hits, pos_points, games, games_ended, wins
     )
     SELECT t.player_id, t.day, r.rounds, r.points, r.made, r.missed, r.best_round, r.worst_round,
-           r.max_hot, r.max_cold, r.hook_hits, g.games, e.games_ended, e.wins
+           r.max_hot, r.max_cold, r.hook_hits, r.pos_points, g.games, e.games_ended, e.wins
     FROM (
         SELECT DISTINCT player_id, day,
                (day::timestamp AT TIME ZONE :tz) AS starts,
@@ -34,7 +34,8 @@ _REBUILD_PLAYER_DAYS = text(
                min(rs.points) AS worst_round,
                coalesce(max(rs.run_hot), 0) AS max_hot,
                coalesce(max(rs.run_cold), 0) AS max_cold,
-               coalesce(sum(rs.hook_hits), 0) AS hook_hits
+               coalesce(sum(rs.hook_hits), 0) AS hook_hits,
+               coalesce(sum(greatest(rs.points, 0)), 0) AS pos_points
         FROM round_scores rs
         WHERE rs.player_id = t.player_id AND rs.done_at >= t.starts AND rs.done_at < t.ends
     ) r

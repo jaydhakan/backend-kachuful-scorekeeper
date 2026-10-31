@@ -341,6 +341,75 @@ class PlayerDay(Base):
     max_hot: Mapped[int] = mapped_column(Integer)
     max_cold: Mapped[int] = mapped_column(Integer)
     hook_hits: Mapped[int] = mapped_column(Integer)
+    # Sum of positive round scores: the "points earned" career milestones count these.
+    pos_points: Mapped[int] = mapped_column(Integer, server_default="0")
     games: Mapped[int] = mapped_column(Integer)
     games_ended: Mapped[int] = mapped_column(Integer)
     wins: Mapped[int] = mapped_column(Integer)
+
+
+class Achievement(Base):
+    """An earned achievement, daily award or season award. Unique per key, NULLs equal."""
+
+    __tablename__ = "achievements"
+    __table_args__ = (
+        Index(
+            "uq_achievements_key",
+            "player_id",
+            "code",
+            "game_id",
+            "round_index",
+            "period",
+            unique=True,
+            postgresql_nulls_not_distinct=True,
+        ),
+        Index("ix_achievements_player_id_earned_at", "player_id", text("earned_at DESC")),
+        Index("ix_achievements_code_period", "code", "period"),
+        Index("ix_achievements_game_id", "game_id"),
+        Index("ix_achievements_earned_at_id", text("earned_at DESC"), text("id DESC")),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, server_default=func.gen_random_uuid())
+    player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"))
+    code: Mapped[str] = mapped_column(Text)
+    game_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("games.id", ondelete="CASCADE"))
+    round_index: Mapped[int | None] = mapped_column(Integer)
+    period: Mapped[str | None] = mapped_column(Text)
+    earned_at: Mapped[datetime]
+    data: Mapped[dict[str, Any]] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
+
+
+class Activity(Base):
+    """The feed. Achievement rows go when their achievement is un-earned (cascade)."""
+
+    __tablename__ = "activity"
+    __table_args__ = (
+        CheckConstraint(
+            "kind IN ('achievement', 'game_finished', 'season_closed', 'player_joined')",
+            name="kind",
+        ),
+        Index("ix_activity_created_at_id", text("created_at DESC"), text("id DESC")),
+        Index("ix_activity_game_id", "game_id"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    kind: Mapped[str] = mapped_column(Text)
+    player_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("players.id"))
+    game_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("games.id", ondelete="CASCADE"))
+    achievement_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("achievements.id", ondelete="CASCADE")
+    )
+    data: Mapped[dict[str, Any]] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+
+class ClosedPeriod(Base):
+    """A finalised day or season: its awards (and season standings), frozen."""
+
+    __tablename__ = "closed_periods"
+    __table_args__ = (CheckConstraint("kind IN ('day', 'season')", name="kind"),)
+
+    period: Mapped[str] = mapped_column(Text, primary_key=True)
+    kind: Mapped[str] = mapped_column(Text)
+    closed_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    data: Mapped[dict[str, Any]] = mapped_column(JSONB)
