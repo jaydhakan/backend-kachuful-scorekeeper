@@ -1,0 +1,90 @@
+name: CD
+
+# main → staging after CI passes (skipped until the STAGING_HOST variable exists).
+# Production only from the Actions tab: "Run workflow" → environment: production.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Where to deploy
+        type: choice
+        options: [staging, production]
+        default: staging
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ inputs.environment || 'staging' }}
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: Deploy to ${{ inputs.environment || 'staging' }}
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: ${{ inputs.environment || 'staging' }}
+    env:
+      TARGET: ${{ inputs.environment || 'staging' }}
+      DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+      PUBLIC_URL: ${{ vars.PUBLIC_URL }}
+    steps:
+      - name: Skip until the environment is configured
+        id: gate
+        run: |
+          if [ -z "$DEPLOY_HOST" ] || [ -z "$PUBLIC_URL" ]; then
+            echo "DEPLOY_HOST / PUBLIC_URL not set for $TARGET: skipping (see DEPLOY.md)."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v7
+        if: steps.gate.outputs.skip != 'true'
+
+      # Secrets go through env, never inline in the script.
+      - name: Configure SSH
+        if: steps.gate.outputs.skip != 'true'
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          : "${SSH_KEY:?Set the DEPLOY_SSH_KEY secret}"
+          : "${KNOWN_HOSTS:?Set the DEPLOY_KNOWN_HOSTS secret}"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<CONF
+          Host vps
+            HostName $DEPLOY_HOST
+            User deploy
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+          CONF
+
+      # A new release directory per commit; the remote script installs, migrates and switches.
+      - name: Upload release
+        if: steps.gate.outputs.skip != 'true'
+        run: |
+          RELEASE="/srv/kachuful/$TARGET/releases/${GITHUB_SHA::12}"
+          ssh vps "mkdir -p $RELEASE"
+          rsync -rlz --delete \
+            --exclude '.git' --exclude '.venv' --exclude 'tests' --exclude 'var' --exclude '.env' \
+            ./ "vps:$RELEASE/"
+
+      - name: Install, migrate, switch, restart
+        if: steps.gate.outputs.skip != 'true'
+        run: ssh vps "bash /srv/kachuful/$TARGET/releases/${GITHUB_SHA::12}/deploy/remote-deploy.sh $TARGET ${GITHUB_SHA::12}"
+
+      - name: Smoke test
+        if: steps.gate.outputs.skip != 'true'
+        run: |
+          curl -fsS --retry 5 --retry-delay 3 "$PUBLIC_URL/api/health" | tee /dev/stderr \
+            | grep -q "\"version\":\"${GITHUB_SHA::12}\""
+          echo "Deployed ${GITHUB_SHA::12} to $PUBLIC_URL"

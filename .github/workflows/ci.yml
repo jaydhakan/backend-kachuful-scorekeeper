@@ -1,0 +1,53 @@
+name: CI
+
+# main is verified by the CD workflow, which calls this one before deploying.
+on:
+  push:
+    branches-ignore: [main]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Lint, typecheck & test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: kachuful
+          POSTGRES_PASSWORD: kachuful
+          POSTGRES_DB: kachuful_test
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U kachuful -d kachuful_test"
+          --health-interval 2s --health-timeout 3s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgresql+asyncpg://kachuful:kachuful@localhost:5433/kachuful_test
+      DATABASE_URL: postgresql+asyncpg://kachuful:kachuful@localhost:5433/kachuful_test
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Lint
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Typecheck
+        run: uv run mypy app
+
+      - name: Test
+        run: uv run pytest
