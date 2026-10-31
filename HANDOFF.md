@@ -8,8 +8,10 @@ _Work in progress. Updated at the end of every backend milestone; complete at B1
 | --------- | ----- |
 | B0 skeleton | done |
 | B1 auth + admin | done |
-| B2 players | done (merge rewrites games once B4 lands) |
-| B3–B10 | not started |
+| B2 players | done |
+| B3 games | done |
+| B4 domain port + derived tables | done (all golden fixtures pass) |
+| B5–B10 | not started |
 
 ## Endpoints so far
 
@@ -33,4 +35,9 @@ _Work in progress. Updated at the end of every backend milestone; complete at B1
 | `GET /api/players/check` | done, tested |
 | `POST /api/players` | done, tested (201 new, 200 same id + body, 409 `id_conflict`) |
 | `PATCH /api/players/{id}` | done, tested |
-| `POST /api/admin/players/{id}/merge` | done, tested (registry, account link, invites) |
+| `POST /api/admin/players/{id}/merge` | done, tested (moves games, rounds, days; 422 `invalid` if both sat at one table) |
+| `GET /api/admin/overview` | done, tested |
+| `PUT /api/games/{id}` | done, tested (stale, idempotent, 403, 410, unknown_player + remap, invalid_game) |
+| `GET /api/games` | done, tested (tombstones with `updatedSince`) |
+| `GET /api/games/{id}` | done, tested |
+| `DELETE /api/games/{id}` | done, tested |

@@ -1,5 +1,6 @@
 """Merging two registry players into one (admin only)."""
 
+import copy
 import uuid
 
 from sqlalchemy import update
@@ -9,9 +10,11 @@ from app.db.models import Invite, Player
 from app.exceptions import ApiError, ErrorCode
 from app.logger import get_logger
 from app.repositories.app_state import app_state_repository
+from app.repositories.games import games_repository
 from app.repositories.players import players_repository
 from app.repositories.users import users_repository
 from app.schemas.admin import PlayerEnvelopeOut
+from app.services.games import GamesService
 from app.services.presenters import player_out
 
 logger = get_logger(__name__)
@@ -67,3 +70,24 @@ class MergeService:
         await self.session.execute(
             update(Invite).where(Invite.player_id == from_id).values(player_id=into_id)
         )
+        source_games = await games_repository.ids_with_player(self.session, from_id)
+        shared = set(source_games) & set(
+            await games_repository.ids_with_player(self.session, into_id)
+        )
+        if shared:
+            raise ApiError(
+                422,
+                ErrorCode.INVALID,
+                "These players sat at the same table, so they are different people.",
+                fields={"intoId": "played in a game together"},
+            )
+        games = GamesService(self.session)
+        for game_id in source_games:
+            await games_repository.lock(self.session, game_id)
+            row = await games_repository.get(self.session, game_id)
+            assert row is not None
+            payload = copy.deepcopy(row.payload)
+            for seat in payload["players"]:
+                if seat.get("playerId") == str(from_id):
+                    seat["playerId"] = str(into_id)
+            await games.rederive(row, payload)
