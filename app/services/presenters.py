@@ -2,8 +2,10 @@
 
 from app.db.models import Player, User
 from app.domain.time import to_ms, to_ms_or_none
+from app.repositories.games import SummaryRow
 from app.repositories.players import PlayerView
 from app.schemas.auth import UserOut
+from app.schemas.games import GameSummaryOut
 from app.schemas.players import PlayerOut, PlayerSummaryOut
 
 
@@ -49,5 +51,19 @@ def player_summary_out(view: PlayerView) -> PlayerSummaryOut:
             "games": view.player.games_count,
             "last_played_at": to_ms_or_none(view.player.last_played_at),
             "created_by_name": view.created_by_name,
+        }
+    )
+
+
+def summary_out(row: SummaryRow, *, public: bool = False) -> GameSummaryOut:
+    """The contract's GameSummary; `public` hides the owner's user id."""
+    stored = row.summary
+    return GameSummaryOut.model_validate(
+        {
+            **stored,
+            "id": row.game_id,
+            "owner": {"id": None if public else row.owner_id, "name": row.owner_name},
+            "updatedAt": to_ms(row.updated_at),
+            "live": row.live,
         }
     )

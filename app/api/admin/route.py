@@ -11,6 +11,7 @@ from app.schemas.admin import (
     CreateInviteIn,
     InviteLinkOut,
     MergeIn,
+    OverviewOut,
     PlayerEnvelopeOut,
     ResetLinkOut,
     UpdateUserIn,
@@ -73,3 +74,9 @@ async def merge_player(
 ) -> PlayerEnvelopeOut:
     """Merge a duplicate player into another; every game and badge moves with it."""
     return await service.merge(player_id, body.into_id)
+
+
+@admin_router.get("/overview", response_model=OverviewOut)
+async def get_overview(_: AdminAuth, service: _AdminServiceDep) -> OverviewOut:
+    """Counts and the last backup time."""
+    return await service.overview()

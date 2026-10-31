@@ -18,12 +18,13 @@ os.environ["APP_ORIGIN"] = "http://test"
 import httpx  # noqa: E402
 from alembic import command  # noqa: E402
 from alembic.config import Config  # noqa: E402
-from sqlalchemy import text  # noqa: E402
+from sqlalchemy import event, text  # noqa: E402
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession, async_sessionmaker  # noqa: E402
 
 from app.bootstrap.app import create_app  # noqa: E402
 from app.db import session as db_session  # noqa: E402
 from app.db.session import build_engine  # noqa: E402
+from app.security import rate_limit  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 ORIGIN = "http://test"
@@ -80,8 +81,24 @@ async def db_conn() -> AsyncIterator[AsyncConnection]:
 
 
 @pytest.fixture
+async def rate_limit_factory(
+    monkeypatch: pytest.MonkeyPatch,
+) -> AsyncIterator[async_sessionmaker[AsyncSession]]:
+    """Rate limits commit on their own connection, as in production; cleared after the test."""
+    engine = build_engine(statement_timeout_ms=10000)
+    factory = async_sessionmaker(engine, expire_on_commit=False)
+    monkeypatch.setattr(rate_limit, "get_session_factory", lambda: factory)
+    yield factory
+    async with engine.begin() as conn:
+        await conn.execute(text("DELETE FROM rate_limits"))
+    await engine.dispose()
+
+
+@pytest.fixture
 async def session_factory(
-    db_conn: AsyncConnection, monkeypatch: pytest.MonkeyPatch
+    db_conn: AsyncConnection,
+    monkeypatch: pytest.MonkeyPatch,
+    rate_limit_factory: async_sessionmaker[AsyncSession],
 ) -> async_sessionmaker[AsyncSession]:
     """Every session the app opens joins the test transaction (commits become savepoints)."""
     factory = async_sessionmaker(
@@ -108,3 +125,53 @@ async def client(
     transport = httpx.ASGITransport(app=create_app(), client=("203.0.113.7", 50000))
     async with httpx.AsyncClient(transport=transport, base_url=ORIGIN, headers=WRITE_HEADERS) as c:
         yield c
+
+
+class _Recorder(list[str]):
+    """Collects statements from SQLAlchemy's before_cursor_execute event."""
+
+    def __call__(self, *args: object) -> None:
+        self.append(str(args[2]))
+
+
+@pytest.fixture
+def queries(db_conn: AsyncConnection) -> Iterator[list[str]]:
+    """Every SQL statement the test sends, for query-count and no-payload assertions."""
+    recorder = _Recorder()
+    event.listen(db_conn.sync_connection, "before_cursor_execute", recorder)
+    yield recorder
+    event.remove(db_conn.sync_connection, "before_cursor_execute", recorder)
+
+
+async def _empty_all_tables() -> None:
+    engine = build_engine(statement_timeout_ms=10000)
+    async with engine.begin() as conn:
+        names = (
+            await conn.execute(
+                text(
+                    "SELECT tablename FROM pg_tables WHERE schemaname = 'public' "
+                    "AND tablename NOT IN ('alembic_version', 'app_state')"
+                )
+            )
+        ).scalars()
+        await conn.execute(text(f"TRUNCATE {', '.join(names)} CASCADE"))
+    await engine.dispose()
+
+
+@pytest.fixture
+async def committed_client(
+    rate_limit_factory: async_sessionmaker[AsyncSession],
+) -> AsyncIterator[httpx.AsyncClient]:
+    """A client whose requests really commit, each on its own connection (concurrency, SSE).
+
+    Every table is emptied afterwards, so these tests never leak into the others.
+    """
+    transport = httpx.ASGITransport(app=create_app(), client=("203.0.113.8", 50000))
+    try:
+        async with httpx.AsyncClient(
+            transport=transport, base_url=ORIGIN, headers=WRITE_HEADERS
+        ) as c:
+            yield c
+    finally:
+        await db_session.dispose_engine()
+        await _empty_all_tables()

@@ -6,7 +6,7 @@ from datetime import datetime
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import User
+from app.db.models import Player, User
 
 
 class UsersRepository:
@@ -68,6 +68,15 @@ class UsersRepository:
         await session.execute(
             update(User).where(User.player_id == from_player).values(player_id=to_player)
         )
+
+    async def counts(self, session: AsyncSession) -> tuple[int, int]:
+        """(users, unmerged players)."""
+        users = select(func.count()).select_from(User).scalar_subquery()
+        players = (
+            select(func.count()).select_from(Player).where(Player.merged_into.is_(None))
+        ).scalar_subquery()
+        user_count, player_count = (await session.execute(select(users, players))).one()
+        return int(user_count), int(player_count)
 
 
 users_repository = UsersRepository()

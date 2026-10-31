@@ -1,12 +1,13 @@
 """Tables. Constraint names come from the naming convention, so migrations stay predictable."""
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, ClassVar
 
 from sqlalchemy import (
     BigInteger,
     CheckConstraint,
+    Date,
     DateTime,
     ForeignKey,
     Index,
@@ -14,11 +15,12 @@ from sqlalchemy import (
     MetaData,
     SmallInteger,
     Text,
+    false,
     func,
     text,
     true,
 )
-from sqlalchemy.dialects.postgresql import CITEXT
+from sqlalchemy.dialects.postgresql import CITEXT, JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 NAMING_CONVENTION = {
@@ -163,3 +165,182 @@ class Player(Base):
     last_played_at: Mapped[datetime | None]
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+
+class Game(Base):
+    """A game stored whole as the app's JSON, plus the columns lists and jobs filter on."""
+
+    __tablename__ = "games"
+    __table_args__ = (
+        CheckConstraint("status IN ('active', 'finished')", name="status"),
+        # Sync and list order; also serves `updatedSince` tombstones, so it is not partial.
+        Index("ix_games_updated_at_id", "updated_at", "id"),
+        Index("ix_games_owner_id_updated_at", "owner_id", text("updated_at DESC")),
+        Index("ix_games_ended_at_live", "ended_at", postgresql_where=text("deleted_at IS NULL")),
+        Index(
+            "ix_games_auto_end",
+            "client_updated_at",
+            postgresql_where=text("status = 'active' AND ended_at IS NULL AND deleted_at IS NULL"),
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    owner_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    rev: Mapped[int] = mapped_column(Integer)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    payload_hash: Mapped[str] = mapped_column(Text)
+    schema_version: Mapped[int | None] = mapped_column(Integer)
+    status: Mapped[str] = mapped_column(Text)
+    player_count: Mapped[int] = mapped_column(SmallInteger)
+    round_count: Mapped[int] = mapped_column(Integer)
+    summary: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    created_at: Mapped[datetime]
+    client_updated_at: Mapped[datetime]
+    finished_at: Mapped[datetime | None]
+    ended_at: Mapped[datetime | None]
+    auto_ended: Mapped[bool] = mapped_column(server_default=false())
+    last_done_at: Mapped[datetime | None]
+    uploaded_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    deleted_at: Mapped[datetime | None]
+
+
+class GamePlayer(Base):
+    """One player's whole game; rebuilt from the payload on every upload."""
+
+    __tablename__ = "game_players"
+    __table_args__ = (
+        Index(
+            "ix_game_players_player_id",
+            "player_id",
+            postgresql_include=[
+                "game_id",
+                "points",
+                "place",
+                "won",
+                "rounds",
+                "first_done_at",
+                "last_done_at",
+                "ended_at",
+            ],
+        ),
+        Index(
+            "ix_game_players_ended_at",
+            "ended_at",
+            postgresql_include=["player_id", "place", "won"],
+            postgresql_where=text("ended_at IS NOT NULL"),
+        ),
+        Index(
+            "ix_game_players_last_done_at",
+            "last_done_at",
+            postgresql_include=["player_id", "first_done_at"],
+        ),
+    )
+
+    game_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("games.id", ondelete="CASCADE"), primary_key=True
+    )
+    local_id: Mapped[str] = mapped_column(Text, primary_key=True)
+    seat: Mapped[int] = mapped_column(SmallInteger)
+    player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"))
+    name_snapshot: Mapped[str] = mapped_column(Text)
+    emoji: Mapped[str] = mapped_column(Text)
+    color: Mapped[str] = mapped_column(Text)
+    points: Mapped[int] = mapped_column(Integer)
+    place: Mapped[int | None] = mapped_column(SmallInteger)
+    won: Mapped[bool]
+    last: Mapped[bool]
+    rounds: Mapped[int] = mapped_column(Integer)
+    made: Mapped[int] = mapped_column(Integer)
+    missed: Mapped[int] = mapped_column(Integer)
+    best_round: Mapped[int | None] = mapped_column(Integer)
+    worst_round: Mapped[int | None] = mapped_column(Integer)
+    longest_hot: Mapped[int] = mapped_column(Integer)
+    longest_cold: Mapped[int] = mapped_column(Integer)
+    hook_hits: Mapped[int] = mapped_column(Integer)
+    first_done_at: Mapped[datetime | None]
+    last_done_at: Mapped[datetime | None]
+    ended_at: Mapped[datetime | None]
+
+
+class RoundScore(Base):
+    """One player's part in one done round; rebuilt from the payload on every upload."""
+
+    __tablename__ = "round_scores"
+    __table_args__ = (
+        Index(
+            "ix_round_scores_player_id_done_at",
+            "player_id",
+            "done_at",
+            postgresql_include=[
+                "points",
+                "outcome",
+                "run_hot",
+                "run_cold",
+                "hook_hits",
+                "bid",
+                "cards",
+                "trump",
+                "is_dealer",
+            ],
+        ),
+        Index("ix_round_scores_done_at", "done_at"),
+    )
+
+    game_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("games.id", ondelete="CASCADE"), primary_key=True
+    )
+    round_index: Mapped[int] = mapped_column(Integer, primary_key=True)
+    player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"), primary_key=True)
+    done_at: Mapped[datetime]
+    cards: Mapped[int] = mapped_column(SmallInteger)
+    max_cards: Mapped[int] = mapped_column(SmallInteger)
+    trump: Mapped[str] = mapped_column(Text)
+    bid: Mapped[int] = mapped_column(SmallInteger)
+    outcome: Mapped[str] = mapped_column(Text)
+    points: Mapped[int] = mapped_column(Integer)
+    is_dealer: Mapped[bool]
+    hook_hits: Mapped[int] = mapped_column(SmallInteger)
+    run_hot: Mapped[int] = mapped_column(Integer)
+    run_cold: Mapped[int] = mapped_column(Integer)
+    table_size: Mapped[int] = mapped_column(SmallInteger)
+    made_count: Mapped[int] = mapped_column(SmallInteger)
+
+
+class PlayerDay(Base):
+    """Per player per APP_TZ day rollup, rebuilt for the days an upload touches (plan §15.3)."""
+
+    __tablename__ = "player_day"
+    __table_args__ = (
+        Index(
+            "ix_player_day_day",
+            "day",
+            postgresql_include=[
+                "player_id",
+                "rounds",
+                "points",
+                "made",
+                "wins",
+                "best_round",
+                "worst_round",
+                "max_hot",
+                "max_cold",
+                "hook_hits",
+            ],
+        ),
+    )
+
+    player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"), primary_key=True)
+    day: Mapped[date] = mapped_column(Date, primary_key=True)
+    rounds: Mapped[int] = mapped_column(Integer)
+    points: Mapped[int] = mapped_column(Integer)
+    made: Mapped[int] = mapped_column(Integer)
+    missed: Mapped[int] = mapped_column(Integer)
+    best_round: Mapped[int | None] = mapped_column(Integer)
+    worst_round: Mapped[int | None] = mapped_column(Integer)
+    max_hot: Mapped[int] = mapped_column(Integer)
+    max_cold: Mapped[int] = mapped_column(Integer)
+    hook_hits: Mapped[int] = mapped_column(Integer)
+    games: Mapped[int] = mapped_column(Integer)
+    games_ended: Mapped[int] = mapped_column(Integer)
+    wins: Mapped[int] = mapped_column(Integer)

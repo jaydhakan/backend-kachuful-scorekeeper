@@ -10,6 +10,8 @@ from app.db.models import Invite, User
 from app.domain.time import now_utc, to_ms, to_ms_or_none
 from app.exceptions import ApiError, ErrorCode
 from app.logger import get_logger
+from app.repositories.app_state import app_state_repository
+from app.repositories.games import games_repository
 from app.repositories.invites import invites_repository
 from app.repositories.players import PlayerView, players_repository
 from app.repositories.resets import resets_repository
@@ -19,6 +21,7 @@ from app.schemas.admin import (
     AdminUserRow,
     CreateInviteIn,
     InviteLinkOut,
+    OverviewOut,
     PendingInviteOut,
     ResetLinkOut,
     UpdateUserIn,
@@ -184,3 +187,16 @@ class AdminService:
             user.active = True
         await self.session.commit()
         return UserEnvelopeOut(user=user_out(user))
+
+    async def overview(self) -> OverviewOut:
+        """Counts for the admin dashboard."""
+        users, players = await users_repository.counts(self.session)
+        games, rounds = await games_repository.counts(self.session)
+        last_backup = await app_state_repository.last_backup_at(self.session)
+        return OverviewOut(
+            users=users,
+            players=players,
+            games=games,
+            rounds=rounds,
+            last_backup_at=to_ms_or_none(last_backup),
+        )
