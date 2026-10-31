@@ -1,11 +1,10 @@
 """Pure ASGI middleware (BaseHTTPMiddleware would buffer SSE streams)."""
 
-import json
 import time
 
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
-from app.exceptions import ErrorCode, error_body
+from app.exceptions import ErrorCode, send_error
 from app.logger import get_logger
 
 logger = get_logger("app.access")
@@ -15,21 +14,6 @@ MAX_BODY_BYTES = 1024 * 1024
 
 class BodyTooLargeError(Exception):
     """Raised mid-stream when a chunked body passes the limit."""
-
-
-async def _send_json(send: Send, status: int, body: dict[str, object]) -> None:
-    raw = json.dumps(body).encode()
-    await send(
-        {
-            "type": "http.response.start",
-            "status": status,
-            "headers": [
-                (b"content-type", b"application/json"),
-                (b"content-length", str(len(raw)).encode()),
-            ],
-        }
-    )
-    await send({"type": "http.response.body", "body": raw})
 
 
 class BodySizeLimitMiddleware:
@@ -45,7 +29,7 @@ class BodySizeLimitMiddleware:
             return
         length = dict(scope["headers"]).get(b"content-length")
         if length is not None and length.isdigit() and int(length) > MAX_BODY_BYTES:
-            await _send_json(send, 413, error_body(ErrorCode.TOO_LARGE, "Request body over 1 MB."))
+            await send_error(send, 413, ErrorCode.TOO_LARGE, "Request body over 1 MB.")
             return
         received = 0
 
@@ -60,7 +44,7 @@ class BodySizeLimitMiddleware:
         try:
             await self.app(scope, counting_receive, send)
         except BodyTooLargeError:
-            await _send_json(send, 413, error_body(ErrorCode.TOO_LARGE, "Request body over 1 MB."))
+            await send_error(send, 413, ErrorCode.TOO_LARGE, "Request body over 1 MB.")
 
 
 class AccessLogMiddleware:

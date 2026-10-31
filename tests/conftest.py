@@ -30,11 +30,11 @@ ORIGIN = "http://test"
 WRITE_HEADERS = {"X-Kachuful": "1", "Origin": ORIGIN}
 
 
-def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
-    """Run every async test on anyio's asyncio backend."""
-    for item in items:
-        if inspect.iscoroutinefunction(getattr(item, "function", None)):
-            item.add_marker(pytest.mark.anyio)
+@pytest.hookimpl(tryfirst=True)
+def pytest_pycollect_makeitem(collector: pytest.Collector, name: str, obj: object) -> None:
+    """Mark every async test for anyio before parametrisation sees it."""
+    if name.startswith("test_") and inspect.iscoroutinefunction(obj):
+        pytest.mark.anyio(obj)
 
 
 @pytest.fixture(scope="session")

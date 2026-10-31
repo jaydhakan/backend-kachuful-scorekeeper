@@ -1,5 +1,6 @@
 """ApiError and the handlers that turn every failure into `{code, message, ...extra}`."""
 
+import json
 from enum import StrEnum
 from typing import Any
 
@@ -7,6 +8,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.types import Send
 
 from app.logger import get_logger
 
@@ -54,6 +56,22 @@ class ApiError(Exception):
 def error_body(code: ErrorCode, message: str, **extra: Any) -> dict[str, Any]:
     """The JSON body every error uses."""
     return {"code": code.value, "message": message, **extra}
+
+
+async def send_error(send: Send, status: int, code: ErrorCode, message: str) -> None:
+    """Send an error response from raw ASGI middleware (outside FastAPI's handlers)."""
+    raw = json.dumps(error_body(code, message)).encode()
+    await send(
+        {
+            "type": "http.response.start",
+            "status": status,
+            "headers": [
+                (b"content-type", b"application/json"),
+                (b"content-length", str(len(raw)).encode()),
+            ],
+        }
+    )
+    await send({"type": "http.response.body", "body": raw})
 
 
 _STATUS_CODES = {
