@@ -12,12 +12,15 @@ import pytest
 from dotenv import load_dotenv
 
 load_dotenv()
-os.environ["APP_ENV"] = "test"
-os.environ["DATABASE_URL"] = os.environ.get(
+# PERF_DATABASE_URL points the perf suite at a loaded database: pooled, and never reset.
+PERF_DATABASE_URL = os.environ.get("PERF_DATABASE_URL")
+os.environ["APP_ENV"] = "local" if PERF_DATABASE_URL else "test"
+os.environ["DATABASE_URL"] = PERF_DATABASE_URL or os.environ.get(
     "TEST_DATABASE_URL", "postgresql+asyncpg://kachuful:kachuful@localhost:5433/kachuful_test"
 )
 os.environ["APP_ORIGIN"] = "http://test"
 os.environ["OG_CACHE_DIR"] = tempfile.mkdtemp(prefix="kachuful-og-")
+os.environ["BACKUP_DIR"] = tempfile.mkdtemp(prefix="kachuful-backup-")
 
 import httpx  # noqa: E402
 import uvicorn  # noqa: E402
@@ -68,7 +71,10 @@ async def _reset_schema() -> None:
 
 @pytest.fixture(scope="session", autouse=True)
 def migrated_db() -> Iterator[None]:
-    """Fresh schema from the migrations, once per run."""
+    """Fresh schema from the migrations, once per run (never in perf mode)."""
+    if PERF_DATABASE_URL:
+        yield
+        return
     import anyio
 
     anyio.run(_reset_schema)

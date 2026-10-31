@@ -59,7 +59,10 @@ ignore = ["E501", "S101"]
 known-third-party = ["alembic"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S105", "S106", "S311"]
+# Tests: fixed SQL strings, fixture passwords, seeded randomness and plain file I/O are fine.
+"tests/**" = ["S105", "S106", "S311", "S608", "ASYNC240"]
+# Seed data is random on purpose and reproducible by seed; nothing secret comes from it.
+"app/jobs/{fake_games,seed_demo,seed_load}.py" = ["S311"]
 
 [tool.ruff.lint.flake8-bugbear]
 # FastAPI's `param = Depends(...)` defaults are intentional (B008).
