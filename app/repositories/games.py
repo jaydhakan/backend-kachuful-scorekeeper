@@ -5,11 +5,11 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import ColumnElement, and_, false, func, or_, select, text, update
+from sqlalchemy import ColumnElement, and_, func, or_, select, text, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
-from app.db.models import Game, GamePlayer, Player, User
+from app.db.models import Game, GamePlayer, Player, ShareLink, User
 
 
 @dataclass(frozen=True)
@@ -30,8 +30,16 @@ _owner_player = aliased(Player)
 
 
 def live_link_exists() -> ColumnElement[bool]:
-    """Whether a game has an active live link (share links arrive with B8)."""
-    return false()
+    """Whether a game has an active live link."""
+    return (
+        select(ShareLink.token)
+        .where(
+            ShareLink.game_id == Game.id,
+            ShareLink.kind == "live",
+            ShareLink.revoked_at.is_(None),
+        )
+        .exists()
+    )
 
 
 def _summary_columns() -> tuple[Any, ...]:

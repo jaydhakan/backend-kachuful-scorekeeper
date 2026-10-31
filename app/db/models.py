@@ -413,3 +413,25 @@ class ClosedPeriod(Base):
     kind: Mapped[str] = mapped_column(Text)
     closed_at: Mapped[datetime] = mapped_column(server_default=func.now())
     data: Mapped[dict[str, Any]] = mapped_column(JSONB)
+
+
+class ShareLink(Base):
+    """A live or recap link. The token is stored plain: the owner shows it again as a QR."""
+
+    __tablename__ = "share_links"
+    __table_args__ = (
+        CheckConstraint("kind IN ('live', 'recap')", name="kind"),
+        Index(
+            "ix_share_links_game_id_kind_active",
+            "game_id",
+            "kind",
+            postgresql_where=text("revoked_at IS NULL"),
+        ),
+    )
+
+    token: Mapped[str] = mapped_column(Text, primary_key=True)
+    game_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("games.id", ondelete="CASCADE"))
+    kind: Mapped[str] = mapped_column(Text)
+    created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    revoked_at: Mapped[datetime | None]

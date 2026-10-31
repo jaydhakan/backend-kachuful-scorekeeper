@@ -14,6 +14,7 @@ from app.services.auth import AuthContext, AuthService
 from app.services.boards import BoardsService
 from app.services.core import CoreService
 from app.services.games import GamesService
+from app.services.links import LinksService
 from app.services.merge import MergeService
 from app.services.players import PlayersService
 
@@ -106,3 +107,8 @@ def get_games_service(session: SessionDep) -> GamesService:
 def get_boards_service(session: SessionDep) -> BoardsService:
     """BoardsService for a request."""
     return BoardsService(session)
+
+
+def get_links_service(session: SessionDep) -> LinksService:
+    """LinksService for a request."""
+    return LinksService(session)
