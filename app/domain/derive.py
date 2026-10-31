@@ -160,3 +160,45 @@ def game_facts(
             )
         )
     return out
+
+
+@dataclass(frozen=True)
+class GameInfo:
+    """One game's shape for boards and achievements."""
+
+    game_id: str
+    created_at: int
+    ended_at: int | None
+    rounds: int
+    table_size: int
+    player_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class Facts:
+    """Everything boards, stats and achievements read, from a set of games."""
+
+    rounds: list[RoundFact]
+    players: list[GameFact]
+    games: list[GameInfo]
+
+
+def build_facts(games: list[Game], now_ms: int) -> Facts:
+    """Facts for a set of games, oldest game first (app: buildFacts)."""
+    facts = Facts(rounds=[], players=[], games=[])
+    for game in sorted(games, key=lambda g: g.created_at):
+        rounds = round_facts(game)
+        ended = game_ended_at(game, now_ms)
+        facts.rounds.extend(rounds)
+        facts.players.extend(game_facts(game, ended.at, rounds))
+        facts.games.append(
+            GameInfo(
+                game_id=game.id,
+                created_at=game.created_at,
+                ended_at=ended.at,
+                rounds=len(game.done_rounds),
+                table_size=len(game.players),
+                player_ids=tuple(pid_of(s) for s in game.players),
+            )
+        )
+    return facts
