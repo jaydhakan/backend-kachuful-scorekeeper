@@ -1,0 +1,81 @@
+"""Admin models (plan §6.2)."""
+
+import uuid
+
+from pydantic import Field
+
+from app.schemas.auth import UserOut
+from app.schemas.common import CamelModel
+from app.schemas.players import PlayerOut
+
+
+class PendingInviteOut(CamelModel):
+    """A pending invite on the users list. No URL: tokens are stored only as hashes."""
+
+    email: str = Field(..., description="Who it is for")
+    expires_at: int = Field(..., description="Epoch ms")
+
+
+class AdminUserRow(CamelModel):
+    """One row of `GET /api/admin/users`. Invite-only rows have `user: null`."""
+
+    user: UserOut | None = Field(..., description="Null while only invited")
+    player: PlayerOut | None = Field(..., description="Linked (or pre-chosen) player")
+    active: bool = Field(..., description="False once deactivated (or not yet joined)")
+    last_seen_at: int | None = Field(..., description="Epoch ms")
+    invite: PendingInviteOut | None = Field(..., description="The pending invite, if any")
+
+
+class CreateInviteIn(CamelModel):
+    """`POST /api/admin/invites`."""
+
+    email: str = Field(..., max_length=254, description="Who to invite")
+    player_id: uuid.UUID | None = Field(default=None, description="Pre-choose their player")
+
+
+class InviteLinkOut(CamelModel):
+    """A fresh copyable invite link."""
+
+    invite_url: str = Field(..., description="https://play.vectanix.com/?invite=<token>")
+    expires_at: int = Field(..., description="Epoch ms (7 days)")
+
+
+class ResetLinkOut(CamelModel):
+    """A fresh copyable reset link."""
+
+    reset_url: str = Field(..., description="https://play.vectanix.com/?reset=<token>")
+    expires_at: int = Field(..., description="Epoch ms (24 hours)")
+
+
+class UpdateUserIn(CamelModel):
+    """`PATCH /api/admin/users/{id}`."""
+
+    active: bool | None = Field(default=None, description="Deactivating revokes all sessions")
+
+
+class UserEnvelopeOut(CamelModel):
+    """`{user}`."""
+
+    user: UserOut
+
+
+class MergeIn(CamelModel):
+    """`POST /api/admin/players/{id}/merge`."""
+
+    into_id: uuid.UUID = Field(..., description="The player that remains")
+
+
+class PlayerEnvelopeOut(CamelModel):
+    """`{player}`."""
+
+    player: PlayerOut
+
+
+class OverviewOut(CamelModel):
+    """`GET /api/admin/overview`."""
+
+    users: int
+    players: int
+    games: int
+    rounds: int
+    last_backup_at: int | None = Field(..., description="Epoch ms of the last finished backup")
