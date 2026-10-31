@@ -10,6 +10,7 @@ from app.db.models import Invite, User
 from app.domain.time import now_utc
 from app.exceptions import ApiError, ErrorCode
 from app.logger import get_logger
+from app.repositories.achievements import achievements_repository
 from app.repositories.app_state import app_state_repository
 from app.repositories.invites import invites_repository
 from app.repositories.players import PlayerView, players_repository
@@ -184,6 +185,9 @@ class AuthService:
         now = now_utc()
         await invites_repository.mark_accepted(self.session, invite, now)
         await invites_repository.revoke_pending(self.session, invite.email, now)
+        await achievements_repository.add_activity(
+            self.session, [{"kind": "player_joined", "player_id": view.player.id, "data": {}}]
+        )
         await app_state_repository.bump(self.session)
         token_out = await self._start_session(user, user_agent)
         await self.session.commit()

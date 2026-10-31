@@ -49,7 +49,9 @@ async def test_upload_stores_the_game_and_derives_every_table(
     response = await _put(client, payload)
 
     assert response.status_code == 200
-    assert response.json() == {"rev": 1, "earned": []}
+    assert response.json()["rev"] == 1
+    codes = {a["code"] for a in response.json()["earned"]}
+    assert {"winner", "first_win"} <= codes
     game_id = uuid.UUID(payload["syncId"])
     row = await session.get(Game, game_id)
     assert row is not None and row.owner_id == user.id and row.payload == payload

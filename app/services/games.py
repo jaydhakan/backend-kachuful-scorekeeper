@@ -11,15 +11,24 @@ from typing import Any
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.db.models import Achievement, User
 from app.db.models import Game as GameRow
-from app.db.models import User
-from app.domain.derive import Ended, GameFact, RoundFact, game_ended_at, game_facts, round_facts
+from app.domain.derive import (
+    Ended,
+    GameFact,
+    GameInfo,
+    RoundFact,
+    game_ended_at,
+    game_facts,
+    round_facts,
+)
 from app.domain.game import Game, game_from_payload, sync_id
 from app.domain.rules import standings
 from app.domain.time import day_of, from_ms, now_utc, to_ms
 from app.domain.validate import validate
 from app.exceptions import ApiError, ErrorCode
 from app.logger import get_logger
+from app.repositories.achievements import achievements_repository
 from app.repositories.app_state import app_state_repository
 from app.repositories.derived import derived_repository
 from app.repositories.games import SummaryRow, games_repository
@@ -32,6 +41,8 @@ from app.schemas.games import (
     GameTombstoneOut,
     UploadOut,
 )
+from app.services.achievements import AchievementsEngine
+from app.services.achievements_read import achievement_out, achievements_for_game
 from app.services.pagination import decode_cursor, encode_cursor
 from app.services.presenters import summary_out
 from app.settings import settings
@@ -166,6 +177,26 @@ def _round_score_rows(rounds: list[RoundFact]) -> list[dict[str, Any]]:
     ]
 
 
+@dataclass(frozen=True)
+class Stored:
+    """What a store touched: the players involved and achievements newly earned."""
+
+    players: set[uuid.UUID]
+    earned: list[Achievement]
+
+
+def _info(derived: Derived) -> GameInfo:
+    game = derived.game
+    return GameInfo(
+        game_id=game.id,
+        created_at=game.created_at,
+        ended_at=derived.ended.at,
+        rounds=len(game.done_rounds),
+        table_size=len(game.players),
+        player_ids=tuple(p.player_id for p in derived.players),
+    )
+
+
 def derive(game: Game, now_ms: int) -> Derived:
     """Run the domain over a validated game."""
     ended = game_ended_at(game, now_ms)
@@ -275,14 +306,21 @@ class GamesService:
         derived = derive(game, now_ms)
         if row is None:
             row = GameRow(id=game_id, owner_id=user.id)
+        was_ended = row.ended_at is not None
         _apply_to_row(row, stored, derived, digest)
-        await self.store(row, derived)
+        result = await self.store(row, derived, was_ended=was_ended)
         await self.session.commit()
         logger.info("game uploaded", extra={"game_id": str(game_id), "rev": game.rev})
-        return UploadOut(rev=game.rev, earned=[], remap=remap or None)
+        return UploadOut(
+            rev=game.rev,
+            earned=[achievement_out(a) for a in result.earned],
+            remap=remap or None,
+        )
 
-    async def store(self, row: GameRow, derived: Derived) -> set[uuid.UUID]:
-        """Save the row and rebuild everything derived from it; returns the players touched."""
+    async def store(
+        self, row: GameRow, derived: Derived, *, was_ended: bool, career: bool = True
+    ) -> Stored:
+        """Save the row and rebuild everything derived from it, achievements included."""
         old = await derived_repository.touched_moments(self.session, row.id)
         old_players = set(await derived_repository.player_ids_in_game(self.session, row.id))
         row.updated_at = now_utc()
@@ -296,14 +334,31 @@ class GamesService:
         await derived_repository.rebuild_player_days(self.session, pairs, settings.APP_TZ)
         players = old_players | {uuid.UUID(p.player_id) for p in derived.players}
         await derived_repository.refresh_player_counters(self.session, players)
+        engine = AchievementsEngine(self.session)
+        earned = await engine.game(row.id, derived.rounds, derived.players, _info(derived))
+        moments = [to_ms(at) for _, at in old] + [ms for _, ms in _moments(derived)]
+        ended = derived.ended.at is not None
+        if career and moments:
+            earned += await engine.career(
+                players, changed_from_ms=min(moments), sequence_changed=was_ended or ended
+            )
+        if ended and not was_ended:
+            await achievements_repository.add_activity(
+                self.session, [{"kind": "game_finished", "game_id": row.id, "data": {}}]
+            )
+        elif was_ended and not ended:
+            await achievements_repository.delete_activity(self.session, row.id, "game_finished")
         await app_state_repository.bump(self.session)
-        return players
+        return Stored(players=players, earned=earned)
 
-    async def rederive(self, row: GameRow, payload: dict[str, Any]) -> Derived:
+    async def rederive(
+        self, row: GameRow, payload: dict[str, Any], *, career: bool = True
+    ) -> Derived:
         """Re-run the domain over a stored game (merge, auto-end); keeps its rev and hash."""
         derived = derive(game_from_payload(payload), to_ms(now_utc()))
+        was_ended = row.ended_at is not None
         _apply_to_row(row, payload, derived, row.payload_hash)
-        await self.store(row, derived)
+        await self.store(row, derived, was_ended=was_ended, career=career)
         return derived
 
     async def summary(self, game_id: uuid.UUID) -> SummaryRow:
@@ -319,7 +374,11 @@ class GamesService:
         summary = await self.summary(game_id)
         row = await games_repository.get(self.session, game_id)
         assert row is not None
-        return GameDetailOut(game=row.payload, summary=summary_out(summary), achievements=[])
+        return GameDetailOut(
+            game=row.payload,
+            summary=summary_out(summary),
+            achievements=await achievements_for_game(self.session, game_id),
+        )
 
     async def list_page(
         self,
@@ -375,6 +434,15 @@ class GamesService:
         pairs = {(p, at.astimezone(tz).date()) for p, at in old}
         await derived_repository.rebuild_player_days(self.session, pairs, settings.APP_TZ)
         await derived_repository.refresh_player_counters(self.session, players)
+        engine = AchievementsEngine(self.session)
+        await engine.game(game_id, [], [], None)
+        if old:
+            await engine.career(
+                players,
+                changed_from_ms=min(to_ms(at) for _, at in old),
+                sequence_changed=row.ended_at is not None,
+            )
+        await achievements_repository.delete_activity(self.session, game_id, "game_finished")
         await app_state_repository.bump(self.session)
         await self.session.commit()
         logger.info("game deleted", extra={"game_id": str(game_id)})

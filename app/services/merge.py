@@ -9,11 +9,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models import Invite, Player
 from app.exceptions import ApiError, ErrorCode
 from app.logger import get_logger
+from app.repositories.achievements import achievements_repository
 from app.repositories.app_state import app_state_repository
 from app.repositories.games import games_repository
 from app.repositories.players import players_repository
 from app.repositories.users import users_repository
 from app.schemas.admin import PlayerEnvelopeOut
+from app.services.achievements import AchievementsEngine
 from app.services.games import GamesService
 from app.services.presenters import player_out
 
@@ -55,6 +57,10 @@ class MergeService:
         if source_user is not None and target_user is not None:
             raise ApiError(409, ErrorCode.BOTH_LINKED, "Both players have accounts.")
         await self._move_references(source.id, target.id)
+        await achievements_repository.move_player(self.session, source.id, target.id)
+        await AchievementsEngine(self.session).career(
+            {target.id}, changed_from_ms=None, sequence_changed=True
+        )
         if source_user is not None:
             await users_repository.move_player_link(self.session, source.id, target.id)
         await players_repository.redirect_merged(self.session, source.id, target.id)
@@ -90,4 +96,4 @@ class MergeService:
             for seat in payload["players"]:
                 if seat.get("playerId") == str(from_id):
                     seat["playerId"] = str(into_id)
-            await games.rederive(row, payload)
+            await games.rederive(row, payload, career=False)
