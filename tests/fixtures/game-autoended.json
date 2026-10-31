@@ -1,0 +1,429 @@
+{
+  "kind": "game",
+  "name": "idle for a day: ended at its last round",
+  "game": {
+    "id": "g-10000000-0000-4000-8000-000000000003",
+    "syncId": "10000000-0000-4000-8000-000000000003",
+    "rev": 1,
+    "schemaVersion": 3,
+    "createdAt": 1791613800000,
+    "updatedAt": 1791613980000,
+    "players": [
+      {
+        "id": "p0",
+        "playerId": "a",
+        "name": "a",
+        "emoji": "🙂",
+        "color": "#f87171"
+      },
+      {
+        "id": "p1",
+        "playerId": "b",
+        "name": "b",
+        "emoji": "🙂",
+        "color": "#60a5fa"
+      },
+      {
+        "id": "p2",
+        "playerId": "c",
+        "name": "c",
+        "emoji": "🙂",
+        "color": "#34d399"
+      }
+    ],
+    "direction": "cw",
+    "firstDealerIndex": 0,
+    "decks": 1,
+    "maxCards": 10,
+    "lengthMode": "endless",
+    "rounds": [
+      {
+        "index": 0,
+        "cards": 3,
+        "trump": "spades",
+        "dealerIndex": 0,
+        "firstPlayerIndex": 1,
+        "bids": {
+          "p0": 1,
+          "p1": 0,
+          "p2": 1
+        },
+        "results": {
+          "p0": "missed",
+          "p1": "made",
+          "p2": "missed"
+        },
+        "tricks": null,
+        "hookHits": 0,
+        "phase": "done",
+        "doneAt": 1791613860000
+      },
+      {
+        "index": 1,
+        "cards": 4,
+        "trump": "diamonds",
+        "dealerIndex": 1,
+        "firstPlayerIndex": 2,
+        "bids": {
+          "p0": 2,
+          "p1": 0,
+          "p2": 1
+        },
+        "results": {
+          "p0": "missed",
+          "p1": "made",
+          "p2": "missed"
+        },
+        "tricks": null,
+        "hookHits": 0,
+        "phase": "done",
+        "doneAt": 1791613920000
+      },
+      {
+        "index": 2,
+        "cards": 5,
+        "trump": "clubs",
+        "dealerIndex": 2,
+        "firstPlayerIndex": 0,
+        "bids": {
+          "p0": 3,
+          "p1": 0,
+          "p2": 1
+        },
+        "results": {
+          "p0": "missed",
+          "p1": "made",
+          "p2": "missed"
+        },
+        "tricks": null,
+        "hookHits": 0,
+        "phase": "done",
+        "doneAt": 1791613980000
+      },
+      {
+        "index": 3,
+        "cards": 6,
+        "trump": "hearts",
+        "dealerIndex": 0,
+        "firstPlayerIndex": 1,
+        "bids": {},
+        "results": {},
+        "tricks": null,
+        "hookHits": 0,
+        "phase": "bidding"
+      }
+    ],
+    "status": "active",
+    "ui": {
+      "view": "round",
+      "bidIdx": 0
+    }
+  },
+  "expect": {
+    "valid": true,
+    "endedAt": 1791613980000,
+    "totals": {
+      "p0": -60,
+      "p1": 30,
+      "p2": -30
+    },
+    "places": {
+      "p1": 1,
+      "p2": 2,
+      "p0": 3
+    },
+    "gamePlayers": [
+      {
+        "gameId": "10000000-0000-4000-8000-000000000003",
+        "playerId": "a",
+        "localId": "p0",
+        "seat": 0,
+        "name": "a",
+        "emoji": "🙂",
+        "color": "#f87171",
+        "points": -60,
+        "place": 3,
+        "won": false,
+        "rounds": 3,
+        "made": 0,
+        "missed": 3,
+        "bestRound": -10,
+        "worstRound": -30,
+        "longestHot": 0,
+        "longestCold": 3,
+        "hookHits": 0,
+        "endedAt": 1791613980000
+      },
+      {
+        "gameId": "10000000-0000-4000-8000-000000000003",
+        "playerId": "b",
+        "localId": "p1",
+        "seat": 1,
+        "name": "b",
+        "emoji": "🙂",
+        "color": "#60a5fa",
+        "points": 30,
+        "place": 1,
+        "won": true,
+        "rounds": 3,
+        "made": 3,
+        "missed": 0,
+        "bestRound": 10,
+        "worstRound": 10,
+        "longestHot": 3,
+        "longestCold": 0,
+        "hookHits": 0,
+        "endedAt": 1791613980000
+      },
+      {
+        "gameId": "10000000-0000-4000-8000-000000000003",
+        "playerId": "c",
+        "localId": "p2",
+        "seat": 2,
+        "name": "c",
+        "emoji": "🙂",
+        "color": "#34d399",
+        "points": -30,
+        "place": 2,
+        "won": false,
+        "rounds": 3,
+        "made": 0,
+        "missed": 3,
+        "bestRound": -10,
+        "worstRound": -10,
+        "longestHot": 0,
+        "longestCold": 3,
+        "hookHits": 0,
+        "endedAt": 1791613980000
+      }
+    ],
+    "roundScores": [
+      {
+        "gameId": "10000000-0000-4000-8000-000000000003",
+        "roundIndex": 0,
+        "playerId": "a",
+        "doneAt": 1791613860000,
+        "cards": 3,
+        "maxCards": 10,
+        "trump": "spades",
+        "bid": 1,
+        "outcome": "missed",
+        "points": -10,
+        "isDealer": true,
+        "hookHits": 0,
+        "runHot": 0,
+        "runCold": 1,
+        "tableSize": 3,
+        "madeCount": 1
+      },
+      {
+        "gameId": "10000000-0000-4000-8000-000000000003",
+        "roundIndex": 0,
+        "playerId": "b",
+        "doneAt": 1791613860000,
+        "cards": 3,
+        "maxCards": 10,
+        "trump": "spades",
+        "bid": 0,
+        "outcome": "made",
+        "points": 10,
+        "isDealer": false,
+        "hookHits": 0,
+        "runHot": 1,
+        "runCold": 0,
+        "tableSize": 3,
+        "madeCount": 1
+      },
+      {
+        "gameId": "10000000-0000-4000-8000-000000000003",
+        "roundIndex": 0,
+        "playerId": "c",
+        "doneAt": 1791613860000,
+        "cards": 3,
+        "maxCards": 10,
+        "trump": "spades",
+        "bid": 1,
+        "outcome": "missed",
+        "points": -10,
+        "isDealer": false,
+        "hookHits": 0,
+        "runHot": 0,
+        "runCold": 1,
+        "tableSize": 3,
+        "madeCount": 1
+      },
+      {
+        "gameId": "10000000-0000-4000-8000-000000000003",
+        "roundIndex": 1,
+        "playerId": "a",
+        "doneAt": 1791613920000,
+        "cards": 4,
+        "maxCards": 10,
+        "trump": "diamonds",
+        "bid": 2,
+        "outcome": "missed",
+        "points": -20,
+        "isDealer": false,
+        "hookHits": 0,
+        "runHot": 0,
+        "runCold": 2,
+        "tableSize": 3,
+        "madeCount": 1
+      },
+      {
+        "gameId": "10000000-0000-4000-8000-000000000003",
+        "roundIndex": 1,
+        "playerId": "b",
+        "doneAt": 1791613920000,
+        "cards": 4,
+        "maxCards": 10,
+        "trump": "diamonds",
+        "bid": 0,
+        "outcome": "made",
+        "points": 10,
+        "isDealer": true,
+        "hookHits": 0,
+        "runHot": 2,
+        "runCold": 0,
+        "tableSize": 3,
+        "madeCount": 1
+      },
+      {
+        "gameId": "10000000-0000-4000-8000-000000000003",
+        "roundIndex": 1,
+        "playerId": "c",
+        "doneAt": 1791613920000,
+        "cards": 4,
+        "maxCards": 10,
+        "trump": "diamonds",
+        "bid": 1,
+        "outcome": "missed",
+        "points": -10,
+        "isDealer": false,
+        "hookHits": 0,
+        "runHot": 0,
+        "runCold": 2,
+        "tableSize": 3,
+        "madeCount": 1
+      },
+      {
+        "gameId": "10000000-0000-4000-8000-000000000003",
+        "roundIndex": 2,
+        "playerId": "a",
+        "doneAt": 1791613980000,
+        "cards": 5,
+        "maxCards": 10,
+        "trump": "clubs",
+        "bid": 3,
+        "outcome": "missed",
+        "points": -30,
+        "isDealer": false,
+        "hookHits": 0,
+        "runHot": 0,
+        "runCold": 3,
+        "tableSize": 3,
+        "madeCount": 1
+      },
+      {
+        "gameId": "10000000-0000-4000-8000-000000000003",
+        "roundIndex": 2,
+        "playerId": "b",
+        "doneAt": 1791613980000,
+        "cards": 5,
+        "maxCards": 10,
+        "trump": "clubs",
+        "bid": 0,
+        "outcome": "made",
+        "points": 10,
+        "isDealer": false,
+        "hookHits": 0,
+        "runHot": 3,
+        "runCold": 0,
+        "tableSize": 3,
+        "madeCount": 1
+      },
+      {
+        "gameId": "10000000-0000-4000-8000-000000000003",
+        "roundIndex": 2,
+        "playerId": "c",
+        "doneAt": 1791613980000,
+        "cards": 5,
+        "maxCards": 10,
+        "trump": "clubs",
+        "bid": 1,
+        "outcome": "missed",
+        "points": -10,
+        "isDealer": true,
+        "hookHits": 0,
+        "runHot": 0,
+        "runCold": 3,
+        "tableSize": 3,
+        "madeCount": 1
+      }
+    ],
+    "achievements": [
+      {
+        "code": "cold_3",
+        "playerId": "a",
+        "gameId": "10000000-0000-4000-8000-000000000003",
+        "roundIndex": 2,
+        "period": null,
+        "earnedAt": 1791613980000,
+        "data": {
+          "n": 3
+        }
+      },
+      {
+        "code": "wooden_spoon",
+        "playerId": "a",
+        "gameId": "10000000-0000-4000-8000-000000000003",
+        "roundIndex": null,
+        "period": null,
+        "earnedAt": 1791613980000,
+        "data": {}
+      },
+      {
+        "code": "first_win",
+        "playerId": "b",
+        "gameId": "10000000-0000-4000-8000-000000000003",
+        "roundIndex": null,
+        "period": null,
+        "earnedAt": 1791613980000,
+        "data": {}
+      },
+      {
+        "code": "hot_3",
+        "playerId": "b",
+        "gameId": "10000000-0000-4000-8000-000000000003",
+        "roundIndex": 2,
+        "period": null,
+        "earnedAt": 1791613980000,
+        "data": {
+          "n": 3
+        }
+      },
+      {
+        "code": "winner",
+        "playerId": "b",
+        "gameId": "10000000-0000-4000-8000-000000000003",
+        "roundIndex": null,
+        "period": null,
+        "earnedAt": 1791613980000,
+        "data": {
+          "points": 30
+        }
+      },
+      {
+        "code": "cold_3",
+        "playerId": "c",
+        "gameId": "10000000-0000-4000-8000-000000000003",
+        "roundIndex": 2,
+        "period": null,
+        "earnedAt": 1791613980000,
+        "data": {
+          "n": 3
+        }
+      }
+    ]
+  }
+}

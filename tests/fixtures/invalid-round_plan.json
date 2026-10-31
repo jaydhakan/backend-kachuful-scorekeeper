@@ -1,0 +1,116 @@
+{
+  "kind": "game",
+  "name": "rejected: round_plan",
+  "game": {
+    "id": "g-20000000-0000-4000-8000-000000000003",
+    "syncId": "20000000-0000-4000-8000-000000000003",
+    "rev": 1,
+    "schemaVersion": 3,
+    "createdAt": 1791613800000,
+    "updatedAt": 1791614040000,
+    "players": [
+      {
+        "id": "p0",
+        "playerId": "a",
+        "name": "a",
+        "emoji": "🙂",
+        "color": "#f87171"
+      },
+      {
+        "id": "p1",
+        "playerId": "b",
+        "name": "b",
+        "emoji": "🙂",
+        "color": "#60a5fa"
+      },
+      {
+        "id": "p2",
+        "playerId": "c",
+        "name": "c",
+        "emoji": "🙂",
+        "color": "#34d399"
+      }
+    ],
+    "direction": "cw",
+    "firstDealerIndex": 0,
+    "decks": 1,
+    "maxCards": 10,
+    "lengthMode": "endless",
+    "rounds": [
+      {
+        "index": 0,
+        "cards": 3,
+        "trump": "spades",
+        "dealerIndex": 0,
+        "firstPlayerIndex": 1,
+        "bids": {
+          "p0": 3,
+          "p1": 1,
+          "p2": 1
+        },
+        "results": {
+          "p0": "made",
+          "p1": "missed",
+          "p2": "missed"
+        },
+        "tricks": null,
+        "hookHits": 0,
+        "phase": "done",
+        "doneAt": 1791613860000
+      },
+      {
+        "index": 1,
+        "cards": 4,
+        "trump": "diamonds",
+        "dealerIndex": 1,
+        "firstPlayerIndex": 2,
+        "bids": {
+          "p0": 4,
+          "p1": 1,
+          "p2": 1
+        },
+        "results": {
+          "p0": "made",
+          "p1": "missed",
+          "p2": "missed"
+        },
+        "tricks": null,
+        "hookHits": 0,
+        "phase": "done",
+        "doneAt": 1791613920000
+      },
+      {
+        "index": 2,
+        "cards": 5,
+        "trump": "clubs",
+        "dealerIndex": 0,
+        "firstPlayerIndex": 0,
+        "bids": {
+          "p0": 5,
+          "p1": 1,
+          "p2": 1
+        },
+        "results": {
+          "p0": "made",
+          "p1": "missed",
+          "p2": "missed"
+        },
+        "tricks": null,
+        "hookHits": 0,
+        "phase": "done",
+        "doneAt": 1791613980000
+      }
+    ],
+    "status": "finished",
+    "ui": {
+      "view": "round",
+      "bidIdx": 0
+    },
+    "finishedAt": 1791614040000
+  },
+  "expect": {
+    "valid": false,
+    "reason": "round_plan",
+    "roundIndex": 2
+  }
+}
