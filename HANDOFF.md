@@ -11,7 +11,9 @@ _Work in progress. Updated at the end of every backend milestone; complete at B1
 | B2 players | done |
 | B3 games | done |
 | B4 domain port + derived tables | done (all golden fixtures pass) |
-| B5–B10 | not started |
+| B5 boards | done (SQL leaderboards equal the app for every metric and range) |
+| B6 achievements | done (stored rows equal the app's full set) |
+| B7–B10 | not started |
 
 ## Endpoints so far
 
@@ -41,3 +43,12 @@ _Work in progress. Updated at the end of every backend milestone; complete at B1
 | `GET /api/games` | done, tested (tombstones with `updatedSince`) |
 | `GET /api/games/{id}` | done, tested |
 | `DELETE /api/games/{id}` | done, tested |
+| `GET /api/leaderboard` | done, tested (ETag/304) |
+| `GET /api/bootstrap` | done, tested (ETag/304) |
+| `GET /api/players/{id}` | done, tested |
+| `GET /api/players/{id}/stats` | done, tested |
+| `GET /api/players/{id}/games` | done, tested |
+| `GET /api/players/{id}/calendar` | done, tested |
+| `GET /api/players/{a}/vs/{b}` | done, tested |
+| `GET /api/achievements` | done, tested |
+| `GET /api/activity` | done, tested |

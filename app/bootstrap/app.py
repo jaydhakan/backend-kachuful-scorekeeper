@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 from app.api.admin import admin_router
 from app.api.auth import auth_router, me_router
+from app.api.boards import boards_router
 from app.api.core import core_router
 from app.api.games import games_router
 from app.api.players import players_router
@@ -37,6 +38,7 @@ def create_app() -> FastAPI:
         admin_router,
         players_router,
         games_router,
+        boards_router,
     ):
         app.include_router(router, prefix="/api")
     return app

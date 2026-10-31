@@ -11,6 +11,7 @@ from app.exceptions import ApiError, ErrorCode
 from app.security.cookies import SESSION_COOKIE, set_session_cookie
 from app.services.admin import AdminService
 from app.services.auth import AuthContext, AuthService
+from app.services.boards import BoardsService
 from app.services.core import CoreService
 from app.services.games import GamesService
 from app.services.merge import MergeService
@@ -100,3 +101,8 @@ def get_merge_service(session: SessionDep) -> MergeService:
 def get_games_service(session: SessionDep) -> GamesService:
     """GamesService for a request."""
     return GamesService(session)
+
+
+def get_boards_service(session: SessionDep) -> BoardsService:
+    """BoardsService for a request."""
+    return BoardsService(session)

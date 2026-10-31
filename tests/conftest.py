@@ -25,6 +25,7 @@ from app.bootstrap.app import create_app  # noqa: E402
 from app.db import session as db_session  # noqa: E402
 from app.db.session import build_engine  # noqa: E402
 from app.security import rate_limit  # noqa: E402
+from app.services.cache import response_cache  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 ORIGIN = "http://test"
@@ -67,6 +68,14 @@ def migrated_db() -> Iterator[None]:
     anyio.run(_reset_schema)
     command.upgrade(alembic_config(), "head")
     yield
+
+
+@pytest.fixture(autouse=True)
+def _fresh_response_cache() -> Iterator[None]:
+    """Each test rolls the data version back, so cached bodies must not outlive a test."""
+    response_cache.clear()
+    yield
+    response_cache.clear()
 
 
 @pytest.fixture
