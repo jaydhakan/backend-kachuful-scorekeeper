@@ -1,10 +1,12 @@
 """Auth models (plan §6.1)."""
 
 import uuid
-from typing import Literal
+from typing import Literal, Self
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
+from app.domain.appearance import Theme
+from app.domain.rules import player_counts
 from app.schemas.common import CamelModel
 from app.schemas.players import NewPlayerIn, PlayerOut, PlayerRefIn, PlayerSummaryOut
 
@@ -19,11 +21,48 @@ class UserOut(CamelModel):
     created_at: int = Field(..., description="Epoch ms")
 
 
+class SetupDefaults(CamelModel):
+    """The table a player last set up, offered on every device they sign in on."""
+
+    player_count: int = Field(
+        ..., description="Players at the table; 3-7 with one deck, 3-10 with two"
+    )
+    decks: Literal[1, 2] = Field(..., description="Decks in play")
+    direction: Literal["cw", "ccw"] = Field(..., description="Dealing direction")
+
+    @model_validator(mode="after")
+    def _seats_fit_the_decks(self) -> Self:
+        allowed = player_counts(self.decks)
+        if self.player_count not in allowed:
+            raise ValueError(
+                f"playerCount must be {allowed.start}-{allowed.stop - 1} with {self.decks} deck(s)"
+            )
+        return self
+
+
+class PreferencesOut(CamelModel):
+    """A user's own preferences, the same on every device they sign in on."""
+
+    theme: Theme | None = Field(
+        ..., description="Their theme; null follows the admin's (used only while allowed)"
+    )
+    setup: SetupDefaults | None = Field(..., description="Their setup defaults, if any")
+    updated_at: int | None = Field(..., description="Epoch ms of the last change; null before any")
+
+
+class PreferencesIn(CamelModel):
+    """`PATCH /api/me/preferences`: fields sent replace the stored ones, fields left out stay."""
+
+    theme: Theme | None = Field(None, description="A theme, or null for the admin's default")
+    setup: SetupDefaults | None = Field(None, description="Setup defaults, or null to forget them")
+
+
 class AuthOut(CamelModel):
-    """`{user, player}` after login, invite or reset, and from `/auth/me`."""
+    """`{user, player, preferences}` after login, invite or reset, and from `/auth/me`."""
 
     user: UserOut
     player: PlayerOut | None = Field(..., description="The user's player, once linked")
+    preferences: PreferencesOut = Field(..., description="The user's own preferences")
 
 
 class LoginIn(CamelModel):

@@ -2,8 +2,10 @@
 
 import uuid
 from datetime import datetime
+from typing import Any
 
-from sqlalchemy import func, select, update
+from sqlalchemy import func, literal, select, update
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Player, User
@@ -55,6 +57,22 @@ class UsersRepository:
     ) -> None:
         """Record activity."""
         await session.execute(update(User).where(User.id == user_id).values(last_seen_at=at))
+
+    async def merge_preferences(
+        self, session: AsyncSession, user_id: uuid.UUID, changes: dict[str, Any]
+    ) -> User:
+        """Overwrite the given preference keys in one atomic update; returns the fresh row."""
+        stmt = (
+            update(User)
+            .where(User.id == user_id)
+            .values(
+                preferences=User.preferences.op("||")(literal(changes, JSONB)),
+                preferences_updated_at=func.now(),
+            )
+            .returning(User)
+            .execution_options(populate_existing=True)
+        )
+        return (await session.execute(stmt)).scalar_one()
 
     async def count_active_admins(self, session: AsyncSession) -> int:
         """How many active admins there are."""

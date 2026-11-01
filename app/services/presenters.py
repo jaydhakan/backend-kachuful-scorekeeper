@@ -4,7 +4,7 @@ from app.db.models import Player, User
 from app.domain.time import to_ms, to_ms_or_none
 from app.repositories.games import SummaryRow
 from app.repositories.players import PlayerView
-from app.schemas.auth import UserOut
+from app.schemas.auth import PreferencesOut, UserOut
 from app.schemas.games import GameSummaryOut
 from app.schemas.players import PlayerOut, PlayerSummaryOut
 
@@ -17,6 +17,18 @@ def user_out(user: User) -> UserOut:
         role="admin" if user.role == "admin" else "member",
         player_id=user.player_id,
         created_at=to_ms(user.created_at),
+    )
+
+
+def preferences_out(user: User) -> PreferencesOut:
+    """A user's own preferences: the stored `{theme?, setup?}` and when they last changed."""
+    return PreferencesOut.model_validate(
+        {
+            "theme": None,
+            "setup": None,
+            **user.preferences,
+            "updated_at": to_ms_or_none(user.preferences_updated_at),
+        }
     )
 
 

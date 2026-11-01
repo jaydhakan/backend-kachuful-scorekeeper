@@ -23,6 +23,8 @@ from app.schemas.auth import (
     ChangePasswordIn,
     InviteInfoOut,
     LoginIn,
+    PreferencesIn,
+    PreferencesOut,
     ResetIn,
     ResetInfoOut,
 )
@@ -30,7 +32,12 @@ from app.schemas.players import NewPlayerIn
 from app.security.passwords import hash_password, is_valid_password, needs_rehash, verify_password
 from app.security.tokens import hash_token, new_token
 from app.services.players import PlayersService, email_taken
-from app.services.presenters import player_out, player_summary_out, user_out
+from app.services.presenters import (
+    player_out,
+    player_summary_out,
+    preferences_out,
+    user_out,
+)
 from app.settings import settings
 
 logger = get_logger(__name__)
@@ -122,7 +129,16 @@ class AuthService:
         if user.player_id is not None:
             view = await players_repository.get_view(self.session, user.player_id)
         player = None if view is None else player_out(view, user)
-        return AuthOut(user=user_out(user), player=player)
+        return AuthOut(user=user_out(user), player=player, preferences=preferences_out(user))
+
+    async def update_preferences(self, user: User, body: PreferencesIn) -> PreferencesOut:
+        """Replace the preferences the body names; the ones it leaves out stay as they are."""
+        changes = body.model_dump(mode="json", include=body.model_fields_set)
+        if not changes:
+            return preferences_out(user)
+        updated = await users_repository.merge_preferences(self.session, user.id, changes)
+        await self.session.commit()
+        return preferences_out(updated)
 
     async def login(self, body: LoginIn, user_agent: str | None) -> SignedIn:
         """Email + password. Same error for an unknown email and a wrong password."""

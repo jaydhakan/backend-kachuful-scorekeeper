@@ -17,6 +17,8 @@ from app.schemas.auth import (
     ChangePasswordIn,
     InviteInfoOut,
     LoginIn,
+    PreferencesIn,
+    PreferencesOut,
     ResetIn,
     ResetInfoOut,
 )
@@ -106,3 +108,11 @@ async def change_password(
 ) -> None:
     """Change the password; other sessions are signed out."""
     await service.change_password(ctx, body)
+
+
+@me_router.patch("/preferences", response_model=PreferencesOut)
+async def update_preferences(
+    body: PreferencesIn, ctx: CurrentAuth, service: _AuthServiceDep
+) -> PreferencesOut:
+    """Save the signed-in user's theme and setup defaults; fields left out are kept."""
+    return await service.update_preferences(ctx.user, body)

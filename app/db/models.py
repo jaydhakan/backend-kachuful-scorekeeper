@@ -93,6 +93,9 @@ class User(Base):
     )
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     last_seen_at: Mapped[datetime | None]
+    # The wire's Preferences without updatedAt: `{theme?, setup?}`, camelCase.
+    preferences: Mapped[dict[str, Any]] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
+    preferences_updated_at: Mapped[datetime | None]
 
 
 class Invite(Base):
