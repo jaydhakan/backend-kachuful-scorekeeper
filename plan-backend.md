@@ -533,7 +533,7 @@ location ~ ^/(r|l)/ { proxy_pass http://127.0.0.1:8000; }
 
 - **systemd:** `kachuful-api.service` (uvicorn with `--proxy-headers`), plus timers for the jobs in §9.
 - **Environment:** `DATABASE_URL`, `APP_ORIGIN=https://play.vectanix.com`, `APP_TZ=Asia/Kolkata`, `SEED_ADMIN_EMAIL=jaydhakan11@gmail.com`, `SESSION_DAYS=180`, `BACKUP_REMOTE`, `OG_CACHE_DIR`, `LOG_LEVEL`.
-- **Environments:** local (Docker Compose Postgres), **staging** (`staging.play.vectanix.com` or a port on the same VPS, with its own database), production.
+- **Environments:** local (Docker Compose Postgres) and production. **No staging** (Jay, 2026-11-01): every push to `main` deploys to production after CI; test data (`seed-demo`, `seed-load`) lives only on local runs.
 - **Migrations:** `alembic upgrade head` runs in the deploy job before the restart. Every migration is reversible or has a written rollback note.
 - **Health:** `GET /api/health` returns `{ok, db, version}` for an uptime monitor.
 - **Fonts for OG images:** Bricolage Grotesque and DM Sans (the app's fonts) plus Noto Color Emoji, bundled in the repo.

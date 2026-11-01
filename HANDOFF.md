@@ -5,8 +5,9 @@
 and a `plan-*.md` disagree, this file is right**: the plans in the app repo predate the approved
 contract changes in §7. The backend repo's `plan-backend.md` §6 is up to date.
 
-Interactive docs (every route, every field, every error) are served at `/api/docs` on staging and
-local runs, but not on production.
+There is **no staging**: one production environment (`play.vectanix.com`) plus local runs.
+Interactive docs (every route, every field, every error) are served at `/api/docs` on local runs,
+not on production.
 
 ---
 
@@ -25,8 +26,7 @@ local runs, but not on production.
 | B8 live + recap | done; SSE tested on a real server with 2 workers |
 | B9 hardening | done locally: backup + **rehearsed restore**, prune, load dataset, perf budgets, nginx/systemd |
 | B10 handoff | this file |
-| **Staging deploy** | **not yet**: Jay deploys with `DEPLOY.md`. Until then nothing below is verified *on staging* |
-| **Production deploy + `seed-admin`** | **not yet**: Jay |
+| **Production deploy + `seed-admin`** | **not yet**: Jay deploys with `DEPLOY.md`. Until then everything below is verified locally only |
 
 Tests: 372 automated tests (`make verify`: ruff, mypy --strict, pytest against real Postgres 16),
 plus the perf suite (`make perf`).
@@ -90,23 +90,29 @@ All are **done and tested**. Notes point to deviations or additions (§7).
 
 ## 2. Environments
 
-| | Staging | Production |
+| | Local | Production |
 | --- | --- | --- |
-| App + API | `https://staging.play.vectanix.com` (+ `/api`) | `https://play.vectanix.com` (+ `/api`) |
-| Version | `GET /api/health` → `version` is the deployed commit (12 chars) | same |
-| Docs | `/api/docs` | none |
-| Deploys | every push to the backend `main` | by hand (Jay) |
+| App + API | the app's Vite dev server (`http://localhost:5173`) proxying `/api`, `/r`, `/l` to `http://localhost:8000` | `https://play.vectanix.com` (+ `/api`) |
+| Version | `GET /api/health` | `GET /api/health` → `version` is the deployed commit (12 chars) |
+| Docs | `http://localhost:8000/api/docs` | none |
+| Data | `seed-demo` (§3) | real games; `seed-demo`/`seed-load` refuse to run here |
+| Deploys | — | every push to the backend `main`, after CI passes |
 
-Staging serves the production app build, so the app at `staging.play.vectanix.com` talks to the
-staging API on the same origin.
+**Running the backend locally** (needs Docker and uv):
 
-**Resetting staging** (Jay, on the VPS):
-- `deploy/cli.sh staging seed-demo --reset`: empty everything, then the demo data in §3.
-- `deploy/cli.sh staging seed-load --reset`: the performance dataset (50 players, 5,000 games, ~80,000 rounds).
+```sh
+cd backend-kachuful-scorekeeper
+cp .env.example .env            # APP_ORIGIN=http://localhost:5173 (the Vite dev server)
+make dev                        # Postgres 16 in Docker + migrations + the API on :8000
+uv run python -m app.cli seed-demo --reset     # in a second terminal: the §3 data
+```
+
+- `seed-demo --reset`: empty everything, then the demo data in §3.
+- `seed-load --reset`: the performance dataset (50 players, 5,000 games, ~80,000 rounds).
 
 ---
 
-## 3. Test accounts (staging, after `seed-demo`)
+## 3. Test accounts (local, after `seed-demo`)
 
 | Role | Email | Password | Player |
 | --- | --- | --- | --- |
@@ -127,14 +133,15 @@ Also seeded:
 
 ## 4. Copy-paste checks
 
-I ran all of these against a local 2-worker server with the demo data (2026-10-31). Set `BASE` and
-run them in order. They're safe to re-run: the players and the game use fixed ids, and a repeat
+I ran all of these against a local 2-worker server with the demo data (2026-10-31). Run them
+against your local backend (§2) in order. They're safe to re-run: the players and the game use fixed ids, and a repeat
 upload is idempotent. They need `curl` and `jq`.
 
 ```sh
-BASE=https://staging.play.vectanix.com
+BASE=http://localhost:8000
+ORIGIN=http://localhost:5173    # must equal the API's APP_ORIGIN
 JAR=kf.jar; rm -f $JAR
-H=(-H "X-Kachuful: 1" -H "Origin: $BASE" -H "Content-Type: application/json")
+H=(-H "X-Kachuful: 1" -H "Origin: $ORIGIN" -H "Content-Type: application/json")
 
 # 1. log in (cookie kf_session goes into the jar)
 curl -s -c $JAR -b $JAR "${H[@]}" -X POST $BASE/api/auth/login \
@@ -184,7 +191,7 @@ curl -s -o /dev/null -w "%{http_code}\n" -b $JAR -H "If-None-Match: $ETAG" "$BAS
 # 8. live link + SSE: leave this running...
 LIVE=$(curl -s -b $JAR "${H[@]}" -X POST $BASE/api/games/$GAME/links -d '{"kind":"live"}' | jq -r .token)
 curl -N $BASE/api/public/live/$LIVE/events
-#    ...and in a second terminal (same BASE, JAR, H, GAME), push rev 2: the stream prints `event: game` / `id: 2`
+#    ...and in a second terminal (same BASE, ORIGIN, JAR, H, GAME), push rev 2: the stream prints `event: game` / `id: 2`
 jq '.rev = 2 | .ui.bidIdx = 1' game.json > rev2.json
 curl -s -b $JAR "${H[@]}" -X PUT $BASE/api/games/$GAME --data @rev2.json
 #    and switch the link off: the stream prints `event: revoked` and ends
@@ -438,7 +445,7 @@ curl -s -b $JAR "${H[@]}" -X POST $BASE/api/players -d "{\"id\":\"$P\",\"display
 #   {"displayName":"Brand New","email":"brand.new@example.com","photoUrl":null}
 
 # photo: upload any JPEG from your machine, then fetch it back
-URL=$(curl -s -b $JAR -H "X-Kachuful: 1" -H "Origin: $BASE" -H "Content-Type: image/jpeg" -X PUT --data-binary @face.jpg $BASE/api/players/$P/photo | jq -r .photoUrl)
+URL=$(curl -s -b $JAR -H "X-Kachuful: 1" -H "Origin: $ORIGIN" -H "Content-Type: image/jpeg" -X PUT --data-binary @face.jpg $BASE/api/players/$P/photo | jq -r .photoUrl)
 echo $URL                                   # /api/players/5555.../photo?v=1
 curl -s -D - -o photo.webp "$BASE$URL" | grep -iE '^(content-type|cache-control)'
 file photo.webp                             # Web/P image, 256x256
@@ -446,12 +453,12 @@ file photo.webp                             # Web/P image, 256x256
 #   cache-control: public, max-age=31536000, immutable
 
 # photo: a text body → 415
-curl -s -b $JAR -H "X-Kachuful: 1" -H "Origin: $BASE" -H "Content-Type: text/plain" -X PUT --data-binary "hello" $BASE/api/players/$P/photo | jq -c .
+curl -s -b $JAR -H "X-Kachuful: 1" -H "Origin: $ORIGIN" -H "Content-Type: text/plain" -X PUT --data-binary "hello" $BASE/api/players/$P/photo | jq -c .
 #   {"code":"unsupported_media_type","message":"Send a WebP, JPEG or PNG image (at most 2 MB)."}
 
 # another member (Kabir) can't change it (403) and sees email: null
 curl -s -o /dev/null -c k2.jar "${H[@]}" -X POST $BASE/api/auth/login -d '{"email":"kabir@kachuful.test","password":"kabir-demo"}'
-curl -s -o /dev/null -w "%{http_code}\n" -b k2.jar -H "X-Kachuful: 1" -H "Origin: $BASE" -H "Content-Type: image/jpeg" -X PUT --data-binary @face.jpg $BASE/api/players/$P/photo
+curl -s -o /dev/null -w "%{http_code}\n" -b k2.jar -H "X-Kachuful: 1" -H "Origin: $ORIGIN" -H "Content-Type: image/jpeg" -X PUT --data-binary @face.jpg $BASE/api/players/$P/photo
 curl -s -b k2.jar "$BASE/api/players?limit=200" | jq -c --arg p $P '.items[] | select(.id == $p) | {displayName, email, photoUrl}'
 #   403
 #   {"displayName":"Brand New","email":null,"photoUrl":"/api/players/5555.../photo?v=1"}
@@ -675,7 +682,7 @@ When the app's rules change: re-export, copy into `tests/fixtures/`, and run `ma
 ## 9. Performance
 
 These numbers were re-measured after the photos change (summaries now look up photos), **locally** (MacBook, Postgres 16 in Docker, in-process, every cache
-cleared before each request), **not on staging**. The dataset was built by `seed-load` through the
+cleared before each request), **not on the VPS**. The dataset was built by `seed-load` through the
 real upload path: 50 players, 5,000 games, 400,645 `round_scores` rows (about 80,000 rounds).
 
 | Endpoint | p95 | Budget |
@@ -694,16 +701,18 @@ real upload path: 50 players, 5,000 games, 400,645 `round_scores` rows (about 80
 | live update, `PUT` → viewer (max of 10) | 22.6 ms | 300 ms |
 
 Every index in plan §15.2 exists, and a test runs `EXPLAIN` to prove its query uses it. Query
-counts on the main endpoints are fixed whatever the data size (tested). Re-run on staging with
-`seed-load` then `make perf` (`PERF_DATABASE_URL=...`).
+counts on the main endpoints are fixed whatever the data size (tested). Re-run locally with
+`make load` then `make perf`. Never run `seed-load` against production.
 
 ---
 
 ## 10. Known gaps and follow-ups
 
-- **Not deployed yet.** Staging and production wait for Jay (DEPLOY.md). Everything here is
-  verified locally, against a real server in the copy-paste checks; none of it is verified on
-  staging yet. The GitHub CD job has not run with real secrets.
+- **Not deployed yet.** Production waits for Jay (DEPLOY.md). Everything here is verified
+  locally, against a real server in the copy-paste checks; none of it is verified on the VPS yet.
+  The GitHub CD job has not run with real secrets.
+- **No staging (decided 2026-11-01).** Every push to the backend `main` goes to production after
+  CI. Try changes against a local backend with `seed-demo`; production only gets real data.
 - **Board `games` count:** a game counts in a range when its first round is before the range's end
   and its last round is in or after the range's start. A game with a full day's pause inside the
   range, and no round in the range itself, would be counted where the app wouldn't. No fixture

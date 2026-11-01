@@ -163,7 +163,7 @@ logger = get_logger(__name__)
 - Touch only the files a change needs and mirror existing patterns. If a change touches more than ~3 files, outline the plan first.
 - `HANDOFF.md` is updated at the end of every milestone (plan §16).
 - **Progress:** after every milestone, tell Jay where the build stands as a percentage, using these weights (cumulative): B0 5% · B1 15% · B2 23% · B3 33% · B4 45% · B5 59% · B6 71% · B7 80% · B8 90% · B9 96% · B10 100%.
-- Jay deploys. `DEPLOY.md` is his step-by-step runbook (GitHub secrets and variables, CD workflow, VPS setup, Postgres, systemd, nginx, Cloudflare DNS, staging and production); keep it in step with `deploy/` and the workflows.
+- Jay deploys. There is **no staging** (2026-11-01): one production environment, and every push to `main` deploys there after CI, so `make verify` must be green before every push. `DEPLOY.md` is his step-by-step runbook (GitHub secrets and variables, CD workflow, VPS setup, Postgres, systemd, nginx); keep it in step with `deploy/` and the workflows.
 
 ## Pre-Submit Checklist
 1. `make verify` green; new migration applies and downgrades cleanly
@@ -176,7 +176,7 @@ logger = get_logger(__name__)
 8. Anything stubbed, mocked or unverified is said plainly
 
 ## Definition of Done
-- `make verify` is green, `HANDOFF.md` and `DEPLOY.md` are updated, and anything stubbed, mocked or unverified is said plainly. Staging is applied by Jay via `DEPLOY.md`; until he confirms it, HANDOFF.md marks staging as unverified.
+- `make verify` is green, `HANDOFF.md` and `DEPLOY.md` are updated, and anything stubbed, mocked or unverified is said plainly. Production is set up by Jay via `DEPLOY.md`; until he confirms it, HANDOFF.md marks the deploy as unverified.
 
 ## Debugging
 - Use `logger.debug(...)` and remove noisy logs before committing; never `print`.
