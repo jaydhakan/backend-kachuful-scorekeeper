@@ -389,10 +389,11 @@ class GamesService:
         updated_since: int | None,
         cursor: str | None,
         mine: bool,
+        active_only: bool,
         user: User,
         limit: int,
     ) -> GamesPageOut:
-        """Newest change first; tombstones only when `updatedSince` is given."""
+        """Newest change first; tombstones only when `updatedSince` is given (never when active)."""
         before = None
         if cursor is not None:
             at, key = decode_cursor(cursor)
@@ -407,6 +408,7 @@ class GamesService:
             updated_since=None if updated_since is None else from_ms(updated_since),
             before=before,
             owner_id=user.id if mine else None,
+            active_only=active_only,
             limit=limit + 1,
         )
         items: list[GameSummaryOut | GameTombstoneOut] = [

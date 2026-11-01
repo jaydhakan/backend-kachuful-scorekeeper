@@ -41,11 +41,20 @@ async def list_games(
     updated_since: Annotated[int | None, Query(alias="updatedSince", ge=0)] = None,
     cursor: Annotated[str | None, Query(max_length=200)] = None,
     mine: Annotated[bool, Query()] = False,
+    status: Annotated[
+        Literal["active"] | None,
+        Query(description="`active`: only unfinished games (not ended, not deleted)"),
+    ] = None,
     limit: Annotated[int, Query(ge=1, le=MAX_LIMIT)] = DEFAULT_LIMIT,
 ) -> GamesPageOut:
     """Every game, newest change first; with `updatedSince`, deleted ones come as tombstones."""
     return await service.list_page(
-        updated_since=updated_since, cursor=cursor, mine=mine, user=ctx.user, limit=limit
+        updated_since=updated_since,
+        cursor=cursor,
+        mine=mine,
+        active_only=status == "active",
+        user=ctx.user,
+        limit=limit,
     )
 
 

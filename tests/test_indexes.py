@@ -35,6 +35,11 @@ CASES = [
         f"SELECT id FROM games WHERE owner_id = '{ID}' ORDER BY updated_at DESC LIMIT 50",
     ),
     (
+        "ix_games_owner_id_active",
+        f"SELECT id FROM games WHERE owner_id = '{ID}' AND status = 'active' "
+        "AND ended_at IS NULL AND deleted_at IS NULL ORDER BY updated_at DESC, id DESC LIMIT 2",
+    ),
+    (
         "ix_games_ended_at_live",
         "SELECT id FROM games WHERE ended_at >= now() - interval '1 day' AND deleted_at IS NULL",
     ),

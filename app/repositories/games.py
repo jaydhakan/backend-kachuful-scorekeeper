@@ -130,6 +130,7 @@ class GamesRepository:
         updated_since: datetime | None,
         before: tuple[datetime, uuid.UUID] | None,
         owner_id: uuid.UUID | None,
+        active_only: bool,
         limit: int,
     ) -> list[SummaryRow]:
         """Newest change first. With `updated_since`, deleted games come back as tombstones."""
@@ -142,6 +143,10 @@ class GamesRepository:
             stmt = stmt.where(Game.updated_at > updated_since)
         if owner_id is not None:
             stmt = stmt.where(Game.owner_id == owner_id)
+        if active_only:
+            stmt = stmt.where(
+                Game.status == "active", Game.ended_at.is_(None), Game.deleted_at.is_(None)
+            )
         if before is not None:
             at, last_id = before
             stmt = stmt.where(

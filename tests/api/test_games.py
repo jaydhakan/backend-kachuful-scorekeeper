@@ -315,6 +315,63 @@ async def test_list_games_mine_filters_to_my_uploads(
     assert [g["id"] for g in only_mine.json()["items"]] == [mine["syncId"]]
 
 
+async def test_list_games_active_returns_only_unfinished_games_newest_first(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await _scorer(client, session)
+    ids = [str(p.id) for p in await _table(session)]
+    await _put(client, _recent(ids, seed=1))
+    old_idle = make_payload(ids, start_ms=to_ms(now_utc()) - 48 * HOUR, finished=False, seed=2)
+    await _put(client, old_idle)
+    deleted = _recent(ids, seed=3, finished=False)
+    await _put(client, deleted)
+    await client.delete(f"/api/games/{deleted['syncId']}")
+    older = _recent(ids, seed=4, finished=False)
+    await _put(client, older)
+    newest = _recent(ids, seed=5, finished=False)
+    await _put(client, newest)
+
+    response = await client.get("/api/games", params={"status": "active"})
+
+    items = response.json()["items"]
+    assert [g["id"] for g in items] == [newest["syncId"], older["syncId"]]
+    assert all(g["status"] == "active" and g["endedAt"] is None for g in items)
+
+
+async def test_list_games_active_and_mine_gives_my_newest_game_to_resume(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    me = await _scorer(client, session)
+    ids = [str(p.id) for p in await _table(session)]
+    await _put(client, _recent(ids, seed=1, finished=False))
+    my_newest = _recent(ids, seed=2, finished=False)
+    await _put(client, my_newest)
+    client.cookies.clear()
+    await _scorer(client, session, email="b@example.com", player_name="B")
+    await _put(client, _recent(ids, seed=3, finished=False))
+    client.cookies.clear()
+    await sign_in(client, me)
+
+    response = await client.get(
+        "/api/games", params={"status": "active", "mine": "true", "limit": 1}
+    )
+
+    body = response.json()
+    assert [g["id"] for g in body["items"]] == [my_newest["syncId"]]
+    assert body["nextCursor"] is not None
+
+
+async def test_list_games_with_an_unknown_status_is_invalid(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await _scorer(client, session)
+
+    response = await client.get("/api/games", params={"status": "paused"})
+
+    assert response.status_code == 422
+    assert "status" in response.json()["fields"]
+
+
 async def test_list_games_since_includes_tombstones_for_deleted_games(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:

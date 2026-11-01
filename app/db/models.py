@@ -214,6 +214,14 @@ class Game(Base):
         # Sync and list order; also serves `updatedSince` tombstones, so it is not partial.
         Index("ix_games_updated_at_id", "updated_at", "id"),
         Index("ix_games_owner_id_updated_at", "owner_id", text("updated_at DESC")),
+        # A user's unfinished games, newest change first: the Home screen's resume card.
+        Index(
+            "ix_games_owner_id_active",
+            "owner_id",
+            text("updated_at DESC"),
+            text("id DESC"),
+            postgresql_where=text("status = 'active' AND ended_at IS NULL AND deleted_at IS NULL"),
+        ),
         Index("ix_games_ended_at_live", "ended_at", postgresql_where=text("deleted_at IS NULL")),
         Index(
             "ix_games_auto_end",
