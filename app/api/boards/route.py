@@ -6,7 +6,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Path, Query, Response
 
 from app.api.deps import CurrentAuth, SessionDep, get_boards_service
-from app.api.etag import IfNoneMatch, respond
+from app.api.etag import IMMUTABLE, REVALIDATE, IfNoneMatch, respond
 from app.domain.leaderboard import Metric
 from app.schemas.awards import DailyAwardsOut, SeasonListItemOut, SeasonOut, WrappedOut
 from app.schemas.boards import ActivityItemOut, BootstrapOut, LeaderboardOut
@@ -89,7 +89,7 @@ async def get_daily_awards(
 ) -> DailyAwardsOut | Response:
     """A day's awards (APP_TZ day). Provisional until the day is closed; then cached forever."""
     cached, final = await AwardsService(session).daily(day, if_none_match)
-    return respond(cached, response, immutable=final)
+    return respond(cached, response, cache_control=IMMUTABLE if final else REVALIDATE)
 
 
 @boards_router.get("/seasons", response_model=list[SeasonListItemOut])
@@ -110,7 +110,7 @@ async def get_season(
 ) -> SeasonOut | Response:
     """A month's standings and awards; live during the month, frozen once closed."""
     cached, final = await AwardsService(session).season(season, if_none_match)
-    return respond(cached, response, immutable=final)
+    return respond(cached, response, cache_control=IMMUTABLE if final else REVALIDATE)
 
 
 @boards_router.get("/wrapped/{year}/{player_id}", response_model=WrappedOut)

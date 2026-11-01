@@ -13,9 +13,11 @@ IMMUTABLE = "public, max-age=31536000, immutable"
 REVALIDATE = "private, no-cache"
 
 
-def respond[T](cached: Cached[T], response: Response, *, immutable: bool = False) -> T | Response:
+def respond[T](
+    cached: Cached[T], response: Response, *, cache_control: str = REVALIDATE
+) -> T | Response:
     """The body with its ETag, or 304 Not Modified when the client already has it."""
-    headers = {"ETag": cached.etag, "Cache-Control": IMMUTABLE if immutable else REVALIDATE}
+    headers = {"ETag": cached.etag, "Cache-Control": cache_control}
     if cached.body is None:
         return Response(status_code=304, headers=headers)
     response.headers.update(headers)
