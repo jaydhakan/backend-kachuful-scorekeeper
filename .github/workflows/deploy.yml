@@ -1,23 +1,17 @@
 name: CD
 
-# main → staging after CI passes (skipped until the STAGING_HOST variable exists).
-# Production only from the Actions tab: "Run workflow" → environment: production.
+# main → production after CI passes (skipped until DEPLOY_HOST and PUBLIC_URL exist).
+# "Run workflow" in the Actions tab redeploys the current main by hand.
 on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      environment:
-        description: Where to deploy
-        type: choice
-        options: [staging, production]
-        default: staging
 
 permissions:
   contents: read
 
 concurrency:
-  group: deploy-${{ inputs.environment || 'staging' }}
+  group: deploy-production
   cancel-in-progress: false
 
 jobs:
@@ -25,14 +19,14 @@ jobs:
     uses: ./.github/workflows/ci.yml
 
   deploy:
-    name: Deploy to ${{ inputs.environment || 'staging' }}
+    name: Deploy to production
     needs: ci
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
-      name: ${{ inputs.environment || 'staging' }}
+      name: production
     env:
-      TARGET: ${{ inputs.environment || 'staging' }}
+      TARGET: production
       DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
       PUBLIC_URL: ${{ vars.PUBLIC_URL }}
     steps:
