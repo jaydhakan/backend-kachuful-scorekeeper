@@ -24,7 +24,7 @@ def refuse_on_production(job: str) -> bool:
 
 
 async def wipe(session: AsyncSession) -> None:
-    """Empty every data table (staging/local reset)."""
+    """Empty every data table (local reset)."""
     names = (
         await session.execute(
             text(

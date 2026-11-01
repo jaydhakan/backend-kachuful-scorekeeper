@@ -1,2 +1,2 @@
 # /etc/sudoers.d/kachuful (visudo -cf to check): lets CD restart the API, nothing else.
-deploy ALL=(root) NOPASSWD: /usr/bin/systemctl restart kachuful-api@staging, /usr/bin/systemctl restart kachuful-api@production
+deploy ALL=(root) NOPASSWD: /usr/bin/systemctl restart kachuful-api@production

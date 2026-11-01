@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Run a job by hand with the environment's settings, e.g.:
-#   deploy/cli.sh staging seed-demo --reset
+#   deploy/cli.sh production close-day --date 2026-10-30
 #   deploy/cli.sh production seed-admin
 set -euo pipefail
 TARGET="$1"; shift

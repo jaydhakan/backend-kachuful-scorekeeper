@@ -1,4 +1,4 @@
-"""`seed-demo`: staging test data the frontend can use (an admin, two members, games, links)."""
+"""`seed-demo`: local test data the frontend can use (an admin, two members, games, links)."""
 
 import argparse
 import random
