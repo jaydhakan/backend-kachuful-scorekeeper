@@ -26,7 +26,7 @@ not on production.
 | B8 live + recap | done; SSE tested on a real server with 2 workers |
 | B9 hardening | done locally: backup + **rehearsed restore**, prune, load dataset, perf budgets, nginx/systemd |
 | B10 handoff | this file |
-| **Production deploy + `seed-admin`** | **not yet**: Jay deploys with `DEPLOY.md`. Until then everything below is verified locally only |
+| Production deploy + `seed-admin` | **done 2026-11-01**: `https://play.vectanix.com/api/health` → `{"ok":true,"db":true}`, security headers present, job timers running, admin invite issued. The CD job deploys every push to `main` |
 
 Tests: 372 automated tests (`make verify`: ruff, mypy --strict, pytest against real Postgres 16),
 plus the perf suite (`make perf`).
@@ -708,9 +708,12 @@ counts on the main endpoints are fixed whatever the data size (tested). Re-run l
 
 ## 10. Known gaps and follow-ups
 
-- **Not deployed yet.** Production waits for Jay (DEPLOY.md). Everything here is verified
-  locally, against a real server in the copy-paste checks; none of it is verified on the VPS yet.
-  The GitHub CD job has not run with real secrets.
+- **What's verified on production (2026-11-01):** the CD deploy (CI → upload → migrate → restart →
+  health check), `/api/health`, the nginx security headers and the job timers. The rest of this file
+  (the §4 and §5.7 checks) was verified against a local server, because production has no test
+  accounts; the app's own use is the first real test there.
+- **Backups are local only** until Jay sets `BACKUP_REMOTE` (DEPLOY.md §9). The restore drill on
+  production waits for the first backup with real data.
 - **No staging (decided 2026-11-01).** Every push to the backend `main` goes to production after
   CI. Try changes against a local backend with `seed-demo`; production only gets real data.
 - **Board `games` count:** a game counts in a range when its first round is before the range's end
