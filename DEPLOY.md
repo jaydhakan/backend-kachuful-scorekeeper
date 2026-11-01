@@ -91,17 +91,22 @@ is code to run.
 
 ## 4. nginx (once)
 
-Paste [`deploy/nginx/kachuful-api.conf`](deploy/nginx/kachuful-api.conf) inside the existing
-`server { listen 443 ... }` block of the `play` site (`/etc/nginx/sites-available/play`), next to
-the app's `location / { ... }`. Then:
+The API routes live in their own file, pulled into the existing `play` site with one `include`
+line (just above Certbot's `listen 443 ssl;`):
 
 ```sh
+sudo cp deploy/nginx/kachuful-api.conf /etc/nginx/snippets/kachuful-api.conf
+sudo cp /etc/nginx/sites-available/play /root/play.nginx.bak
+grep -q 'snippets/kachuful-api.conf' /etc/nginx/sites-available/play || \
+  sudo sed -i 's|^\( *\)listen 443 ssl;|\1include snippets/kachuful-api.conf;\n\n&|' /etc/nginx/sites-available/play
+sudo grep -n 'include snippets/kachuful-api.conf' /etc/nginx/sites-available/play
 sudo nginx -t && sudo systemctl reload nginx
 curl -s -o /dev/null -w "%{http_code}\n" https://play.vectanix.com/api/health   # 502 until step 6
 ```
 
-If `nginx -t` says `"gzip" directive is duplicate`, the `play` block already has gzip set up:
-delete the three `gzip` lines you pasted. The TLS certificate for `play.vectanix.com` already exists.
+When `deploy/nginx/kachuful-api.conf` changes, copy it again and reload. If `nginx -t` fails, put
+the old file back (`sudo cp /root/play.nginx.bak /etc/nginx/sites-available/play`) and reload. The
+TLS certificate for `play.vectanix.com` already exists.
 
 ## 5. GitHub (once)
 
