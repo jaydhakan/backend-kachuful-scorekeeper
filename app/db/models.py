@@ -52,6 +52,31 @@ class AppState(Base):
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
 
+class AppSetting(Base):
+    """An app-wide setting an admin changes at runtime; a missing key means its default."""
+
+    __tablename__ = "app_settings"
+
+    key: Mapped[str] = mapped_column(Text, primary_key=True)
+    value: Mapped[Any] = mapped_column(JSONB)
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    updated_by_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+
+
+class AppSettingAudit(Base):
+    """One row per change of an app setting: who changed it, when, from what to what."""
+
+    __tablename__ = "app_settings_audit"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    key: Mapped[str] = mapped_column(Text)
+    # The value in effect before, the default included, so it is never missing.
+    old_value: Mapped[Any] = mapped_column(JSONB)
+    new_value: Mapped[Any] = mapped_column(JSONB)
+    changed_by_user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    changed_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+
 class User(Base):
     """An account. Created by accepting an invite (or by seed-admin, without a password)."""
 

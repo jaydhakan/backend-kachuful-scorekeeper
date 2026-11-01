@@ -3,6 +3,7 @@
 from fastapi import FastAPI
 
 from app.api.admin import admin_router
+from app.api.appearance import appearance_router
 from app.api.auth import auth_router, me_router
 from app.api.boards import boards_router
 from app.api.core import core_router
@@ -38,6 +39,7 @@ def create_app() -> FastAPI:
         auth_router,
         me_router,
         admin_router,
+        appearance_router,
         players_router,
         games_router,
         boards_router,

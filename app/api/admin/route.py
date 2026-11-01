@@ -5,7 +5,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path
 
-from app.api.deps import AdminAuth, get_admin_service, get_merge_service
+from app.api.deps import AdminAuth, get_admin_service, get_appearance_service, get_merge_service
 from app.schemas.admin import (
     AdminUserRow,
     CreateInviteIn,
@@ -17,11 +17,14 @@ from app.schemas.admin import (
     UpdateUserIn,
     UserEnvelopeOut,
 )
+from app.schemas.appearance import AppearanceIn, AppearanceOut
 from app.services.admin import AdminService
+from app.services.appearance import AppearanceService
 from app.services.merge import MergeService
 
 _AdminServiceDep = Annotated[AdminService, Depends(get_admin_service)]
 _MergeServiceDep = Annotated[MergeService, Depends(get_merge_service)]
+_AppearanceServiceDep = Annotated[AppearanceService, Depends(get_appearance_service)]
 _UserId = Annotated[uuid.UUID, Path(description="User id")]
 
 admin_router = APIRouter(prefix="/admin", tags=["Admin"])
@@ -80,3 +83,11 @@ async def merge_player(
 async def get_overview(_: AdminAuth, service: _AdminServiceDep) -> OverviewOut:
     """Counts and the last backup time."""
     return await service.overview()
+
+
+@admin_router.put("/settings/appearance", response_model=AppearanceOut)
+async def set_appearance(
+    body: AppearanceIn, ctx: AdminAuth, service: _AppearanceServiceDep
+) -> AppearanceOut:
+    """Set the theme for everyone and whether players may choose their own."""
+    return await service.update(body, ctx.user)

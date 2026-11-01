@@ -10,6 +10,7 @@ from app.db.session import get_session_factory
 from app.exceptions import ApiError, ErrorCode
 from app.security.cookies import SESSION_COOKIE, set_session_cookie
 from app.services.admin import AdminService
+from app.services.appearance import AppearanceService
 from app.services.auth import AuthContext, AuthService
 from app.services.boards import BoardsService
 from app.services.core import CoreService
@@ -87,6 +88,11 @@ def get_auth_service(session: SessionDep) -> AuthService:
 def get_admin_service(session: SessionDep) -> AdminService:
     """AdminService for a request."""
     return AdminService(session)
+
+
+def get_appearance_service(session: SessionDep) -> AppearanceService:
+    """AppearanceService for a request."""
+    return AppearanceService(session)
 
 
 def get_players_service(session: SessionDep) -> PlayersService:
