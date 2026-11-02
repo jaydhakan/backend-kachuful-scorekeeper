@@ -64,17 +64,29 @@ class PlayerRefIn(CamelModel):
 class PlayerPatchIn(CamelModel):
     """`PATCH /api/players/{id}`: only the fields sent change."""
 
-    display_name: str | None = Field(default=None, description="Admin or the linked user")
+    display_name: str | None = Field(
+        default=None, description="Admin, the creator or the linked user"
+    )
     email: str | None = Field(
         default=None, max_length=254, description="Admin, the creator or the linked user"
     )
-    first_name: str | None = Field(default=None, max_length=40, description="Also the creator")
-    last_name: str | None = Field(default=None, max_length=40, description="Also the creator")
+    first_name: str | None = Field(
+        default=None, max_length=40, description="Admin, the creator or the linked user"
+    )
+    last_name: str | None = Field(
+        default=None, max_length=40, description="Admin, the creator or the linked user"
+    )
     emoji: str | None = Field(
-        default=None, min_length=1, max_length=16, description="Also the creator"
+        default=None,
+        min_length=1,
+        max_length=16,
+        description="Admin, the creator or the linked user",
     )
     color: str | None = Field(
-        default=None, min_length=1, max_length=32, description="Also the creator"
+        default=None,
+        min_length=1,
+        max_length=32,
+        description="Admin, the creator or the linked user",
     )
 
 

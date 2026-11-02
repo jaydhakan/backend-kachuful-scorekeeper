@@ -225,11 +225,9 @@ class PlayersService:
         return player
 
     async def patch(self, player_id: uuid.UUID, body: PlayerPatchIn, user: User) -> PlayerOut:
-        """Edit a player: the name by admin or linked user; the rest also by the creator."""
+        """Edit a player: admin, the creator or the linked user (see `can_edit_details`)."""
         player = await self._editable(player_id, user)
         sent = body.model_fields_set
-        if "display_name" in sent and not (user.role == "admin" or user.player_id == player.id):
-            raise ApiError(403, ErrorCode.FORBIDDEN, "Only the admin or this player can rename.")
         if "display_name" in sent:
             await self._rename(player, body.display_name or "")
         if "email" in sent:

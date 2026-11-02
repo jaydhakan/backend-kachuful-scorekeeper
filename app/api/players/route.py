@@ -66,7 +66,7 @@ async def create_player(
 async def update_player(
     player_id: _PlayerId, body: PlayerPatchIn, ctx: CurrentAuth, service: _PlayersServiceDep
 ) -> PlayerOut:
-    """Edit a player: name by admin or the linked user; the rest also by the creator."""
+    """Edit a player: admin, the creator or the linked user may change any field."""
     return await service.patch(player_id, body, ctx.user)
 
 

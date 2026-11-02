@@ -149,7 +149,7 @@ async def test_list_players_with_a_bad_cursor_returns_invalid(
     assert response.json()["fields"] == {"cursor": "not a valid cursor"}
 
 
-async def test_creator_can_edit_details_but_not_the_name(
+async def test_creator_can_edit_details_and_rename(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     user = await _member(client, session)
@@ -164,7 +164,33 @@ async def test_creator_can_edit_details_but_not_the_name(
     assert details.json()["emoji"] == "🐼"
     assert details.json()["firstName"] == "Kiddo"
     assert details.json()["updatedAt"] >= details.json()["createdAt"]
-    assert rename.status_code == 403
+    assert rename.status_code == 200
+    assert rename.json()["displayName"] == "Kidd"
+
+
+async def test_creator_rename_to_a_taken_name_returns_name_taken(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    user = await _member(client, session)
+    player = await make_player(session, name="Kid", created_by=user.id)
+    await make_player(session, name="Taken")
+
+    response = await client.patch(f"/api/players/{player.id}", json={"displayName": "taken"})
+
+    assert response.status_code == 409
+    assert response.json()["code"] == "name_taken"
+
+
+async def test_stranger_cannot_rename_a_player(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await _member(client, session)
+    player = await make_player(session, name="Else")
+
+    response = await client.patch(f"/api/players/{player.id}", json={"displayName": "Mine"})
+
+    assert response.status_code == 403
+    assert response.json()["code"] == "forbidden"
 
 
 async def test_linked_user_can_rename_their_own_player(
