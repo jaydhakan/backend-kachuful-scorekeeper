@@ -141,6 +141,7 @@ class GameDetailOut(CamelModel):
 
 
 class DeletedOut(CamelModel):
-    """`DELETE /api/me/games`."""
+    """`DELETE /api/me/data`."""
 
-    deleted: int = Field(..., description="How many games were deleted")
+    games: int = Field(..., description="How many games were deleted")
+    players: int = Field(..., description="How many players the caller added were deleted")

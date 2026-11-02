@@ -20,7 +20,7 @@ _LinksServiceDep = Annotated[LinksService, Depends(get_links_service)]
 _Kind = Annotated[Literal["live", "recap"], Path(description="live or recap")]
 
 games_router = APIRouter(prefix="/games", tags=["Games"])
-me_games_router = APIRouter(prefix="/me/games", tags=["Games"])
+me_data_router = APIRouter(prefix="/me/data", tags=["Games"])
 
 
 @games_router.put("/{game_id}", response_model=UploadOut, response_model_exclude_none=True)
@@ -65,10 +65,10 @@ async def get_game(game_id: _GameId, _: CurrentAuth, service: _GamesServiceDep) 
     return await service.detail(game_id)
 
 
-@me_games_router.delete("", response_model=DeletedOut)
-async def delete_my_games(ctx: CurrentAuth, service: _GamesServiceDep) -> DeletedOut:
-    """Delete every game the caller scored (a fresh start). Other people's games and players stay."""
-    return DeletedOut(deleted=await service.delete_owned(ctx.user))
+@me_data_router.delete("", response_model=DeletedOut)
+async def delete_my_data(ctx: CurrentAuth, service: _GamesServiceDep) -> DeletedOut:
+    """Start fresh: delete the games the caller scored and the players they added that nobody else uses."""
+    return await service.start_fresh(ctx.user)
 
 
 @games_router.delete("/{game_id}", status_code=204)

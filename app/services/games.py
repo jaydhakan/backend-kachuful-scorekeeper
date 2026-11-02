@@ -36,6 +36,7 @@ from app.repositories.games import SummaryRow, games_repository
 from app.repositories.players import players_repository
 from app.repositories.share_links import share_links_repository
 from app.schemas.games import (
+    DeletedOut,
     GameDetailOut,
     GamePayloadIn,
     GamesPageOut,
@@ -455,8 +456,18 @@ class GamesService:
         logger.info("game deleted", extra={"game_id": str(game_id)})
         return players
 
-    async def delete_owned(self, user: User) -> int:
-        """Delete every game the user scored, one at a time through `delete`; returns how many."""
+    async def start_fresh(self, user: User) -> DeletedOut:
+        """Delete every game the user scored, then the players they added that nothing else uses."""
+        games = await self._delete_owned(user)
+        players = await players_repository.delete_unused_created_by(self.session, user.id)
+        if players:
+            await app_state_repository.bump(self.session)
+        await self.session.commit()
+        logger.info("start fresh", extra={"games": games, "players": players})
+        return DeletedOut(games=games, players=players)
+
+    async def _delete_owned(self, user: User) -> int:
+        """Each game goes through `delete`, so a single use case defines what deleting one means."""
         deleted = 0
         for game_id in await games_repository.owned_ids(self.session, user.id):
             try:

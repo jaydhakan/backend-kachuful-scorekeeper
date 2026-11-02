@@ -6,12 +6,20 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import Select, and_, delete, func, or_, select, update
+from sqlalchemy import Select, and_, delete, exists, func, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
-from app.db.models import Player, PlayerPhoto, User
+from app.db.models import (
+    Achievement,
+    Activity,
+    GamePlayer,
+    Invite,
+    Player,
+    PlayerPhoto,
+    User,
+)
 
 
 @dataclass(frozen=True)
@@ -183,6 +191,24 @@ class PlayersRepository:
         await session.flush()
         await session.refresh(player)
         return player
+
+    async def delete_unused_created_by(self, session: AsyncSession, user_id: uuid.UUID) -> int:
+        """Delete players this user added that no game, account, invite or merge still points at."""
+        merged_here = aliased(Player)
+        unused = select(Player.id).where(
+            Player.created_by == user_id,
+            ~exists().where(User.player_id == Player.id),
+            ~exists().where(GamePlayer.player_id == Player.id),
+            ~exists().where(Invite.player_id == Player.id),
+            ~exists().where(merged_here.merged_into == Player.id),
+        )
+        ids = list((await session.execute(unused)).scalars())
+        if not ids:
+            return 0
+        await session.execute(delete(Activity).where(Activity.player_id.in_(ids)))
+        await session.execute(delete(Achievement).where(Achievement.player_id.in_(ids)))
+        await session.execute(delete(Player).where(Player.id.in_(ids)))
+        return len(ids)
 
     async def touch(self, session: AsyncSession, player: Player) -> None:
         """Bump updated_at so sync clients pick the change up."""

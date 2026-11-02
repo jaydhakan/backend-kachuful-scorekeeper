@@ -423,7 +423,7 @@ async def test_delete_by_another_member_is_forbidden(
     assert response.status_code == 403
 
 
-async def test_delete_my_games_removes_only_the_callers_games(
+async def test_delete_my_data_removes_only_the_callers_games(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     seats = [str(p.id) for p in await _table(session)]
@@ -436,32 +436,69 @@ async def test_delete_my_games_removes_only_the_callers_games(
     for payload in mine:
         await _put(client, payload)
 
-    response = await client.delete("/api/me/games")
+    response = await client.delete("/api/me/data")
 
     assert response.status_code == 200
-    assert response.json() == {"deleted": 2}
+    assert response.json()["games"] == 2
     for payload in mine:
         assert (await client.get(f"/api/games/{payload['syncId']}")).status_code == 404
     assert (await client.get(f"/api/games/{others['syncId']}")).status_code == 200
-    assert await _count(session, RoundScore, game_id=uuid.UUID(others["syncId"])) > 0
     assert await _count(session, RoundScore) == await _count(
         session, RoundScore, game_id=uuid.UUID(others["syncId"])
     )
 
 
-async def test_delete_my_games_is_a_no_op_when_there_are_none(
+async def test_delete_my_data_removes_players_the_caller_added_that_nobody_else_uses(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    user = await _scorer(client, session, player_name="Me")
+    added = [await make_player(session, name=f"Added{k}", created_by=user.id) for k in range(3)]
+    await _put(client, _recent([str(p.id) for p in added]))
+
+    response = await client.delete("/api/me/data")
+
+    assert response.json() == {"games": 1, "players": 3}
+    for player in added:
+        assert await _count(session, Player, id=player.id) == 0
+    assert await _count(session, Player, id=user.player_id) == 1
+
+
+async def test_delete_my_data_keeps_players_other_people_still_use(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    owner = await make_user(session, email="other@example.com", player_name="Other")
+    user = await _scorer(client, session, player_name="Me")
+    shared = await make_player(session, name="Shared", created_by=user.id)
+    private = await make_player(session, name="Private", created_by=user.id)
+    others_seat = await make_player(session, name="Seat", created_by=owner.id)
+    await _put(client, _recent([str(shared.id), str(private.id), str(others_seat.id)]))
+    client.cookies.clear()
+    await sign_in(client, owner)
+    await _put(client, _recent([str(shared.id), str(others_seat.id), str(owner.player_id)]))
+    client.cookies.clear()
+    await sign_in(client, user)
+
+    response = await client.delete("/api/me/data")
+
+    assert response.json() == {"games": 1, "players": 1}
+    assert await _count(session, Player, id=shared.id) == 1
+    assert await _count(session, Player, id=private.id) == 0
+    assert await _count(session, Player, id=others_seat.id) == 1
+
+
+async def test_delete_my_data_is_a_no_op_when_there_is_nothing(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     await _scorer(client, session)
 
-    response = await client.delete("/api/me/games")
+    response = await client.delete("/api/me/data")
 
     assert response.status_code == 200
-    assert response.json() == {"deleted": 0}
+    assert response.json() == {"games": 0, "players": 0}
 
 
-async def test_delete_my_games_needs_a_session(client: httpx.AsyncClient) -> None:
-    response = await client.delete("/api/me/games")
+async def test_delete_my_data_needs_a_session(client: httpx.AsyncClient) -> None:
+    response = await client.delete("/api/me/data")
 
     assert response.status_code == 401
 
