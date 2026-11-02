@@ -454,3 +454,17 @@ class GamesService:
         await self.session.commit()
         logger.info("game deleted", extra={"game_id": str(game_id)})
         return players
+
+    async def delete_owned(self, user: User) -> int:
+        """Delete every game the user scored, one at a time through `delete`; returns how many."""
+        deleted = 0
+        for game_id in await games_repository.owned_ids(self.session, user.id):
+            try:
+                await self.delete(game_id, user)
+            except ApiError as error:
+                # Another request removed it first; the goal is the same.
+                if error.status != 404:
+                    raise
+                continue
+            deleted += 1
+        return deleted

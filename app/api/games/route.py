@@ -7,7 +7,7 @@ from fastapi import APIRouter, Body, Depends, Path, Query
 from fastapi.responses import Response
 
 from app.api.deps import CurrentAuth, get_games_service, get_links_service
-from app.schemas.games import GameDetailOut, GamesPageOut, UploadOut
+from app.schemas.games import DeletedOut, GameDetailOut, GamesPageOut, UploadOut
 from app.schemas.public import CreateLinkIn, LinkOut
 from app.security import rate_limit
 from app.services.games import GamesService
@@ -20,6 +20,7 @@ _LinksServiceDep = Annotated[LinksService, Depends(get_links_service)]
 _Kind = Annotated[Literal["live", "recap"], Path(description="live or recap")]
 
 games_router = APIRouter(prefix="/games", tags=["Games"])
+me_games_router = APIRouter(prefix="/me/games", tags=["Games"])
 
 
 @games_router.put("/{game_id}", response_model=UploadOut, response_model_exclude_none=True)
@@ -62,6 +63,12 @@ async def list_games(
 async def get_game(game_id: _GameId, _: CurrentAuth, service: _GamesServiceDep) -> GameDetailOut:
     """One game: payload, summary and achievements."""
     return await service.detail(game_id)
+
+
+@me_games_router.delete("", response_model=DeletedOut)
+async def delete_my_games(ctx: CurrentAuth, service: _GamesServiceDep) -> DeletedOut:
+    """Delete every game the caller scored (a fresh start). Other people's games and players stay."""
+    return DeletedOut(deleted=await service.delete_owned(ctx.user))
 
 
 @games_router.delete("/{game_id}", status_code=204)

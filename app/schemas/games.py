@@ -138,3 +138,9 @@ class GameDetailOut(CamelModel):
     game: dict[str, Any] = Field(..., description="The stored payload")
     summary: GameSummaryOut
     achievements: list[AchievementOut]
+
+
+class DeletedOut(CamelModel):
+    """`DELETE /api/me/games`."""
+
+    deleted: int = Field(..., description="How many games were deleted")

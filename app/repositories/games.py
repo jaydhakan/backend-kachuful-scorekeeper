@@ -163,6 +163,11 @@ class GamesRepository:
         )
         return _rows((await session.execute(stmt)).all())
 
+    async def owned_ids(self, session: AsyncSession, owner_id: uuid.UUID) -> list[uuid.UUID]:
+        """Ids of every live game a user uploaded."""
+        stmt = select(Game.id).where(Game.owner_id == owner_id, Game.deleted_at.is_(None))
+        return list((await session.execute(stmt.order_by(Game.id))).scalars())
+
     async def soft_delete(self, session: AsyncSession, game_id: uuid.UUID) -> None:
         """Mark deleted; `updated_at` moves so sync clients see the tombstone."""
         await session.execute(
