@@ -3,7 +3,7 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import AppSettingAudit, User
+from app.db.models import AppSetting, AppSettingAudit, User
 from tests.factories import make_user, sign_in
 
 PATH = "/api/settings/appearance"
@@ -156,3 +156,15 @@ async def test_an_unknown_theme_or_a_non_boolean_option_is_invalid(
     assert response.status_code == 422
     assert response.json()["code"] == "invalid"
     assert field in response.json()["fields"]
+
+
+async def test_a_stored_theme_this_build_does_not_ship_reads_as_the_default(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    session.add(AppSetting(key="theme.default", value="retired-theme"))
+    await session.flush()
+
+    response = await client.get(PATH)
+
+    assert response.status_code == 200
+    assert response.json()["theme"] == "sunset-glass"

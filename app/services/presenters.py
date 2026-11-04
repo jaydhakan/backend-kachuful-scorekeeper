@@ -1,6 +1,7 @@
 """Rows → contract models. The one place that shapes users and players for the wire."""
 
 from app.db.models import Player, User
+from app.domain.appearance import known_theme
 from app.domain.time import to_ms, to_ms_or_none
 from app.repositories.games import SummaryRow
 from app.repositories.players import PlayerView
@@ -24,9 +25,10 @@ def preferences_out(user: User) -> PreferencesOut:
     """A user's own preferences: the stored `{theme?, setup?}` and when they last changed."""
     return PreferencesOut.model_validate(
         {
-            "theme": None,
             "setup": None,
             **user.preferences,
+            # An id this build no longer ships follows the admin's theme instead of failing.
+            "theme": known_theme(user.preferences.get("theme")),
             "updated_at": to_ms_or_none(user.preferences_updated_at),
         }
     )

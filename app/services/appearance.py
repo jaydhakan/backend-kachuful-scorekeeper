@@ -3,7 +3,14 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import User
-from app.domain.appearance import ALLOW_OVERRIDE_KEY, APPEARANCE_DEFAULTS, THEME_KEY, Theme
+from app.domain.appearance import (
+    ALLOW_OVERRIDE_KEY,
+    APPEARANCE_DEFAULTS,
+    DEFAULT_THEME,
+    THEME_KEY,
+    Theme,
+    known_theme,
+)
 from app.domain.time import to_ms
 from app.logger import get_logger
 from app.repositories.app_settings import SettingChange, SettingRow, app_settings_repository
@@ -15,11 +22,19 @@ logger = get_logger(__name__)
 _KEYS = list(APPEARANCE_DEFAULTS)
 
 
+def _theme_or_default(stored: object) -> Theme:
+    theme = known_theme(stored)
+    if theme is None:
+        logger.warning("unknown stored theme, using the default", extra={"theme": str(stored)})
+        return DEFAULT_THEME
+    return theme
+
+
 def _appearance_out(rows: list[SettingRow]) -> AppearanceOut:
     values = {**APPEARANCE_DEFAULTS, **{row.key: row.value for row in rows}}
     latest = max(rows, key=lambda row: row.updated_at, default=None)
     return AppearanceOut(
-        theme=Theme(values[THEME_KEY]),
+        theme=_theme_or_default(values[THEME_KEY]),
         allow_user_override=bool(values[ALLOW_OVERRIDE_KEY]),
         updated_at=None if latest is None else to_ms(latest.updated_at),
         updated_by=None if latest is None else latest.updated_by_name,

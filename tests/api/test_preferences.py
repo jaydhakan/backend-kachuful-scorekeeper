@@ -53,6 +53,20 @@ async def test_a_player_can_keep_emerald_gilt_as_their_theme(
     assert (await client.get("/api/auth/me")).json()["preferences"]["theme"] == "emerald-gilt"
 
 
+async def test_a_stored_theme_this_build_does_not_ship_reads_as_null(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    member = await _member(client, session)
+    member.preferences = {"theme": "retired-theme", "setup": SETUP}
+    await session.flush()
+
+    response = await client.get("/api/auth/me")
+
+    assert response.status_code == 200
+    assert response.json()["preferences"]["theme"] is None
+    assert response.json()["preferences"]["setup"] == SETUP
+
+
 async def test_setup_and_theme_are_kept_apart(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
