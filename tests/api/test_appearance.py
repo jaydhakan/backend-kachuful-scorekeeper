@@ -72,6 +72,21 @@ async def test_admin_sets_the_appearance_for_everyone(
     assert seen.json() == body
 
 
+async def test_admin_sets_emerald_gilt_and_strangers_see_it(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await _admin(client, session)
+
+    response = await client.put(
+        ADMIN_PATH, json={"theme": "emerald-gilt", "allowUserOverride": False}
+    )
+
+    assert response.status_code == 200
+    assert response.json()["theme"] == "emerald-gilt"
+    client.cookies.clear()
+    assert (await client.get(PATH)).json()["theme"] == "emerald-gilt"
+
+
 async def test_each_changed_setting_is_audited_with_old_and_new_value(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:

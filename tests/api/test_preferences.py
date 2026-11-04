@@ -41,6 +41,18 @@ async def test_patching_the_theme_returns_and_keeps_it(
     assert (await client.get("/api/auth/me")).json()["preferences"] == body
 
 
+async def test_a_player_can_keep_emerald_gilt_as_their_theme(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await _member(client, session)
+
+    response = await client.patch(PATH, json={"theme": "emerald-gilt"})
+
+    assert response.status_code == 200
+    assert response.json()["theme"] == "emerald-gilt"
+    assert (await client.get("/api/auth/me")).json()["preferences"]["theme"] == "emerald-gilt"
+
+
 async def test_setup_and_theme_are_kept_apart(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:

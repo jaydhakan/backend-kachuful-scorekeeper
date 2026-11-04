@@ -9,6 +9,7 @@ class Theme(StrEnum):
     SUNSET_GLASS = "sunset-glass"
     YERBA_SUN = "yerba-sun"
     EDITORIAL_PAPER = "editorial-paper"
+    EMERALD_GILT = "emerald-gilt"
 
 
 THEME_KEY = "theme.default"
