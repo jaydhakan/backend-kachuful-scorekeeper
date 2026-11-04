@@ -80,6 +80,28 @@ async def test_leaderboard_rate_metric_leaves_players_under_the_minimum_unranked
     assert all(r["qualified"] for r in custom.json()["rows"])
 
 
+async def test_leaderboard_min_games_and_limit_trim_rows_but_keep_ranks(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await _setup(client, session, games=3)
+    await _setup_more(client, session, 1)
+    full = (await client.get("/api/leaderboard", params={"metric": "rounds"})).json()["rows"]
+
+    response = await client.get(
+        "/api/leaderboard", params={"metric": "rounds", "minGames": 2, "limit": 2}
+    )
+
+    rows = response.json()["rows"]
+    assert len(rows) == 2
+    assert all(r["games"] >= 2 for r in rows)
+    expected = [r for r in full if r["games"] >= 2][:2]
+    assert [(r["player"]["id"], r["rank"]) for r in rows] == [
+        (r["player"]["id"], r["rank"]) for r in expected
+    ]
+    none = await client.get("/api/leaderboard", params={"minGames": 99})
+    assert none.json()["rows"] == []
+
+
 async def test_leaderboard_answers_304_until_the_data_changes(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
@@ -122,7 +144,10 @@ async def _setup_more(client: httpx.AsyncClient, session: AsyncSession, n: int) 
         await client.put(f"/api/games/{payload['syncId']}", json=payload)
 
 
-@pytest.mark.parametrize("params", [{"from": 10, "to": 10}, {"metric": "luck"}, {"from": -1}])
+@pytest.mark.parametrize(
+    "params",
+    [{"from": 10, "to": 10}, {"metric": "luck"}, {"from": -1}, {"limit": 0}, {"minGames": -1}],
+)
 async def test_leaderboard_with_a_bad_query_returns_invalid(
     client: httpx.AsyncClient, session: AsyncSession, params: dict[str, Any]
 ) -> None:

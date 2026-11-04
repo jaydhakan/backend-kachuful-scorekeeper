@@ -2,6 +2,7 @@
 
 import uuid
 from collections.abc import Awaitable, Callable
+from dataclasses import replace
 from datetime import date, timedelta
 from functools import partial
 
@@ -179,16 +180,28 @@ class BoardsService:
         metric: Metric,
         min_rounds: int | None,
         if_none_match: str | None,
+        min_games: int | None = None,
+        limit: int | None = None,
     ) -> Cached[LeaderboardOut]:
         """`GET /api/leaderboard`."""
         start, end = check_range(range_from, range_to)
-        build = partial(self._leaderboard_body, start, end, metric, min_rounds)
-        return await self.cached(if_none_match, ("board", start, end, metric, min_rounds), build)
+        build = partial(self._leaderboard_body, start, end, metric, min_rounds, min_games, limit)
+        key = ("board", start, end, metric, min_rounds, min_games, limit)
+        return await self.cached(if_none_match, key, build)
 
     async def _leaderboard_body(
-        self, start: int, end: int, metric: Metric, min_rounds: int | None
+        self,
+        start: int,
+        end: int,
+        metric: Metric,
+        min_rounds: int | None,
+        min_games: int | None,
+        limit: int | None,
     ) -> LeaderboardOut:
-        return await self.board_out(await self.board(start, end, metric, min_rounds))
+        board = await self.board(start, end, metric, min_rounds)
+        # Filtered after ranking, so a row keeps the rank it has on the full board.
+        rows = [r for r in board.rows if min_games is None or r.games >= min_games]
+        return await self.board_out(replace(board, rows=rows[:limit]))
 
     async def _view(self, player_id: uuid.UUID) -> PlayerView:
         view = await players_repository.get_view(self.session, player_id)

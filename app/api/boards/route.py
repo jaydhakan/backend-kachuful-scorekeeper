@@ -33,13 +33,20 @@ async def get_leaderboard(
     range_to: Annotated[int | None, Query(alias="to", ge=0, le=ALL_TIME_TO)] = None,
     metric: Metric = Metric.AVG_PER_ROUND,
     min_rounds: Annotated[int | None, Query(alias="minRounds", ge=0, le=100_000)] = None,
+    min_games: Annotated[int | None, Query(alias="minGames", ge=0, le=100_000)] = None,
+    limit: Annotated[int | None, Query(ge=1, le=100)] = None,
 ) -> LeaderboardOut | Response:
-    """Ranked players for a range; rate metrics rank only players with more than minRounds."""
+    """Ranked players for a range; rate metrics rank only players with more than minRounds.
+
+    minGames drops rows with fewer games, then limit keeps the first rows; ranks are unchanged by both.
+    """
     cached = await service.leaderboard(
         range_from=range_from,
         range_to=range_to,
         metric=metric,
         min_rounds=min_rounds,
+        min_games=min_games,
+        limit=limit,
         if_none_match=if_none_match,
     )
     return respond(cached, response)
