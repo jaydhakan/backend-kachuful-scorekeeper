@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import ColumnElement, select, update
+from sqlalchemy import ColumnElement, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Invite
@@ -65,6 +65,15 @@ class InvitesRepository:
             .order_by(Invite.created_at.desc())
         )
         return list((await session.execute(stmt)).scalars())
+
+    async def count_expiring(self, session: AsyncSession, now: datetime, until: datetime) -> int:
+        """Pending invites that are still usable at `now` but expire before `until`."""
+        stmt = (
+            select(func.count())
+            .select_from(Invite)
+            .where(*_pending(), Invite.expires_at > now, Invite.expires_at <= until)
+        )
+        return int((await session.execute(stmt)).scalar_one())
 
     async def mark_accepted(self, session: AsyncSession, invite: Invite, at: datetime) -> None:
         """Use up an invite."""

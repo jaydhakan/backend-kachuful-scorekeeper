@@ -554,6 +554,7 @@ async def test_admin_overview_counts_users_players_games_and_rounds(
         "games": 1,
         "rounds": 6,
         "lastBackupAt": None,
+        "attention": {"invitesExpiringSoon": 0, "possibleDuplicates": []},
     }
 
 

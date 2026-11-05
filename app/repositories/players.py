@@ -6,7 +6,18 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import Select, and_, delete, exists, func, literal_column, or_, select, update
+from sqlalchemy import (
+    ColumnElement,
+    Select,
+    and_,
+    delete,
+    exists,
+    func,
+    literal_column,
+    or_,
+    select,
+    update,
+)
 from sqlalchemy.dialects.postgresql import JSON, aggregate_order_by, insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
@@ -14,6 +25,7 @@ from sqlalchemy.orm import aliased
 from app.db.models import (
     Achievement,
     Activity,
+    Game,
     GamePlayer,
     Invite,
     Player,
@@ -41,6 +53,15 @@ class PlayerView:
     created_by_name: str
     has_photo: bool = False
     aliases: tuple[AliasView, ...] = ()
+
+
+@dataclass(frozen=True)
+class DuplicatePair:
+    """Two live players who may be one person, and why."""
+
+    a_id: uuid.UUID
+    b_id: uuid.UUID
+    reason: str
 
 
 _linked = aliased(User)
@@ -291,6 +312,68 @@ class PlayersRepository:
         await session.execute(
             update(Player).where(Player.id == from_id).values(merged_into=into_id, updated_at=now)
         )
+
+    async def possible_duplicates(
+        self, session: AsyncSession, *, min_similarity: float, limit: int
+    ) -> list[DuplicatePair]:
+        """Live pairs that could still be merged: an account's email on another player, then
+        trigram-similar name keys (most similar first)."""
+        by_email = await self._email_pairs(session, limit)
+        return by_email + await self._name_pairs(session, min_similarity, limit - len(by_email))
+
+    async def _email_pairs(self, session: AsyncSession, limit: int) -> list[DuplicatePair]:
+        a, b, user = aliased(Player), aliased(Player), aliased(User)
+        stmt = (
+            select(a.id, b.id)
+            .join(user, user.player_id == a.id)
+            .join(b, and_(b.email == user.email, b.id != a.id))
+            .where(a.merged_into.is_(None), b.merged_into.is_(None), _unlinked(b), _apart(a, b))
+            .order_by(a.id, b.id)
+            .limit(limit)
+        )
+        rows = (await session.execute(stmt)).all()
+        return [DuplicatePair(a_id=r[0], b_id=r[1], reason="email") for r in rows]
+
+    async def _name_pairs(
+        self, session: AsyncSession, min_similarity: float, limit: int
+    ) -> list[DuplicatePair]:
+        if limit <= 0:
+            return []
+        a, b = aliased(Player), aliased(Player)
+        score = func.similarity(a.name_key, b.name_key)
+        # `%` lets the trigram index find candidates; the score then applies our own threshold.
+        stmt = (
+            select(a.id, b.id)
+            .join(b, and_(a.id < b.id, a.name_key.op("%")(b.name_key)))
+            .where(
+                a.merged_into.is_(None),
+                b.merged_into.is_(None),
+                score >= min_similarity,
+                or_(_unlinked(a), _unlinked(b)),
+                _apart(a, b),
+            )
+            .order_by(score.desc(), a.id, b.id)
+            .limit(limit)
+        )
+        rows = (await session.execute(stmt)).all()
+        return [DuplicatePair(a_id=r[0], b_id=r[1], reason="name") for r in rows]
+
+
+def _unlinked(player: Any) -> ColumnElement[bool]:
+    return ~exists().where(User.player_id == player.id)
+
+
+def _apart(a: Any, b: Any) -> ColumnElement[bool]:
+    """Never seated in the same live game (a merge would refuse them)."""
+    mine, theirs = aliased(GamePlayer), aliased(GamePlayer)
+    together = (
+        select(1)
+        .select_from(mine)
+        .join(theirs, theirs.game_id == mine.game_id)
+        .join(Game, Game.id == mine.game_id)
+        .where(mine.player_id == a.id, theirs.player_id == b.id, Game.deleted_at.is_(None))
+    )
+    return ~together.exists()
 
 
 players_repository = PlayersRepository()

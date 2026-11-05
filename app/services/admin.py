@@ -19,7 +19,9 @@ from app.repositories.sessions import sessions_repository
 from app.repositories.users import users_repository
 from app.schemas.admin import (
     AdminUserRow,
+    AttentionOut,
     CreateInviteIn,
+    DuplicatePairOut,
     InviteLinkOut,
     OverviewOut,
     PendingInviteOut,
@@ -29,12 +31,16 @@ from app.schemas.admin import (
 )
 from app.schemas.players import PlayerOut
 from app.security.tokens import hash_token, new_token
-from app.services.presenters import player_out, user_out
+from app.services.presenters import player_out, player_summary_out, user_out
 from app.settings import settings
 
 logger = get_logger(__name__)
 
 INVITE_TTL = timedelta(days=7)
+INVITE_SOON = timedelta(hours=48)
+# Trigram similarity at which two name keys look like one person ("Riya" ~ "Riyaa" is 0.57).
+DUPLICATE_SIMILARITY = 0.4
+DUPLICATE_LIMIT = 20
 RESET_TTL = timedelta(hours=24)
 
 
@@ -200,4 +206,25 @@ class AdminService:
             games=games,
             rounds=rounds,
             last_backup_at=to_ms_or_none(last_backup),
+            attention=await self._attention(),
+        )
+
+    async def _attention(self) -> AttentionOut:
+        now = now_utc()
+        expiring = await invites_repository.count_expiring(self.session, now, now + INVITE_SOON)
+        pairs = await players_repository.possible_duplicates(
+            self.session, min_similarity=DUPLICATE_SIMILARITY, limit=DUPLICATE_LIMIT
+        )
+        ids = [i for p in pairs for i in (p.a_id, p.b_id)]
+        views = await players_repository.get_views(self.session, ids)
+        return AttentionOut(
+            invites_expiring_soon=expiring,
+            possible_duplicates=[
+                DuplicatePairOut(
+                    a=player_summary_out(views[p.a_id]),
+                    b=player_summary_out(views[p.b_id]),
+                    reason="email" if p.reason == "email" else "name",
+                )
+                for p in pairs
+            ],
         )

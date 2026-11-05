@@ -7,7 +7,7 @@ from pydantic import Field
 
 from app.schemas.auth import UserOut
 from app.schemas.common import CamelModel
-from app.schemas.players import PlayerOut
+from app.schemas.players import PlayerOut, PlayerSummaryOut
 
 
 class PendingInviteOut(CamelModel):
@@ -95,6 +95,25 @@ class PlayerEnvelopeOut(CamelModel):
     player: PlayerOut
 
 
+class DuplicatePairOut(CamelModel):
+    """Two live players who may be one person."""
+
+    a: PlayerSummaryOut
+    b: PlayerSummaryOut
+    reason: Literal["email", "name"] = Field(
+        ..., description="email = b has a's account email; name = similar display names"
+    )
+
+
+class AttentionOut(CamelModel):
+    """What the admin may want to fix."""
+
+    invites_expiring_soon: int = Field(..., description="Pending invites expiring within 48 h")
+    possible_duplicates: list[DuplicatePairOut] = Field(
+        ..., description="At most 20, email matches first, then most similar names"
+    )
+
+
 class OverviewOut(CamelModel):
     """`GET /api/admin/overview`."""
 
@@ -103,3 +122,4 @@ class OverviewOut(CamelModel):
     games: int
     rounds: int
     last_backup_at: int | None = Field(..., description="Epoch ms of the last finished backup")
+    attention: AttentionOut = Field(..., description="Things that need the admin's attention")
