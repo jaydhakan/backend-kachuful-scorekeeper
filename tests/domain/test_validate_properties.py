@@ -29,6 +29,7 @@ def games(draw: st.DrawFn) -> dict[str, Any]:
         decks=decks,
         first_dealer=draw(st.integers(0, n - 1)),
         length_mode=draw(st.sampled_from(["endless", "1cycle", "2cycles"])),
+        order=draw(st.sampled_from(["up", "down"])),
     )
 
 

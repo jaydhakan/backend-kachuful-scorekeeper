@@ -208,6 +208,43 @@ async def test_upload_of_a_broken_game_returns_invalid_game_with_reason_and_roun
     assert response.json()["roundIndex"] == 2
 
 
+async def test_upload_of_a_down_first_game_is_accepted(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await _scorer(client, session)
+    payload = _recent([str(p.id) for p in await _table(session)], rounds=4, order="down")
+
+    response = await _put(client, payload)
+
+    assert response.status_code == 200
+
+
+async def test_upload_of_a_down_first_game_dealt_up_first_returns_invalid_game(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await _scorer(client, session)
+    payload = _recent([str(p.id) for p in await _table(session)], rounds=4)
+    payload["order"] = "down"
+
+    response = await _put(client, payload)
+
+    assert response.status_code == 422
+    assert (response.json()["code"], response.json()["reason"]) == ("invalid_game", "round_plan")
+
+
+async def test_upload_with_an_unknown_order_is_invalid(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await _scorer(client, session)
+    payload = _recent([str(p.id) for p in await _table(session)])
+    payload["order"] = "sideways"
+
+    response = await _put(client, payload)
+
+    assert response.status_code == 422
+    assert response.json()["code"] == "invalid"
+
+
 async def test_upload_to_a_different_path_id_returns_invalid_game_id(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:

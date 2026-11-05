@@ -10,9 +10,15 @@ MINUTE = 60_000
 
 
 def _round(
-    index: int, n: int, max_cards: int, first_dealer: int, rng: random.Random, done_at: int | None
+    index: int,
+    n: int,
+    max_cards: int,
+    first_dealer: int,
+    rng: random.Random,
+    done_at: int | None,
+    order: str = "up",
 ) -> dict[str, Any]:
-    cards = cards_for(index, max_cards)
+    cards = cards_for(index, max_cards, order)
     dealer = (first_dealer + index) % n
     ids = [f"p{k}" for k in range(n)]
     while True:
@@ -57,6 +63,7 @@ def make_payload(
     rev: int = 1,
     step_ms: int = MINUTE,
     open_last_round: bool = False,
+    order: str = "up",
 ) -> dict[str, Any]:
     """A valid game. `open_last_round` adds an unfinished round being bid on."""
     rng = random.Random(seed)
@@ -65,11 +72,11 @@ def make_payload(
     if length_mode != "endless":
         rounds = min(rounds, cycle_len(max_cards) * (1 if length_mode == "1cycle" else 2))
     played = [
-        _round(i, n, max_cards, first_dealer, rng, start_ms + (i + 1) * step_ms)
+        _round(i, n, max_cards, first_dealer, rng, start_ms + (i + 1) * step_ms, order)
         for i in range(rounds)
     ]
     if open_last_round and not finished:
-        open_round = _round(rounds, n, max_cards, first_dealer, rng, None)
+        open_round = _round(rounds, n, max_cards, first_dealer, rng, None, order)
         open_round.update(phase="bidding", bids={}, results={}, tricks=None)
         played.append(open_round)
     updated = start_ms + max(rounds, 1) * step_ms
@@ -88,6 +95,7 @@ def make_payload(
         "decks": decks,
         "maxCards": max_cards,
         "lengthMode": length_mode,
+        "order": order,
         "players": [
             {"id": f"p{k}", "playerId": pid, "name": f"P{k}", "emoji": "🙂", "color": "#123456"}
             for k, pid in enumerate(player_ids)

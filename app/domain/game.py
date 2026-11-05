@@ -40,7 +40,7 @@ class Round:
 
 @dataclass(frozen=True)
 class Game:
-    """A scored game. `id` is the stable sync id (the app's `syncId`, else `id`)."""
+    """A scored game. `id` is the stable sync id (the app's `syncId`, else `id`); `order` "up"|"down"."""
 
     id: str
     rev: int
@@ -54,6 +54,7 @@ class Game:
     length_mode: str
     players: tuple[Seat, ...]
     rounds: tuple[Round, ...]
+    order: str = "up"
 
     @property
     def done_rounds(self) -> tuple[Round, ...]:
@@ -107,4 +108,5 @@ def game_from_payload(payload: Mapping[str, Any]) -> Game:
         length_mode=str(payload["lengthMode"]),
         players=tuple(_seat(p) for p in payload["players"]),
         rounds=tuple(_round(r) for r in payload["rounds"]),
+        order=str(payload.get("order") or "up"),
     )

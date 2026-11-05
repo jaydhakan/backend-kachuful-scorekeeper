@@ -56,6 +56,9 @@ class GamePayloadIn(_Open):
     decks: int = 1
     max_cards: int = Field(..., ge=3, le=10)
     length_mode: Literal["endless", "1cycle", "2cycles"]
+    order: Literal["up", "down"] | None = Field(
+        default=None, description="Round order: up first (3 → max) or down first; null means up"
+    )
     players: list[SeatIn] = Field(..., max_length=20)
     rounds: list[RoundIn] = Field(..., max_length=2000)
 

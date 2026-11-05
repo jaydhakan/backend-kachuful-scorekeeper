@@ -70,7 +70,8 @@ def _round_plan_error(game: Game) -> Validity | None:
     n = len(game.players)
     for i, r in enumerate(game.rounds):
         dealer = (game.first_dealer_index + i) % n
-        planned = (i, cards_for(i, game.max_cards), TRUMPS[i % 4], dealer, (dealer + 1) % n)
+        cards = cards_for(i, game.max_cards, game.order)
+        planned = (i, cards, TRUMPS[i % 4], dealer, (dealer + 1) % n)
         actual = (r.index, r.cards, r.trump, r.dealer_index, r.first_player_index)
         if any(a != p or isinstance(a, bool) for a, p in zip(actual, planned, strict=True)):
             return _bad(InvalidReason.ROUND_PLAN, i)

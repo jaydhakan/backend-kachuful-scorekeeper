@@ -34,14 +34,17 @@ def max_for(players: int, decks: int) -> int:
 
 
 def cycle_len(max_cards: int) -> int:
-    """Rounds in one 3 → max → 3 cycle."""
+    """Rounds in one cycle (3 → max → 3, or max → 3 → max)."""
     return 2 * (max_cards - 2)
 
 
-def cards_for(index: int, max_cards: int) -> int:
-    """Cards dealt in round `index`: 3 → max → 3, with max and 3 each repeated once."""
+def cards_for(index: int, max_cards: int, order: str = "up") -> int:
+    """Cards dealt in round `index`: 3 → max → 3 (or max → 3 → max down first), turns repeated."""
     p = index % cycle_len(max_cards)
-    return 3 + p if p < max_cards - 2 else max_cards - (p - (max_cards - 2))
+    half = max_cards - 2
+    if order == "down":
+        return max_cards - p if p < half else 3 + (p - half)
+    return 3 + p if p < half else max_cards - (p - half)
 
 
 def total_rounds(game: Game) -> float:
