@@ -17,6 +17,9 @@ ADMIN_ROUTES = [
     ("DELETE", "/api/admin/invites/x@example.com", None),
     ("POST", f"/api/admin/users/{uuid.uuid4()}/reset-link", None),
     ("PATCH", f"/api/admin/users/{uuid.uuid4()}", {"active": False}),
+    ("GET", f"/api/admin/users/{uuid.uuid4()}/deletion-preview", None),
+    ("DELETE", f"/api/admin/users/{uuid.uuid4()}/games", None),
+    ("DELETE", f"/api/admin/users/{uuid.uuid4()}", None),
     ("PUT", "/api/admin/settings/appearance", {"theme": "yerba-sun", "allowUserOverride": True}),
 ]
 

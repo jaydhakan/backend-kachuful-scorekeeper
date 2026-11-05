@@ -62,6 +62,7 @@ def _player_fields(view: PlayerView) -> dict[str, object]:
         ],
         "created_by": player.created_by,
         "merged_into": player.merged_into,
+        "anonymised": player.anonymised_at is not None,
         "created_at": to_ms(player.created_at),
         "updated_at": to_ms(player.updated_at),
     }

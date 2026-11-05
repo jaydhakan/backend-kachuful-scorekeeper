@@ -114,6 +114,26 @@ class AttentionOut(CamelModel):
     )
 
 
+class DeletionPreviewOut(CamelModel):
+    """`GET /api/admin/users/{id}/deletion-preview`: what deleting the account, or its games, removes."""
+
+    games: int = Field(..., description="Live games the user scored")
+    rounds: int = Field(..., description="Done rounds across those games")
+    other_players: int = Field(..., description="Other players seated in those games")
+    sessions: int = Field(..., description="Signed-in browsers")
+    invites: int = Field(..., description="Invites for the account's email")
+    has_photo: bool = Field(..., description="Their player has a photo")
+    player_in_others_games: bool = Field(
+        ..., description="Their player sits in games others scored, so it is anonymised"
+    )
+
+
+class DeletedGamesOut(CamelModel):
+    """`DELETE /api/admin/users/{id}/games`."""
+
+    games: int = Field(..., description="Games deleted")
+
+
 class OverviewOut(CamelModel):
     """`GET /api/admin/overview`."""
 

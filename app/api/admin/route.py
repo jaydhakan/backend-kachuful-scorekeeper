@@ -9,6 +9,8 @@ from app.api.deps import AdminAuth, get_admin_service, get_appearance_service, g
 from app.schemas.admin import (
     AdminUserRow,
     CreateInviteIn,
+    DeletedGamesOut,
+    DeletionPreviewOut,
     InviteLinkOut,
     MergeIn,
     OverviewOut,
@@ -66,6 +68,28 @@ async def update_user(
 ) -> UserEnvelopeOut:
     """Switch an account on or off."""
     return await service.update_user(user_id, body)
+
+
+@admin_router.get("/users/{user_id}/deletion-preview", response_model=DeletionPreviewOut)
+async def get_deletion_preview(
+    user_id: _UserId, _: AdminAuth, service: _AdminServiceDep
+) -> DeletionPreviewOut:
+    """What clearing the user's games, or deleting the user, would remove."""
+    return await service.deletion_preview(user_id)
+
+
+@admin_router.delete("/users/{user_id}/games", response_model=DeletedGamesOut)
+async def clear_user_games(
+    user_id: _UserId, ctx: AdminAuth, service: _AdminServiceDep
+) -> DeletedGamesOut:
+    """Delete every game the user scored (their account and players stay)."""
+    return await service.clear_games(user_id, ctx.user)
+
+
+@admin_router.delete("/users/{user_id}", status_code=204)
+async def delete_user(user_id: _UserId, ctx: AdminAuth, service: _AdminServiceDep) -> None:
+    """Delete an account and everything it scored; a player others' games use is anonymised."""
+    await service.delete_user(user_id, ctx.user)
 
 
 @admin_router.post("/players/{player_id}/merge", response_model=PlayerEnvelopeOut)

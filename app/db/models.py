@@ -77,6 +77,20 @@ class AppSettingAudit(Base):
     changed_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
 
+class AdminAudit(Base):
+    """One row per destructive admin action: who did what to whom, and the counts."""
+
+    __tablename__ = "admin_audit"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    actor_user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    action: Mapped[str] = mapped_column(Text)
+    # The account's email or the user id: the row outlives the account it describes.
+    target: Mapped[str] = mapped_column(Text)
+    details: Mapped[dict[str, Any]] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
+    at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+
 class User(Base):
     """An account. Created by accepting an invite (or by seed-admin, without a password)."""
 
@@ -198,6 +212,8 @@ class Player(Base):
     color: Mapped[str] = mapped_column(Text)
     created_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", use_alter=True))
     merged_into: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("players.id"))
+    # Set when the account behind it was deleted and other people's games still use it.
+    anonymised_at: Mapped[datetime | None]
     # Maintained on every game write so summaries never count rows on read.
     games_count: Mapped[int] = mapped_column(Integer, server_default="0")
     last_played_at: Mapped[datetime | None]

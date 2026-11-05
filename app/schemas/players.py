@@ -33,6 +33,9 @@ class PlayerOut(CamelModel):
     created_by: uuid.UUID | None = Field(..., description="User id that created the player")
     linked_user_id: uuid.UUID | None = Field(..., description="User id linked to this player")
     merged_into: uuid.UUID | None = Field(..., description="Set when merged into another player")
+    anonymised: bool = Field(
+        default=False, description="The account behind it was deleted; its name is gone"
+    )
     created_at: int = Field(..., description="Epoch ms")
     updated_at: int = Field(..., description="Epoch ms; the sync cursor")
 

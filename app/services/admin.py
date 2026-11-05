@@ -10,6 +10,7 @@ from app.domain.names import clean_email
 from app.domain.time import now_utc, to_ms, to_ms_or_none
 from app.exceptions import ApiError, ErrorCode
 from app.logger import get_logger
+from app.repositories.accounts import accounts_repository
 from app.repositories.app_state import app_state_repository
 from app.repositories.games import games_repository
 from app.repositories.invites import invites_repository
@@ -21,6 +22,8 @@ from app.schemas.admin import (
     AdminUserRow,
     AttentionOut,
     CreateInviteIn,
+    DeletedGamesOut,
+    DeletionPreviewOut,
     DuplicatePairOut,
     InviteLinkOut,
     OverviewOut,
@@ -31,6 +34,7 @@ from app.schemas.admin import (
 )
 from app.schemas.players import PlayerOut
 from app.security.tokens import hash_token, new_token
+from app.services.games import GamesService
 from app.services.presenters import player_out, player_summary_out, user_out
 from app.settings import settings
 
@@ -228,3 +232,75 @@ class AdminService:
                 for p in pairs
             ],
         )
+
+    async def _target(self, user_id: uuid.UUID) -> User:
+        user = await users_repository.get(self.session, user_id)
+        if user is None:
+            raise ApiError(404, ErrorCode.NOT_FOUND, "No such user.")
+        return user
+
+    async def deletion_preview(self, user_id: uuid.UUID) -> DeletionPreviewOut:
+        """What clearing the account's games, or deleting the account, removes."""
+        f = await accounts_repository.footprint(self.session, await self._target(user_id))
+        return DeletionPreviewOut(
+            games=f.games,
+            rounds=f.rounds,
+            other_players=f.other_players,
+            sessions=f.sessions,
+            invites=f.invites,
+            has_photo=f.has_photo,
+            player_in_others_games=f.player_in_others_games,
+        )
+
+    async def clear_games(self, user_id: uuid.UUID, admin: User) -> DeletedGamesOut:
+        """Soft-delete every game the user scored; their players and account stay."""
+        user = await self._target(user_id)
+        games = await GamesService(self.session).delete_owned(user, admin)
+        await accounts_repository.audit(
+            self.session, admin.id, "clear_games", user.email, {"games": games}
+        )
+        await self.session.commit()
+        logger.info("admin cleared games", extra={"by": str(admin.id), "games": games})
+        return DeletedGamesOut(games=games)
+
+    async def delete_user(self, user_id: uuid.UUID, admin: User) -> None:
+        """Delete an account and what it owns; a player other people's games use is anonymised.
+
+        Games go first, each through the one delete use case (its own commit), so a retry after a
+        failure picks up where it stopped; the account itself goes in one transaction.
+        """
+        user = await self._target(user_id)
+        if user.id == admin.id:
+            raise ApiError(409, ErrorCode.CANNOT_DELETE_SELF, "You can't delete your own account.")
+        if user.role == "admin":
+            raise ApiError(409, ErrorCode.CANNOT_DELETE_ADMIN, "Admin accounts can't be deleted.")
+        footprint = await accounts_repository.footprint(self.session, user)
+        games = await GamesService(self.session).delete_owned(user, admin)
+        user = await self._target(user_id)
+        email, player_id = user.email, user.player_id
+        await accounts_repository.hand_over(self.session, user, admin.id)
+        players = await players_repository.delete_unused_created_by(self.session, user.id)
+        user.player_id = None
+        await self.session.flush()
+        anonymised = False
+        if player_id is not None:
+            player = await players_repository.get_for_update(self.session, player_id)
+            if player is not None and await accounts_repository.player_in_use(
+                self.session, player_id
+            ):
+                await accounts_repository.anonymise(self.session, player)
+                anonymised = True
+            elif player is not None:
+                await accounts_repository.delete_player(self.session, player_id)
+        await accounts_repository.delete_user(self.session, user)
+        details = {
+            "games": games,
+            "rounds": footprint.rounds,
+            "players": players,
+            "sessions": footprint.sessions,
+            "anonymised": anonymised,
+        }
+        await accounts_repository.audit(self.session, admin.id, "delete_user", email, details)
+        await app_state_repository.bump(self.session)
+        await self.session.commit()
+        logger.info("admin deleted user", extra={"by": str(admin.id), **details})

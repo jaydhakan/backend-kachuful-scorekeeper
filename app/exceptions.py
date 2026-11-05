@@ -34,6 +34,8 @@ class ErrorCode(StrEnum):
     PLAYER_LINKED = "player_linked"
     USER_EXISTS = "user_exists"
     LAST_ADMIN = "last_admin"
+    CANNOT_DELETE_ADMIN = "cannot_delete_admin"
+    CANNOT_DELETE_SELF = "cannot_delete_self"
     BOTH_LINKED = "both_linked"
     ID_CONFLICT = "id_conflict"
     STALE = "stale"
