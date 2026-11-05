@@ -6,7 +6,7 @@ import uuid
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import Invite, Player, User
+from app.db.models import Invite, Player, PlayerAlias, User
 from app.exceptions import ApiError, ErrorCode
 from app.logger import get_logger
 from app.repositories.achievements import achievements_repository
@@ -14,7 +14,7 @@ from app.repositories.app_state import app_state_repository
 from app.repositories.games import games_repository
 from app.repositories.players import players_repository
 from app.repositories.users import users_repository
-from app.schemas.admin import PlayerEnvelopeOut
+from app.schemas.admin import MergeKeepIn, PlayerEnvelopeOut
 from app.services.achievements import AchievementsEngine
 from app.services.games import GamesService
 from app.services.presenters import player_out
@@ -38,7 +38,14 @@ class MergeService:
             raise ApiError(404, ErrorCode.NOT_FOUND, "No such player.")
         return source, target
 
-    async def merge(self, from_id: uuid.UUID, into_id: uuid.UUID, admin: User) -> PlayerEnvelopeOut:
+    async def merge(
+        self,
+        from_id: uuid.UUID,
+        into_id: uuid.UUID,
+        admin: User,
+        *,
+        keep: MergeKeepIn | None = None,
+    ) -> PlayerEnvelopeOut:
         """Fold `from_id` into `into_id`: every reference moves and `from_id` gets `mergedInto`."""
         if from_id == into_id:
             raise ApiError(
@@ -64,7 +71,7 @@ class MergeService:
         if source_user is not None:
             await users_repository.move_player_link(self.session, source.id, target.id)
         await players_repository.redirect_merged(self.session, source.id, target.id)
-        await self._keep_identity(source, target)
+        await self._keep_identity(source, target, keep or MergeKeepIn(), admin)
         await players_repository.touch(self.session, target)
         await app_state_repository.bump(self.session)
         await self.session.commit()
@@ -73,15 +80,45 @@ class MergeService:
         assert view is not None
         return PlayerEnvelopeOut(player=player_out(view, admin))
 
-    async def _keep_identity(self, source: Player, target: Player) -> None:
-        """The kept player keeps its email and photo; it takes the duplicate's when it has none."""
-        # Runs after the duplicate is marked merged, so its email no longer counts as taken.
-        if target.email is None and source.email is not None:
-            target.email = source.email
+    async def _keep_identity(
+        self, source: Player, target: Player, keep: MergeKeepIn, admin: User
+    ) -> None:
+        """Apply `keep`; the chosen side's email and photo win, the other's fills a gap."""
+        # Runs after the duplicate is marked merged, so its name and email no longer count as taken.
+        # Names first: a demoted display name takes the kept player's first and last name with it.
+        await self._keep_names(source, target, from_main=keep.display_name == "from", admin=admin)
+        from_first = keep.email == "from"
+        if (from_first and source.email is not None) or target.email is None:
+            target.email = target.email if source.email is None else source.email
+        if keep.names == "from" and (source.first_name or source.last_name):
+            target.first_name, target.last_name = source.first_name, source.last_name
+        await self._keep_photo(source, target, from_first=keep.photo == "from")
+
+    async def _keep_photo(self, source: Player, target: Player, *, from_first: bool) -> None:
         revs = await players_repository.photo_revs(self.session, [source.id, target.id])
-        if target.id not in revs and source.id in revs:
-            await players_repository.move_photo(self.session, source.id, target.id)
-            target.photo_rev += 1
+        if source.id not in revs or (target.id in revs and not from_first):
+            return
+        await players_repository.delete_photo(self.session, target.id)
+        await players_repository.move_photo(self.session, source.id, target.id)
+        target.photo_rev += 1
+
+    async def _keep_names(
+        self, source: Player, target: Player, *, from_main: bool, admin: User
+    ) -> None:
+        """The duplicate's aliases move over; whichever display name is not kept becomes one."""
+        await players_repository.move_aliases(self.session, source.id, target.id)
+        demoted = target if from_main else source
+        alias = PlayerAlias(
+            player_id=target.id,
+            display_name=demoted.display_name,
+            name_key=demoted.name_key,
+            first_name=demoted.first_name,
+            last_name=demoted.last_name,
+            created_by=admin.id,
+        )
+        if from_main:
+            target.display_name, target.name_key = source.display_name, source.name_key
+        await players_repository.add_aliases(self.session, [alias])
 
     async def _move_references(self, from_id: uuid.UUID, into_id: uuid.UUID) -> None:
         await self.session.execute(

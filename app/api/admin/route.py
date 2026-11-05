@@ -75,8 +75,12 @@ async def merge_player(
     ctx: AdminAuth,
     service: _MergeServiceDep,
 ) -> PlayerEnvelopeOut:
-    """Merge a duplicate player into another; games, badges, email and photo move with it."""
-    return await service.merge(player_id, body.into_id, ctx.user)
+    """Merge a duplicate player into another; games, badges, email and photo move with it.
+
+    The duplicate's names and aliases become aliases of the kept player; `keep` picks which
+    details survive.
+    """
+    return await service.merge(player_id, body.into_id, ctx.user, keep=body.keep)
 
 
 @admin_router.get("/overview", response_model=OverviewOut)

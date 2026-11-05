@@ -255,8 +255,9 @@ async def test_merge_moves_the_account_link_and_marks_the_duplicate(
     assert response.json()["player"]["linkedUserId"] == str(member.id)
     dupe = (await session.execute(select(Player).where(Player.id == member.player_id))).scalar()
     assert dupe is not None and dupe.merged_into == target.id
+    assert [a["displayName"] for a in response.json()["player"]["aliases"]] == ["Dupe"]
     taken = await client.post("/api/players", json=new_player_body("Dupe"))
-    assert taken.status_code == 201
+    assert (taken.status_code, taken.json()["code"]) == (409, "name_taken")
 
 
 async def test_merge_of_two_linked_players_returns_both_linked(

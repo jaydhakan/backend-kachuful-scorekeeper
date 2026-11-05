@@ -1,6 +1,7 @@
 """Admin models (plan §6.2)."""
 
 import uuid
+from typing import Literal
 
 from pydantic import Field
 
@@ -59,10 +60,33 @@ class UserEnvelopeOut(CamelModel):
     user: UserOut
 
 
+MergeSide = Literal["from", "into"]
+
+
+class MergeKeepIn(CamelModel):
+    """Which player's details the kept player ends up with; a missing field keeps today's rule."""
+
+    display_name: MergeSide | None = Field(
+        default=None, description="Default into; the name not kept becomes an alias"
+    )
+    email: MergeSide | None = Field(
+        default=None, description="Default into; the chosen side's email, else the other's"
+    )
+    names: MergeSide | None = Field(
+        default=None,
+        description="First and last name. Default into (as is); from takes the duplicate's, "
+        "or keeps into's when the duplicate has neither",
+    )
+    photo: MergeSide | None = Field(
+        default=None, description="Default into; the chosen side's photo, else the other's"
+    )
+
+
 class MergeIn(CamelModel):
     """`POST /api/admin/players/{id}/merge`."""
 
     into_id: uuid.UUID = Field(..., description="The player that remains")
+    keep: MergeKeepIn | None = Field(default=None, description="Missing means today's rules")
 
 
 class PlayerEnvelopeOut(CamelModel):
