@@ -56,6 +56,10 @@ def _player_fields(view: PlayerView) -> dict[str, object]:
         "last_name": player.last_name,
         "emoji": player.emoji,
         "color": player.color,
+        "aliases": [
+            {"display_name": a.display_name, "first_name": a.first_name, "last_name": a.last_name}
+            for a in view.aliases
+        ],
         "created_by": player.created_by,
         "merged_into": player.merged_into,
         "created_at": to_ms(player.created_at),

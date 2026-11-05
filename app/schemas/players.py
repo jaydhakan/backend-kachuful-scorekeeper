@@ -8,6 +8,14 @@ from pydantic import Field
 from app.schemas.common import CamelModel
 
 
+class AliasOut(CamelModel):
+    """Another name the player is known by."""
+
+    display_name: str = Field(..., description="Reserved like a display name, 1-14 characters")
+    first_name: str | None = Field(..., description="Optional, never sent publicly")
+    last_name: str | None = Field(..., description="Optional, never sent publicly")
+
+
 class PlayerOut(CamelModel):
     """The contract's Player."""
 
@@ -21,6 +29,7 @@ class PlayerOut(CamelModel):
     last_name: str | None = Field(..., description="Optional, never sent publicly")
     emoji: str = Field(..., description="Avatar emoji")
     color: str = Field(..., description="Avatar colour, hex")
+    aliases: list[AliasOut] = Field(..., description="Other names, oldest first")
     created_by: uuid.UUID | None = Field(..., description="User id that created the player")
     linked_user_id: uuid.UUID | None = Field(..., description="User id linked to this player")
     merged_into: uuid.UUID | None = Field(..., description="Set when merged into another player")
@@ -53,6 +62,14 @@ class NewPlayerIn(CamelModel):
     last_name: str | None = Field(default=None, max_length=40, description="Optional")
     emoji: str = Field(..., min_length=1, max_length=16, description="Avatar emoji")
     color: str = Field(..., min_length=1, max_length=32, description="Avatar colour")
+
+
+class NewAliasIn(CamelModel):
+    """`POST /api/players/{id}/aliases`."""
+
+    display_name: str = Field(..., description="1-14 characters; unique among names and aliases")
+    first_name: str | None = Field(default=None, max_length=40, description="Optional")
+    last_name: str | None = Field(default=None, max_length=40, description="Optional")
 
 
 class PlayerRefIn(CamelModel):

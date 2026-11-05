@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import Select, and_, delete, exists, func, or_, select, update
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import Select, and_, delete, exists, func, literal_column, or_, select, update
+from sqlalchemy.dialects.postgresql import JSON, aggregate_order_by, insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
@@ -17,9 +17,19 @@ from app.db.models import (
     GamePlayer,
     Invite,
     Player,
+    PlayerAlias,
     PlayerPhoto,
     User,
 )
+
+
+@dataclass(frozen=True)
+class AliasView:
+    """Another name of a player, as reads show it."""
+
+    display_name: str
+    first_name: str | None
+    last_name: str | None
 
 
 @dataclass(frozen=True)
@@ -30,6 +40,7 @@ class PlayerView:
     linked_user_id: uuid.UUID | None
     created_by_name: str
     has_photo: bool = False
+    aliases: tuple[AliasView, ...] = ()
 
 
 _linked = aliased(User)
@@ -37,7 +48,26 @@ _creator = aliased(User)
 _creator_player = aliased(Player)
 
 
-def _view_query() -> Select[Player, uuid.UUID | None, str, bool]:
+def _aliases_json() -> Any:
+    # One correlated aggregate per row keeps every player read a single query.
+    entry = func.json_build_object(
+        "display_name",
+        PlayerAlias.display_name,
+        "first_name",
+        PlayerAlias.first_name,
+        "last_name",
+        PlayerAlias.last_name,
+    )
+    ordered = aggregate_order_by(entry, PlayerAlias.created_at, PlayerAlias.id)
+    return (
+        select(func.coalesce(func.json_agg(ordered), literal_column("'[]'::json"), type_=JSON))
+        .where(PlayerAlias.player_id == Player.id)
+        .correlate(Player)
+        .scalar_subquery()
+    )
+
+
+def _view_query() -> Select[Player, uuid.UUID | None, str, bool, Any]:
     # Joins only the photo's key: the image bytes are never loaded here.
     return (
         select(
@@ -45,6 +75,7 @@ def _view_query() -> Select[Player, uuid.UUID | None, str, bool]:
             _linked.id,
             func.coalesce(_creator_player.display_name, ""),
             PlayerPhoto.player_id.is_not(None),
+            _aliases_json(),
         )
         .outerjoin(_linked, _linked.player_id == Player.id)
         .outerjoin(_creator, _creator.id == Player.created_by)
@@ -55,7 +86,13 @@ def _view_query() -> Select[Player, uuid.UUID | None, str, bool]:
 
 def _to_views(rows: Sequence[Any]) -> list[PlayerView]:
     return [
-        PlayerView(player=r[0], linked_user_id=r[1], created_by_name=r[2], has_photo=bool(r[3]))
+        PlayerView(
+            player=r[0],
+            linked_user_id=r[1],
+            created_by_name=r[2],
+            has_photo=bool(r[3]),
+            aliases=tuple(AliasView(**a) for a in r[4] or ()),
+        )
         for r in rows
     ]
 
@@ -119,10 +156,35 @@ class PlayersRepository:
         stmt = _view_query().order_by(Player.updated_at, Player.id)
         return _to_views((await session.execute(stmt)).all())
 
-    async def get_active_by_name_key(self, session: AsyncSession, key: str) -> Player | None:
-        """The unmerged player holding a name key."""
-        stmt = select(Player).where(Player.name_key == key, Player.merged_into.is_(None))
-        return (await session.execute(stmt)).scalar_one_or_none()
+    async def get_active_by_name_or_alias(self, session: AsyncSession, key: str) -> Player | None:
+        """The unmerged player holding a name key as display name or as an alias."""
+        has_alias = exists().where(PlayerAlias.player_id == Player.id, PlayerAlias.name_key == key)
+        stmt = select(Player).where(
+            Player.merged_into.is_(None), or_(Player.name_key == key, has_alias)
+        )
+        return (await session.execute(stmt)).scalars().first()
+
+    async def aliases_of(self, session: AsyncSession, player_id: uuid.UUID) -> list[PlayerAlias]:
+        """A player's aliases, oldest first."""
+        stmt = (
+            select(PlayerAlias)
+            .where(PlayerAlias.player_id == player_id)
+            .order_by(PlayerAlias.created_at, PlayerAlias.id)
+        )
+        return list((await session.execute(stmt)).scalars())
+
+    async def add_aliases(self, session: AsyncSession, aliases: Sequence[PlayerAlias]) -> None:
+        """Insert aliases (the caller has checked the names)."""
+        session.add_all(aliases)
+        await session.flush()
+
+    async def move_aliases(
+        self, session: AsyncSession, from_id: uuid.UUID, into_id: uuid.UUID
+    ) -> None:
+        """Give `into_id` every alias of `from_id` (merge)."""
+        await session.execute(
+            update(PlayerAlias).where(PlayerAlias.player_id == from_id).values(player_id=into_id)
+        )
 
     async def get_active_by_email(self, session: AsyncSession, email: str) -> Player | None:
         """The unmerged player holding an email (case-insensitive)."""

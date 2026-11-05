@@ -205,6 +205,29 @@ class Player(Base):
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
 
+class PlayerAlias(Base):
+    """Another name a player is known by. Its name key is reserved like a display name.
+
+    A trigger (migration 0011) refuses a name key that another live player holds as name or alias.
+    """
+
+    __tablename__ = "player_aliases"
+    __table_args__ = (
+        # Aliases always belong to live players (a merge moves them), so the key is unique outright.
+        Index("uq_player_aliases_name_key", "name_key", unique=True),
+        Index("ix_player_aliases_player_id", "player_id"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, server_default=func.gen_random_uuid())
+    player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id", ondelete="CASCADE"))
+    display_name: Mapped[str] = mapped_column(Text)
+    name_key: Mapped[str] = mapped_column(Text)
+    first_name: Mapped[str | None] = mapped_column(Text)
+    last_name: Mapped[str | None] = mapped_column(Text)
+    created_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+
 class Game(Base):
     """A game stored whole as the app's JSON, plus the columns lists and jobs filter on."""
 

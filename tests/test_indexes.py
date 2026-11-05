@@ -29,6 +29,11 @@ CASES = [
     ),
     ("ix_players_updated_at_id", "SELECT id FROM players ORDER BY updated_at, id LIMIT 50"),
     ("ix_players_name_key_trgm", "SELECT id FROM players WHERE name_key % 'riy'"),
+    ("uq_player_aliases_name_key", "SELECT player_id FROM player_aliases WHERE name_key = 'aki'"),
+    (
+        "ix_player_aliases_player_id",
+        f"SELECT display_name FROM player_aliases WHERE player_id = '{ID}'",
+    ),
     ("ix_games_updated_at_id", "SELECT id FROM games ORDER BY updated_at DESC, id DESC LIMIT 50"),
     (
         "ix_games_owner_id_updated_at",

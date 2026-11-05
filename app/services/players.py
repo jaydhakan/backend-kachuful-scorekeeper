@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import Player, User
+from app.db.models import Player, PlayerAlias, User
 from app.domain.names import clean_email, is_valid_display_name, name_key, tidy_spaces
 from app.domain.time import from_ms
 from app.exceptions import ApiError, ErrorCode
@@ -17,6 +17,7 @@ from app.repositories.app_state import app_state_repository
 from app.repositories.players import PlayerView, players_repository
 from app.schemas.common import Page
 from app.schemas.players import (
+    NewAliasIn,
     NewPlayerIn,
     PhotoOut,
     PlayerCheckOut,
@@ -126,9 +127,9 @@ class PlayersService:
         return player_summary_out(view)
 
     async def holders(self, display_name: str, email: str) -> Holders:
-        """The live players holding this name and this email."""
+        """The live players holding this name (as name or alias) and this email."""
         return Holders(
-            by_name=await players_repository.get_active_by_name_key(
+            by_name=await players_repository.get_active_by_name_or_alias(
                 self.session, name_key(display_name)
             ),
             by_email=await players_repository.get_active_by_email(self.session, email),
@@ -248,11 +249,48 @@ class PlayersService:
         if not is_valid_display_name(display_name):
             raise _invalid_name()
         key = name_key(display_name)
-        holder = await players_repository.get_active_by_name_key(self.session, key)
+        holder = await players_repository.get_active_by_name_or_alias(self.session, key)
         if holder is not None and holder.id != player.id:
             raise name_taken()
         player.display_name = tidy_spaces(display_name)
         player.name_key = key
+
+    async def add_alias(
+        self, player_id: uuid.UUID, body: NewAliasIn, user: User
+    ) -> tuple[PlayerOut, bool]:
+        """Give a live player another name; any signed-in user may. The same name again is a no-op."""
+        player = await players_repository.get_for_update(self.session, player_id)
+        if player is None or player.merged_into is not None:
+            raise ApiError(404, ErrorCode.NOT_FOUND, "No such player.")
+        if not is_valid_display_name(body.display_name):
+            raise _invalid_name()
+        key = name_key(body.display_name)
+        holder = await players_repository.get_active_by_name_or_alias(self.session, key)
+        if holder is not None and holder.id != player.id:
+            raise name_taken()
+        created = holder is None
+        if created:
+            await self._insert_alias(player, body, key, user)
+        return player_out(await self._view(player.id), user), created
+
+    async def _insert_alias(self, player: Player, body: NewAliasIn, key: str, user: User) -> None:
+        alias = PlayerAlias(
+            player_id=player.id,
+            display_name=tidy_spaces(body.display_name),
+            name_key=key,
+            first_name=_optional(body.first_name),
+            last_name=_optional(body.last_name),
+            created_by=user.id,
+        )
+        try:
+            async with self.session.begin_nested():
+                await players_repository.add_aliases(self.session, [alias])
+        except IntegrityError:
+            # Lost a race for the name: the unique index or the reserve trigger refused it.
+            raise name_taken() from None
+        await players_repository.touch(self.session, player)
+        await app_state_repository.bump(self.session)
+        await self.session.commit()
 
     async def _set_email(self, player: Player, email: str) -> None:
         holder = await players_repository.get_active_by_email(self.session, email)

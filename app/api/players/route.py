@@ -10,7 +10,14 @@ from app.api.etag import IfNoneMatch, respond
 from app.schemas.boards import CalendarOut, HeadToHeadOut, PlayerPageOut, PlayerStatsOut
 from app.schemas.common import Page
 from app.schemas.games import GameSummaryOut
-from app.schemas.players import NewPlayerIn, PhotoOut, PlayerCheckOut, PlayerOut, PlayerPatchIn
+from app.schemas.players import (
+    NewAliasIn,
+    NewPlayerIn,
+    PhotoOut,
+    PlayerCheckOut,
+    PlayerOut,
+    PlayerPatchIn,
+)
 from app.security import rate_limit
 from app.services.boards import ALL_TIME_TO, BoardsService
 from app.services.pagination import DEFAULT_LIMIT, MAX_LIMIT
@@ -68,6 +75,21 @@ async def update_player(
 ) -> PlayerOut:
     """Edit a player: admin, the creator or the linked user may change any field."""
     return await service.patch(player_id, body, ctx.user)
+
+
+@players_router.post("/{player_id}/aliases", response_model=PlayerOut, status_code=201)
+async def add_player_alias(
+    player_id: _PlayerId,
+    body: NewAliasIn,
+    ctx: CurrentAuth,
+    service: _PlayersServiceDep,
+    response: Response,
+) -> PlayerOut:
+    """Add another name for a player (any signed-in user). The same name again answers 200."""
+    player, created = await service.add_alias(player_id, body, ctx.user)
+    if not created:
+        response.status_code = 200
+    return player
 
 
 @players_router.get("/{player_id}", response_model=PlayerPageOut)
