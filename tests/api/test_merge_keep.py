@@ -1,5 +1,7 @@
 """Merge: the admin picks which details the kept player keeps; every other name becomes an alias."""
 
+from datetime import UTC, datetime, timedelta
+
 import httpx
 import pytest
 from sqlalchemy import select
@@ -44,8 +46,9 @@ async def test_without_keep_the_kept_player_wins_and_the_duplicates_name_becomes
         "Akishesh",
     )
     assert player["aliases"] == [{"displayName": "Aki", "firstName": "Aki", "lastName": None}]
-    gone = await session.get(Player, dupe.id)
-    assert gone is not None and gone.merged_into == keeper.id
+    # The merge ran in the request's session: reload this session's copy.
+    await session.refresh(dupe)
+    assert dupe.merged_into == keeper.id
 
 
 async def test_keep_from_takes_the_duplicates_name_email_and_names(
@@ -77,7 +80,15 @@ async def test_the_duplicates_aliases_move_to_the_kept_player(
 ) -> None:
     admin = await _admin(client, session)
     dupe, keeper = await _pair(session)
-    session.add(PlayerAlias(player_id=dupe.id, display_name="AK", name_key=name_key("AK")))
+    # Added before the merge, as it would be: aliases list oldest first.
+    session.add(
+        PlayerAlias(
+            player_id=dupe.id,
+            display_name="AK",
+            name_key=name_key("AK"),
+            created_at=datetime.now(UTC) - timedelta(days=1),
+        )
+    )
     await session.flush()
 
     merged = await MergeService(session).merge(dupe.id, keeper.id, admin)
