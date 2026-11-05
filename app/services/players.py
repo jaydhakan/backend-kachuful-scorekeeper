@@ -204,7 +204,10 @@ class PlayersService:
         return player_out(result.view, user), result.created
 
     async def check(self, display_name: str, raw_email: str) -> PlayerCheckOut:
-        """match (name and email are one player) / email_taken / name_taken / new."""
+        """match (name or alias and email are one player) / email_match / name_taken / new.
+
+        email_match names the email's player so the app can ask "Is this them?" (invite-only group).
+        """
         holders = await self.holders(display_name, required_email(raw_email))
         same = holders.same
         if same is not None:
@@ -212,7 +215,10 @@ class PlayersService:
                 status="match", player=player_summary_out(await self._view(same.id))
             )
         if holders.by_email is not None:
-            return PlayerCheckOut(status="email_taken")
+            return PlayerCheckOut(
+                status="email_match",
+                player=player_summary_out(await self._view(holders.by_email.id)),
+            )
         if holders.by_name is not None:
             return PlayerCheckOut(status="name_taken")
         return PlayerCheckOut(status="new")

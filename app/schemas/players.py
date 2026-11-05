@@ -108,12 +108,16 @@ class PlayerPatchIn(CamelModel):
 
 
 class PlayerCheckOut(CamelModel):
-    """`GET /api/players/check`: only a full match names a player."""
+    """`GET /api/players/check`: a match or an email match names the player."""
 
-    status: Literal["match", "email_taken", "name_taken", "new"] = Field(
-        ..., description="match = name and email belong to one player"
+    status: Literal["match", "email_match", "name_taken", "new"] = Field(
+        ...,
+        description="match = name (or alias) and email belong to one player; "
+        "email_match = the email's player goes by other names",
     )
-    player: PlayerSummaryOut | None = Field(default=None, description="Only when status is match")
+    player: PlayerSummaryOut | None = Field(
+        default=None, description="The player, when status is match or email_match"
+    )
 
 
 class PhotoOut(CamelModel):

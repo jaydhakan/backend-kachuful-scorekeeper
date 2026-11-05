@@ -41,12 +41,10 @@ async def test_check_with_name_and_email_of_one_player_is_a_match(
     ("name", "email", "status"),
     [
         ("Riya", "someone@example.com", "name_taken"),
-        ("Zoya", "riya@example.com", "email_taken"),
-        ("Riya", "kabir@example.com", "email_taken"),
         ("Zoya", "zoya@example.com", "new"),
     ],
 )
-async def test_a_partial_match_reveals_nothing(
+async def test_a_name_only_match_or_no_match_reveals_nothing(
     client: httpx.AsyncClient, session: AsyncSession, name: str, email: str, status: str
 ) -> None:
     await _member(client, session)
@@ -57,6 +55,22 @@ async def test_a_partial_match_reveals_nothing(
 
     assert response.status_code == 200
     assert response.json() == {"status": status, "player": None}
+
+
+@pytest.mark.parametrize("name", ["Zoya", "Riya"])
+async def test_an_email_match_names_the_emails_player(
+    client: httpx.AsyncClient, session: AsyncSession, name: str
+) -> None:
+    await _member(client, session)
+    await make_player(session, name="Riya", email="riya@example.com")
+    kabir = await make_player(session, name="Kabir", email="kabir@example.com")
+
+    response = await _check(client, name, "KABIR@example.com")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "email_match"
+    assert response.json()["player"]["id"] == str(kabir.id)
+    assert response.json()["player"]["email"] is None
 
 
 async def test_check_needs_a_valid_email_and_a_session(

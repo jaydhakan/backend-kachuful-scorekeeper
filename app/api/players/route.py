@@ -53,7 +53,7 @@ async def check_player(
     name: Annotated[str, Query(min_length=1, max_length=100)],
     email: Annotated[str, Query(min_length=1, max_length=254)],
 ) -> PlayerCheckOut:
-    """Is this person already a player? Only a full name + email match names the player."""
+    """Is this person already a player? A name + email match or an email match names them."""
     await rate_limit.enforce(rate_limit.PLAYER_CHECK, f"user:{ctx.user.id}")
     return await service.check(name, email)
 
