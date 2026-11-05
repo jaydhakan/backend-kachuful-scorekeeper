@@ -8,6 +8,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Player, User
+from app.domain.time import now_utc
+from app.security import rate_limit
 from app.services.merge import MergeService
 from tests.factories import make_invite, make_player, make_user, new_player_body, sign_in
 
@@ -88,9 +90,12 @@ async def test_check_needs_a_valid_email_and_a_session(
 
 
 async def test_check_is_limited_to_60_a_minute(
-    client: httpx.AsyncClient, session: AsyncSession
+    client: httpx.AsyncClient, session: AsyncSession, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     await _member(client, session)
+    # One fixed instant: the window is a clock minute, and a run crossing one would split the 61 checks.
+    instant = now_utc()
+    monkeypatch.setattr(rate_limit, "now_utc", lambda: instant)
     for _ in range(60):
         await _check(client, "A", "a@example.com")
 
