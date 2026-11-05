@@ -5,7 +5,7 @@
     "id": "g-10000000-0000-4000-8000-000000000004",
     "syncId": "10000000-0000-4000-8000-000000000004",
     "rev": 1,
-    "schemaVersion": 3,
+    "schemaVersion": 4,
     "createdAt": 1791613800000,
     "updatedAt": 1791614640000,
     "players": [
@@ -42,6 +42,7 @@
     "firstDealerIndex": 2,
     "decks": 1,
     "maxCards": 10,
+    "order": "up",
     "lengthMode": "endless",
     "rounds": [
       {
