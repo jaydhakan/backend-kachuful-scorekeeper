@@ -16,6 +16,7 @@ from sqlalchemy import (
     literal_column,
     or_,
     select,
+    union,
     update,
 )
 from sqlalchemy.dialects.postgresql import JSON, aggregate_order_by, insert
@@ -179,10 +180,12 @@ class PlayersRepository:
 
     async def get_active_by_name_or_alias(self, session: AsyncSession, key: str) -> Player | None:
         """The unmerged player holding a name key as display name or as an alias."""
-        has_alias = exists().where(PlayerAlias.player_id == Player.id, PlayerAlias.name_key == key)
-        stmt = select(Player).where(
-            Player.merged_into.is_(None), or_(Player.name_key == key, has_alias)
+        # A union keeps both lookups on their unique indexes (an OR would scan the players).
+        holders = union(
+            select(Player.id).where(Player.name_key == key, Player.merged_into.is_(None)),
+            select(PlayerAlias.player_id).where(PlayerAlias.name_key == key),
         )
+        stmt = select(Player).where(Player.merged_into.is_(None), Player.id.in_(holders))
         return (await session.execute(stmt)).scalars().first()
 
     async def aliases_of(self, session: AsyncSession, player_id: uuid.UUID) -> list[PlayerAlias]:
