@@ -106,10 +106,33 @@ CASES = [
 ]
 
 
+async def _only_index(session: AsyncSession, index: str) -> None:
+    others = await session.execute(
+        text(
+            "SELECT i.indexrelid::regclass::text, i.indrelid::regclass::text, c.conname "
+            "FROM pg_index i LEFT JOIN pg_constraint c ON c.conindid = i.indexrelid "
+            "AND c.conrelid = i.indrelid AND c.contype IN ('p', 'u', 'x') "
+            "WHERE i.indrelid = (SELECT indrelid FROM pg_index WHERE indexrelid = CAST(:ix AS regclass)) "
+            "AND i.indexrelid <> CAST(:ix AS regclass)"
+        ),
+        {"ix": index},
+    )
+    for other, table, constraint in others.all():
+        if constraint:
+            await session.execute(
+                text(f'ALTER TABLE {table} DROP CONSTRAINT "{constraint}" CASCADE')
+            )
+        else:
+            await session.execute(text(f"DROP INDEX {other}"))
+
+
 @pytest.mark.parametrize(("index", "query"), CASES, ids=[c[0] for c in CASES])
 async def test_hot_query_uses_its_index(session: AsyncSession, index: str, query: str) -> None:
     # Empty test tables make a sequential scan cheapest; switching it off asks "is the index usable?".
     await session.execute(text("SET LOCAL enable_seqscan = off"))
+    # On near-empty tables two usable indexes can cost the same, and which one wins then depends on what earlier
+    # tests left behind. Dropping the table's other indexes (rolled back with the test) leaves only this question.
+    await _only_index(session, index)
 
     plan = (await session.execute(text(f"EXPLAIN (FORMAT JSON) {query}"))).scalar_one()
 
