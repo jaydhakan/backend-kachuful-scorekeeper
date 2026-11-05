@@ -202,6 +202,13 @@ class GamesRepository:
         )
         return list((await session.execute(stmt)).scalars())
 
+    async def empty_ids(self, session: AsyncSession) -> list[tuple[uuid.UUID, uuid.UUID]]:
+        """(game, owner) of every live game with no round done."""
+        stmt = select(Game.id, Game.owner_id).where(
+            Game.deleted_at.is_(None), Game.round_count == 0
+        )
+        return [(r[0], r[1]) for r in (await session.execute(stmt.order_by(Game.id))).all()]
+
     async def ids_with_player(self, session: AsyncSession, player_id: uuid.UUID) -> list[uuid.UUID]:
         """Live games a registry player is seated in."""
         stmt = (

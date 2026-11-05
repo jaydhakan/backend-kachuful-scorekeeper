@@ -1,5 +1,6 @@
 import argparse
 import shutil
+import uuid
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -8,12 +9,14 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.db.models import AppState, Game, RateLimit, Session, User
-from app.domain.time import now_utc
-from app.jobs import backup, prune, seed_demo, seed_load
+from app.domain.time import now_utc, to_ms
+from app.jobs import backup, prune, prune_empty, seed_demo, seed_load
 from app.jobs.backup import to_delete
 from app.security.tokens import hash_token, new_token
+from app.services.games import GamesService
 from app.settings import settings
-from tests.factories import make_user
+from tests.factories import make_player, make_user
+from tests.game_builder import make_payload
 
 
 async def test_prune_removes_expired_sessions_and_old_windows_only(
@@ -110,3 +113,27 @@ async def test_seed_load_builds_the_dataset_through_uploads(session: AsyncSessio
     games = (await session.execute(select(func.count()).select_from(Game))).scalar_one()
     assert code == 0
     assert games == 12
+
+
+async def test_prune_empty_deletes_only_games_with_no_round_done(session: AsyncSession) -> None:
+    user = await make_user(session)
+    seats = [str((await make_player(session, name=f"Seat{k}")).id) for k in range(3)]
+    start = to_ms(now_utc()) - 3_600_000
+    games = GamesService(session)
+    kept, emptied = (make_payload(seats, start_ms=start, seed=k) for k in (1, 2))
+    for payload in (kept, emptied):
+        await games.upload(uuid.UUID(payload["syncId"]), payload, user)
+    # A game stored before the rule: no round done.
+    row = await session.get(Game, uuid.UUID(emptied["syncId"]))
+    assert row is not None
+    row.round_count = 0
+    await session.flush()
+
+    assert await prune_empty.run(argparse.Namespace(dry_run=True)) == 0
+    assert row.deleted_at is None
+    assert await prune_empty.run(argparse.Namespace(dry_run=False)) == 0
+
+    await session.refresh(row)
+    assert row.deleted_at is not None
+    other = await session.get(Game, uuid.UUID(kept["syncId"]))
+    assert other is not None and other.deleted_at is None
