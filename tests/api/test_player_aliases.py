@@ -203,3 +203,66 @@ async def test_the_database_refuses_a_player_named_like_another_players_alias(
     with pytest.raises(IntegrityError):
         async with session.begin_nested():
             await make_player(session, name="Ri")
+
+
+async def test_main_alias_swaps_the_alias_and_the_display_name(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    user = await _member(client, session)
+    aki = await make_player(session, name="Akishesh", created_by=user.id)
+    await _alias(client, aki, "Aki")
+
+    response = await client.patch(f"/api/players/{aki.id}", json={"mainAlias": "aki"})
+
+    assert response.status_code == 200
+    assert response.json()["displayName"] == "Aki"
+    assert [a["displayName"] for a in response.json()["aliases"]] == ["Akishesh"]
+    taken = await client.post("/api/players", json=new_player_body("Akishesh"))
+    assert (taken.status_code, taken.json()["code"]) == (409, "name_taken")
+
+
+async def test_renaming_to_an_own_alias_swaps_them(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    user = await _member(client, session)
+    aki = await make_player(session, name="Akishesh", created_by=user.id)
+    await _alias(client, aki, "Aki")
+
+    response = await client.patch(f"/api/players/{aki.id}", json={"displayName": "Aki"})
+
+    assert response.json()["displayName"] == "Aki"
+    assert [a["displayName"] for a in response.json()["aliases"]] == ["Akishesh"]
+
+
+async def test_main_alias_must_be_one_of_the_players_aliases(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    user = await _member(client, session)
+    aki = await make_player(session, name="Akishesh", created_by=user.id)
+    riya = await make_player(session, name="Riya")
+    await _alias(client, riya, "Ri")
+    await _alias(client, aki, "Aki")
+
+    others = await client.patch(f"/api/players/{aki.id}", json={"mainAlias": "Ri"})
+    with_name = await client.patch(
+        f"/api/players/{aki.id}", json={"mainAlias": "Aki", "displayName": "Akki"}
+    )
+    current = await client.patch(f"/api/players/{aki.id}", json={"mainAlias": "Akishesh"})
+
+    assert others.status_code == 422
+    assert set(others.json()["fields"]) == {"mainAlias"}
+    assert with_name.status_code == 422
+    assert current.status_code == 200
+    assert current.json()["displayName"] == "Akishesh"
+
+
+async def test_only_those_who_edit_details_can_choose_the_main_alias(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await _member(client, session)
+    aki = await make_player(session, name="Akishesh")
+    await _alias(client, aki, "Aki")
+
+    response = await client.patch(f"/api/players/{aki.id}", json={"mainAlias": "Aki"})
+
+    assert response.status_code == 403

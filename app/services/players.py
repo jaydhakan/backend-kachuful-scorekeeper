@@ -235,6 +235,10 @@ class PlayersService:
         """Edit a player: admin, the creator or the linked user (see `can_edit_details`)."""
         player = await self._editable(player_id, user)
         sent = body.model_fields_set
+        if "main_alias" in sent:
+            if "display_name" in sent:
+                raise _invalid_main_alias("can't be sent with displayName")
+            await self._make_main(player, body.main_alias or "")
         if "display_name" in sent:
             await self._rename(player, body.display_name or "")
         if "email" in sent:
@@ -258,8 +262,26 @@ class PlayersService:
         holder = await players_repository.get_active_by_name_or_alias(self.session, key)
         if holder is not None and holder.id != player.id:
             raise name_taken()
+        own = await self._own_alias(player, key)
+        if own is not None:
+            # Renaming to one of its own aliases swaps them, so no name is held twice.
+            _swap_main(player, own)
+            return
         player.display_name = tidy_spaces(display_name)
         player.name_key = key
+
+    async def _own_alias(self, player: Player, key: str) -> PlayerAlias | None:
+        aliases = await players_repository.aliases_of(self.session, player.id)
+        return next((a for a in aliases if a.name_key == key), None)
+
+    async def _make_main(self, player: Player, alias_name: str) -> None:
+        key = name_key(alias_name)
+        if key == player.name_key:
+            return
+        alias = await self._own_alias(player, key)
+        if alias is None:
+            raise _invalid_main_alias("must be one of this player's aliases")
+        _swap_main(player, alias)
 
     async def add_alias(
         self, player_id: uuid.UUID, body: NewAliasIn, user: User
@@ -361,6 +383,18 @@ class PlayersService:
         if image is None:
             raise ApiError(404, ErrorCode.NOT_FOUND, "No photo.")
         return image
+
+
+def _invalid_main_alias(reason: str) -> ApiError:
+    return ApiError(
+        422, ErrorCode.INVALID, "Pick one of the player's aliases.", fields={"mainAlias": reason}
+    )
+
+
+def _swap_main(player: Player, alias: PlayerAlias) -> None:
+    """The alias becomes the display name and the display name becomes that alias."""
+    player.display_name, alias.display_name = alias.display_name, player.display_name
+    player.name_key, alias.name_key = alias.name_key, player.name_key
 
 
 def _unsupported() -> ApiError:

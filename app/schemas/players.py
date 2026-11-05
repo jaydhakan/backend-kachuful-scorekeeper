@@ -84,6 +84,12 @@ class PlayerPatchIn(CamelModel):
     display_name: str | None = Field(
         default=None, description="Admin, the creator or the linked user"
     )
+    main_alias: str | None = Field(
+        default=None,
+        max_length=100,
+        description="One of the player's aliases: it becomes the display name and the old "
+        "display name becomes an alias. Not with displayName",
+    )
     email: str | None = Field(
         default=None, max_length=254, description="Admin, the creator or the linked user"
     )
