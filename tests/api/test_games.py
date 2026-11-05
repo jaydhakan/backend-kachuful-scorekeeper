@@ -569,3 +569,44 @@ async def test_uploads_over_120_a_minute_are_rate_limited(
     response = await _put(client, payload)
 
     assert response.status_code == 429
+
+
+async def test_upload_of_a_game_with_no_round_done_stores_nothing(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await _scorer(client, session)
+    payload = _recent(
+        [str(p.id) for p in await _table(session)], rounds=0, finished=False, open_last_round=True
+    )
+
+    response = await _put(client, payload)
+
+    assert response.status_code == 200
+    assert response.json() == {"rev": 1, "earned": []}
+    assert await session.get(Game, uuid.UUID(payload["syncId"])) is None
+
+
+async def test_undoing_a_stored_game_back_to_no_round_done_deletes_it(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await _scorer(client, session)
+    seats = [str(p.id) for p in await _table(session)]
+    payload = _recent(seats, rounds=1, finished=False)
+    await _put(client, payload)
+    empty = _recent(
+        seats,
+        rounds=0,
+        finished=False,
+        open_last_round=True,
+        game_id=payload["syncId"],
+        rev=2,
+    )
+
+    response = await _put(client, empty)
+
+    assert response.status_code == 200
+    row = await session.get(Game, uuid.UUID(payload["syncId"]))
+    assert row is not None
+    await session.refresh(row)
+    assert row.deleted_at is not None
+    assert await _count(session, RoundScore, game_id=row.id) == 0

@@ -292,6 +292,11 @@ class GamesService:
             raise ApiError(
                 403, ErrorCode.FORBIDDEN, "Only the scorer or the admin can update this game."
             )
+        if not game_from_payload(payload).done_rounds:
+            # A game with no round done leaves no trace: nothing stored, and an older copy goes.
+            if row is not None:
+                await self.delete(game_id, user)
+            return UploadOut(rev=int(payload["rev"]), earned=[])
         digest = payload_hash(payload)
         if row is not None and row.payload_hash == digest:
             return UploadOut(rev=row.rev, earned=[])
@@ -466,12 +471,18 @@ class GamesService:
         logger.info("start fresh", extra={"games": games, "players": players})
         return DeletedOut(games=games, players=players)
 
-    async def _delete_owned(self, user: User) -> int:
+    async def delete_owned(self, owner: User, actor: User) -> int:
+        """Soft-delete every live game `owner` scored, as `actor` (the owner, or an admin); commits."""
+        games = await self._delete_owned(owner, actor)
+        await self.session.commit()
+        return games
+
+    async def _delete_owned(self, user: User, actor: User | None = None) -> int:
         """Each game goes through `delete`, so a single use case defines what deleting one means."""
         deleted = 0
         for game_id in await games_repository.owned_ids(self.session, user.id):
             try:
-                await self.delete(game_id, user)
+                await self.delete(game_id, actor or user)
             except ApiError as error:
                 # Another request removed it first; the goal is the same.
                 if error.status != 404:
