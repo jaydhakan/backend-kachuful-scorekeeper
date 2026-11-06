@@ -5,7 +5,7 @@ import httpx
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import AdminAudit, Game, GamePlayer, Player, Session, User
+from app.db.models import AdminAudit, Game, GamePlayer, Player, PlayerAlias, Session, User
 from app.domain.time import now_utc, to_ms
 from app.services.games import GamesService
 from tests.factories import make_player, make_user, sign_in
@@ -87,6 +87,15 @@ async def test_deleting_a_user_removes_the_account_and_anonymises_a_player_other
     riya, kabir, _ = await _table(session)
     riya_id, player_id = riya.id, riya.player_id
     assert player_id is not None
+    session.add(PlayerAlias(player_id=player_id, display_name="Ree", name_key="ree"))
+    # Riya named one of Kabir's aliases: it stays his, without her as its author.
+    assert kabir.player_id is not None
+    session.add(
+        PlayerAlias(
+            player_id=kabir.player_id, display_name="Kab", name_key="kab", created_by=riya_id
+        )
+    )
+    await session.flush()
     kabirs = (await session.execute(select(Game).where(Game.owner_id == kabir.id))).scalar_one()
     totals_before = kabirs.summary
     admin = await _admin(client, session)
@@ -112,6 +121,10 @@ async def test_deleting_a_user_removes_the_account_and_anonymises_a_player_other
     # Kabir's game is untouched: same seat, same results.
     await session.refresh(kabirs)
     assert kabirs.deleted_at is None and kabirs.summary == totals_before
+    aliases = (
+        select(func.count()).select_from(PlayerAlias).where(PlayerAlias.player_id == player_id)
+    )
+    assert (await session.execute(aliases)).scalar_one() == 0
     seats = select(func.count()).select_from(GamePlayer).where(GamePlayer.player_id == player_id)
     assert (await session.execute(seats)).scalar_one() == 1
     login = await client.post(

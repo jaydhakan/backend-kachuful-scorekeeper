@@ -15,6 +15,7 @@ from app.db.models import (
     GamePlayer,
     Invite,
     Player,
+    PlayerAlias,
     PlayerPhoto,
     Session,
     ShareLink,
@@ -100,6 +101,9 @@ class AccountsRepository:
         await session.execute(
             update(Invite).where(Invite.created_by == user.id).values(created_by=None)
         )
+        await session.execute(
+            update(PlayerAlias).where(PlayerAlias.created_by == user.id).values(created_by=None)
+        )
         await session.execute(delete(Invite).where(Invite.email == user.email))
 
     async def player_in_use(self, session: AsyncSession, player_id: uuid.UUID) -> bool:
@@ -123,6 +127,8 @@ class AccountsRepository:
         player.updated_at = func.now()
         player.photo_rev += 1
         await session.execute(delete(PlayerPhoto).where(PlayerPhoto.player_id == player.id))
+        # Other names are the person too.
+        await session.execute(delete(PlayerAlias).where(PlayerAlias.player_id == player.id))
         await session.execute(
             delete(Activity).where(
                 Activity.player_id == player.id, Activity.kind == "player_joined"
