@@ -13,6 +13,7 @@ from app.services.admin import AdminService
 from app.services.appearance import AppearanceService
 from app.services.auth import AuthContext, AuthService
 from app.services.boards import BoardsService
+from app.services.claims import ClaimsService
 from app.services.core import CoreService
 from app.services.games import GamesService
 from app.services.links import LinksService
@@ -113,6 +114,11 @@ def get_games_service(session: SessionDep) -> GamesService:
 def get_boards_service(session: SessionDep) -> BoardsService:
     """BoardsService for a request."""
     return BoardsService(session)
+
+
+def get_claims_service(session: SessionDep) -> ClaimsService:
+    """ClaimsService for a request."""
+    return ClaimsService(session)
 
 
 def get_links_service(session: SessionDep) -> LinksService:

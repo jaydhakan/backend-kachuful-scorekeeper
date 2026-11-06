@@ -37,6 +37,7 @@ class ErrorCode(StrEnum):
     CANNOT_DELETE_ADMIN = "cannot_delete_admin"
     CANNOT_DELETE_SELF = "cannot_delete_self"
     BOTH_LINKED = "both_linked"
+    CLAIM_PENDING = "claim_pending"
     ID_CONFLICT = "id_conflict"
     STALE = "stale"
     UNKNOWN_PLAYER = "unknown_player"
