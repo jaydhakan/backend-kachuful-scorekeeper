@@ -14,7 +14,7 @@ Backend for the Kachuful scorekeeper PWA (https://play.vectanix.com): invite-onl
 - `app/settings.py` loads `.env` with python-dotenv when the file exists; real environment variables win. No `--env-file` flags needed.
 - `uv run pytest -k "pattern"` for a subset. Performance: `make load` once (the §15 dataset in the dev database), then `make perf` (budgets from plan §15.1; report in `var/perf-report.json`).
 - Golden fixtures: copy the app's `contract/fixtures/*.json` into `tests/fixtures/` and update `tests/fixtures/VERSION.md`.
-- Jobs: `uv run python -m app.cli <command>` (`auto-end`, `close-day`, `close-season`, `prune`, `backup`, `seed-admin`, `seed-demo`, `seed-load`).
+- Jobs: `uv run python -m app.cli <command>` (`auto-end`, `close-day`, `close-season`, `prune`, `prune-empty`, `backup`, `seed-admin`, `seed-demo`, `seed-load`). `prune-empty` is a one-off (2026-11-06): it deletes games stored before the rule that a game with no round done leaves no trace; `--dry-run` only counts.
 - Runtime (systemd) runs `.venv/bin/python -m app`, never `uv run` or a shell. `app/__main__.py` passes the `"app.bootstrap.app:app"` string to uvicorn (workers + `proxy_headers` from settings) and never imports the app object.
 
 ## Architecture
