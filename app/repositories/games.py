@@ -132,8 +132,13 @@ class GamesRepository:
         owner_id: uuid.UUID | None,
         active_only: bool,
         limit: int,
+        involving: tuple[uuid.UUID, uuid.UUID | None] | None = None,
     ) -> list[SummaryRow]:
-        """Newest change first. With `updated_since`, deleted games come back as tombstones."""
+        """Newest change first. With `updated_since`, deleted games come back as tombstones.
+
+        `involving` = (user, their player): games the user scored or sat in, matched on the stored
+        payload so deleted games (whose derived rows are gone) still come back as tombstones.
+        """
         stmt = _with_owner(select(*_summary_columns())).order_by(
             Game.updated_at.desc(), Game.id.desc()
         )
@@ -141,7 +146,15 @@ class GamesRepository:
             stmt = stmt.where(Game.deleted_at.is_(None))
         else:
             stmt = stmt.where(Game.updated_at > updated_since)
-        if owner_id is not None:
+        if involving is not None:
+            user_id, player_id = involving
+            seated = Game.payload["players"].contains([{"playerId": str(player_id)}])
+            stmt = stmt.where(
+                Game.owner_id == user_id
+                if player_id is None
+                else or_(Game.owner_id == user_id, seated)
+            )
+        elif owner_id is not None:
             stmt = stmt.where(Game.owner_id == owner_id)
         if active_only:
             stmt = stmt.where(

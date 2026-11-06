@@ -398,6 +398,7 @@ class GamesService:
         active_only: bool,
         user: User,
         limit: int,
+        involving: bool = False,
     ) -> GamesPageOut:
         """Newest change first; tombstones only when `updatedSince` is given (never when active)."""
         before = None
@@ -416,6 +417,7 @@ class GamesService:
             owner_id=user.id if mine else None,
             active_only=active_only,
             limit=limit + 1,
+            involving=(user.id, user.player_id) if involving else None,
         )
         items: list[GameSummaryOut | GameTombstoneOut] = [
             GameTombstoneOut(id=r.game_id, updated_at=to_ms(r.updated_at))

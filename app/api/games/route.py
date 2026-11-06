@@ -42,6 +42,9 @@ async def list_games(
     updated_since: Annotated[int | None, Query(alias="updatedSince", ge=0)] = None,
     cursor: Annotated[str | None, Query(max_length=200)] = None,
     mine: Annotated[bool, Query()] = False,
+    involving: Annotated[
+        bool, Query(description="Games the caller scored or sat in (wins over `mine`)")
+    ] = False,
     status: Annotated[
         Literal["active"] | None,
         Query(description="`active`: only unfinished games (not ended, not deleted)"),
@@ -56,6 +59,7 @@ async def list_games(
         active_only=status == "active",
         user=ctx.user,
         limit=limit,
+        involving=involving,
     )
 
 

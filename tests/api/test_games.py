@@ -610,3 +610,33 @@ async def test_undoing_a_stored_game_back_to_no_round_done_deletes_it(
     await session.refresh(row)
     assert row.deleted_at is not None
     assert await _count(session, RoundScore, game_id=row.id) == 0
+
+
+async def test_involving_lists_games_i_scored_or_sat_in_with_tombstones(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    riya = await make_user(session, email="riya@example.com", player_name="Riya")
+    kabir = await make_user(session, email="kabir@example.com", player_name="Kabir")
+    seats = [str(p.id) for p in await _table(session, 2)]
+    assert riya.player_id and kabir.player_id
+    await sign_in(client, kabir)
+    sat_in = _recent([str(kabir.player_id), str(riya.player_id), seats[0]])
+    elsewhere = _recent([str(kabir.player_id), *seats], seed=2)
+    for payload in (sat_in, elsewhere):
+        assert (await _put(client, payload)).status_code == 200
+    await sign_in(client, riya)
+    mine = _recent([str(riya.player_id), *seats], seed=3)
+    await _put(client, mine)
+
+    involving = await client.get("/api/games", params={"involving": "true"})
+    owned = await client.get("/api/games", params={"mine": "true"})
+
+    assert {g["id"] for g in involving.json()["items"]} == {sat_in["syncId"], mine["syncId"]}
+    assert {g["id"] for g in owned.json()["items"]} == {mine["syncId"]}
+    await sign_in(client, kabir)
+    await client.delete(f"/api/games/{sat_in['syncId']}")
+    await sign_in(client, riya)
+    # The test shares one transaction, so the delete's now() is not after the uploads: ask from 1.
+    after = await client.get("/api/games", params={"involving": "true", "updatedSince": 1})
+    gone = [g for g in after.json()["items"] if g["id"] == sat_in["syncId"]]
+    assert gone and gone[0].get("deleted") is True

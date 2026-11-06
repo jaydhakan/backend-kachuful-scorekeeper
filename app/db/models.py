@@ -262,6 +262,12 @@ class Game(Base):
             postgresql_where=text("status = 'active' AND ended_at IS NULL AND deleted_at IS NULL"),
         ),
         Index("ix_games_ended_at_live", "ended_at", postgresql_where=text("deleted_at IS NULL")),
+        # `GET /api/games?involving=true`: games a player sits in, deleted ones included.
+        Index(
+            "ix_games_payload_players",
+            text("(payload -> 'players') jsonb_path_ops"),
+            postgresql_using="gin",
+        ),
         Index(
             "ix_games_auto_end",
             "client_updated_at",
