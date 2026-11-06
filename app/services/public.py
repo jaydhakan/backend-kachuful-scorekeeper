@@ -11,6 +11,7 @@ from app.db.models import Game, ShareLink
 from app.db.session import get_session_factory
 from app.domain.time import from_ms, to_ms, to_ms_or_none
 from app.exceptions import ApiError, ErrorCode
+from app.live.hub import notify
 from app.render import run_in_thread
 from app.render.og import CardRow, render_recap
 from app.repositories.games import games_repository
@@ -19,7 +20,9 @@ from app.repositories.share_links import share_links_repository
 from app.repositories.users import users_repository
 from app.schemas.games import GameSummaryOut
 from app.schemas.public import LiveOut, RecapOut
+from app.security.rate_limit import REACTION_LINK, REACTION_VIEWER
 from app.services.achievements_read import achievements_for_game
+from app.services.links import live_expired
 from app.services.presenters import summary_out
 from app.settings import settings
 
@@ -60,33 +63,52 @@ class PublicService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def _shared_game(self, token: str, kind: str) -> tuple[ShareLink, Game]:
+    async def _shared_game(
+        self, token: str, kind: str, signed_in: bool = True
+    ) -> tuple[ShareLink, Game]:
         link = await share_links_repository.by_token(self.session, token)
         if link is None or link.kind != kind:
             raise ApiError(404, ErrorCode.NOT_FOUND, "No such link.")
         game = await games_repository.get(self.session, link.game_id)
         if link.revoked_at is not None or game is None or game.deleted_at is not None:
             raise ApiError(410, ErrorCode.GONE, "This link has been switched off.")
+        if kind == "live" and live_expired(game):
+            raise ApiError(410, ErrorCode.GONE, "This game ended; its live link has expired.")
+        if kind == "live" and link.members_only and not signed_in:
+            raise ApiError(401, ErrorCode.MEMBERS_ONLY, "Sign in to watch this table.")
         return link, game
 
     async def _summary(self, game: Game) -> GameSummaryOut:
         rows = await games_repository.summaries(self.session, [game.id])
         return summary_out(rows[game.id], public=True)
 
-    async def live_body(self, game: Game) -> LiveOut:
+    async def live_body(self, game: Game, link: ShareLink) -> LiveOut:
         """The live view of a game."""
         owner = await users_repository.get(self.session, game.owner_id)
+        recap = await share_links_repository.active(self.session, game.id, "recap")
         return LiveOut(
             game=game.payload,
             summary=await self._summary(game),
             updated_at=to_ms(game.updated_at),
             scorer_seen_at=None if owner is None else to_ms_or_none(owner.last_seen_at),
+            reactions=link.reactions and game.ended_at is None,
+            recap_token=None if recap is None else recap.token,
         )
 
-    async def live(self, token: str) -> tuple[uuid.UUID, LiveOut]:
+    async def live(self, token: str, signed_in: bool = True) -> tuple[uuid.UUID, LiveOut]:
         """`GET /api/public/live/{token}`."""
-        _, game = await self._shared_game(token, "live")
-        return game.id, await self.live_body(game)
+        link, game = await self._shared_game(token, "live", signed_in)
+        return game.id, await self.live_body(game, link)
+
+    async def react(self, token: str, kind: str, viewer: str, signed_in: bool) -> None:
+        """A spectator's reaction, sent to everyone following the table; never stored."""
+        link, game = await self._shared_game(token, "live", signed_in)
+        if not link.reactions or game.ended_at is not None:
+            raise ApiError(409, ErrorCode.REACTIONS_OFF, "Reactions are off for this table.")
+        if not REACTION_VIEWER.hit(f"{token}:{viewer}") or not REACTION_LINK.hit(token):
+            raise ApiError(429, ErrorCode.RATE_LIMITED, "Easy there.", retryAfter=1)
+        await notify(self.session, game.id, "reaction", data={"kind": kind})
+        await self.session.commit()
 
     async def recap(self, token: str) -> RecapOut:
         """`GET /api/public/recap/{token}`."""
@@ -187,7 +209,7 @@ async def load_live_event(game_id: uuid.UUID) -> tuple[int, str] | None:
     async with get_session_factory()() as session:
         link = await share_links_repository.active(session, game_id, "live")
         game = await games_repository.get(session, game_id)
-        if link is None or game is None or game.deleted_at is not None:
+        if link is None or game is None or game.deleted_at is not None or live_expired(game):
             return None
-        body = await PublicService(session).live_body(game)
+        body = await PublicService(session).live_body(game, link)
         return game.rev, body.model_dump_json(by_alias=True)

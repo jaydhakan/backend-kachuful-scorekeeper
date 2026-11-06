@@ -1,4 +1,4 @@
-"""Server-Sent Events for live viewers: `game`, `ping` every 25 s, and `revoked`."""
+"""Server-Sent Events for live viewers: `game`, `reaction`, `watchers`, `ping` every 25 s, `revoked`."""
 
 import asyncio
 import uuid
@@ -34,7 +34,9 @@ async def live_stream(
             if message.kind == "revoked":
                 yield sse("revoked", "{}")
                 return
-            if message.data is not None:
+            if message.kind in ("reaction", "watchers") and message.data is not None:
+                yield sse(message.kind, message.data)
+            elif message.data is not None:
                 yield sse("game", message.data, message.rev)
     finally:
         hub.unsubscribe(game_id, queue)

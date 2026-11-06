@@ -531,6 +531,9 @@ class ShareLink(Base):
     created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     revoked_at: Mapped[datetime | None]
+    # Live links only: spectators may react; only signed-in members may watch.
+    reactions: Mapped[bool] = mapped_column(server_default=true())
+    members_only: Mapped[bool] = mapped_column(server_default=false())
 
 
 class PlayerPhoto(Base):

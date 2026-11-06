@@ -33,10 +33,14 @@ class LiveMessage:
 
 
 async def notify(
-    session: AsyncSession, game_id: uuid.UUID, kind: str, tokens: list[str] | None = None
+    session: AsyncSession,
+    game_id: uuid.UUID,
+    kind: str,
+    tokens: list[str] | None = None,
+    data: dict[str, Any] | None = None,
 ) -> None:
     """Queue a notification; Postgres delivers it when the transaction commits."""
-    payload = json.dumps({"gameId": str(game_id), "kind": kind, "tokens": tokens})
+    payload = json.dumps({"gameId": str(game_id), "kind": kind, "tokens": tokens, "data": data})
     await session.execute(
         text("SELECT pg_notify(:channel, :payload)"), {"channel": CHANNEL, "payload": payload}
     )
@@ -46,7 +50,11 @@ class LiveHub:
     """Subscribers per game; a game's event is loaded once and copied to each viewer."""
 
     def __init__(self) -> None:
-        self._subscribers: dict[uuid.UUID, dict[asyncio.Queue[LiveMessage], str]] = {}
+        # Per game: each viewer's queue, its token, and whether it counts as a watcher.
+        self._subscribers: dict[uuid.UUID, dict[asyncio.Queue[LiveMessage], tuple[str, bool]]] = {}
+        # Per game: how many watchers each worker reported, so every worker can show the total.
+        self._watchers: dict[uuid.UUID, dict[str, int]] = {}
+        self._worker = uuid.uuid4().hex
         self._connection: asyncpg.Connection | None = None
         self._lock = asyncio.Lock()
         self._loader: EventLoader | None = None
@@ -56,11 +64,17 @@ class LiveHub:
         """How to load a game's live event (set by the public API)."""
         self._loader = loader
 
-    async def subscribe(self, game_id: uuid.UUID, token: str) -> asyncio.Queue[LiveMessage]:
-        """A queue that receives this game's events while the viewer stays connected."""
+    async def subscribe(
+        self, game_id: uuid.UUID, token: str, *, counted: bool = True
+    ) -> asyncio.Queue[LiveMessage]:
+        """A queue that receives this game's events while the viewer stays connected.
+
+        The scorer's own phone follows its table too (for reactions) but is not `counted`.
+        """
         await self._ensure_listening()
         queue: asyncio.Queue[LiveMessage] = asyncio.Queue(maxsize=QUEUE_SIZE)
-        self._subscribers.setdefault(game_id, {})[queue] = token
+        self._subscribers.setdefault(game_id, {})[queue] = (token, counted)
+        self._spawn(self._publish_presence(game_id))
         return queue
 
     def unsubscribe(self, game_id: uuid.UUID, queue: asyncio.Queue[LiveMessage]) -> None:
@@ -70,6 +84,27 @@ class LiveHub:
             viewers.pop(queue, None)
             if not viewers:
                 del self._subscribers[game_id]
+            self._spawn(self._publish_presence(game_id))
+
+    def _counted(self, game_id: uuid.UUID) -> int:
+        return sum(1 for _, counted in self._subscribers.get(game_id, {}).values() if counted)
+
+    async def _publish_presence(self, game_id: uuid.UUID) -> None:
+        """Tell every worker how many watchers this one has for the game."""
+        payload = json.dumps(
+            {
+                "gameId": str(game_id),
+                "kind": "presence",
+                "data": {"worker": self._worker, "n": self._counted(game_id)},
+            }
+        )
+        connection = self._connection
+        if connection is None or connection.is_closed():
+            return
+        try:
+            await connection.execute("SELECT pg_notify($1, $2)", CHANNEL, payload)
+        except (asyncpg.PostgresError, OSError):
+            logger.warning("live presence not published")
 
     def viewer_count(self) -> int:
         """Viewers connected to this worker."""
@@ -102,11 +137,24 @@ class LiveHub:
     async def _dispatch(self, message: dict[str, Any]) -> None:
         game_id = uuid.UUID(message["gameId"])
         viewers = dict(self._subscribers.get(game_id, {}))
-        if not viewers:
+        if not viewers and message["kind"] != "presence":
+            return
+        if message["kind"] == "presence":
+            data = message.get("data") or {}
+            counts = self._watchers.setdefault(game_id, {})
+            counts[str(data.get("worker"))] = int(data.get("n", 0))
+            total = json.dumps({"n": sum(counts.values())})
+            for queue in viewers:
+                _offer(queue, LiveMessage(kind="watchers", data=total))
+            return
+        if message["kind"] == "reaction":
+            data = json.dumps(message.get("data") or {})
+            for queue in viewers:
+                _offer(queue, LiveMessage(kind="reaction", data=data))
             return
         if message["kind"] == "revoked":
             tokens = set(message.get("tokens") or [])
-            for queue, token in viewers.items():
+            for queue, (token, _) in viewers.items():
                 if not tokens or token in tokens:
                     _offer(queue, LiveMessage(kind="revoked"))
             return
@@ -125,6 +173,7 @@ class LiveHub:
             await self._connection.close()
         self._connection = None
         self._subscribers.clear()
+        self._watchers.clear()
 
 
 def _offer(queue: asyncio.Queue[LiveMessage], message: LiveMessage) -> None:

@@ -112,4 +112,39 @@ async def test_reconnecting_with_the_current_rev_skips_the_first_event(live_serv
             await scorer.delete(f"/api/games/{payload['syncId']}/links/live")
             async with asyncio.timeout(5):
                 first = await anext(events)
+                # The watcher count is not a game state; what matters is that no `game` comes first.
+                while first["event"] == "watchers":
+                    first = await anext(events)
             assert first["event"] == "revoked"
+
+
+async def test_viewers_see_how_many_watch_and_each_others_reactions(live_server: str) -> None:
+    async with get_session_factory()() as session:
+        owner = await make_user(session, email="cheer@example.com", player_name="Cheer")
+        players = [await make_player(session, name=f"C{k}") for k in range(3)]
+        await session.commit()
+    async with httpx.AsyncClient(base_url=live_server, headers=WRITE_HEADERS) as scorer:
+        await sign_in(scorer, owner)
+        payload = make_payload(
+            [str(p.id) for p in players],
+            start_ms=to_ms(now_utc()) - 30 * MINUTE,
+            finished=False,
+            rounds=2,
+        )
+        await scorer.put(f"/api/games/{payload['syncId']}", json=payload)
+        link = (
+            await scorer.post(f"/api/games/{payload['syncId']}/links", json={"kind": "live"})
+        ).json()
+        token = link["token"]
+        async with (
+            httpx.AsyncClient(base_url=live_server, timeout=10, headers=WRITE_HEADERS) as viewer,
+            viewer.stream("GET", f"/api/public/live/{token}/events") as stream,
+        ):
+            events = _events(stream.aiter_lines())
+            await _next_event(events, "game")
+            watchers = await _next_event(events, "watchers")
+            assert json.loads(watchers["data"]) == {"n": 1}
+            sent = await viewer.post(f"/api/public/live/{token}/reactions", json={"kind": "party"})
+            assert sent.status_code == 204
+            reaction = await _next_event(events, "reaction")
+            assert json.loads(reaction["data"]) == {"kind": "party"}

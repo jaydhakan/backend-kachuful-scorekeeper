@@ -8,7 +8,7 @@ from fastapi.responses import Response
 
 from app.api.deps import CurrentAuth, get_games_service, get_links_service
 from app.schemas.games import DeletedOut, GameDetailOut, GamesPageOut, UploadOut
-from app.schemas.public import CreateLinkIn, LinkOut
+from app.schemas.public import CreateLinkIn, LinkOut, LinkSettingsIn
 from app.security import rate_limit
 from app.services.games import GamesService
 from app.services.links import LinksService
@@ -87,6 +87,14 @@ async def create_link(
 ) -> LinkOut:
     """A live or recap link (the existing active one if there is one)."""
     return await service.create(game_id, body.kind, ctx.user)
+
+
+@games_router.patch("/{game_id}/links/live", response_model=LinkOut)
+async def update_live_link(
+    game_id: _GameId, body: LinkSettingsIn, ctx: CurrentAuth, service: _LinksServiceDep
+) -> LinkOut:
+    """Switch spectator reactions, or members-only, on the live link."""
+    return await service.update_live(game_id, body, ctx.user)
 
 
 @games_router.delete("/{game_id}/links/{kind}", status_code=204)

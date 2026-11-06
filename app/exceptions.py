@@ -38,6 +38,8 @@ class ErrorCode(StrEnum):
     CANNOT_DELETE_SELF = "cannot_delete_self"
     BOTH_LINKED = "both_linked"
     CLAIM_PENDING = "claim_pending"
+    MEMBERS_ONLY = "members_only"
+    REACTIONS_OFF = "reactions_off"
     ID_CONFLICT = "id_conflict"
     STALE = "stale"
     UNKNOWN_PLAYER = "unknown_player"

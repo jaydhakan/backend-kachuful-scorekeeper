@@ -168,3 +168,97 @@ async def test_preview_pages_carry_open_graph_tags_and_redirect_into_the_app(
     assert f'content="0;url=/?live={live["token"]}"' in live_page.text
     assert missing.status_code == 404
     assert 'content="0;url=/"' in missing.text
+
+
+async def _open_game(client: httpx.AsyncClient, session: AsyncSession) -> dict[str, Any]:
+    """A game still being played: reactions only make sense while it goes on."""
+    owner = await make_user(session, email="host@example.com", player_name="Host")
+    await sign_in(client, owner)
+    players = [await make_player(session, name=f"Open{k}") for k in range(3)]
+    payload = make_payload(
+        [str(p.id) for p in players],
+        start_ms=to_ms(now_utc()) - 20 * MINUTE,
+        rounds=3,
+        finished=False,
+    )
+    assert (await client.put(f"/api/games/{payload['syncId']}", json=payload)).status_code == 200
+    return payload
+
+
+async def test_the_scorer_switches_reactions_off_and_keeps_the_table_to_members(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    payload = await _open_game(client, session)
+    game_id = payload["syncId"]
+    no_link = await client.patch(f"/api/games/{game_id}/links/live", json={"reactions": False})
+    link = await _link(client, game_id, "live")
+    assert (link["reactions"], link["membersOnly"], link["expiresAt"]) == (True, False, None)
+
+    changed = await client.patch(
+        f"/api/games/{game_id}/links/live", json={"reactions": False, "membersOnly": True}
+    )
+    member = await client.get(f"/api/public/live/{link['token']}")
+    client.cookies.clear()
+    stranger = await client.get(f"/api/public/live/{link['token']}")
+    stranger_events = await client.get(f"/api/public/live/{link['token']}/events")
+    other = await make_user(session, email="nosy@example.com", player_name="Nosy")
+    await sign_in(client, other)
+    not_theirs = await client.patch(f"/api/games/{game_id}/links/live", json={"reactions": True})
+
+    assert no_link.status_code == 404
+    assert changed.status_code == 200
+    assert (changed.json()["reactions"], changed.json()["membersOnly"]) == (False, True)
+    assert member.status_code == 200 and member.json()["reactions"] is False
+    assert (stranger.status_code, stranger.json()["code"]) == (401, "members_only")
+    assert stranger_events.status_code == 401
+    assert not_theirs.status_code == 403
+
+
+async def test_a_live_link_expires_two_hours_after_the_game_ends(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    owner = await make_user(session, email="late@example.com", player_name="Late")
+    await sign_in(client, owner)
+    players = [await make_player(session, name=f"Late{k}") for k in range(3)]
+    payload = make_payload(
+        [str(p.id) for p in players], start_ms=to_ms(now_utc()) - 300 * MINUTE, rounds=4
+    )
+    await client.put(f"/api/games/{payload['syncId']}", json=payload)
+    link = await _link(client, payload["syncId"], "live")
+    recap = await _link(client, payload["syncId"], "recap")
+
+    live = await client.get(f"/api/public/live/{link['token']}")
+    still_recap = await client.get(f"/api/public/recap/{recap['token']}")
+
+    assert link["expiresAt"] is not None and link["expiresAt"] < to_ms(now_utc())
+    assert (live.status_code, live.json()["code"]) == (410, "gone")
+    assert still_recap.status_code == 200
+
+
+async def test_spectator_reactions_are_checked_limited_and_off_once_the_game_ends(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    payload = await _open_game(client, session)
+    link = await _link(client, payload["syncId"], "live")
+    recap = await _link(client, payload["syncId"], "recap")
+    url = f"/api/public/live/{link['token']}/reactions"
+    client.cookies.clear()
+
+    first = await client.post(url, json={"kind": "fire"})
+    too_soon = await client.post(url, json={"kind": "clap"})
+    unknown = await client.post(url, json={"kind": "poop"})
+    body = (await client.get(f"/api/public/live/{link['token']}")).json()
+
+    assert first.status_code == 204
+    assert (too_soon.status_code, too_soon.json()["code"]) == (429, "rate_limited")
+    assert unknown.status_code == 422
+    assert body["reactions"] is True and body["recapToken"] == recap["token"]
+
+    owner = await make_user(session, email="host2@example.com", player_name="Host2")
+    await sign_in(client, owner)
+    ended = await _game(client, session)
+    ended_link = await _link(client, ended["syncId"], "live")
+    off = await client.post(
+        f"/api/public/live/{ended_link['token']}/reactions", json={"kind": "fire"}
+    )
+    assert (off.status_code, off.json()["code"]) == (409, "reactions_off")
