@@ -25,7 +25,7 @@ class SetupDefaults(CamelModel):
     """The table a player last set up, offered on every device they sign in on."""
 
     player_count: int = Field(
-        ..., description="Players at the table; 3-7 with one deck, 3-10 with two"
+        ..., description="Players at the table; 3-7 with one deck, 3-14 with two"
     )
     decks: Literal[1, 2] = Field(..., description="Decks in play")
     direction: Literal["cw", "ccw"] = Field(..., description="Dealing direction")

@@ -13,7 +13,7 @@ INVALID = names("invalid-")
 
 
 def test_the_fixture_set_is_present() -> None:
-    assert len(GAMES) == 8
+    assert len(GAMES) == 9
     assert len(INVALID) == 8
 
 

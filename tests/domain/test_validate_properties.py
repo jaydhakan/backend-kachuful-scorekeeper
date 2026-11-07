@@ -19,7 +19,7 @@ NOW = START + 10_000_000
 def games(draw: st.DrawFn) -> dict[str, Any]:
     """A random valid game."""
     decks = draw(st.sampled_from([1, 2]))
-    n = draw(st.integers(3, 7 if decks == 1 else 10))
+    n = draw(st.integers(3, 7 if decks == 1 else 14))
     return make_payload(
         [f"x{k}" for k in range(n)],
         rounds=draw(st.integers(1, 30)),
@@ -92,3 +92,13 @@ def test_rounds_beyond_the_length_mode_break_round_order() -> None:
     payload["finishedAt"] = payload["updatedAt"] = extra["doneAt"]
 
     assert _reason(payload) == ("round_order", None)
+
+
+def test_two_decks_seat_up_to_fourteen() -> None:
+    names = [f"x{k}" for k in range(15)]
+    fourteen = make_payload(names[:14], rounds=5, start_ms=START, decks=2)
+    fifteen = make_payload(names, rounds=1, start_ms=START, decks=2)
+
+    assert fourteen["maxCards"] == 7
+    assert _reason(fourteen) == (None, None)
+    assert _reason(fifteen)[0] == "players"

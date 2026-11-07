@@ -141,6 +141,7 @@ async def test_preferences_need_a_signed_in_user(client: httpx.AsyncClient) -> N
         ({"theme": "neon"}, "theme"),
         ({"setup": {**SETUP, "playerCount": 8}}, "setup"),
         ({"setup": {**SETUP, "playerCount": 2}}, "setup"),
+        ({"setup": {**SETUP, "playerCount": 15, "decks": 2}}, "setup"),
         ({"setup": {**SETUP, "decks": 3}}, "setup.decks"),
         ({"setup": {**SETUP, "direction": "up"}}, "setup.direction"),
         ({"setup": {"playerCount": 5}}, "setup.decks"),
@@ -158,11 +159,11 @@ async def test_an_unknown_theme_or_an_impossible_setup_is_invalid(
     assert field in response.json()["fields"]
 
 
-async def test_ten_players_are_allowed_with_two_decks(
+async def test_fourteen_players_are_allowed_with_two_decks(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     await _member(client, session)
-    setup = {"playerCount": 10, "decks": 2, "direction": "ccw"}
+    setup = {"playerCount": 14, "decks": 2, "direction": "ccw"}
 
     response = await client.patch(PATH, json={"setup": setup})
 

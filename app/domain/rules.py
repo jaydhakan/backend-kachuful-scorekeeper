@@ -11,7 +11,7 @@ TRUMPS = ("spades", "diamonds", "clubs", "hearts")
 PEAK = 10
 DECK_SIZE = 52
 MIN_PLAYERS = 3
-MAX_PLAYERS = {1: 7, 2: 10}
+MAX_PLAYERS = {1: 7, 2: 14}
 
 
 def is_int(value: Any) -> bool:
