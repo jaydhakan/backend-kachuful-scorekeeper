@@ -6,12 +6,13 @@ from typing import Annotated, Any, Literal
 from fastapi import APIRouter, Body, Depends, Path, Query
 from fastapi.responses import Response
 
-from app.api.deps import CurrentAuth, get_games_service, get_links_service
+from app.api.deps import CurrentAuth, get_games_service, get_links_service, get_my_data_service
 from app.schemas.games import DeletedOut, GameDetailOut, GamesPageOut, UploadOut
 from app.schemas.public import CreateLinkIn, LinkOut, LinkSettingsIn
 from app.security import rate_limit
 from app.services.games import GamesService
 from app.services.links import LinksService
+from app.services.owned_games import MyDataService
 from app.services.pagination import DEFAULT_LIMIT, MAX_LIMIT
 
 _GamesServiceDep = Annotated[GamesService, Depends(get_games_service)]
@@ -70,8 +71,10 @@ async def get_game(game_id: _GameId, _: CurrentAuth, service: _GamesServiceDep) 
 
 
 @me_data_router.delete("", response_model=DeletedOut)
-async def delete_my_data(ctx: CurrentAuth, service: _GamesServiceDep) -> DeletedOut:
-    """Start fresh: delete the games the caller scored and the players they added that nobody else uses."""
+async def delete_my_data(
+    ctx: CurrentAuth, service: Annotated[MyDataService, Depends(get_my_data_service)]
+) -> DeletedOut:
+    """Start fresh: delete every game the caller scored and the players they added, if unused."""
     return await service.start_fresh(ctx.user)
 
 

@@ -1,4 +1,7 @@
-"""Rows of another game kind never reach Kachuful's endpoints and jobs (platform P8)."""
+"""Rows of another game kind never reach Kachuful's endpoints and jobs (platform P8).
+
+Ishaara stands in for a kind with no endpoints yet; Kaali Teeri has its own (test_kaali_teeri_*).
+"""
 
 import argparse
 import copy
@@ -78,7 +81,7 @@ async def test_another_kind_of_game_is_not_found_and_never_overwritten(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     _, payload = await _kachuful_game(client, session)
-    foreign_id = await _copy_as(session, payload["syncId"], GameKind.KAALI_TEERI)
+    foreign_id = await _copy_as(session, payload["syncId"], GameKind.ISHAARA)
     upload = copy.deepcopy(payload) | {"syncId": str(foreign_id), "rev": payload["rev"] + 1}
 
     got = await client.get(f"/api/games/{foreign_id}")
@@ -91,7 +94,7 @@ async def test_another_kind_of_game_is_not_found_and_never_overwritten(
     assert deleted.status_code == 404
     assert link.status_code == 404
     row = await games_repository.get(session, foreign_id, kind=None)
-    assert row is not None and row.kind == "kaali-teeri" and row.deleted_at is None
+    assert row is not None and row.kind == "ishaara" and row.deleted_at is None
     assert row.rev == payload["rev"] and row.payload["syncId"] == payload["syncId"]
 
 
@@ -99,7 +102,7 @@ async def test_links_and_claims_on_another_kind_of_game_do_not_resolve(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     owner, payload = await _kachuful_game(client, session)
-    foreign_id = await _copy_as(session, payload["syncId"], GameKind.KAALI_TEERI)
+    foreign_id = await _copy_as(session, payload["syncId"], GameKind.ISHAARA)
     guest_id = next(s["playerId"] for s in payload["players"] if s["playerId"] != owner.player_id)
     tokens = {kind: new_share_token() for kind in ("live", "recap")}
     for kind, token in tokens.items():
@@ -143,9 +146,9 @@ async def test_auto_end_and_prune_empty_skip_another_kind(
     _, payload = await _kachuful_game(client, session)
     idle_since = now_utc() - timedelta(days=3)
     idle = await _copy_as(
-        session, payload["syncId"], GameKind.KAALI_TEERI, client_updated_at=idle_since
+        session, payload["syncId"], GameKind.ISHAARA, client_updated_at=idle_since
     )
-    empty = await _copy_as(session, payload["syncId"], GameKind.KAALI_TEERI, round_count=0)
+    empty = await _copy_as(session, payload["syncId"], GameKind.ISHAARA, round_count=0)
     before = {
         game_id: await games_repository.get(session, game_id, kind=None)
         for game_id in (idle, empty)
@@ -165,7 +168,7 @@ async def test_rederiving_another_kind_of_game_is_refused(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     _, payload = await _kachuful_game(client, session)
-    foreign_id = await _copy_as(session, payload["syncId"], GameKind.KAALI_TEERI)
+    foreign_id = await _copy_as(session, payload["syncId"], GameKind.ISHAARA)
     row = await games_repository.get(session, foreign_id, kind=None)
     assert row is not None
 

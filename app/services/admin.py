@@ -35,7 +35,7 @@ from app.schemas.admin import (
 )
 from app.schemas.players import PlayerOut
 from app.security.tokens import hash_token, new_token
-from app.services.games import GamesService
+from app.services.owned_games import delete_owned_games
 from app.services.presenters import player_out, player_summary_out, user_out
 from app.settings import settings
 
@@ -256,7 +256,7 @@ class AdminService:
     async def clear_games(self, user_id: uuid.UUID, admin: User) -> DeletedGamesOut:
         """Soft-delete every game the user scored; their players and account stay."""
         user = await self._target(user_id)
-        games = await GamesService(self.session).delete_owned(user, admin)
+        games = await delete_owned_games(self.session, user, admin)
         await accounts_repository.audit(
             self.session, admin.id, "clear_games", user.email, {"games": games}
         )
@@ -276,7 +276,7 @@ class AdminService:
         if user.role == "admin":
             raise ApiError(409, ErrorCode.CANNOT_DELETE_ADMIN, "Admin accounts can't be deleted.")
         footprint = await accounts_repository.footprint(self.session, user)
-        games = await GamesService(self.session).delete_owned(user, admin)
+        games = await delete_owned_games(self.session, user, admin)
         user = await self._target(user_id)
         email, player_id = user.email, user.player_id
         await accounts_repository.hand_over(self.session, user, admin.id)

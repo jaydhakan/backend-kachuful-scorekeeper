@@ -1,13 +1,18 @@
 """Kaali Teeri rules from plan §2 that the fixtures don't pin one by one."""
 
+import copy
+
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
 from app.domain.kaali_teeri.auction import auction
 from app.domain.kaali_teeri.cards import cards_each, default_rules, partners_for, removed_cards
-from app.domain.kaali_teeri.game import MISSING, KtCall, KtHand, KtRules
+from app.domain.kaali_teeri.game import MISSING, KtCall, KtHand, KtRules, kt_game_from_payload
 from app.domain.kaali_teeri.scoring import hand_score
+from app.domain.kaali_teeri.validate import KtInvalidReason, validate
+from tests.domain.golden import load
+from tests.domain.test_kt_golden import KT_NOW
 
 IDS = [f"p{i}" for i in range(6)]
 RULES = KtRules(decks=1, partners=2, min_bid=150, step=5, length="endless")
@@ -83,3 +88,23 @@ def test_nobody_goes_negative_and_a_sweep_pays_the_deck(
         assert all(scores[p] == (0 if p in team else 250) for p in IDS)
     elif points < bid:
         assert all(scores[p] == (0 if p in team else bid) for p in IDS)
+
+
+JUNK = st.one_of(
+    st.none(),
+    st.booleans(),
+    st.integers(-1000, 1000),
+    st.floats(allow_nan=False, allow_infinity=False),
+    st.text(max_size=8),
+)
+HAND_FIELDS = ("index", "dealerIndex", "phase", "mode", "bid", "teamPoints", "trump", "bidder")
+
+
+@given(field=st.sampled_from(HAND_FIELDS), value=JUNK, hand=st.integers(0, 3))
+def test_validation_names_a_reason_instead_of_raising(field: str, value: object, hand: int) -> None:
+    game = copy.deepcopy(load("kt-4p")["game"])
+    game["hands"][hand][field] = value
+
+    found = validate(kt_game_from_payload(game), KT_NOW)
+
+    assert found is None or found.reason in set(KtInvalidReason)

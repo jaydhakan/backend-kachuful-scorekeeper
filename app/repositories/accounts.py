@@ -12,7 +12,6 @@ from app.db.models import (
     Activity,
     AdminAudit,
     Game,
-    GamePlayer,
     Invite,
     Player,
     PlayerAlias,
@@ -21,8 +20,7 @@ from app.db.models import (
     ShareLink,
     User,
 )
-from app.domain.enums import GameKind
-from app.repositories.seats import seat_rows, seated_anywhere
+from app.repositories.seats import SEAT_TABLES, seat_rows, seated_anywhere
 
 
 @dataclass(frozen=True)
@@ -43,10 +41,10 @@ class AccountsRepository:
 
     async def footprint(self, session: AsyncSession, user: User) -> AccountFootprint:
         """Everything the preview counts, in a handful of small queries."""
-        # Clearing an account's games deletes its Kachuful games, so those are what it counts.
+        # Clearing an account's games deletes every kind that stores seats, so those are counted.
         owned = (
             Game.owner_id == user.id,
-            Game.kind == GameKind.KACHUFUL,
+            Game.kind.in_([seats.kind for seats in SEAT_TABLES]),
             Game.deleted_at.is_(None),
         )
         games, rounds = (
@@ -54,11 +52,12 @@ class AccountsRepository:
                 select(func.count(), func.coalesce(func.sum(Game.round_count), 0)).where(*owned)
             )
         ).one()
-        others = select(func.count(distinct(GamePlayer.player_id))).where(
-            GamePlayer.game_id.in_(select(Game.id).where(*owned))
+        seated = seat_rows("owned_seats")
+        others = select(func.count(distinct(seated.c.player_id))).where(
+            seated.c.game_id.in_(select(Game.id).where(*owned))
         )
         if user.player_id is not None:
-            others = others.where(GamePlayer.player_id != user.player_id)
+            others = others.where(seated.c.player_id != user.player_id)
         sessions = select(func.count()).select_from(Session).where(Session.user_id == user.id)
         invites = select(func.count()).select_from(Invite).where(Invite.email == user.email)
         photo = in_others = False

@@ -16,8 +16,11 @@ from app.services.boards import BoardsService
 from app.services.claims import ClaimsService
 from app.services.core import CoreService
 from app.services.games import GamesService
+from app.services.kt_boards import KtBoardsService
+from app.services.kt_games import KtGamesService
 from app.services.links import LinksService
 from app.services.merge import MergeService
+from app.services.owned_games import MyDataService
 from app.services.players import PlayersService
 
 
@@ -124,3 +127,18 @@ def get_claims_service(session: SessionDep) -> ClaimsService:
 def get_links_service(session: SessionDep) -> LinksService:
     """LinksService for a request."""
     return LinksService(session)
+
+
+def get_my_data_service(session: SessionDep) -> MyDataService:
+    """MyDataService for a request."""
+    return MyDataService(session)
+
+
+def get_kt_games_service(session: SessionDep) -> KtGamesService:
+    """KtGamesService for a request."""
+    return KtGamesService(session)
+
+
+def get_kt_boards_service(session: SessionDep) -> KtBoardsService:
+    """KtBoardsService for a request."""
+    return KtBoardsService(session)
