@@ -1,17 +1,18 @@
 """Merging two registry players into one (admin only)."""
 
-import copy
 import uuid
+from collections.abc import Awaitable, Callable
 
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import Invite, Player, PlayerAlias, User
+from app.db.models import Game, Invite, Player, PlayerAlias, User
 from app.domain.enums import GameKind
 from app.exceptions import ApiError, ErrorCode
 from app.logger import get_logger
 from app.repositories.achievements import achievements_repository
 from app.repositories.app_state import app_state_repository
+from app.repositories.derived import derived_repository
 from app.repositories.games import games_repository
 from app.repositories.players import players_repository
 from app.repositories.users import users_repository
@@ -21,6 +22,19 @@ from app.services.games import GamesService
 from app.services.presenters import player_out
 
 logger = get_logger(__name__)
+
+Reseat = Callable[[AsyncSession, Game, uuid.UUID, uuid.UUID], Awaitable[None]]
+
+
+async def _reseat_kachuful(
+    session: AsyncSession, row: Game, from_id: uuid.UUID, into_id: uuid.UUID
+) -> None:
+    await GamesService(session).reseat(row, from_id, into_id)
+
+
+# How each kind moves a seat in its payload and derived rows: one entry per kind that has a
+# table in `repositories.seats.SEAT_TABLES`.
+RESEAT_BY_KIND: dict[GameKind, Reseat] = {GameKind.KACHUFUL: _reseat_kachuful}
 
 
 class MergeService:
@@ -136,13 +150,10 @@ class MergeService:
                 "These players sat at the same table, so they are different people.",
                 fields={"intoId": "played in a game together"},
             )
-        games = GamesService(self.session)
         for game_id in source_games:
             await games_repository.lock(self.session, game_id)
-            row = await games_repository.get(self.session, game_id, kind=GameKind.KACHUFUL)
+            row = await games_repository.get(self.session, game_id, kind=None)
             assert row is not None
-            payload = copy.deepcopy(row.payload)
-            for seat in payload["players"]:
-                if seat.get("playerId") == str(from_id):
-                    seat["playerId"] = str(into_id)
-            await games.rederive(row, payload, career=False)
+            await RESEAT_BY_KIND[GameKind(row.kind)](self.session, row, from_id, into_id)
+        # Counters span every kind, so they are recounted once whatever each reseat did.
+        await derived_repository.refresh_player_counters(self.session, {from_id, into_id})

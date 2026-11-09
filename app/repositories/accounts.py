@@ -22,6 +22,7 @@ from app.db.models import (
     User,
 )
 from app.domain.enums import GameKind
+from app.repositories.seats import seat_rows, seated_anywhere
 
 
 @dataclass(frozen=True)
@@ -69,13 +70,14 @@ class AccountsRepository:
                     )
                 ).scalar()
             )
+            seats = seat_rows()
             in_others = bool(
                 (
                     await session.execute(
                         select(
                             exists().where(
-                                GamePlayer.player_id == user.player_id,
-                                GamePlayer.game_id == Game.id,
+                                seats.c.player_id == user.player_id,
+                                seats.c.game_id == Game.id,
                                 Game.owner_id != user.id,
                                 Game.deleted_at.is_(None),
                             )
@@ -113,10 +115,10 @@ class AccountsRepository:
         await session.execute(delete(Invite).where(Invite.email == user.email))
 
     async def player_in_use(self, session: AsyncSession, player_id: uuid.UUID) -> bool:
-        """Any game, invite, account or merge still points at the player."""
+        """Any game (of any kind), invite, account or merge still points at the player."""
         merged_here = select(Player.id).where(Player.merged_into == player_id).exists()
         stmt = select(
-            exists().where(GamePlayer.player_id == player_id)
+            seated_anywhere(player_id)
             | exists().where(Invite.player_id == player_id)
             | exists().where(User.player_id == player_id)
             | merged_here

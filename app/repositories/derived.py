@@ -5,10 +5,11 @@ from collections.abc import Sequence
 from datetime import date, datetime
 from typing import Any
 
-from sqlalchemy import delete, insert, select, text
+from sqlalchemy import delete, func, insert, select, text, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import GamePlayer, RoundScore
+from app.db.models import GamePlayer, Player, RoundScore
+from app.repositories.seats import seat_rows
 
 # One statement rebuilds every (player, day) pair given; days are APP_TZ calendar days.
 _REBUILD_PLAYER_DAYS = text(
@@ -60,21 +61,6 @@ _DELETE_PLAYER_DAYS = text(
     DELETE FROM player_day pd
     USING unnest(CAST(:player_ids AS uuid[]), CAST(:days AS date[])) AS u(player_id, day)
     WHERE pd.player_id = u.player_id AND pd.day = u.day
-    """
-)
-
-_REFRESH_PLAYER_COUNTERS = text(
-    """
-    UPDATE players p
-    SET games_count = s.games, last_played_at = s.last_played_at
-    FROM (
-        SELECT ids.id,
-               (SELECT count(*) FROM game_players gp WHERE gp.player_id = ids.id) AS games,
-               (SELECT max(gp.last_done_at) FROM game_players gp
-                WHERE gp.player_id = ids.id) AS last_played_at
-        FROM unnest(CAST(:player_ids AS uuid[])) AS ids(id)
-    ) s
-    WHERE p.id = s.id
     """
 )
 
@@ -134,9 +120,19 @@ class DerivedRepository:
     async def refresh_player_counters(
         self, session: AsyncSession, player_ids: set[uuid.UUID]
     ) -> None:
-        """Recount `players.games_count` and `last_played_at`."""
-        if player_ids:
-            await session.execute(_REFRESH_PLAYER_COUNTERS, {"player_ids": list(player_ids)})
+        """Recount `players.games_count` and `last_played_at` over every game kind's seats."""
+        if not player_ids:
+            return
+        counted, latest = seat_rows(), seat_rows()
+        games = select(func.count()).where(counted.c.player_id == Player.id).scalar_subquery()
+        last = select(func.max(latest.c.last_done_at)).where(latest.c.player_id == Player.id)
+        stmt = (
+            update(Player)
+            .where(Player.id.in_(player_ids))
+            .values(games_count=games, last_played_at=last.scalar_subquery())
+            .execution_options(synchronize_session=False)
+        )
+        await session.execute(stmt)
 
 
 derived_repository = DerivedRepository()

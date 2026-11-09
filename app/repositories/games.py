@@ -19,8 +19,9 @@ from sqlalchemy import (
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
-from app.db.models import Game, GamePlayer, Player, ShareLink, User
+from app.db.models import Game, Player, ShareLink, User
 from app.domain.enums import GameKind
+from app.repositories.seats import seat_rows
 
 
 @dataclass(frozen=True)
@@ -246,12 +247,13 @@ class GamesRepository:
         return [(r[0], r[1]) for r in (await session.execute(stmt.order_by(Game.id))).all()]
 
     async def ids_with_player(self, session: AsyncSession, player_id: uuid.UUID) -> list[uuid.UUID]:
-        """Live games a registry player is seated in."""
+        """Live games of any kind a registry player is seated in."""
+        seats = seat_rows()
         stmt = (
-            select(GamePlayer.game_id)
-            .join(Game, Game.id == GamePlayer.game_id)
-            .where(GamePlayer.player_id == player_id, Game.deleted_at.is_(None))
-            .order_by(GamePlayer.game_id)
+            select(seats.c.game_id)
+            .join(Game, Game.id == seats.c.game_id)
+            .where(seats.c.player_id == player_id, Game.deleted_at.is_(None))
+            .order_by(seats.c.game_id)
         )
         return list((await session.execute(stmt)).scalars())
 

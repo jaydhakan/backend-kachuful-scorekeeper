@@ -380,6 +380,14 @@ class GamesService:
         await self.store(row, derived, was_ended=was_ended, career=career)
         return derived
 
+    async def reseat(self, row: GameRow, from_id: uuid.UUID, into_id: uuid.UUID) -> None:
+        """Move a seat to another registry player (admin merge); career badges are the caller's."""
+        payload = copy.deepcopy(row.payload)
+        for seat in payload["players"]:
+            if seat.get("playerId") == str(from_id):
+                seat["playerId"] = str(into_id)
+        await self.rederive(row, payload, career=False)
+
     async def summary(self, game_id: uuid.UUID) -> SummaryRow:
         """A live game's summary row; 404 for unknown or deleted games."""
         rows = await games_repository.summaries(self.session, [game_id], kind=GameKind.KACHUFUL)
