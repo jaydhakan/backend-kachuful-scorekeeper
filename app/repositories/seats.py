@@ -10,7 +10,7 @@ from typing import Any
 from sqlalchemy import ColumnElement, FromClause, Subquery, exists, or_, select, union_all
 from sqlalchemy.orm import QueryableAttribute
 
-from app.db.models import GamePlayer
+from app.db.models import GamePlayer, KtGamePlayer
 from app.domain.enums import GameKind
 
 
@@ -24,6 +24,7 @@ class SeatTable:
 
 SEAT_TABLES: tuple[SeatTable, ...] = (
     SeatTable(kind=GameKind.KACHUFUL, table=GamePlayer.__table__),
+    SeatTable(kind=GameKind.KAALI_TEERI, table=KtGamePlayer.__table__),
 )
 
 

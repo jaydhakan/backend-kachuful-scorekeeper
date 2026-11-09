@@ -90,6 +90,35 @@ CASES = [
         f"SELECT rounds FROM player_day WHERE player_id = '{ID}' AND day = '2026-10-01'",
     ),
     (
+        "ix_kt_player_day_day",
+        "SELECT player_id, sum(points), sum(wins) FROM kt_player_day "
+        "WHERE day >= '2026-11-01' AND day < '2026-12-01' GROUP BY player_id",
+    ),
+    (
+        "ix_kt_game_players_player_id",
+        f"SELECT game_id, points, place FROM kt_game_players WHERE player_id = '{ID}'",
+    ),
+    (
+        "ix_kt_game_players_first_done_at",
+        f"SELECT count(*) FROM kt_game_players WHERE player_id = '{ID}' "
+        "AND first_done_at >= now() - interval '1 day' AND first_done_at < now()",
+    ),
+    (
+        "ix_kt_game_players_ended_at",
+        f"SELECT count(*) FILTER (WHERE won) FROM kt_game_players WHERE player_id = '{ID}' "
+        "AND ended_at >= now() - interval '1 day' AND ended_at < now()",
+    ),
+    (
+        "pk_kt_hands",
+        f"SELECT bidder_id, made FROM kt_hands WHERE game_id IN ('{ID}') "
+        "ORDER BY game_id, hand_index",
+    ),
+    (
+        "ix_kt_hands_done_at",
+        "SELECT scores FROM kt_hands WHERE done_at >= now() - interval '1 day' AND done_at < now() "
+        "AND scores ? 'x'",
+    ),
+    (
         "ix_achievements_player_id_earned_at",
         f"SELECT id FROM achievements WHERE player_id = '{ID}' "
         "ORDER BY earned_at DESC, id DESC LIMIT 50",

@@ -6,9 +6,12 @@ from datetime import datetime
 from typing import Any
 
 from sqlalchemy import (
-    ColumnClause,
     ColumnElement,
+    FromClause,
+    ScalarSelect,
+    Text,
     and_,
+    cast,
     func,
     literal_column,
     or_,
@@ -19,9 +22,9 @@ from sqlalchemy import (
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
-from app.db.models import Game, Player, ShareLink, User
+from app.db.models import Game, Player, PlayerPhoto, ShareLink, User
 from app.domain.enums import GameKind
-from app.repositories.seats import seat_rows
+from app.repositories.seats import SEAT_TABLES, seat_rows
 
 
 @dataclass(frozen=True)
@@ -55,15 +58,26 @@ def live_link_exists() -> ColumnElement[bool]:
     )
 
 
-# playerId → photo_rev for the seated players that have a photo (photos change after upload).
-_PHOTOS: ColumnClause[Any] = literal_column(
-    "(SELECT coalesce(jsonb_object_agg(gp.player_id::text, p.photo_rev), '{}'::jsonb)"
-    " FROM game_players gp JOIN players p ON p.id = gp.player_id"
-    " JOIN player_photos ph ON ph.player_id = p.id WHERE gp.game_id = games.id)"
-)
+def _photos(seats: FromClause) -> ScalarSelect[Any]:
+    """playerId → photo_rev for a game's seated players that have a photo (photos change later)."""
+    agg = func.jsonb_object_agg(cast(seats.c.player_id, Text), Player.photo_rev)
+    return (
+        select(func.coalesce(agg, literal_column("'{}'::jsonb")))
+        .select_from(
+            seats.join(Player, Player.id == seats.c.player_id).join(
+                PlayerPhoto, PlayerPhoto.player_id == Player.id
+            )
+        )
+        .where(seats.c.game_id == Game.id)
+        .correlate(Game)
+        .scalar_subquery()
+    )
 
 
-def _summary_columns() -> tuple[Any, ...]:
+_PHOTOS_BY_KIND = {seats.kind: _photos(seats.table) for seats in SEAT_TABLES}
+
+
+def _summary_columns(kind: GameKind) -> tuple[Any, ...]:
     return (
         Game.id,
         Game.summary,
@@ -72,7 +86,7 @@ def _summary_columns() -> tuple[Any, ...]:
         Game.updated_at,
         Game.deleted_at,
         live_link_exists(),
-        _PHOTOS,
+        _PHOTOS_BY_KIND[kind],
     )
 
 
@@ -127,7 +141,7 @@ class GamesRepository:
         """Summaries for some games of this kind, in one query."""
         if not game_ids:
             return {}
-        stmt = _with_owner(select(*_summary_columns())).where(
+        stmt = _with_owner(select(*_summary_columns(kind))).where(
             Game.id.in_(set(game_ids)), Game.kind == kind
         )
         return {row.game_id: row for row in _rows((await session.execute(stmt)).all())}
@@ -150,7 +164,7 @@ class GamesRepository:
         payload so deleted games (whose derived rows are gone) still come back as tombstones.
         """
         stmt = (
-            _with_owner(select(*_summary_columns()))
+            _with_owner(select(*_summary_columns(kind)))
             .where(Game.kind == kind)
             .order_by(Game.updated_at.desc(), Game.id.desc())
         )
@@ -184,7 +198,7 @@ class GamesRepository:
     ) -> list[SummaryRow]:
         """Every live game of this kind a user uploaded, newest first (bootstrap)."""
         stmt = (
-            _with_owner(select(*_summary_columns()))
+            _with_owner(select(*_summary_columns(kind)))
             .where(Game.owner_id == owner_id, Game.kind == kind, Game.deleted_at.is_(None))
             .order_by(Game.updated_at.desc(), Game.id.desc())
         )
