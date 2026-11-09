@@ -59,6 +59,7 @@ assets/fonts/         fonts for OG images
 - Name uniqueness: `domain.names.name_key()` (same function as the app's)
 - Game kinds: every `games` row has a `kind` (`domain.enums.GameKind`); `games_repository` reads take the kind they serve, and Kachuful code passes `GameKind.KACHUFUL`
 - Player-wide queries (in use, games count, merge, duplicates): `repositories/seats.py` reads every kind's seat table; a new game adds its table to `SEAT_TABLES` and its reseat to `services/merge.RESEAT_BY_KIND`
+- Deleting a user's games (start fresh, admin clear, delete user): `services/owned_games.DELETE_OWNED_BY_KIND`; share links: `services/links.LINKED_KINDS` (preview names and paths in `services/public._PAGES`); `jobs/prune_empty.KINDS`. A new game joins all three
 - Settings: `from app.settings import settings`; never `os.environ`/`os.getenv` elsewhere
 - Session/CSRF/rate limits: `app/security`; DB sessions: `app/db/session.py`
 - Blocking work (Pillow): `render.run_in_thread()`, never on the event loop
