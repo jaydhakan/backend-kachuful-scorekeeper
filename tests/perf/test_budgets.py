@@ -1,7 +1,7 @@
-"""Performance budgets (plan §15.1), measured in-process against the load dataset.
+"""Performance budgets, measured in-process against the load dataset.
 
 Run with `make perf` after `make load`. Every response cache is cleared before each request, so
-these are cold numbers; the report goes to var/perf-report.json and into HANDOFF.md.
+these are cold numbers; the report goes to var/perf-report.json.
 """
 
 import asyncio

@@ -1,6 +1,6 @@
 # AI Agent Rules
 
-Backend for the Kachuful scorekeeper PWA (https://play.vectanix.com): invite-only accounts, sync of games played offline, a global player registry, leaderboards, stats, achievements, live and recap links. The plan is `plan-backend.md`; §2 decisions are final, §6 is the API contract shared with the app and is **frozen**.
+Backend for the Kachuful scorekeeper PWA (https://play.vectanix.com): invite-only accounts, sync of games played offline, a global player registry, leaderboards, stats, achievements, live and recap links. The API as built (its routes and schemas, `/api/docs` when running) is the contract shared with the app. Every change to it comes from the app repo's `backend-requests.md` (see Delivery). There is no `plan-backend.md`, `HANDOFF.md` or `DEPLOY.md` (removed 2026-11-01); don't recreate them.
 
 ## Stack - what this is NOT
 - **Python 3.12 (uv) + FastAPI + Pydantic v2 + SQLAlchemy 2 async/asyncpg + Alembic + PostgreSQL 16 (`citext`, `pg_trgm`) + argon2-cffi + pytest/httpx/hypothesis + ruff + mypy --strict.** Pillow and segno for images and QR codes; python-dotenv loads a local `.env`.
@@ -12,7 +12,7 @@ Backend for the Kachuful scorekeeper PWA (https://play.vectanix.com): invite-onl
 - `make verify` = `uv run ruff check .` + `uv run ruff format --check .` + `uv run mypy app` + `uv run pytest`. It must be green before anything is called done.
 - `make dev` starts Postgres 16 (Docker Compose, host port 5433) and the API with reload; `make migrate` = `uv run alembic upgrade head`. Tests use the same container (`kachuful_test` database).
 - `app/settings.py` loads `.env` with python-dotenv when the file exists; real environment variables win. No `--env-file` flags needed.
-- `uv run pytest -k "pattern"` for a subset. Performance: `make load` once (the §15 dataset in the dev database), then `make perf` (budgets from plan §15.1; report in `var/perf-report.json`).
+- `uv run pytest -k "pattern"` for a subset. Performance: `make load` once (the load dataset in the dev database), then `make perf` (budgets in `tests/perf`; report in `var/perf-report.json`).
 - Golden fixtures: copy the app's `contract/fixtures/*.json` into `tests/fixtures/` and update `tests/fixtures/VERSION.md`.
 - Jobs: `uv run python -m app.cli <command>` (`auto-end`, `close-day`, `close-season`, `prune`, `prune-empty`, `backup`, `seed-admin`, `seed-demo`, `seed-load`). `prune-empty` is a one-off (2026-11-06): it deletes games stored before the rule that a game with no round done leaves no trace; `--dry-run` only counts.
 - Runtime (systemd) runs `.venv/bin/python -m app`, never `uv run` or a shell. `app/__main__.py` passes the `"app.bootstrap.app:app"` string to uvicorn (workers + `proxy_headers` from settings) and never imports the app object.
@@ -62,7 +62,7 @@ assets/fonts/         fonts for OG images
 - Blocking work (Pillow): `render.run_in_thread()`, never on the event loop
 
 ## API Design
-- Everything under `/api` except the `/r/{token}` and `/l/{token}` preview pages. Bodies are exactly the §6 shapes: no envelope. Every route declares `response_model` (or `status_code=204`).
+- Everything under `/api` except the `/r/{token}` and `/l/{token}` preview pages. Bodies are exactly the contract's shapes: no envelope. Every route declares `response_model` (or `status_code=204`).
 - **JSON is camelCase, Python is snake_case.** Models extend `CamelModel` (`alias_generator=to_camel, populate_by_name=True`) and are serialized `by_alias`. Query params use `Annotated[..., Query(alias="updatedSince")]`.
 - Times on the wire are epoch milliseconds (`int`); ids are UUID strings; lists are `{items, nextCursor}` with `?cursor=&limit=` (default 50, max 200); ranges are half-open `[from, to)`.
 - Routes are plural nouns, kebab-case for multi-word segments (`/reset-link`), no verbs except the actions the contract names (`/merge`, `/login`).
@@ -93,7 +93,7 @@ logger = get_logger(__name__)
 - Logs are structured JSON lines. Levels: `info` (lifecycle), `warning` (recoverable), `error` (failures, `exc_info=True`), `debug` (traces). No `print` (ruff `T20`).
 - Never log passwords, tokens, cookies or `Authorization`/`Cookie` headers. All masking lives in `app/logger.py` (`SENSITIVE_KEYS`); add new names there, never a second list.
 - Raise `ApiError` - one handler maps it to `{code, message, ...extra}`. Request validation becomes `422 invalid {fields}`; anything unhandled becomes `500 internal` with no stack trace or SQL in the body.
-- Error codes are `snake_case` and come from §6 (`name_taken`, `stale`, `weak_password`, ...). A code not in §6 is a contract change: ask first.
+- Error codes are `snake_case` and come from the contract (`name_taken`, `stale`, `weak_password`, ...). A new code is a contract change: it must be in `backend-requests.md` first.
 - Always raise or propagate - never swallow. No bare `except`, no blind `except Exception` (ruff `BLE`) except at the one 500 handler and in best-effort jobs, which log it.
 
 ## Database
@@ -112,7 +112,7 @@ logger = get_logger(__name__)
 ```
 1. Collect ids first → 2. one `IN (...)` / join fetch → 3. build in-memory maps (`players_by_id = {p.id: p for p in players}`) → 4. bulk insert/update.
 - Tests assert the query count on the main endpoints. Pass fetched rows down, not ids that need re-fetching.
-- **Every hot-path query has an index** from §15.2, with an `EXPLAIN` test asserting it is used. List endpoints never read `games.payload`; they read `games.summary`.
+- **Every hot-path query has an index**, with an `EXPLAIN` test asserting it is used. List endpoints never read `games.payload`; they read `games.summary`.
 - Derived data (`round_scores`, `game_players`, `player_day`, `games.summary`) is written on upload in the same transaction, never computed on read.
 - Paginate with keyset cursors on indexed columns; sort deterministically (`ORDER BY updated_at DESC, id DESC`).
 
@@ -123,13 +123,13 @@ logger = get_logger(__name__)
 
 ## Domain & Parity
 - The app's TypeScript `src/domain` is the reference. Golden fixtures in `tests/fixtures/` must all pass; never edit a fixture to make a test pass - report the mismatch to Jay.
-- Until the app exports `contract/fixtures`, fixtures are hand-written from plan §7-§8 and marked `"source": "hand-written"`.
+- Until the app exports `contract/fixtures`, fixtures are hand-written from the domain rules and marked `"source": "hand-written"`.
 - Game rules and scoring never change without a failing test first. Domain tests come before domain code.
 
 ## Security
-- argon2id (library defaults); tokens are 32 random bytes, url-safe, stored only as SHA-256 (share-link tokens are the one exception, per §5.1).
+- argon2id (library defaults); tokens are 32 random bytes, url-safe, stored only as SHA-256 (share-link tokens are the one exception).
 - Cookie `kf_session` (HttpOnly, Secure, SameSite=Lax, Path=/); 180-day rolling expiry refreshed at most once a day.
-- Every non-GET needs `X-Kachuful: 1` and a same-site `Origin`, else `403 csrf`. Rate limits exactly as §10.
+- Every non-GET needs `X-Kachuful: 1` and a same-site `Origin`, else `403 csrf`. Rate limits as `app/security/rate_limit.py` sets them.
 - Password rule: 3-128 characters, no whitespace. Nothing else.
 - Public endpoints never expose emails, user ids or first/last names.
 
@@ -151,19 +151,20 @@ logger = get_logger(__name__)
 ## Testing
 - Files are `test_<unit>.py`, mirroring `app/`; test names state the behaviour: `test_upload_with_older_rev_returns_stale`.
 - Every endpoint has tests for the happy path, every error code and every permission rule, against a real Postgres (transaction per test, rolled back). Never mock the DB.
-- Property tests (`hypothesis`) for validation; concurrency and SSE tests as plan §12.2.
-- No coverage tool: completeness comes from the rule above, and every domain rule in plan §7-§8 has its own test.
-- Performance budgets are plan §15.1; `tests/perf` (marker `perf`) must stay under them.
+- Property tests (`hypothesis`) for validation; concurrency and SSE tests for every lock and stream.
+- No coverage tool: completeness comes from the rule above, and every domain rule has its own test.
+- `tests/perf` (marker `perf`) holds the performance budgets; it must stay under them.
 
 ## Delivery
 - **Git: work on `main` only and push to `origin main`** (Jay's standing instruction, 2026-10-31). No branches, no PRs.
 - Conventional Commits (`feat:`, `fix:`, `refactor:`, `test:`, `chore:`, `docs:`, `ci:`), one feature or concern each; never mix a refactor with a behaviour change. **No co-author trailer.**
 - Never deploy to production, run `seed-admin` on production, or touch CI secrets unless Jay asks.
-- Contract: if §6 is wrong or missing something, stop and tell Jay; never change it silently. Approved changes go in `HANDOFF.md` with their date.
+- **Changes come from `backend-requests.md`**, at the root of the app repo (`../web-kachuful-scorekeeper`): the one working doc for any API change, saying what is needed and why. Once it exists, build the backend side here in the same task, exactly what it asks and nothing more. If it is wrong or missing something, stop and tell Jay; never change the contract silently.
+- **Working docs are temporary:** when the feature is done in both repos (built, tested, committed), delete `backend-requests.md` and the task's plan docs. Never commit them, and don't keep any other changelog or handoff file.
 - Touch only the files a change needs and mirror existing patterns. If a change touches more than ~3 files, outline the plan first.
-- `HANDOFF.md` is updated at the end of every milestone (plan §16).
 - **Progress:** after every milestone, tell Jay where the build stands as a percentage, using these weights (cumulative): B0 5% · B1 15% · B2 23% · B3 33% · B4 45% · B5 59% · B6 71% · B7 80% · B8 90% · B9 96% · B10 100%.
-- Jay deploys. There is **no staging** (2026-11-01): one production environment, and every push to `main` deploys there after CI, so `make verify` must be green before every push. `DEPLOY.md` is his step-by-step runbook (GitHub secrets and variables, CD workflow, VPS setup, Postgres, systemd, nginx); keep it in step with `deploy/` and the workflows.
+- **Parallel agents:** whenever pieces of work don't conflict (different modules, migrations vs routes, tests vs fixtures), run them as parallel subagents (2, 4 or 6 at once). Give each a narrow brief with the files it owns, and review what each returns before building on it.
+- Jay deploys. There is **no staging** (2026-11-01): one production environment, and every push to `main` deploys there after CI, so `make verify` must be green before every push. `deploy/` and `.github/workflows/` are the source of truth for how it runs; keep them in step with any change that affects deployment, and tell Jay what he must do on the VPS.
 
 ## Pre-Submit Checklist
 1. `make verify` green; new migration applies and downgrades cleanly
@@ -172,11 +173,11 @@ logger = get_logger(__name__)
 4. Fixed query count; hot queries indexed with an `EXPLAIN` test; no `payload` reads on lists
 5. Tests for happy path, each error code, each permission rule
 6. No secrets, tokens or passwords in code or logs; logging levels sensible
-7. Minimal scope, no surprise files; `HANDOFF.md` updated
+7. Minimal scope, no surprise files; done items in `backend-requests.md` ticked
 8. Anything stubbed, mocked or unverified is said plainly
 
 ## Definition of Done
-- `make verify` is green, `HANDOFF.md` and `DEPLOY.md` are updated, and anything stubbed, mocked or unverified is said plainly. Production is set up by Jay via `DEPLOY.md`; until he confirms it, HANDOFF.md marks the deploy as unverified.
+- `make verify` is green, everything `backend-requests.md` asked for is built and tested, and anything stubbed, mocked or unverified is said plainly. Production is deployed by Jay; until he confirms it, say the deploy is unverified.
 
 ## Debugging
 - Use `logger.debug(...)` and remove noisy logs before committing; never `print`.
