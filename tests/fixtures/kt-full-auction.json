@@ -1,0 +1,287 @@
+{
+  "kind": "game",
+  "name": "the full auction, turn by turn",
+  "game": {
+    "kind": "kaali-teeri",
+    "schemaVersion": 1,
+    "id": "kt-40000000-0000-4000-8000-000000000008",
+    "syncId": "40000000-0000-4000-8000-000000000008",
+    "rev": 1,
+    "createdAt": 1794231000000,
+    "updatedAt": 1794231360000,
+    "finishedAt": 1794231360000,
+    "players": [
+      {
+        "id": "p0",
+        "playerId": "ana",
+        "name": "ana",
+        "emoji": "🙂",
+        "color": "#f87171"
+      },
+      {
+        "id": "p1",
+        "playerId": "ben",
+        "name": "ben",
+        "emoji": "🙂",
+        "color": "#60a5fa"
+      },
+      {
+        "id": "p2",
+        "playerId": "cy",
+        "name": "cy",
+        "emoji": "🙂",
+        "color": "#34d399"
+      },
+      {
+        "id": "p3",
+        "playerId": "dee",
+        "name": "dee",
+        "emoji": "🙂",
+        "color": "#fbbf24"
+      },
+      {
+        "id": "p4",
+        "playerId": "eli",
+        "name": "eli",
+        "emoji": "🙂",
+        "color": "#a78bfa"
+      }
+    ],
+    "firstDealerIndex": 0,
+    "direction": "cw",
+    "rules": {
+      "decks": 1,
+      "partners": 1,
+      "minBid": 150,
+      "step": 5,
+      "length": "endless"
+    },
+    "hands": [
+      {
+        "index": 0,
+        "dealerIndex": 0,
+        "phase": "done",
+        "mode": "auction",
+        "calls": [
+          {
+            "playerId": "p1",
+            "bid": 150
+          },
+          {
+            "playerId": "p2",
+            "bid": 160
+          },
+          {
+            "playerId": "p3",
+            "pass": true
+          },
+          {
+            "playerId": "p4",
+            "bid": 170
+          },
+          {
+            "playerId": "p0",
+            "pass": true
+          },
+          {
+            "playerId": "p1",
+            "pass": true
+          },
+          {
+            "playerId": "p2",
+            "pass": true
+          },
+          {
+            "playerId": "p3",
+            "pass": true
+          }
+        ],
+        "bidder": "p4",
+        "bid": 170,
+        "trump": "hearts",
+        "called": [
+          {
+            "rank": "A",
+            "suit": "spades"
+          }
+        ],
+        "playedBy": [
+          "p0"
+        ],
+        "teamPoints": 175,
+        "countedBy": "defenders",
+        "doneAt": 1794231300000
+      }
+    ],
+    "status": "finished",
+    "ui": {
+      "view": "hand"
+    }
+  },
+  "expect": {
+    "valid": true,
+    "totals": {
+      "p0": 170,
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "p4": 170
+    },
+    "places": {
+      "p0": 1,
+      "p4": 1,
+      "p1": 3,
+      "p2": 3,
+      "p3": 3
+    },
+    "gameOver": false,
+    "auctions": [
+      {
+        "high": 170,
+        "holder": "p4",
+        "toSpeak": null,
+        "done": true,
+        "forcedTo": null,
+        "invalidAt": null
+      }
+    ],
+    "hands": [
+      {
+        "handIndex": 0,
+        "dealerId": "ana",
+        "bidderId": "eli",
+        "bid": 170,
+        "forced": false,
+        "trump": "hearts",
+        "partnerIds": [
+          "ana"
+        ],
+        "slots": {
+          "eli": 1,
+          "ana": 1
+        },
+        "teamPoints": 175,
+        "made": true,
+        "sweep": "none",
+        "doneAt": 1794231300000,
+        "scores": {
+          "ana": 170,
+          "ben": 0,
+          "cy": 0,
+          "dee": 0,
+          "eli": 170
+        }
+      }
+    ],
+    "gamePlayers": [
+      {
+        "playerId": "ana",
+        "points": 170,
+        "place": 1,
+        "won": true,
+        "handsBid": 0,
+        "bidsMade": 0,
+        "timesPartner": 1,
+        "partnerMade": 1,
+        "doubleSlots": 0,
+        "sweeps": 0
+      },
+      {
+        "playerId": "ben",
+        "points": 0,
+        "place": 3,
+        "won": false,
+        "handsBid": 0,
+        "bidsMade": 0,
+        "timesPartner": 0,
+        "partnerMade": 0,
+        "doubleSlots": 0,
+        "sweeps": 0
+      },
+      {
+        "playerId": "cy",
+        "points": 0,
+        "place": 3,
+        "won": false,
+        "handsBid": 0,
+        "bidsMade": 0,
+        "timesPartner": 0,
+        "partnerMade": 0,
+        "doubleSlots": 0,
+        "sweeps": 0
+      },
+      {
+        "playerId": "dee",
+        "points": 0,
+        "place": 3,
+        "won": false,
+        "handsBid": 0,
+        "bidsMade": 0,
+        "timesPartner": 0,
+        "partnerMade": 0,
+        "doubleSlots": 0,
+        "sweeps": 0
+      },
+      {
+        "playerId": "eli",
+        "points": 170,
+        "place": 1,
+        "won": true,
+        "handsBid": 1,
+        "bidsMade": 1,
+        "timesPartner": 0,
+        "partnerMade": 0,
+        "doubleSlots": 0,
+        "sweeps": 0
+      }
+    ],
+    "summary": {
+      "kind": "kaali-teeri",
+      "status": "finished",
+      "hands": 1,
+      "length": "endless",
+      "players": [
+        {
+          "playerId": "ana",
+          "name": "ana",
+          "emoji": "🙂",
+          "color": "#f87171",
+          "points": 170,
+          "place": 1
+        },
+        {
+          "playerId": "ben",
+          "name": "ben",
+          "emoji": "🙂",
+          "color": "#60a5fa",
+          "points": 0,
+          "place": 3
+        },
+        {
+          "playerId": "cy",
+          "name": "cy",
+          "emoji": "🙂",
+          "color": "#34d399",
+          "points": 0,
+          "place": 3
+        },
+        {
+          "playerId": "dee",
+          "name": "dee",
+          "emoji": "🙂",
+          "color": "#fbbf24",
+          "points": 0,
+          "place": 3
+        },
+        {
+          "playerId": "eli",
+          "name": "eli",
+          "emoji": "🙂",
+          "color": "#a78bfa",
+          "points": 170,
+          "place": 1
+        }
+      ]
+    }
+  }
+}

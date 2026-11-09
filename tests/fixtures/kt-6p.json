@@ -1,0 +1,417 @@
+{
+  "kind": "game",
+  "name": "6 players, 2 partners; active with a hand at the result",
+  "game": {
+    "kind": "kaali-teeri",
+    "schemaVersion": 1,
+    "id": "kt-40000000-0000-4000-8000-000000000003",
+    "syncId": "40000000-0000-4000-8000-000000000003",
+    "rev": 1,
+    "createdAt": 1793799000000,
+    "updatedAt": 1793799900000,
+    "players": [
+      {
+        "id": "p0",
+        "playerId": "ana",
+        "name": "ana",
+        "emoji": "🙂",
+        "color": "#f87171"
+      },
+      {
+        "id": "p1",
+        "playerId": "ben",
+        "name": "ben",
+        "emoji": "🙂",
+        "color": "#60a5fa"
+      },
+      {
+        "id": "p2",
+        "playerId": "cy",
+        "name": "cy",
+        "emoji": "🙂",
+        "color": "#34d399"
+      },
+      {
+        "id": "p3",
+        "playerId": "dee",
+        "name": "dee",
+        "emoji": "🙂",
+        "color": "#fbbf24"
+      },
+      {
+        "id": "p4",
+        "playerId": "eli",
+        "name": "eli",
+        "emoji": "🙂",
+        "color": "#a78bfa"
+      },
+      {
+        "id": "p5",
+        "playerId": "fay",
+        "name": "fay",
+        "emoji": "🙂",
+        "color": "#f472b6"
+      }
+    ],
+    "firstDealerIndex": 0,
+    "direction": "cw",
+    "rules": {
+      "decks": 1,
+      "partners": 2,
+      "minBid": 150,
+      "step": 5,
+      "length": "endless"
+    },
+    "hands": [
+      {
+        "index": 0,
+        "dealerIndex": 0,
+        "phase": "done",
+        "mode": "quick",
+        "calls": [],
+        "bidder": "p0",
+        "bid": 165,
+        "trump": "hearts",
+        "called": [
+          {
+            "rank": "A",
+            "suit": "spades"
+          },
+          {
+            "rank": "K",
+            "suit": "spades"
+          }
+        ],
+        "playedBy": [
+          "p1",
+          "p2"
+        ],
+        "teamPoints": 200,
+        "countedBy": "defenders",
+        "doneAt": 1793799300000
+      },
+      {
+        "index": 1,
+        "dealerIndex": 1,
+        "phase": "done",
+        "mode": "quick",
+        "calls": [],
+        "bidder": "p3",
+        "bid": 175,
+        "trump": "hearts",
+        "called": [
+          {
+            "rank": "A",
+            "suit": "spades"
+          },
+          {
+            "rank": "K",
+            "suit": "spades"
+          }
+        ],
+        "playedBy": [
+          "p1",
+          "p5"
+        ],
+        "teamPoints": 100,
+        "countedBy": "defenders",
+        "doneAt": 1793799600000
+      },
+      {
+        "index": 2,
+        "dealerIndex": 2,
+        "phase": "done",
+        "mode": "quick",
+        "calls": [],
+        "bidder": "p5",
+        "bid": 150,
+        "trump": "hearts",
+        "called": [
+          {
+            "rank": "A",
+            "suit": "spades"
+          },
+          {
+            "rank": "K",
+            "suit": "spades"
+          }
+        ],
+        "playedBy": [
+          "p0",
+          "p1"
+        ],
+        "teamPoints": 150,
+        "countedBy": "defenders",
+        "doneAt": 1793799900000
+      },
+      {
+        "index": 3,
+        "dealerIndex": 3,
+        "phase": "result",
+        "mode": "quick",
+        "calls": [],
+        "bidder": "p2",
+        "bid": 160,
+        "trump": "hearts",
+        "called": [
+          {
+            "rank": "A",
+            "suit": "spades"
+          },
+          {
+            "rank": "K",
+            "suit": "spades"
+          }
+        ],
+        "playedBy": [
+          "p3",
+          "p4"
+        ],
+        "teamPoints": null,
+        "countedBy": null
+      }
+    ],
+    "status": "active",
+    "ui": {
+      "view": "hand"
+    }
+  },
+  "expect": {
+    "valid": true,
+    "totals": {
+      "p0": 490,
+      "p1": 315,
+      "p2": 340,
+      "p3": 0,
+      "p4": 175,
+      "p5": 150
+    },
+    "places": null,
+    "gameOver": false,
+    "auctions": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "hands": [
+      {
+        "handIndex": 0,
+        "dealerId": "ana",
+        "bidderId": "ana",
+        "bid": 165,
+        "forced": false,
+        "trump": "hearts",
+        "partnerIds": [
+          "ben",
+          "cy"
+        ],
+        "slots": {
+          "ana": 1,
+          "ben": 1,
+          "cy": 1
+        },
+        "teamPoints": 200,
+        "made": true,
+        "sweep": "none",
+        "doneAt": 1793799300000,
+        "scores": {
+          "ana": 165,
+          "ben": 165,
+          "cy": 165,
+          "dee": 0,
+          "eli": 0,
+          "fay": 0
+        }
+      },
+      {
+        "handIndex": 1,
+        "dealerId": "ben",
+        "bidderId": "dee",
+        "bid": 175,
+        "forced": false,
+        "trump": "hearts",
+        "partnerIds": [
+          "ben",
+          "fay"
+        ],
+        "slots": {
+          "dee": 1,
+          "ben": 1,
+          "fay": 1
+        },
+        "teamPoints": 100,
+        "made": false,
+        "sweep": "none",
+        "doneAt": 1793799600000,
+        "scores": {
+          "ana": 175,
+          "ben": 0,
+          "cy": 175,
+          "dee": 0,
+          "eli": 175,
+          "fay": 0
+        }
+      },
+      {
+        "handIndex": 2,
+        "dealerId": "cy",
+        "bidderId": "fay",
+        "bid": 150,
+        "forced": false,
+        "trump": "hearts",
+        "partnerIds": [
+          "ana",
+          "ben"
+        ],
+        "slots": {
+          "fay": 1,
+          "ana": 1,
+          "ben": 1
+        },
+        "teamPoints": 150,
+        "made": true,
+        "sweep": "none",
+        "doneAt": 1793799900000,
+        "scores": {
+          "ana": 150,
+          "ben": 150,
+          "cy": 0,
+          "dee": 0,
+          "eli": 0,
+          "fay": 150
+        }
+      }
+    ],
+    "gamePlayers": [
+      {
+        "playerId": "ana",
+        "points": 490,
+        "place": null,
+        "won": false,
+        "handsBid": 1,
+        "bidsMade": 1,
+        "timesPartner": 1,
+        "partnerMade": 1,
+        "doubleSlots": 0,
+        "sweeps": 0
+      },
+      {
+        "playerId": "ben",
+        "points": 315,
+        "place": null,
+        "won": false,
+        "handsBid": 0,
+        "bidsMade": 0,
+        "timesPartner": 3,
+        "partnerMade": 2,
+        "doubleSlots": 0,
+        "sweeps": 0
+      },
+      {
+        "playerId": "cy",
+        "points": 340,
+        "place": null,
+        "won": false,
+        "handsBid": 0,
+        "bidsMade": 0,
+        "timesPartner": 1,
+        "partnerMade": 1,
+        "doubleSlots": 0,
+        "sweeps": 0
+      },
+      {
+        "playerId": "dee",
+        "points": 0,
+        "place": null,
+        "won": false,
+        "handsBid": 1,
+        "bidsMade": 0,
+        "timesPartner": 0,
+        "partnerMade": 0,
+        "doubleSlots": 0,
+        "sweeps": 0
+      },
+      {
+        "playerId": "eli",
+        "points": 175,
+        "place": null,
+        "won": false,
+        "handsBid": 0,
+        "bidsMade": 0,
+        "timesPartner": 0,
+        "partnerMade": 0,
+        "doubleSlots": 0,
+        "sweeps": 0
+      },
+      {
+        "playerId": "fay",
+        "points": 150,
+        "place": null,
+        "won": false,
+        "handsBid": 1,
+        "bidsMade": 1,
+        "timesPartner": 1,
+        "partnerMade": 0,
+        "doubleSlots": 0,
+        "sweeps": 0
+      }
+    ],
+    "summary": {
+      "kind": "kaali-teeri",
+      "status": "active",
+      "hands": 3,
+      "length": "endless",
+      "players": [
+        {
+          "playerId": "ana",
+          "name": "ana",
+          "emoji": "🙂",
+          "color": "#f87171",
+          "points": 490,
+          "place": null
+        },
+        {
+          "playerId": "ben",
+          "name": "ben",
+          "emoji": "🙂",
+          "color": "#60a5fa",
+          "points": 315,
+          "place": null
+        },
+        {
+          "playerId": "cy",
+          "name": "cy",
+          "emoji": "🙂",
+          "color": "#34d399",
+          "points": 340,
+          "place": null
+        },
+        {
+          "playerId": "dee",
+          "name": "dee",
+          "emoji": "🙂",
+          "color": "#fbbf24",
+          "points": 0,
+          "place": null
+        },
+        {
+          "playerId": "eli",
+          "name": "eli",
+          "emoji": "🙂",
+          "color": "#a78bfa",
+          "points": 175,
+          "place": null
+        },
+        {
+          "playerId": "fay",
+          "name": "fay",
+          "emoji": "🙂",
+          "color": "#f472b6",
+          "points": 150,
+          "place": null
+        }
+      ]
+    }
+  }
+}
