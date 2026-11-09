@@ -1,4 +1,4 @@
-"""Stored games. List queries read `summary`, never `payload`."""
+"""Stored games of every kind; reads take a kind. Lists read `summary`, never `payload`."""
 
 import uuid
 from dataclasses import dataclass
@@ -20,6 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
 from app.db.models import Game, GamePlayer, Player, ShareLink, User
+from app.domain.enums import GameKind
 
 
 @dataclass(frozen=True)
@@ -105,9 +106,14 @@ class GamesRepository:
             text("SELECT pg_advisory_xact_lock(hashtextextended(:id, 0))"), {"id": str(game_id)}
         )
 
-    async def get(self, session: AsyncSession, game_id: uuid.UUID) -> Game | None:
-        """A game row (with payload)."""
-        return await session.get(Game, game_id, populate_existing=True)
+    async def get(
+        self, session: AsyncSession, game_id: uuid.UUID, *, kind: GameKind | None
+    ) -> Game | None:
+        """A game row (with payload) of this kind; `kind=None` returns a row of any kind."""
+        row = await session.get(Game, game_id, populate_existing=True)
+        if row is None or (kind is not None and row.kind != kind):
+            return None
+        return row
 
     async def save(self, session: AsyncSession, game: Game) -> None:
         """Insert or update a game row."""
@@ -115,18 +121,21 @@ class GamesRepository:
         await session.flush()
 
     async def summaries(
-        self, session: AsyncSession, game_ids: list[uuid.UUID]
+        self, session: AsyncSession, game_ids: list[uuid.UUID], *, kind: GameKind
     ) -> dict[uuid.UUID, SummaryRow]:
-        """Summaries for some games, in one query."""
+        """Summaries for some games of this kind, in one query."""
         if not game_ids:
             return {}
-        stmt = _with_owner(select(*_summary_columns())).where(Game.id.in_(set(game_ids)))
+        stmt = _with_owner(select(*_summary_columns())).where(
+            Game.id.in_(set(game_ids)), Game.kind == kind
+        )
         return {row.game_id: row for row in _rows((await session.execute(stmt)).all())}
 
     async def list_page(
         self,
         session: AsyncSession,
         *,
+        kind: GameKind,
         updated_since: datetime | None,
         before: tuple[datetime, uuid.UUID] | None,
         owner_id: uuid.UUID | None,
@@ -139,8 +148,10 @@ class GamesRepository:
         `involving` = (user, their player): games the user scored or sat in, matched on the stored
         payload so deleted games (whose derived rows are gone) still come back as tombstones.
         """
-        stmt = _with_owner(select(*_summary_columns())).order_by(
-            Game.updated_at.desc(), Game.id.desc()
+        stmt = (
+            _with_owner(select(*_summary_columns()))
+            .where(Game.kind == kind)
+            .order_by(Game.updated_at.desc(), Game.id.desc())
         )
         if updated_since is None:
             stmt = stmt.where(Game.deleted_at.is_(None))
@@ -167,18 +178,24 @@ class GamesRepository:
             )
         return _rows((await session.execute(stmt.limit(limit))).all())
 
-    async def owned_summaries(self, session: AsyncSession, owner_id: uuid.UUID) -> list[SummaryRow]:
-        """Every live game a user uploaded, newest first (bootstrap)."""
+    async def owned_summaries(
+        self, session: AsyncSession, owner_id: uuid.UUID, *, kind: GameKind
+    ) -> list[SummaryRow]:
+        """Every live game of this kind a user uploaded, newest first (bootstrap)."""
         stmt = (
             _with_owner(select(*_summary_columns()))
-            .where(Game.owner_id == owner_id, Game.deleted_at.is_(None))
+            .where(Game.owner_id == owner_id, Game.kind == kind, Game.deleted_at.is_(None))
             .order_by(Game.updated_at.desc(), Game.id.desc())
         )
         return _rows((await session.execute(stmt)).all())
 
-    async def owned_ids(self, session: AsyncSession, owner_id: uuid.UUID) -> list[uuid.UUID]:
-        """Ids of every live game a user uploaded."""
-        stmt = select(Game.id).where(Game.owner_id == owner_id, Game.deleted_at.is_(None))
+    async def owned_ids(
+        self, session: AsyncSession, owner_id: uuid.UUID, *, kind: GameKind
+    ) -> list[uuid.UUID]:
+        """Ids of every live game of this kind a user uploaded."""
+        stmt = select(Game.id).where(
+            Game.owner_id == owner_id, Game.kind == kind, Game.deleted_at.is_(None)
+        )
         return list((await session.execute(stmt.order_by(Game.id))).scalars())
 
     async def soft_delete(self, session: AsyncSession, game_id: uuid.UUID) -> None:
@@ -189,21 +206,22 @@ class GamesRepository:
             .values(deleted_at=func.now(), updated_at=func.now())
         )
 
-    async def counts(self, session: AsyncSession) -> tuple[int, int]:
-        """(live games, done rounds across them)."""
+    async def counts(self, session: AsyncSession, *, kind: GameKind) -> tuple[int, int]:
+        """(live games of this kind, done rounds across them)."""
         stmt = select(func.count(), func.coalesce(func.sum(Game.round_count), 0)).where(
-            Game.deleted_at.is_(None)
+            Game.kind == kind, Game.deleted_at.is_(None)
         )
         games, rounds = (await session.execute(stmt)).one()
         return int(games), int(rounds)
 
     async def auto_end_candidates(
-        self, session: AsyncSession, idle_before: datetime, limit: int
+        self, session: AsyncSession, idle_before: datetime, limit: int, *, kind: GameKind
     ) -> list[uuid.UUID]:
-        """Active games untouched since `idle_before` with a round done (plan §9 auto-end)."""
+        """Active games of this kind untouched since `idle_before` with a round done (plan §9)."""
         stmt = (
             select(Game.id)
             .where(
+                Game.kind == kind,
                 Game.status == "active",
                 Game.ended_at.is_(None),
                 Game.deleted_at.is_(None),
@@ -215,10 +233,15 @@ class GamesRepository:
         )
         return list((await session.execute(stmt)).scalars())
 
-    async def empty_ids(self, session: AsyncSession) -> list[tuple[uuid.UUID, uuid.UUID]]:
-        """(game, owner) of every live game with no round done."""
+    async def empty_ids(
+        self, session: AsyncSession, *, kind: GameKind
+    ) -> list[tuple[uuid.UUID, uuid.UUID]]:
+        """(game, owner) of every live game of this kind with no round done.
+
+        Every kind keeps `round_count` (its rounds, hands or words), so this works for each one.
+        """
         stmt = select(Game.id, Game.owner_id).where(
-            Game.deleted_at.is_(None), Game.round_count == 0
+            Game.kind == kind, Game.deleted_at.is_(None), Game.round_count == 0
         )
         return [(r[0], r[1]) for r in (await session.execute(stmt.order_by(Game.id))).all()]
 

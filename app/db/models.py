@@ -250,8 +250,9 @@ class Game(Base):
     __tablename__ = "games"
     __table_args__ = (
         CheckConstraint("status IN ('active', 'finished')", name="status"),
-        # Sync and list order; also serves `updatedSince` tombstones, so it is not partial.
-        Index("ix_games_updated_at_id", "updated_at", "id"),
+        CheckConstraint("kind IN ('kachuful', 'kaali-teeri', 'ishaara')", name="kind"),
+        # Sync and list order per game; also serves `updatedSince` tombstones, so it is not partial.
+        Index("ix_games_kind_updated_at_id", "kind", "updated_at", "id"),
         Index("ix_games_owner_id_updated_at", "owner_id", text("updated_at DESC")),
         # A user's unfinished games, newest change first: the Home screen's resume card.
         Index(
@@ -276,6 +277,8 @@ class Game(Base):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    # A `GameKind` value; the payload's shape and every derived table depend on it.
+    kind: Mapped[str] = mapped_column(Text, server_default=text("'kachuful'"))
     owner_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
     rev: Mapped[int] = mapped_column(Integer)
     payload: Mapped[dict[str, Any]] = mapped_column(JSONB)

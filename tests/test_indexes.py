@@ -34,7 +34,10 @@ CASES = [
         "ix_player_aliases_player_id",
         f"SELECT display_name FROM player_aliases WHERE player_id = '{ID}'",
     ),
-    ("ix_games_updated_at_id", "SELECT id FROM games ORDER BY updated_at DESC, id DESC LIMIT 50"),
+    (
+        "ix_games_kind_updated_at_id",
+        "SELECT id FROM games WHERE kind = 'kachuful' ORDER BY updated_at DESC, id DESC LIMIT 50",
+    ),
     (
         "ix_games_owner_id_updated_at",
         f"SELECT id FROM games WHERE owner_id = '{ID}' ORDER BY updated_at DESC LIMIT 50",

@@ -41,6 +41,7 @@ class ErrorCode(StrEnum):
     MEMBERS_ONLY = "members_only"
     REACTIONS_OFF = "reactions_off"
     ID_CONFLICT = "id_conflict"
+    KIND_MISMATCH = "kind_mismatch"
     STALE = "stale"
     UNKNOWN_PLAYER = "unknown_player"
     INVALID_GAME = "invalid_game"

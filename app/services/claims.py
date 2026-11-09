@@ -5,6 +5,7 @@ import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import SeatClaim, User
+from app.domain.enums import GameKind
 from app.domain.time import now_utc, to_ms
 from app.exceptions import ApiError, ErrorCode
 from app.logger import get_logger
@@ -53,7 +54,7 @@ class ClaimsService:
 
     async def create(self, game_id: uuid.UUID, player_id: uuid.UUID, user: User) -> ClaimOut:
         """Ask to take over a seat's player; the scorer or the admin decides."""
-        game = await games_repository.get(self.session, game_id)
+        game = await games_repository.get(self.session, game_id, kind=GameKind.KACHUFUL)
         if game is None or game.deleted_at is not None:
             raise ApiError(404, ErrorCode.NOT_FOUND, "No such game.")
         seated = {seat.get("playerId") for seat in game.payload.get("players", [])}
@@ -84,7 +85,7 @@ class ClaimsService:
         claim = await claims_repository.get(self.session, claim_id)
         if claim is None:
             raise ApiError(404, ErrorCode.NOT_FOUND, "No such claim.")
-        game = await games_repository.get(self.session, claim.game_id)
+        game = await games_repository.get(self.session, claim.game_id, kind=GameKind.KACHUFUL)
         if game is None or game.deleted_at is not None:
             raise ApiError(404, ErrorCode.NOT_FOUND, "No such game.")
         if game.owner_id != user.id and user.role != "admin":

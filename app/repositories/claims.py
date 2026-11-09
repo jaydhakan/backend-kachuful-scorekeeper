@@ -6,6 +6,7 @@ from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Game, SeatClaim
+from app.domain.enums import GameKind
 
 
 class ClaimsRepository:
@@ -43,11 +44,15 @@ class ClaimsRepository:
     async def decidable(
         self, session: AsyncSession, user_id: uuid.UUID, everything: bool
     ) -> list[SeatClaim]:
-        """Pending claims on live games the user scored (every game for an admin), newest first."""
+        """Pending claims on live Kachuful games the user scored (all for an admin), newest first."""
         stmt = (
             select(SeatClaim)
             .join(Game, Game.id == SeatClaim.game_id)
-            .where(SeatClaim.status == "pending", Game.deleted_at.is_(None))
+            .where(
+                SeatClaim.status == "pending",
+                Game.kind == GameKind.KACHUFUL,
+                Game.deleted_at.is_(None),
+            )
             .order_by(SeatClaim.created_at.desc())
         )
         if not everything:

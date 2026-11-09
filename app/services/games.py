@@ -22,6 +22,7 @@ from app.domain.derive import (
     game_facts,
     round_facts,
 )
+from app.domain.enums import GameKind
 from app.domain.game import Game, game_from_payload, sync_id
 from app.domain.rules import standings
 from app.domain.time import day_of, from_ms, now_utc, to_ms
@@ -77,6 +78,10 @@ def _depth(value: Any) -> int:
     if isinstance(value, list):
         return 1 + max((_depth(v) for v in value), default=0)
     return 0
+
+
+def _kind_mismatch() -> ApiError:
+    return ApiError(409, ErrorCode.KIND_MISMATCH, "This id belongs to another game.")
 
 
 def _invalid_game(reason: str, round_index: int | None = None) -> ApiError:
@@ -285,7 +290,9 @@ class GamesService:
         if sync_id(payload) != str(game_id):
             raise _invalid_game("id")
         await games_repository.lock(self.session, game_id)
-        row = await games_repository.get(self.session, game_id)
+        row = await games_repository.get(self.session, game_id, kind=None)
+        if row is not None and row.kind != GameKind.KACHUFUL:
+            raise _kind_mismatch()
         if row is not None and row.deleted_at is not None:
             raise ApiError(410, ErrorCode.GONE, "This game was deleted.")
         if row is not None and row.owner_id != user.id and user.role != "admin":
@@ -313,7 +320,7 @@ class GamesService:
             raise _invalid_game(validity.reason.value, validity.round_index)
         derived = derive(game, now_ms)
         if row is None:
-            row = GameRow(id=game_id, owner_id=user.id)
+            row = GameRow(id=game_id, kind=GameKind.KACHUFUL, owner_id=user.id)
         was_ended = row.ended_at is not None
         _apply_to_row(row, stored, derived, digest)
         result = await self.store(row, derived, was_ended=was_ended)
@@ -329,6 +336,9 @@ class GamesService:
         self, row: GameRow, derived: Derived, *, was_ended: bool, career: bool = True
     ) -> Stored:
         """Save the row and rebuild everything derived from it, achievements included."""
+        # The derived tables, boards and achievements hold Kachuful games only.
+        if row.kind != GameKind.KACHUFUL:
+            raise _kind_mismatch()
         old = await derived_repository.touched_moments(self.session, row.id)
         old_players = set(await derived_repository.player_ids_in_game(self.session, row.id))
         row.updated_at = now_utc()
@@ -372,7 +382,7 @@ class GamesService:
 
     async def summary(self, game_id: uuid.UUID) -> SummaryRow:
         """A live game's summary row; 404 for unknown or deleted games."""
-        rows = await games_repository.summaries(self.session, [game_id])
+        rows = await games_repository.summaries(self.session, [game_id], kind=GameKind.KACHUFUL)
         row = rows.get(game_id)
         if row is None or row.deleted_at is not None:
             raise ApiError(404, ErrorCode.NOT_FOUND, "No such game.")
@@ -381,7 +391,7 @@ class GamesService:
     async def detail(self, game_id: uuid.UUID) -> GameDetailOut:
         """The stored payload, its summary and its achievements."""
         summary = await self.summary(game_id)
-        row = await games_repository.get(self.session, game_id)
+        row = await games_repository.get(self.session, game_id, kind=GameKind.KACHUFUL)
         assert row is not None
         return GameDetailOut(
             game=row.payload,
@@ -412,6 +422,7 @@ class GamesService:
                 ) from exc
         rows = await games_repository.list_page(
             self.session,
+            kind=GameKind.KACHUFUL,
             updated_since=None if updated_since is None else from_ms(updated_since),
             before=before,
             owner_id=user.id if mine else None,
@@ -434,7 +445,7 @@ class GamesService:
     async def delete(self, game_id: uuid.UUID, user: User) -> set[uuid.UUID]:
         """Soft delete; derived rows go, so boards and stats no longer count it."""
         await games_repository.lock(self.session, game_id)
-        row = await games_repository.get(self.session, game_id)
+        row = await games_repository.get(self.session, game_id, kind=GameKind.KACHUFUL)
         if row is None or row.deleted_at is not None:
             raise ApiError(404, ErrorCode.NOT_FOUND, "No such game.")
         if row.owner_id != user.id and user.role != "admin":
@@ -482,7 +493,9 @@ class GamesService:
     async def _delete_owned(self, user: User, actor: User | None = None) -> int:
         """Each game goes through `delete`, so a single use case defines what deleting one means."""
         deleted = 0
-        for game_id in await games_repository.owned_ids(self.session, user.id):
+        for game_id in await games_repository.owned_ids(
+            self.session, user.id, kind=GameKind.KACHUFUL
+        ):
             try:
                 await self.delete(game_id, actor or user)
             except ApiError as error:

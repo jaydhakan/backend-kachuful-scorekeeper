@@ -6,6 +6,7 @@ from datetime import timedelta
 
 from app.db.session import get_session_factory
 from app.domain.derive import AUTO_END_MS
+from app.domain.enums import GameKind
 from app.domain.time import now_utc
 from app.logger import get_logger
 from app.repositories.games import games_repository
@@ -25,12 +26,14 @@ async def run(_: argparse.Namespace) -> int:
     """One short transaction per game, so a failure never holds back the rest."""
     idle_before = now_utc() - timedelta(milliseconds=AUTO_END_MS)
     async with get_session_factory()() as session:
-        candidates = await games_repository.auto_end_candidates(session, idle_before, BATCH)
+        candidates = await games_repository.auto_end_candidates(
+            session, idle_before, BATCH, kind=GameKind.KACHUFUL
+        )
     ended = 0
     for game_id in candidates:
         async with get_session_factory()() as session:
             await games_repository.lock(session, game_id)
-            row = await games_repository.get(session, game_id)
+            row = await games_repository.get(session, game_id, kind=GameKind.KACHUFUL)
             # Re-checked under the lock: an upload may have reopened or ended it meanwhile.
             if row is None or row.ended_at is not None or row.deleted_at is not None:
                 continue

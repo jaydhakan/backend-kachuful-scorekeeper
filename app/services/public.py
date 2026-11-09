@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Game, ShareLink
 from app.db.session import get_session_factory
+from app.domain.enums import GameKind
 from app.domain.time import from_ms, to_ms, to_ms_or_none
 from app.exceptions import ApiError, ErrorCode
 from app.live.hub import notify
@@ -69,7 +70,7 @@ class PublicService:
         link = await share_links_repository.by_token(self.session, token)
         if link is None or link.kind != kind:
             raise ApiError(404, ErrorCode.NOT_FOUND, "No such link.")
-        game = await games_repository.get(self.session, link.game_id)
+        game = await games_repository.get(self.session, link.game_id, kind=GameKind.KACHUFUL)
         if link.revoked_at is not None or game is None or game.deleted_at is not None:
             raise ApiError(410, ErrorCode.GONE, "This link has been switched off.")
         if kind == "live" and live_expired(game):
@@ -79,7 +80,7 @@ class PublicService:
         return link, game
 
     async def _summary(self, game: Game) -> GameSummaryOut:
-        rows = await games_repository.summaries(self.session, [game.id])
+        rows = await games_repository.summaries(self.session, [game.id], kind=GameKind.KACHUFUL)
         return summary_out(rows[game.id], public=True)
 
     async def live_body(self, game: Game, link: ShareLink) -> LiveOut:
@@ -208,7 +209,7 @@ async def load_live_event(game_id: uuid.UUID) -> tuple[int, str] | None:
     """The hub's loader: the game's live JSON, if it still has an active live link."""
     async with get_session_factory()() as session:
         link = await share_links_repository.active(session, game_id, "live")
-        game = await games_repository.get(session, game_id)
+        game = await games_repository.get(session, game_id, kind=GameKind.KACHUFUL)
         if link is None or game is None or game.deleted_at is not None or live_expired(game):
             return None
         body = await PublicService(session).live_body(game, link)

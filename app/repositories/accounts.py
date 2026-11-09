@@ -21,6 +21,7 @@ from app.db.models import (
     ShareLink,
     User,
 )
+from app.domain.enums import GameKind
 
 
 @dataclass(frozen=True)
@@ -41,7 +42,12 @@ class AccountsRepository:
 
     async def footprint(self, session: AsyncSession, user: User) -> AccountFootprint:
         """Everything the preview counts, in a handful of small queries."""
-        owned = Game.owner_id == user.id, Game.deleted_at.is_(None)
+        # Clearing an account's games deletes its Kachuful games, so those are what it counts.
+        owned = (
+            Game.owner_id == user.id,
+            Game.kind == GameKind.KACHUFUL,
+            Game.deleted_at.is_(None),
+        )
         games, rounds = (
             await session.execute(
                 select(func.count(), func.coalesce(func.sum(Game.round_count), 0)).where(*owned)

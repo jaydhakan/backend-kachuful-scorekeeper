@@ -6,6 +6,7 @@ from datetime import timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Invite, User
+from app.domain.enums import GameKind
 from app.domain.names import clean_email
 from app.domain.time import now_utc, to_ms, to_ms_or_none
 from app.exceptions import ApiError, ErrorCode
@@ -202,7 +203,7 @@ class AdminService:
     async def overview(self) -> OverviewOut:
         """Counts for the admin dashboard."""
         users, players = await users_repository.counts(self.session)
-        games, rounds = await games_repository.counts(self.session)
+        games, rounds = await games_repository.counts(self.session, kind=GameKind.KACHUFUL)
         last_backup = await app_state_repository.last_backup_at(self.session)
         return OverviewOut(
             users=users,

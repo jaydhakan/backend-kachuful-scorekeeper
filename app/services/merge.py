@@ -7,6 +7,7 @@ from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Invite, Player, PlayerAlias, User
+from app.domain.enums import GameKind
 from app.exceptions import ApiError, ErrorCode
 from app.logger import get_logger
 from app.repositories.achievements import achievements_repository
@@ -138,7 +139,7 @@ class MergeService:
         games = GamesService(self.session)
         for game_id in source_games:
             await games_repository.lock(self.session, game_id)
-            row = await games_repository.get(self.session, game_id)
+            row = await games_repository.get(self.session, game_id, kind=GameKind.KACHUFUL)
             assert row is not None
             payload = copy.deepcopy(row.payload)
             for seat in payload["players"]:

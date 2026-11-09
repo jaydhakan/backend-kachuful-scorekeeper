@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Game, ShareLink, User
+from app.domain.enums import GameKind
 from app.domain.time import now_utc, to_ms
 from app.exceptions import ApiError, ErrorCode
 from app.live.hub import notify
@@ -61,7 +62,7 @@ class LinksService:
         self.session = session
 
     async def _own_game(self, game_id: uuid.UUID, user: User) -> Game:
-        row = await games_repository.get(self.session, game_id)
+        row = await games_repository.get(self.session, game_id, kind=GameKind.KACHUFUL)
         if row is None or row.deleted_at is not None:
             raise ApiError(404, ErrorCode.NOT_FOUND, "No such game.")
         if row.owner_id != user.id and user.role != "admin":

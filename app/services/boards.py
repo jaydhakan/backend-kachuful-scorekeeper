@@ -9,6 +9,7 @@ from functools import partial
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import User
+from app.domain.enums import GameKind
 from app.domain.leaderboard import (
     Board,
     Metric,
@@ -217,7 +218,7 @@ class BoardsService:
         places, best_id = await boards_repository.places(self.session, player_id, window)
         best = None
         if best_id is not None:
-            rows = await games_repository.summaries(self.session, [best_id])
+            rows = await games_repository.summaries(self.session, [best_id], kind=GameKind.KACHUFUL)
             best = summary_out(rows[best_id])
         return stats_out(
             tallies.get(str(player_id)),
@@ -283,7 +284,9 @@ class BoardsService:
         found = await boards_repository.player_game_ids(
             self.session, player_id, make_window(start, end), before, limit + 1
         )
-        rows = await games_repository.summaries(self.session, [gid for gid, _ in found[:limit]])
+        rows = await games_repository.summaries(
+            self.session, [gid for gid, _ in found[:limit]], kind=GameKind.KACHUFUL
+        )
         items = [summary_out(rows[gid]) for gid, _ in found[:limit]]
         next_cursor = None
         if len(found) > limit:
@@ -330,7 +333,7 @@ class BoardsService:
             if g.a_points != g.b_points and (biggest is None or gap > biggest[0]):
                 biggest = (gap, g.game_id, a if g.a_points > g.b_points else b)
         wanted = [g.game_id for g in shared[:5]] + ([biggest[1]] if biggest else [])
-        summaries = await games_repository.summaries(self.session, wanted)
+        summaries = await games_repository.summaries(self.session, wanted, kind=GameKind.KACHUFUL)
         return HeadToHeadOut(
             a=player_summary_out(view_a),
             b=player_summary_out(view_b),
@@ -356,7 +359,9 @@ class BoardsService:
             return Cached(etag=etag, body=None)
         views = await players_repository.list_all_views(self.session)
         mine = next((v for v in views if v.player.id == user.player_id), None)
-        games = await games_repository.owned_summaries(self.session, user.id)
+        games = await games_repository.owned_summaries(
+            self.session, user.id, kind=GameKind.KACHUFUL
+        )
         achievements: list[AchievementOut] = []
         if user.player_id is not None:
             achievements = await achievements_for_player(self.session, user.player_id)
