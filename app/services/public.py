@@ -3,6 +3,7 @@
 import html
 import os
 import uuid
+from dataclasses import dataclass
 from pathlib import Path
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,12 +20,13 @@ from app.repositories.games import games_repository
 from app.repositories.players import players_repository
 from app.repositories.share_links import share_links_repository
 from app.repositories.users import users_repository
-from app.schemas.games import GameSummaryOut
-from app.schemas.public import LiveOut, RecapOut
+from app.schemas.games import SummaryPlayerOut
+from app.schemas.kaali_teeri import KtGameSummaryOut, KtSummaryPlayerOut
+from app.schemas.public import LiveOut, RecapOut, Summary
 from app.security.rate_limit import REACTION_LINK, REACTION_VIEWER
 from app.services.achievements_read import achievements_for_game
-from app.services.links import live_expired
-from app.services.presenters import summary_out
+from app.services.links import LINKED_KINDS, PATHS, live_expired
+from app.services.presenters import kt_summary_out, summary_out
 from app.settings import settings
 
 _PAGE = """<!doctype html>
@@ -35,7 +37,7 @@ _PAGE = """<!doctype html>
 <title>{title}</title>
 <meta name="description" content="{description}">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Kachuful">
+<meta property="og:site_name" content="{site}">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{description}">
 <meta property="og:url" content="{url}">
@@ -44,16 +46,54 @@ _PAGE = """<!doctype html>
 <meta name="twitter:description" content="{description}">
 <meta http-equiv="refresh" content="0;url={target}">
 </head>
-<body><p><a href="{target}">Open in Kachuful</a></p></body>
+<body><p><a href="{target}">Open in {site}</a></p></body>
 </html>
 """
+
+
+SITE_NAME = "Baithak"
+
+
+@dataclass(frozen=True)
+class _KindPage:
+    """How a kind of game is named and opened from a preview page."""
+
+    name: str
+    path: str
+    unit: str
+
+
+# Kachuful's links keep redirecting to `/?live=` as before (the app routes them).
+_PAGES = {
+    GameKind.KACHUFUL: _KindPage(name="Kachuful", path="/", unit="rounds"),
+    GameKind.KAALI_TEERI: _KindPage(name="Kaali Teeri", path="/kaali-teeri", unit="hands"),
+}
+
+
+@dataclass(frozen=True)
+class _Shown:
+    """What previews show of either kind's summary."""
+
+    players: list[SummaryPlayerOut | KtSummaryPlayerOut]
+    done: int
+    ended: bool
+    ended_at: int | None
+
+
+def _shown(summary: Summary) -> _Shown:
+    if isinstance(summary, KtGameSummaryOut):
+        ended = summary.status == "finished"
+        end = (summary.finished_at or summary.updated_at) if ended else None
+        return _Shown(list(summary.players), summary.hands, ended, end)
+    players: list[SummaryPlayerOut | KtSummaryPlayerOut] = list(summary.players)
+    return _Shown(players, summary.rounds, summary.ended_at is not None, summary.ended_at)
 
 
 def _when(ms: int) -> str:
     return from_ms(ms).astimezone(settings.tz).strftime("%-d %b %Y")
 
 
-def _leader(summary: GameSummaryOut) -> tuple[str, int] | None:
+def _leader(summary: _Shown) -> tuple[str, int] | None:
     top = max(summary.players, key=lambda p: p.points, default=None)
     return None if top is None else (top.name, top.points)
 
@@ -70,8 +110,9 @@ class PublicService:
         link = await share_links_repository.by_token(self.session, token)
         if link is None or link.kind != kind:
             raise ApiError(404, ErrorCode.NOT_FOUND, "No such link.")
-        game = await games_repository.get(self.session, link.game_id, kind=GameKind.KACHUFUL)
-        if link.revoked_at is not None or game is None or game.deleted_at is not None:
+        game = await games_repository.get(self.session, link.game_id, kind=None)
+        shareable = game is not None and game.kind in LINKED_KINDS and game.deleted_at is None
+        if link.revoked_at is not None or game is None or not shareable:
             raise ApiError(410, ErrorCode.GONE, "This link has been switched off.")
         if kind == "live" and live_expired(game):
             raise ApiError(410, ErrorCode.GONE, "This game ended; its live link has expired.")
@@ -79,15 +120,19 @@ class PublicService:
             raise ApiError(401, ErrorCode.MEMBERS_ONLY, "Sign in to watch this table.")
         return link, game
 
-    async def _summary(self, game: Game) -> GameSummaryOut:
-        rows = await games_repository.summaries(self.session, [game.id], kind=GameKind.KACHUFUL)
-        return summary_out(rows[game.id], public=True)
+    async def _summary(self, game: Game) -> Summary:
+        kind = GameKind(game.kind)
+        row = (await games_repository.summaries(self.session, [game.id], kind=kind))[game.id]
+        if kind == GameKind.KAALI_TEERI:
+            return kt_summary_out(row, public=True)
+        return summary_out(row, public=True)
 
     async def live_body(self, game: Game, link: ShareLink) -> LiveOut:
         """The live view of a game."""
         owner = await users_repository.get(self.session, game.owner_id)
         recap = await share_links_repository.active(self.session, game.id, "recap")
         return LiveOut(
+            kind=game.kind,
             game=game.payload,
             summary=await self._summary(game),
             updated_at=to_ms(game.updated_at),
@@ -114,16 +159,19 @@ class PublicService:
     async def recap(self, token: str) -> RecapOut:
         """`GET /api/public/recap/{token}`."""
         _, game = await self._shared_game(token, "recap")
+        kachuful = game.kind == GameKind.KACHUFUL
         return RecapOut(
+            kind=game.kind,
             game=game.payload,
             summary=await self._summary(game),
-            achievements=await achievements_for_game(self.session, game.id),
+            achievements=await achievements_for_game(self.session, game.id) if kachuful else [],
         )
 
     async def og_png(self, token: str) -> bytes:
         """The recap card, cached on disk by token, game rev and the photos it shows."""
         _, game = await self._shared_game(token, "recap")
-        summary = await self._summary(game)
+        page = _PAGES[GameKind(game.kind)]
+        summary = _shown(await self._summary(game))
         ranked = sorted(summary.players, key=lambda p: -p.points)[:3]
         photos = "-".join((p.photo_url or "").rsplit("=", 1)[-1] for p in ranked)
         path = Path(settings.OG_CACHE_DIR) / f"{token}.{game.rev}.{photos or 'x'}.png"
@@ -141,8 +189,8 @@ class PublicService:
             for i, p in enumerate(ranked)
         ]
         stamp = summary.ended_at or to_ms(game.client_updated_at)
-        subtitle = f"{summary.rounds} rounds · {len(summary.players)} players · {_when(stamp)}"
-        png = await run_in_thread(render_recap, "Kachuful recap", rows, subtitle)
+        subtitle = f"{summary.done} {page.unit} · {len(summary.players)} players · {_when(stamp)}"
+        png = await run_in_thread(render_recap, f"{page.name} recap", rows, subtitle)
         await run_in_thread(_write_atomically, path, png)
         return png
 
@@ -152,27 +200,27 @@ class PublicService:
         return await players_repository.photo(self.session, uuid.UUID(player_id))
 
     async def preview_page(self, kind: str, token: str) -> tuple[int, str]:
-        """The tiny HTML page WhatsApp reads for a rich preview; it redirects into the app."""
-        query = "recap" if kind == "recap" else "live"
-        path = "r" if kind == "recap" else "l"
-        target = f"/?{query}={html.escape(token)}"
+        """The tiny HTML page WhatsApp reads for a rich preview; it redirects into the game."""
         try:
             _, game = await self._shared_game(token, kind)
         except ApiError as error:
-            return error.status, _render_page("Kachuful", "Scorekeeper for Judgement", "/", "", "")
-        summary = await self._summary(game)
+            return error.status, _render_page(SITE_NAME, "Scorekeeper for card games", "/", "", "")
+        page = _PAGES[GameKind(game.kind)]
+        query = "recap" if kind == "recap" else "live"
+        target = f"{page.path}?{query}={html.escape(token)}"
+        summary = _shown(await self._summary(game))
         leader = _leader(summary)
         names = ", ".join(p.name for p in summary.players)
         if kind == "recap":
-            verb = "won" if summary.ended_at is not None else "leads"
-            title = f"{leader[0]} {verb} with {leader[1]}" if leader else "Kachuful recap"
-            description = f"{names} · {summary.rounds} rounds"
+            verb = "won" if summary.ended else "leads"
+            title = f"{leader[0]} {verb} with {leader[1]}" if leader else f"{page.name} recap"
+            description = f"{page.name} · {names} · {summary.done} {page.unit}"
             image = f"{settings.APP_ORIGIN}/api/public/recap/{token}/og.png"
         else:
-            title = f"Live: {leader[0]} leads with {leader[1]}" if leader else "Kachuful live"
-            description = f"Watch {names} play, live."
+            title = f"Live: {leader[0]} leads with {leader[1]}" if leader else f"{page.name} live"
+            description = f"Watch {names} play {page.name}, live."
             image = ""
-        url = f"{settings.APP_ORIGIN}/{path}/{token}"
+        url = f"{settings.APP_ORIGIN}/{PATHS[kind]}/{token}"
         return 200, _render_page(title, description, target, url, image)
 
 
@@ -185,6 +233,7 @@ def _render_page(title: str, description: str, target: str, url: str, image: str
         else ""
     )
     return _PAGE.format(
+        site=SITE_NAME,
         title=html.escape(title),
         description=html.escape(description),
         url=html.escape(url),
@@ -209,8 +258,10 @@ async def load_live_event(game_id: uuid.UUID) -> tuple[int, str] | None:
     """The hub's loader: the game's live JSON, if it still has an active live link."""
     async with get_session_factory()() as session:
         link = await share_links_repository.active(session, game_id, "live")
-        game = await games_repository.get(session, game_id, kind=GameKind.KACHUFUL)
-        if link is None or game is None or game.deleted_at is not None or live_expired(game):
+        game = await games_repository.get(session, game_id, kind=None)
+        if link is None or game is None or game.kind not in LINKED_KINDS:
+            return None
+        if game.deleted_at is not None or live_expired(game):
             return None
         body = await PublicService(session).live_body(game, link)
         return game.rev, body.model_dump_json(by_alias=True)

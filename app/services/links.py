@@ -23,6 +23,8 @@ from app.settings import settings
 logger = get_logger(__name__)
 
 PATHS = {"live": "l", "recap": "r"}
+# Kinds whose games can be shared; the others are not found here.
+LINKED_KINDS = frozenset({GameKind.KACHUFUL, GameKind.KAALI_TEERI})
 # A live table stays watchable this long after the game ends, then the recap takes over.
 LIVE_GRACE = timedelta(hours=2)
 
@@ -62,8 +64,8 @@ class LinksService:
         self.session = session
 
     async def _own_game(self, game_id: uuid.UUID, user: User) -> Game:
-        row = await games_repository.get(self.session, game_id, kind=GameKind.KACHUFUL)
-        if row is None or row.deleted_at is not None:
+        row = await games_repository.get(self.session, game_id, kind=None)
+        if row is None or row.kind not in LINKED_KINDS or row.deleted_at is not None:
             raise ApiError(404, ErrorCode.NOT_FOUND, "No such game.")
         if row.owner_id != user.id and user.role != "admin":
             raise ApiError(403, ErrorCode.FORBIDDEN, "Only the scorer or the admin can share it.")
