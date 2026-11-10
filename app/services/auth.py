@@ -92,10 +92,14 @@ class AuthService:
         """The session for a cookie token, refreshed lazily; None when invalid."""
         now = now_utc()
         found = await sessions_repository.get_live_with_user(self.session, hash_token(token), now)
+        # End the read here either way: a request that holds this connection while its route asks the
+        # pool for another (rate limits use their own session) deadlocks a busy pool.
         if found is None:
+            await self.session.rollback()
             return None
         row, user = found
         if not user.active:
+            await self.session.rollback()
             return None
         lifetime = timedelta(days=settings.SESSION_DAYS)
         extend = row.expires_at - now < lifetime - _EXTEND_EVERY
@@ -107,7 +111,7 @@ class AuthService:
                 expires_at=now + lifetime if extend else None,
             )
             await users_repository.touch_last_seen(self.session, user.id, now)
-            await self.session.commit()
+        await self.session.commit()
         return AuthContext(user=user, session_id=row.id, token=token, reissue_cookie=extend)
 
     async def _start_session(self, user: User, user_agent: str | None) -> str:
