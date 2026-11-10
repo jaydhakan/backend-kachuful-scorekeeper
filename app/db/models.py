@@ -9,6 +9,7 @@ from sqlalchemy import (
     CheckConstraint,
     Date,
     DateTime,
+    Double,
     ForeignKey,
     Index,
     Integer,
@@ -543,6 +544,139 @@ class KtPlayerDay(Base):
     bids_made: Mapped[int] = mapped_column(Integer)
     partner_hands: Mapped[int] = mapped_column(Integer)
     partner_made: Mapped[int] = mapped_column(Integer)
+
+
+class IshaaraKey(Base):
+    """An Ishaara game's key: 25 identities, apart from the public state in `games.payload`."""
+
+    __tablename__ = "ishaara_keys"
+
+    game_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("games.id", ondelete="CASCADE"), primary_key=True
+    )
+    key: Mapped[list[str]] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+
+class IshaaraRole(Base):
+    """One seat of an Ishaara game: its team and role, and the account linked to it at creation."""
+
+    __tablename__ = "ishaara_roles"
+    __table_args__ = (
+        CheckConstraint("team IN ('sun', 'moon')", name="team"),
+        CheckConstraint("role IN ('clue-giver', 'guesser')", name="role"),
+        Index(
+            "uq_ishaara_roles_clue_giver",
+            "game_id",
+            "team",
+            unique=True,
+            postgresql_where=text("role = 'clue-giver'"),
+        ),
+        Index("ix_ishaara_roles_player_id", "player_id", postgresql_include=["game_id"]),
+        Index(
+            "ix_ishaara_roles_user_id_clue_giver",
+            "user_id",
+            postgresql_include=["game_id", "team"],
+            postgresql_where=text("role = 'clue-giver'"),
+        ),
+    )
+
+    game_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("games.id", ondelete="CASCADE"), primary_key=True
+    )
+    player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"), primary_key=True)
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    team: Mapped[str] = mapped_column(Text)
+    role: Mapped[str] = mapped_column(Text)
+
+
+class IshaaraAction(Base):
+    """An applied Ishaara action: the audit log, and what makes a retried `actionId` a no-op."""
+
+    __tablename__ = "ishaara_actions"
+    __table_args__ = (Index("uq_ishaara_actions_game_id_seq", "game_id", "seq", unique=True),)
+
+    game_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("games.id", ondelete="CASCADE"), primary_key=True
+    )
+    action_id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    seq: Mapped[int] = mapped_column(Integer)
+    type: Mapped[str] = mapped_column(Text)
+    # The action as sent, without the key (actions never carry it).
+    body: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    at: Mapped[datetime]
+    by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL")
+    )
+
+
+_ISHAARA_ROW_COLUMNS = [
+    "game_id",
+    "team",
+    "role",
+    "won",
+    "words_found",
+    "wrong_picks",
+    "trap_hit",
+    "clues_given",
+    "avg_clue_number",
+    "penalties",
+]
+
+
+class IshaaraGamePlayer(Base):
+    """One seat of a finished (not abandoned) Ishaara game: the domain's player row."""
+
+    __tablename__ = "ishaara_game_players"
+    __table_args__ = (
+        Index(
+            "ix_ishaara_game_players_player_id",
+            "player_id",
+            postgresql_include=[*_ISHAARA_ROW_COLUMNS, "finished_at"],
+        ),
+        Index(
+            "ix_ishaara_game_players_finished_at",
+            "finished_at",
+            postgresql_include=["player_id", *_ISHAARA_ROW_COLUMNS],
+        ),
+    )
+
+    game_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("games.id", ondelete="CASCADE"), primary_key=True
+    )
+    player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"), primary_key=True)
+    team: Mapped[str] = mapped_column(Text)
+    role: Mapped[str] = mapped_column(Text)
+    won: Mapped[bool]
+    words_found: Mapped[int] = mapped_column(SmallInteger)
+    wrong_picks: Mapped[int] = mapped_column(SmallInteger)
+    trap_hit: Mapped[bool]
+    clues_given: Mapped[int] = mapped_column(SmallInteger)
+    avg_clue_number: Mapped[float | None] = mapped_column(Double)
+    penalties: Mapped[int] = mapped_column(SmallInteger)
+    finished_at: Mapped[datetime]
+
+
+class IshaaraPlayerDay(Base):
+    """Per player per APP_TZ day Ishaara rollup (the domain's tallies), rebuilt when a game ends."""
+
+    __tablename__ = "ishaara_player_day"
+    __table_args__ = (Index("ix_ishaara_player_day_day", "day"),)
+
+    player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"), primary_key=True)
+    day: Mapped[date] = mapped_column(Date, primary_key=True)
+    games: Mapped[int] = mapped_column(Integer)
+    wins: Mapped[int] = mapped_column(Integer)
+    words_found: Mapped[int] = mapped_column(Integer)
+    wrong_picks: Mapped[int] = mapped_column(Integer)
+    trap_hits: Mapped[int] = mapped_column(Integer)
+    clue_games: Mapped[int] = mapped_column(Integer)
+    clue_wins: Mapped[int] = mapped_column(Integer)
+    clues_given: Mapped[int] = mapped_column(Integer)
+    # The sum and count of per-game average clue numbers, so a period's mean is exact.
+    avg_clue_sum: Mapped[float] = mapped_column(Double)
+    avg_clue_games: Mapped[int] = mapped_column(Integer)
+    penalties: Mapped[int] = mapped_column(Integer)
 
 
 class Achievement(Base):

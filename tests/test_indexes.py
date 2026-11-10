@@ -119,6 +119,36 @@ CASES = [
         "AND scores ? 'x'",
     ),
     (
+        "ix_ishaara_roles_player_id",
+        f"SELECT game_id FROM ishaara_roles WHERE player_id = '{ID}'",
+    ),
+    (
+        "ix_ishaara_roles_user_id_clue_giver",
+        f"SELECT game_id, team FROM ishaara_roles WHERE user_id = '{ID}' AND role = 'clue-giver'",
+    ),
+    (
+        "pk_ishaara_actions",
+        f"SELECT 1 FROM ishaara_actions WHERE game_id = '{ID}' AND action_id = '{ID}'",
+    ),
+    (
+        "uq_ishaara_actions_game_id_seq",
+        f"SELECT max(seq) FROM ishaara_actions WHERE game_id = '{ID}'",
+    ),
+    (
+        "ix_ishaara_game_players_player_id",
+        f"SELECT game_id, won, team FROM ishaara_game_players WHERE player_id = '{ID}'",
+    ),
+    (
+        "ix_ishaara_game_players_finished_at",
+        "SELECT player_id, won, words_found FROM ishaara_game_players "
+        "WHERE finished_at >= now() - interval '7 days' AND finished_at < now()",
+    ),
+    (
+        "ix_games_kind_updated_at_id",
+        "SELECT id FROM games WHERE kind = 'ishaara' AND status = 'active' "
+        "AND deleted_at IS NULL AND updated_at < now() - interval '2 hours' ORDER BY updated_at",
+    ),
+    (
         "ix_achievements_player_id_earned_at",
         f"SELECT id FROM achievements WHERE player_id = '{ID}' "
         "ORDER BY earned_at DESC, id DESC LIMIT 50",
