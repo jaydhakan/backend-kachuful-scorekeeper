@@ -45,6 +45,8 @@ class ErrorCode(StrEnum):
     STALE = "stale"
     UNKNOWN_PLAYER = "unknown_player"
     INVALID_GAME = "invalid_game"
+    NOT_YOUR_TURN = "not_your_turn"
+    INVALID_ACTION = "invalid_action"
     TOO_LARGE = "too_large"
     UNSUPPORTED_MEDIA_TYPE = "unsupported_media_type"
     METHOD_NOT_ALLOWED = "method_not_allowed"

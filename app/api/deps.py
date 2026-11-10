@@ -16,6 +16,9 @@ from app.services.boards import BoardsService
 from app.services.claims import ClaimsService
 from app.services.core import CoreService
 from app.services.games import GamesService
+from app.services.ishaara_boards import IshaaraBoardsService
+from app.services.ishaara_games import IshaaraGamesService
+from app.services.ishaara_rematch import IshaaraRematchService
 from app.services.kt_boards import KtBoardsService
 from app.services.kt_games import KtGamesService
 from app.services.links import LinksService
@@ -142,3 +145,18 @@ def get_kt_games_service(session: SessionDep) -> KtGamesService:
 def get_kt_boards_service(session: SessionDep) -> KtBoardsService:
     """KtBoardsService for a request."""
     return KtBoardsService(session)
+
+
+def get_ishaara_games_service(session: SessionDep) -> IshaaraGamesService:
+    """IshaaraGamesService for a request."""
+    return IshaaraGamesService(session)
+
+
+def get_ishaara_rematch_service(session: SessionDep) -> IshaaraRematchService:
+    """IshaaraRematchService for a request."""
+    return IshaaraRematchService(session)
+
+
+def get_ishaara_boards_service(session: SessionDep) -> IshaaraBoardsService:
+    """IshaaraBoardsService for a request."""
+    return IshaaraBoardsService(session)

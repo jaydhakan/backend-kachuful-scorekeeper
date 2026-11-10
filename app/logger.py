@@ -8,7 +8,7 @@ from typing import Any
 
 # Any key containing one of these (case-insensitive) is masked, at any depth.
 SENSITIVE_KEYS = frozenset(
-    {"password", "token", "cookie", "authorization", "secret", "kf_session", "current"}
+    {"password", "token", "cookie", "authorization", "secret", "kf_session", "current", "key"}
 )
 _REDACTED = "[redacted]"
 _STANDARD_ATTRS = frozenset(
