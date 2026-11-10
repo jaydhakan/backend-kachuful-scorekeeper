@@ -1,0 +1,1203 @@
+{
+  "kind": "ishaara",
+  "name": "random-97",
+  "setup": {
+    "id": "60000000-0000-4000-8000-000000000009",
+    "players": [
+      {
+        "id": "s-riya",
+        "name": "Riya",
+        "emoji": "🙂",
+        "color": "#f5a524",
+        "playerId": "00000000-0000-4000-8000-0000000000114",
+        "team": "sun",
+        "role": "clue-giver"
+      },
+      {
+        "id": "s-arjun",
+        "name": "Arjun",
+        "emoji": "🙂",
+        "color": "#f5a524",
+        "playerId": "00000000-0000-4000-8000-000000000097",
+        "team": "sun",
+        "role": "guesser"
+      },
+      {
+        "id": "s-dev",
+        "name": "Dev",
+        "emoji": "🙂",
+        "color": "#f5a524",
+        "playerId": "00000000-0000-4000-8000-0000000000100",
+        "team": "moon",
+        "role": "clue-giver"
+      },
+      {
+        "id": "s-meera",
+        "name": "Meera",
+        "emoji": "🙂",
+        "color": "#f5a524",
+        "playerId": "00000000-0000-4000-8000-0000000000109",
+        "team": "moon",
+        "role": "guesser"
+      }
+    ],
+    "words": [
+      "river",
+      "kite",
+      "train",
+      "cricket",
+      "mango",
+      "bridge",
+      "mirror",
+      "ghost",
+      "wedding",
+      "rocket",
+      "temple",
+      "pepper",
+      "lion",
+      "ocean",
+      "film",
+      "market",
+      "needle",
+      "crown",
+      "shadow",
+      "clock",
+      "garden",
+      "dosa",
+      "thunder",
+      "pilot",
+      "chai"
+    ],
+    "rules": {
+      "timerSec": 60,
+      "clueEntry": "typed",
+      "packs": [
+        "everyday"
+      ],
+      "bestOf": 1
+    },
+    "starting": "moon",
+    "key": [
+      "moon",
+      "sun",
+      "sun",
+      "blank",
+      "moon",
+      "moon",
+      "sun",
+      "sun",
+      "moon",
+      "blank",
+      "trap",
+      "sun",
+      "moon",
+      "sun",
+      "blank",
+      "blank",
+      "blank",
+      "moon",
+      "blank",
+      "moon",
+      "sun",
+      "moon",
+      "sun",
+      "blank",
+      "moon"
+    ],
+    "createdAt": 1793539800000
+  },
+  "steps": [
+    {
+      "at": 1793539801000,
+      "join": "sun",
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539802000,
+      "join": "moon",
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539826623,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "moon"
+      },
+      "action": {
+        "type": "clue",
+        "word": "king",
+        "number": 1
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539840608,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "timeout"
+      },
+      "expect": {
+        "ok": false,
+        "error": {
+          "code": "invalid_action",
+          "reason": "too-early"
+        }
+      }
+    },
+    {
+      "at": 1793539872807,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "sun"
+      },
+      "action": {
+        "type": "notAllowed"
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539911134,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "sun"
+      },
+      "action": {
+        "type": "penaltyReveal",
+        "card": 1
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539937684,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "sun"
+      },
+      "action": {
+        "type": "clue",
+        "word": "water",
+        "number": 1
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539956649,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "moon"
+      },
+      "action": {
+        "type": "notAllowed"
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539972124,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "skip"
+      },
+      "expect": {
+        "ok": false,
+        "error": {
+          "code": "invalid_action",
+          "reason": "too-early"
+        }
+      }
+    },
+    {
+      "at": 1793540007804,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "moon"
+      },
+      "action": {
+        "type": "penaltyReveal",
+        "card": 0
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540015024,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "moon"
+      },
+      "action": {
+        "type": "clue",
+        "word": "night",
+        "number": 3
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540019534,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 7
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540029792,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "sun"
+      },
+      "action": {
+        "type": "clue",
+        "word": "speed",
+        "number": 2
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540035283,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 6
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540072171,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 21
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540085478,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "moon"
+      },
+      "action": {
+        "type": "clue",
+        "word": "spice",
+        "number": 2
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540101324,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "endTurn"
+      },
+      "expect": {
+        "ok": false,
+        "error": {
+          "code": "invalid_action",
+          "reason": "no-guess"
+        }
+      }
+    },
+    {
+      "at": 1793540113372,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 14
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540136624,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "sun"
+      },
+      "action": {
+        "type": "clue",
+        "word": "speed",
+        "number": 3
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540143489,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "moon"
+      },
+      "action": {
+        "type": "notAllowed"
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540174880,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "skip"
+      },
+      "expect": {
+        "ok": false,
+        "error": {
+          "code": "invalid_action",
+          "reason": "too-early"
+        }
+      }
+    },
+    {
+      "at": 1793540187311,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "moon"
+      },
+      "action": {
+        "type": "penaltyReveal",
+        "card": 4
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540189918,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "moon"
+      },
+      "action": {
+        "type": "clue",
+        "word": "water",
+        "number": 3
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540207838,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 8
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540246836,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 19
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540259138,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 11
+      },
+      "expect": {
+        "ok": false,
+        "error": {
+          "code": "invalid_action",
+          "reason": "no-clue"
+        }
+      }
+    },
+    {
+      "at": 1793540278930,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "sun"
+      },
+      "action": {
+        "type": "clue",
+        "word": "kites",
+        "number": 0
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540303672,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "timeout"
+      },
+      "expect": {
+        "ok": false,
+        "error": {
+          "code": "invalid_action",
+          "reason": "too-early"
+        }
+      }
+    },
+    {
+      "at": 1793540314397,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 22
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540320869,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 5
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540350365,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "moon"
+      },
+      "action": {
+        "type": "clue",
+        "word": "night",
+        "number": 1
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540360879,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 12
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540372678,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 11
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540382398,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "sun"
+      },
+      "action": {
+        "type": "clue",
+        "word": "speed",
+        "number": 1
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540388564,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 9
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540398171,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "moon"
+      },
+      "action": {
+        "type": "clue",
+        "word": "spice",
+        "number": 3
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540414200,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 3
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540451367,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "sun"
+      },
+      "action": {
+        "type": "clue",
+        "word": "water",
+        "number": 2
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540461777,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 24
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540502687,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "moon"
+      },
+      "action": {
+        "type": "clue",
+        "word": "night",
+        "number": "inf"
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540541723,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 2
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540570827,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "sun"
+      },
+      "action": {
+        "type": "clue",
+        "word": "kites",
+        "number": "inf"
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540584903,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 20
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793540609516,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 13
+      },
+      "expect": {
+        "ok": true
+      }
+    }
+  ],
+  "expect": {
+    "state": {
+      "kind": "ishaara",
+      "schemaVersion": 1,
+      "id": "60000000-0000-4000-8000-000000000009",
+      "rev": 40,
+      "createdAt": 1793539800000,
+      "updatedAt": 1793540609516,
+      "players": [
+        {
+          "id": "s-riya",
+          "name": "Riya",
+          "emoji": "🙂",
+          "color": "#f5a524",
+          "playerId": "00000000-0000-4000-8000-0000000000114",
+          "team": "sun",
+          "role": "clue-giver"
+        },
+        {
+          "id": "s-arjun",
+          "name": "Arjun",
+          "emoji": "🙂",
+          "color": "#f5a524",
+          "playerId": "00000000-0000-4000-8000-000000000097",
+          "team": "sun",
+          "role": "guesser"
+        },
+        {
+          "id": "s-dev",
+          "name": "Dev",
+          "emoji": "🙂",
+          "color": "#f5a524",
+          "playerId": "00000000-0000-4000-8000-0000000000100",
+          "team": "moon",
+          "role": "clue-giver"
+        },
+        {
+          "id": "s-meera",
+          "name": "Meera",
+          "emoji": "🙂",
+          "color": "#f5a524",
+          "playerId": "00000000-0000-4000-8000-0000000000109",
+          "team": "moon",
+          "role": "guesser"
+        }
+      ],
+      "words": [
+        "river",
+        "kite",
+        "train",
+        "cricket",
+        "mango",
+        "bridge",
+        "mirror",
+        "ghost",
+        "wedding",
+        "rocket",
+        "temple",
+        "pepper",
+        "lion",
+        "ocean",
+        "film",
+        "market",
+        "needle",
+        "crown",
+        "shadow",
+        "clock",
+        "garden",
+        "dosa",
+        "thunder",
+        "pilot",
+        "chai"
+      ],
+      "revealed": [
+        "moon",
+        "sun",
+        "sun",
+        "blank",
+        "moon",
+        "moon",
+        "sun",
+        "sun",
+        "moon",
+        "blank",
+        null,
+        "sun",
+        "moon",
+        "sun",
+        "blank",
+        null,
+        null,
+        null,
+        null,
+        "moon",
+        "sun",
+        "moon",
+        "sun",
+        null,
+        "moon"
+      ],
+      "starting": "moon",
+      "turn": "sun",
+      "clue": null,
+      "guessesLeft": 0,
+      "guessedThisTurn": 2,
+      "deadline": null,
+      "pending": null,
+      "undo": null,
+      "joined": {
+        "sun": true,
+        "moon": true
+      },
+      "log": [
+        {
+          "at": 1793539826623,
+          "team": "moon",
+          "type": "clue",
+          "number": 1,
+          "word": "king"
+        },
+        {
+          "at": 1793539872807,
+          "team": "sun",
+          "type": "not-allowed"
+        },
+        {
+          "at": 1793539911134,
+          "team": "sun",
+          "type": "penalty",
+          "card": 1,
+          "word": "kite",
+          "identity": "sun"
+        },
+        {
+          "at": 1793539937684,
+          "team": "sun",
+          "type": "clue",
+          "number": 1,
+          "word": "water"
+        },
+        {
+          "at": 1793539956649,
+          "team": "moon",
+          "type": "not-allowed"
+        },
+        {
+          "at": 1793540007804,
+          "team": "moon",
+          "type": "penalty",
+          "card": 0,
+          "word": "river",
+          "identity": "moon"
+        },
+        {
+          "at": 1793540015024,
+          "team": "moon",
+          "type": "clue",
+          "number": 3,
+          "word": "night"
+        },
+        {
+          "at": 1793540019534,
+          "team": "moon",
+          "type": "guess",
+          "card": 7,
+          "word": "ghost",
+          "identity": "sun"
+        },
+        {
+          "at": 1793540029792,
+          "team": "sun",
+          "type": "clue",
+          "number": 2,
+          "word": "speed"
+        },
+        {
+          "at": 1793540035283,
+          "team": "sun",
+          "type": "guess",
+          "card": 6,
+          "word": "mirror",
+          "identity": "sun"
+        },
+        {
+          "at": 1793540072171,
+          "team": "sun",
+          "type": "guess",
+          "card": 21,
+          "word": "dosa",
+          "identity": "moon"
+        },
+        {
+          "at": 1793540085478,
+          "team": "moon",
+          "type": "clue",
+          "number": 2,
+          "word": "spice"
+        },
+        {
+          "at": 1793540113372,
+          "team": "moon",
+          "type": "guess",
+          "card": 14,
+          "word": "film",
+          "identity": "blank"
+        },
+        {
+          "at": 1793540136624,
+          "team": "sun",
+          "type": "clue",
+          "number": 3,
+          "word": "speed"
+        },
+        {
+          "at": 1793540143489,
+          "team": "moon",
+          "type": "not-allowed"
+        },
+        {
+          "at": 1793540187311,
+          "team": "moon",
+          "type": "penalty",
+          "card": 4,
+          "word": "mango",
+          "identity": "moon"
+        },
+        {
+          "at": 1793540189918,
+          "team": "moon",
+          "type": "clue",
+          "number": 3,
+          "word": "water"
+        },
+        {
+          "at": 1793540207838,
+          "team": "moon",
+          "type": "guess",
+          "card": 8,
+          "word": "wedding",
+          "identity": "moon"
+        },
+        {
+          "at": 1793540246836,
+          "team": "moon",
+          "type": "guess",
+          "card": 19,
+          "word": "clock",
+          "identity": "moon"
+        },
+        {
+          "at": 1793540259138,
+          "team": "moon",
+          "type": "timeout"
+        },
+        {
+          "at": 1793540278930,
+          "team": "sun",
+          "type": "clue",
+          "number": 0,
+          "word": "kites"
+        },
+        {
+          "at": 1793540314397,
+          "team": "sun",
+          "type": "guess",
+          "card": 22,
+          "word": "thunder",
+          "identity": "sun"
+        },
+        {
+          "at": 1793540320869,
+          "team": "sun",
+          "type": "guess",
+          "card": 5,
+          "word": "bridge",
+          "identity": "moon"
+        },
+        {
+          "at": 1793540350365,
+          "team": "moon",
+          "type": "clue",
+          "number": 1,
+          "word": "night"
+        },
+        {
+          "at": 1793540360879,
+          "team": "moon",
+          "type": "guess",
+          "card": 12,
+          "word": "lion",
+          "identity": "moon"
+        },
+        {
+          "at": 1793540372678,
+          "team": "moon",
+          "type": "guess",
+          "card": 11,
+          "word": "pepper",
+          "identity": "sun"
+        },
+        {
+          "at": 1793540382398,
+          "team": "sun",
+          "type": "clue",
+          "number": 1,
+          "word": "speed"
+        },
+        {
+          "at": 1793540388564,
+          "team": "sun",
+          "type": "guess",
+          "card": 9,
+          "word": "rocket",
+          "identity": "blank"
+        },
+        {
+          "at": 1793540398171,
+          "team": "moon",
+          "type": "clue",
+          "number": 3,
+          "word": "spice"
+        },
+        {
+          "at": 1793540414200,
+          "team": "moon",
+          "type": "guess",
+          "card": 3,
+          "word": "cricket",
+          "identity": "blank"
+        },
+        {
+          "at": 1793540451367,
+          "team": "sun",
+          "type": "clue",
+          "number": 2,
+          "word": "water"
+        },
+        {
+          "at": 1793540461777,
+          "team": "sun",
+          "type": "guess",
+          "card": 24,
+          "word": "chai",
+          "identity": "moon"
+        },
+        {
+          "at": 1793540502687,
+          "team": "moon",
+          "type": "clue",
+          "number": "inf",
+          "word": "night"
+        },
+        {
+          "at": 1793540541723,
+          "team": "moon",
+          "type": "guess",
+          "card": 2,
+          "word": "train",
+          "identity": "sun"
+        },
+        {
+          "at": 1793540570827,
+          "team": "sun",
+          "type": "clue",
+          "number": "inf",
+          "word": "kites"
+        },
+        {
+          "at": 1793540584903,
+          "team": "sun",
+          "type": "guess",
+          "card": 20,
+          "word": "garden",
+          "identity": "sun"
+        },
+        {
+          "at": 1793540609516,
+          "team": "sun",
+          "type": "guess",
+          "card": 13,
+          "word": "ocean",
+          "identity": "sun"
+        }
+      ],
+      "rules": {
+        "timerSec": 60,
+        "clueEntry": "typed",
+        "packs": [
+          "everyday"
+        ],
+        "bestOf": 1
+      },
+      "match": {
+        "game": 1,
+        "sunWins": 1,
+        "moonWins": 0
+      },
+      "status": "finished",
+      "winner": "sun",
+      "endedBy": "all-found",
+      "solution": [
+        "moon",
+        "sun",
+        "sun",
+        "blank",
+        "moon",
+        "moon",
+        "sun",
+        "sun",
+        "moon",
+        "blank",
+        "trap",
+        "sun",
+        "moon",
+        "sun",
+        "blank",
+        "blank",
+        "blank",
+        "moon",
+        "blank",
+        "moon",
+        "sun",
+        "moon",
+        "sun",
+        "blank",
+        "moon"
+      ],
+      "next": null,
+      "finishedAt": 1793540609516
+    },
+    "rows": [
+      {
+        "playerId": "00000000-0000-4000-8000-0000000000114",
+        "team": "sun",
+        "role": "clue-giver",
+        "won": true,
+        "wordsFound": 4,
+        "wrongPicks": 4,
+        "trapHit": false,
+        "cluesGiven": 7,
+        "avgClueNumber": 1.5,
+        "penalties": 2
+      },
+      {
+        "playerId": "00000000-0000-4000-8000-000000000097",
+        "team": "sun",
+        "role": "guesser",
+        "won": true,
+        "wordsFound": 4,
+        "wrongPicks": 4,
+        "trapHit": false,
+        "cluesGiven": 0,
+        "avgClueNumber": null,
+        "penalties": 0
+      },
+      {
+        "playerId": "00000000-0000-4000-8000-0000000000100",
+        "team": "moon",
+        "role": "clue-giver",
+        "won": false,
+        "wordsFound": 3,
+        "wrongPicks": 5,
+        "trapHit": false,
+        "cluesGiven": 7,
+        "avgClueNumber": 2.1666666666666665,
+        "penalties": 1
+      },
+      {
+        "playerId": "00000000-0000-4000-8000-0000000000109",
+        "team": "moon",
+        "role": "guesser",
+        "won": false,
+        "wordsFound": 3,
+        "wrongPicks": 5,
+        "trapHit": false,
+        "cluesGiven": 0,
+        "avgClueNumber": null,
+        "penalties": 0
+      }
+    ],
+    "revealedCount": 19
+  }
+}
