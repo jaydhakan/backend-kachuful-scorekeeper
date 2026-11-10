@@ -19,6 +19,7 @@ from app.repositories.users import users_repository
 from app.schemas.admin import MergeKeepIn, PlayerEnvelopeOut
 from app.services.achievements import AchievementsEngine
 from app.services.games import GamesService
+from app.services.ishaara_games import IshaaraGamesService
 from app.services.kt_games import KtGamesService
 from app.services.presenters import player_out
 
@@ -39,11 +40,18 @@ async def _reseat_kaali_teeri(
     await KtGamesService(session).reseat(row, from_id, into_id)
 
 
+async def _reseat_ishaara(
+    session: AsyncSession, row: Game, from_id: uuid.UUID, into_id: uuid.UUID
+) -> None:
+    await IshaaraGamesService(session).reseat(row, from_id, into_id)
+
+
 # How each kind moves a seat in its payload and derived rows: one entry per kind that has a
 # table in `repositories.seats.SEAT_TABLES`.
 RESEAT_BY_KIND: dict[GameKind, Reseat] = {
     GameKind.KACHUFUL: _reseat_kachuful,
     GameKind.KAALI_TEERI: _reseat_kaali_teeri,
+    GameKind.ISHAARA: _reseat_ishaara,
 }
 
 

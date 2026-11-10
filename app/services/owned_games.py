@@ -15,6 +15,7 @@ from app.repositories.app_state import app_state_repository
 from app.repositories.players import players_repository
 from app.schemas.games import DeletedOut
 from app.services.games import GamesService
+from app.services.ishaara_games import IshaaraGamesService
 from app.services.kt_games import KtGamesService
 
 logger = get_logger(__name__)
@@ -30,10 +31,15 @@ async def _delete_kaali_teeri(session: AsyncSession, owner: User, actor: User) -
     return await KtGamesService(session).delete_owned(owner, actor)
 
 
+async def _delete_ishaara(session: AsyncSession, owner: User, actor: User) -> int:
+    return await IshaaraGamesService(session).delete_owned(owner, actor)
+
+
 # One entry per kind that stores games; a kind missing here would outlive its owner's account.
 DELETE_OWNED_BY_KIND: dict[GameKind, DeleteOwned] = {
     GameKind.KACHUFUL: _delete_kachuful,
     GameKind.KAALI_TEERI: _delete_kaali_teeri,
+    GameKind.ISHAARA: _delete_ishaara,
 }
 
 

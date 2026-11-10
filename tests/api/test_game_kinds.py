@@ -1,6 +1,8 @@
 """Rows of another game kind never reach Kachuful's endpoints and jobs (platform P8).
 
-Ishaara stands in for a kind with no endpoints yet; Kaali Teeri has its own (test_kaali_teeri_*).
+Ishaara rows shaped like Kachuful games stand in for another kind. Where Ishaara now joins a
+player-wide registry (deletes, prunes, seat tables), those tests take it out again, so the row is a
+kind that has no registry entries; Ishaara's own are tested in test_ishaara_*.
 """
 
 import argparse
@@ -18,8 +20,10 @@ from app.domain.enums import GameKind
 from app.domain.time import now_utc, to_ms
 from app.exceptions import ApiError
 from app.jobs import auto_end, prune_empty
+from app.repositories import accounts, seats
 from app.repositories.games import games_repository
 from app.security.tokens import new_share_token
+from app.services import owned_games
 from app.services.games import GamesService
 from tests.factories import make_player, make_user, sign_in
 from tests.game_builder import MINUTE, make_payload
@@ -54,6 +58,22 @@ async def _copy_as(
     session.add(Game(**(columns | changes)))
     await session.flush()
     return game_id
+
+
+@pytest.fixture
+def unregistered(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Ishaara out of every player-wide registry, as a kind without them."""
+    kept = tuple(t for t in seats.SEAT_TABLES if t.kind != GameKind.ISHAARA)
+    monkeypatch.setattr(seats, "SEAT_TABLES", kept)
+    monkeypatch.setattr(accounts, "SEAT_TABLES", kept)
+    monkeypatch.setattr(
+        owned_games,
+        "DELETE_OWNED_BY_KIND",
+        {k: v for k, v in owned_games.DELETE_OWNED_BY_KIND.items() if k != GameKind.ISHAARA},
+    )
+    monkeypatch.setattr(
+        prune_empty, "KINDS", tuple(k for k in prune_empty.KINDS if k != GameKind.ISHAARA)
+    )
 
 
 async def _listed_ids(client: httpx.AsyncClient, query: str) -> set[str]:
@@ -124,6 +144,7 @@ async def test_links_and_claims_on_another_kind_of_game_do_not_resolve(
     assert claim.status_code == 404
 
 
+@pytest.mark.usefixtures("unregistered")
 async def test_admin_counts_and_clearing_data_leave_another_kind_alone(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
@@ -140,6 +161,7 @@ async def test_admin_counts_and_clearing_data_leave_another_kind_alone(
     assert row is not None and row.deleted_at is None
 
 
+@pytest.mark.usefixtures("unregistered")
 async def test_auto_end_and_prune_empty_skip_another_kind(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:

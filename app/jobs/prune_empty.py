@@ -10,13 +10,14 @@ from app.logger import get_logger
 from app.repositories.games import games_repository
 from app.repositories.users import users_repository
 from app.services.games import GamesService
+from app.services.ishaara_games import IshaaraGamesService
 from app.services.kt_games import KtGamesService
 
 logger = get_logger(__name__)
 
 HELP = "Soft-delete every game with no round or hand done (--dry-run only counts them)"
-# Kinds with a delete use case; for Kaali Teeri, empty means no hand done.
-KINDS = (GameKind.KACHUFUL, GameKind.KAALI_TEERI)
+# Kinds with a delete use case; empty means no hand done (Kaali Teeri), no card face up (Ishaara).
+KINDS = (GameKind.KACHUFUL, GameKind.KAALI_TEERI, GameKind.ISHAARA)
 
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
@@ -34,6 +35,8 @@ async def _delete_one(game_id: uuid.UUID, owner_id: uuid.UUID, kind: GameKind) -
             return False
         if kind == GameKind.KAALI_TEERI:
             await KtGamesService(session).delete(game_id, owner)
+        elif kind == GameKind.ISHAARA:
+            await IshaaraGamesService(session).delete(game_id, owner)
         else:
             await GamesService(session).delete(game_id, owner)
         return True
