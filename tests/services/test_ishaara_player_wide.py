@@ -22,20 +22,25 @@ async def _game(session: AsyncSession, table: Table) -> uuid.UUID:
     return game_id
 
 
-async def test_prune_empty_deletes_ishaara_games_with_no_card_face_up(
+async def test_prune_empty_deletes_finished_ishaara_games_with_no_card_face_up(
     session: AsyncSession,
 ) -> None:
     table = await service_table(session)
     empty = await _game(session, table)
+    waiting = await _game(session, table)
     played = await _game(session, table)
+    await session.execute(
+        update(Game).where(Game.id.in_([empty, played])).values(status="finished")
+    )
     await session.execute(update(Game).where(Game.id == played).values(round_count=3))
 
     await prune_empty.run(argparse.Namespace(dry_run=False))
 
     gone = await session.get(Game, empty, populate_existing=True)
-    kept = await session.get(Game, played, populate_existing=True)
     assert gone is not None and gone.deleted_at is not None
-    assert kept is not None and kept.deleted_at is None
+    for kept_id in (waiting, played):
+        kept = await session.get(Game, kept_id, populate_existing=True)
+        assert kept is not None and kept.deleted_at is None
 
 
 async def test_a_player_who_only_played_ishaara_survives_a_data_delete(

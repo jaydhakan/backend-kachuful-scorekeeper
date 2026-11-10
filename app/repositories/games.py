@@ -249,7 +249,7 @@ class GamesRepository:
         return list((await session.execute(stmt)).scalars())
 
     async def empty_ids(
-        self, session: AsyncSession, *, kind: GameKind
+        self, session: AsyncSession, *, kind: GameKind, finished_only: bool = False
     ) -> list[tuple[uuid.UUID, uuid.UUID]]:
         """(game, owner) of every live game of this kind with no round done.
 
@@ -258,6 +258,8 @@ class GamesRepository:
         stmt = select(Game.id, Game.owner_id).where(
             Game.kind == kind, Game.deleted_at.is_(None), Game.round_count == 0
         )
+        if finished_only:
+            stmt = stmt.where(Game.status == "finished")
         return [(r[0], r[1]) for r in (await session.execute(stmt.order_by(Game.id))).all()]
 
     async def ids_with_player(self, session: AsyncSession, player_id: uuid.UUID) -> list[uuid.UUID]:

@@ -18,6 +18,8 @@ logger = get_logger(__name__)
 HELP = "Soft-delete every game with no round or hand done (--dry-run only counts them)"
 # Kinds with a delete use case; empty means no hand done (Kaali Teeri), no card face up (Ishaara).
 KINDS = (GameKind.KACHUFUL, GameKind.KAALI_TEERI, GameKind.ISHAARA)
+# The server holds Ishaara games from Start, so one waiting for its clue-givers is not empty yet.
+FINISHED_ONLY = frozenset({GameKind.ISHAARA})
 
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
@@ -33,6 +35,8 @@ async def _delete_one(game_id: uuid.UUID, owner_id: uuid.UUID, kind: GameKind) -
         # Re-checked: a round may have been uploaded since the list was read.
         if owner is None or row is None or row.deleted_at is not None or row.round_count:
             return False
+        if kind in FINISHED_ONLY and row.status != "finished":
+            return False
         if kind == GameKind.KAALI_TEERI:
             await KtGamesService(session).delete(game_id, owner)
         elif kind == GameKind.ISHAARA:
@@ -47,7 +51,9 @@ async def run(args: argparse.Namespace) -> int:
     empty: list[tuple[uuid.UUID, uuid.UUID, GameKind]] = []
     async with get_session_factory()() as session:
         for kind in KINDS:
-            found = await games_repository.empty_ids(session, kind=kind)
+            found = await games_repository.empty_ids(
+                session, kind=kind, finished_only=kind in FINISHED_ONLY
+            )
             empty += [(game_id, owner_id, kind) for game_id, owner_id in found]
     if args.dry_run:
         sys.stdout.write(f"prune-empty: {len(empty)} games with no round done (dry run)\n")
