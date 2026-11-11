@@ -34,7 +34,10 @@ CASES = [
         "ix_player_aliases_player_id",
         f"SELECT display_name FROM player_aliases WHERE player_id = '{ID}'",
     ),
-    ("ix_games_updated_at_id", "SELECT id FROM games ORDER BY updated_at DESC, id DESC LIMIT 50"),
+    (
+        "ix_games_kind_updated_at_id",
+        "SELECT id FROM games WHERE kind = 'kachuful' ORDER BY updated_at DESC, id DESC LIMIT 50",
+    ),
     (
         "ix_games_owner_id_updated_at",
         f"SELECT id FROM games WHERE owner_id = '{ID}' ORDER BY updated_at DESC LIMIT 50",
@@ -85,6 +88,65 @@ CASES = [
     (
         "pk_player_day",
         f"SELECT rounds FROM player_day WHERE player_id = '{ID}' AND day = '2026-10-01'",
+    ),
+    (
+        "ix_kt_player_day_day",
+        "SELECT player_id, sum(points), sum(wins) FROM kt_player_day "
+        "WHERE day >= '2026-11-01' AND day < '2026-12-01' GROUP BY player_id",
+    ),
+    (
+        "ix_kt_game_players_player_id",
+        f"SELECT game_id, points, place FROM kt_game_players WHERE player_id = '{ID}'",
+    ),
+    (
+        "ix_kt_game_players_first_done_at",
+        f"SELECT count(*) FROM kt_game_players WHERE player_id = '{ID}' "
+        "AND first_done_at >= now() - interval '1 day' AND first_done_at < now()",
+    ),
+    (
+        "ix_kt_game_players_ended_at",
+        f"SELECT count(*) FILTER (WHERE won) FROM kt_game_players WHERE player_id = '{ID}' "
+        "AND ended_at >= now() - interval '1 day' AND ended_at < now()",
+    ),
+    (
+        "pk_kt_hands",
+        f"SELECT bidder_id, made FROM kt_hands WHERE game_id IN ('{ID}') "
+        "ORDER BY game_id, hand_index",
+    ),
+    (
+        "ix_kt_hands_done_at",
+        "SELECT scores FROM kt_hands WHERE done_at >= now() - interval '1 day' AND done_at < now() "
+        "AND scores ? 'x'",
+    ),
+    (
+        "ix_ishaara_roles_player_id",
+        f"SELECT game_id FROM ishaara_roles WHERE player_id = '{ID}'",
+    ),
+    (
+        "ix_ishaara_roles_user_id_clue_giver",
+        f"SELECT game_id, team FROM ishaara_roles WHERE user_id = '{ID}' AND role = 'clue-giver'",
+    ),
+    (
+        "pk_ishaara_actions",
+        f"SELECT 1 FROM ishaara_actions WHERE game_id = '{ID}' AND action_id = '{ID}'",
+    ),
+    (
+        "uq_ishaara_actions_game_id_seq",
+        f"SELECT max(seq) FROM ishaara_actions WHERE game_id = '{ID}'",
+    ),
+    (
+        "ix_ishaara_game_players_player_id",
+        f"SELECT game_id, won, team FROM ishaara_game_players WHERE player_id = '{ID}'",
+    ),
+    (
+        "ix_ishaara_game_players_finished_at",
+        "SELECT player_id, won, words_found FROM ishaara_game_players "
+        "WHERE finished_at >= now() - interval '7 days' AND finished_at < now()",
+    ),
+    (
+        "ix_games_kind_updated_at_id",
+        "SELECT id FROM games WHERE kind = 'ishaara' AND status = 'active' "
+        "AND deleted_at IS NULL AND updated_at < now() - interval '2 hours' ORDER BY updated_at",
     ),
     (
         "ix_achievements_player_id_earned_at",

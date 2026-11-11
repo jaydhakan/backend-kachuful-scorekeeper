@@ -7,6 +7,7 @@ from app.repositories.games import SummaryRow
 from app.repositories.players import PlayerView
 from app.schemas.auth import PreferencesOut, UserOut
 from app.schemas.games import GameSummaryOut
+from app.schemas.kaali_teeri import KtGameSummaryOut
 from app.schemas.players import PlayerOut, PlayerSummaryOut
 
 
@@ -113,3 +114,22 @@ def _seat_photo(photos: dict[str, int], player_id: str | None) -> str | None:
     if player_id is None or player_id not in photos:
         return None
     return photo_url(player_id, photos[player_id])
+
+
+def kt_summary_out(row: SummaryRow, *, public: bool = False) -> KtGameSummaryOut:
+    """A Kaali Teeri game's summary; `public` hides the owner's user id."""
+    stored = row.summary
+    players = [
+        {**seat, "photoUrl": _seat_photo(row.photos, seat.get("playerId"))}
+        for seat in stored["players"]
+    ]
+    return KtGameSummaryOut.model_validate(
+        {
+            **stored,
+            "players": players,
+            "id": row.game_id,
+            "owner": {"id": None if public else row.owner_id, "name": row.owner_name},
+            "updatedAt": to_ms(row.updated_at),
+            "live": row.live,
+        }
+    )

@@ -6,6 +6,7 @@ from datetime import timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Invite, User
+from app.domain.enums import GameKind
 from app.domain.names import clean_email
 from app.domain.time import now_utc, to_ms, to_ms_or_none
 from app.exceptions import ApiError, ErrorCode
@@ -34,7 +35,7 @@ from app.schemas.admin import (
 )
 from app.schemas.players import PlayerOut
 from app.security.tokens import hash_token, new_token
-from app.services.games import GamesService
+from app.services.owned_games import delete_owned_games
 from app.services.presenters import player_out, player_summary_out, user_out
 from app.settings import settings
 
@@ -202,7 +203,7 @@ class AdminService:
     async def overview(self) -> OverviewOut:
         """Counts for the admin dashboard."""
         users, players = await users_repository.counts(self.session)
-        games, rounds = await games_repository.counts(self.session)
+        games, rounds = await games_repository.counts(self.session, kind=GameKind.KACHUFUL)
         last_backup = await app_state_repository.last_backup_at(self.session)
         return OverviewOut(
             users=users,
@@ -255,7 +256,7 @@ class AdminService:
     async def clear_games(self, user_id: uuid.UUID, admin: User) -> DeletedGamesOut:
         """Soft-delete every game the user scored; their players and account stay."""
         user = await self._target(user_id)
-        games = await GamesService(self.session).delete_owned(user, admin)
+        games = await delete_owned_games(self.session, user, admin)
         await accounts_repository.audit(
             self.session, admin.id, "clear_games", user.email, {"games": games}
         )
@@ -275,7 +276,7 @@ class AdminService:
         if user.role == "admin":
             raise ApiError(409, ErrorCode.CANNOT_DELETE_ADMIN, "Admin accounts can't be deleted.")
         footprint = await accounts_repository.footprint(self.session, user)
-        games = await GamesService(self.session).delete_owned(user, admin)
+        games = await delete_owned_games(self.session, user, admin)
         user = await self._target(user_id)
         email, player_id = user.email, user.player_id
         await accounts_repository.hand_over(self.session, user, admin.id)

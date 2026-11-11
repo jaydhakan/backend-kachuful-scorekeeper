@@ -27,13 +27,13 @@ from app.db.models import (
     Achievement,
     Activity,
     Game,
-    GamePlayer,
     Invite,
     Player,
     PlayerAlias,
     PlayerPhoto,
     User,
 )
+from app.repositories.seats import seat_rows, seated_anywhere
 
 
 @dataclass(frozen=True)
@@ -279,12 +279,12 @@ class PlayersRepository:
         return player
 
     async def delete_unused_created_by(self, session: AsyncSession, user_id: uuid.UUID) -> int:
-        """Delete players this user added that no game, account, invite or merge still points at."""
+        """Delete players this user added that no game (of any kind), account, invite or merge uses."""
         merged_here = aliased(Player)
         unused = select(Player.id).where(
             Player.created_by == user_id,
             ~exists().where(User.player_id == Player.id),
-            ~exists().where(GamePlayer.player_id == Player.id),
+            ~seated_anywhere(Player.id),
             ~exists().where(Invite.player_id == Player.id),
             ~exists().where(merged_here.merged_into == Player.id),
         )
@@ -367,14 +367,14 @@ def _unlinked(player: Any) -> ColumnElement[bool]:
 
 
 def _apart(a: Any, b: Any) -> ColumnElement[bool]:
-    """Never seated in the same live game (a merge would refuse them)."""
-    mine, theirs = aliased(GamePlayer), aliased(GamePlayer)
+    """Never seated in the same live game of any kind (a merge would refuse them)."""
+    mine, theirs = seat_rows("mine"), seat_rows("theirs")
     together = (
         select(1)
         .select_from(mine)
-        .join(theirs, theirs.game_id == mine.game_id)
-        .join(Game, Game.id == mine.game_id)
-        .where(mine.player_id == a.id, theirs.player_id == b.id, Game.deleted_at.is_(None))
+        .join(theirs, theirs.c.game_id == mine.c.game_id)
+        .join(Game, Game.id == mine.c.game_id)
+        .where(mine.c.player_id == a.id, theirs.c.player_id == b.id, Game.deleted_at.is_(None))
     )
     return ~together.exists()
 

@@ -2,13 +2,13 @@
 
 Backend for the Kachuful scorekeeper PWA (https://play.vectanix.com): invite-only accounts, sync of
 games played offline, a global player registry, leaderboards, stats, achievements, daily awards,
-seasons, Wrapped, live table links and shareable recaps.
+seasons, Wrapped, live table links and shareable recaps. It also syncs Kaali Teeri games, and runs
+Ishaara, a word game the server deals and referees (`/api/ishaara`: the key stays on the server).
 
 FastAPI + PostgreSQL 16, Python 3.12 with uv. Same origin as the app (`/api`), cookie sessions.
 
-- **For the frontend:** [HANDOFF.md](HANDOFF.md): every endpoint, rule and test account.
-- **To deploy:** [DEPLOY.md](DEPLOY.md): GitHub, VPS, Postgres, systemd, nginx, Cloudflare.
-- **How it was planned:** [plan-backend.md](plan-backend.md). **How to work on it:** [CLAUDE.md](CLAUDE.md).
+- **The contract:** the API as built; browse it at `/api/docs` when running. Changes are requested by the app in its `backend-requests.md`.
+- **To deploy:** `deploy/` and `.github/workflows/`. **How to work on it:** [CLAUDE.md](CLAUDE.md).
 
 ## Run it locally
 

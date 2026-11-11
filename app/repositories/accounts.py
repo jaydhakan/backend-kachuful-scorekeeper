@@ -12,7 +12,6 @@ from app.db.models import (
     Activity,
     AdminAudit,
     Game,
-    GamePlayer,
     Invite,
     Player,
     PlayerAlias,
@@ -21,6 +20,7 @@ from app.db.models import (
     ShareLink,
     User,
 )
+from app.repositories.seats import SEAT_TABLES, seat_rows, seated_anywhere
 
 
 @dataclass(frozen=True)
@@ -41,17 +41,23 @@ class AccountsRepository:
 
     async def footprint(self, session: AsyncSession, user: User) -> AccountFootprint:
         """Everything the preview counts, in a handful of small queries."""
-        owned = Game.owner_id == user.id, Game.deleted_at.is_(None)
+        # Clearing an account's games deletes every kind that stores seats, so those are counted.
+        owned = (
+            Game.owner_id == user.id,
+            Game.kind.in_([seats.kind for seats in SEAT_TABLES]),
+            Game.deleted_at.is_(None),
+        )
         games, rounds = (
             await session.execute(
                 select(func.count(), func.coalesce(func.sum(Game.round_count), 0)).where(*owned)
             )
         ).one()
-        others = select(func.count(distinct(GamePlayer.player_id))).where(
-            GamePlayer.game_id.in_(select(Game.id).where(*owned))
+        seated = seat_rows("owned_seats")
+        others = select(func.count(distinct(seated.c.player_id))).where(
+            seated.c.game_id.in_(select(Game.id).where(*owned))
         )
         if user.player_id is not None:
-            others = others.where(GamePlayer.player_id != user.player_id)
+            others = others.where(seated.c.player_id != user.player_id)
         sessions = select(func.count()).select_from(Session).where(Session.user_id == user.id)
         invites = select(func.count()).select_from(Invite).where(Invite.email == user.email)
         photo = in_others = False
@@ -63,13 +69,14 @@ class AccountsRepository:
                     )
                 ).scalar()
             )
+            seats = seat_rows()
             in_others = bool(
                 (
                     await session.execute(
                         select(
                             exists().where(
-                                GamePlayer.player_id == user.player_id,
-                                GamePlayer.game_id == Game.id,
+                                seats.c.player_id == user.player_id,
+                                seats.c.game_id == Game.id,
                                 Game.owner_id != user.id,
                                 Game.deleted_at.is_(None),
                             )
@@ -107,10 +114,10 @@ class AccountsRepository:
         await session.execute(delete(Invite).where(Invite.email == user.email))
 
     async def player_in_use(self, session: AsyncSession, player_id: uuid.UUID) -> bool:
-        """Any game, invite, account or merge still points at the player."""
+        """Any game (of any kind), invite, account or merge still points at the player."""
         merged_here = select(Player.id).where(Player.merged_into == player_id).exists()
         stmt = select(
-            exists().where(GamePlayer.player_id == player_id)
+            seated_anywhere(player_id)
             | exists().where(Invite.player_id == player_id)
             | exists().where(User.player_id == player_id)
             | merged_here

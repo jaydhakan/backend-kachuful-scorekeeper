@@ -24,6 +24,9 @@ LOGIN = Limit("login", 10, 600)
 TOKEN = Limit("token", 30, 600)
 UPLOAD = Limit("upload", 120, 60)
 PLAYER_CHECK = Limit("check", 60, 60)
+# Ishaara: actions per game, creates per user.
+ISHAARA_ACTION = Limit("ishaara-action", 60, 60)
+ISHAARA_CREATE = Limit("ishaara-create", 20, 3600)
 
 
 async def enforce(limit: Limit, key: str) -> None:

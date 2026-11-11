@@ -166,6 +166,7 @@ async def test_preview_pages_carry_open_graph_tags_and_redirect_into_the_app(
     assert f"/api/public/recap/{recap['token']}/og.png" in recap_page.text
     assert f'content="0;url=/?recap={recap["token"]}"' in recap_page.text
     assert f'content="0;url=/?live={live["token"]}"' in live_page.text
+    assert 'property="og:site_name" content="Baithak"' in recap_page.text
     assert missing.status_code == 404
     assert 'content="0;url=/"' in missing.text
 

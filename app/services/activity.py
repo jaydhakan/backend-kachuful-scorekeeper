@@ -4,6 +4,7 @@ import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domain.enums import GameKind
 from app.domain.time import to_ms
 from app.exceptions import ApiError, ErrorCode
 from app.repositories.achievements import achievements_repository
@@ -40,7 +41,9 @@ class ActivityService:
             self.session, [r.player_id for r in page if r.player_id is not None]
         )
         games = await games_repository.summaries(
-            self.session, [r.game_id for r in page if r.game_id is not None]
+            self.session,
+            [r.game_id for r in page if r.game_id is not None],
+            kind=GameKind.KACHUFUL,
         )
         items = [
             ActivityItemOut(

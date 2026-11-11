@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Any
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Achievement, User
@@ -22,6 +22,7 @@ from app.domain.derive import (
     game_facts,
     round_facts,
 )
+from app.domain.enums import GameKind
 from app.domain.game import Game, game_from_payload, sync_id
 from app.domain.rules import standings
 from app.domain.time import day_of, from_ms, now_utc, to_ms
@@ -36,7 +37,6 @@ from app.repositories.games import SummaryRow, games_repository
 from app.repositories.players import players_repository
 from app.repositories.share_links import share_links_repository
 from app.schemas.games import (
-    DeletedOut,
     GameDetailOut,
     GamePayloadIn,
     GamesPageOut,
@@ -79,6 +79,10 @@ def _depth(value: Any) -> int:
     return 0
 
 
+def _kind_mismatch() -> ApiError:
+    return ApiError(409, ErrorCode.KIND_MISMATCH, "This id belongs to another game.")
+
+
 def _invalid_game(reason: str, round_index: int | None = None) -> ApiError:
     extra: dict[str, Any] = {"reason": reason}
     if round_index is not None:
@@ -86,11 +90,12 @@ def _invalid_game(reason: str, round_index: int | None = None) -> ApiError:
     return ApiError(422, ErrorCode.INVALID_GAME, f"The game failed the {reason} check.", **extra)
 
 
-def _check_shape(payload: dict[str, Any]) -> None:
+def check_shape(payload: dict[str, Any], model: type[BaseModel]) -> None:
+    """422 `invalid` when the payload is too deep or doesn't fit `model` (before any rule runs)."""
     if _depth(payload) > MAX_JSON_DEPTH:
         raise ApiError(422, ErrorCode.INVALID, "Too deeply nested.", fields={"body": "too deep"})
     try:
-        GamePayloadIn.model_validate(payload)
+        model.model_validate(payload)
     except ValidationError as exc:
         fields = {".".join(str(p) for p in e["loc"]): e["msg"] for e in exc.errors()}
         raise ApiError(
@@ -238,54 +243,57 @@ def _apply_to_row(row: GameRow, payload: dict[str, Any], derived: Derived, diges
     row.last_done_at = from_ms(max(done)) if done else None
 
 
+async def resolve_players(
+    session: AsyncSession, payload: dict[str, Any]
+) -> tuple[dict[str, Any], dict[str, str]]:
+    """Check every seat's registry id (422 `unknown_player`); rewrite merged ids to their target."""
+    seats = payload["players"]
+    raw_ids = [seat.get("playerId") for seat in seats]
+    if any(not pid for pid in raw_ids):
+        raise _invalid_game("players")
+    parsed: dict[str, uuid.UUID] = {}
+    for pid in raw_ids:
+        try:
+            parsed[pid] = uuid.UUID(pid)
+        except ValueError:
+            continue
+    found = await players_repository.get_many(session, list(parsed.values()))
+    unknown = [pid for pid in raw_ids if pid not in parsed or parsed[pid] not in found]
+    if unknown:
+        raise ApiError(
+            422,
+            ErrorCode.UNKNOWN_PLAYER,
+            "Some players are not in the registry yet.",
+            playerIds=unknown,
+        )
+    remap = {
+        pid: str(found[parsed[pid]].merged_into)
+        for pid in raw_ids
+        if found[parsed[pid]].merged_into is not None
+    }
+    if not remap:
+        return payload, {}
+    rewritten = copy.deepcopy(payload)
+    for seat in rewritten["players"]:
+        seat["playerId"] = remap.get(seat["playerId"], seat["playerId"])
+    return rewritten, remap
+
+
 class GamesService:
     """Upload, read, list and delete games."""
 
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def _resolve_players(
-        self, payload: dict[str, Any]
-    ) -> tuple[dict[str, Any], dict[str, str]]:
-        """Check every seat's registry id; rewrite merged ids to their target."""
-        seats = payload["players"]
-        raw_ids = [seat.get("playerId") for seat in seats]
-        if any(not pid for pid in raw_ids):
-            raise _invalid_game("players")
-        parsed: dict[str, uuid.UUID] = {}
-        for pid in raw_ids:
-            try:
-                parsed[pid] = uuid.UUID(pid)
-            except ValueError:
-                continue
-        found = await players_repository.get_many(self.session, list(parsed.values()))
-        unknown = [pid for pid in raw_ids if pid not in parsed or parsed[pid] not in found]
-        if unknown:
-            raise ApiError(
-                422,
-                ErrorCode.UNKNOWN_PLAYER,
-                "Some players are not in the registry yet.",
-                playerIds=unknown,
-            )
-        remap = {
-            pid: str(found[parsed[pid]].merged_into)
-            for pid in raw_ids
-            if found[parsed[pid]].merged_into is not None
-        }
-        if not remap:
-            return payload, {}
-        rewritten = copy.deepcopy(payload)
-        for seat in rewritten["players"]:
-            seat["playerId"] = remap.get(seat["playerId"], seat["playerId"])
-        return rewritten, remap
-
     async def upload(self, game_id: uuid.UUID, payload: dict[str, Any], user: User) -> UploadOut:
         """Store a game from the app: stale and idempotency checks, validation, derive."""
-        _check_shape(payload)
+        check_shape(payload, GamePayloadIn)
         if sync_id(payload) != str(game_id):
             raise _invalid_game("id")
         await games_repository.lock(self.session, game_id)
-        row = await games_repository.get(self.session, game_id)
+        row = await games_repository.get(self.session, game_id, kind=None)
+        if row is not None and row.kind != GameKind.KACHUFUL:
+            raise _kind_mismatch()
         if row is not None and row.deleted_at is not None:
             raise ApiError(410, ErrorCode.GONE, "This game was deleted.")
         if row is not None and row.owner_id != user.id and user.role != "admin":
@@ -304,7 +312,7 @@ class GamesService:
             raise ApiError(
                 409, ErrorCode.STALE, "The server has a newer version.", server=row.payload
             )
-        stored, remap = await self._resolve_players(payload)
+        stored, remap = await resolve_players(self.session, payload)
         game = game_from_payload(stored)
         now_ms = to_ms(now_utc())
         validity = validate(game, now_ms)
@@ -313,7 +321,7 @@ class GamesService:
             raise _invalid_game(validity.reason.value, validity.round_index)
         derived = derive(game, now_ms)
         if row is None:
-            row = GameRow(id=game_id, owner_id=user.id)
+            row = GameRow(id=game_id, kind=GameKind.KACHUFUL, owner_id=user.id)
         was_ended = row.ended_at is not None
         _apply_to_row(row, stored, derived, digest)
         result = await self.store(row, derived, was_ended=was_ended)
@@ -329,6 +337,9 @@ class GamesService:
         self, row: GameRow, derived: Derived, *, was_ended: bool, career: bool = True
     ) -> Stored:
         """Save the row and rebuild everything derived from it, achievements included."""
+        # The derived tables, boards and achievements hold Kachuful games only.
+        if row.kind != GameKind.KACHUFUL:
+            raise _kind_mismatch()
         old = await derived_repository.touched_moments(self.session, row.id)
         old_players = set(await derived_repository.player_ids_in_game(self.session, row.id))
         row.updated_at = now_utc()
@@ -370,9 +381,17 @@ class GamesService:
         await self.store(row, derived, was_ended=was_ended, career=career)
         return derived
 
+    async def reseat(self, row: GameRow, from_id: uuid.UUID, into_id: uuid.UUID) -> None:
+        """Move a seat to another registry player (admin merge); career badges are the caller's."""
+        payload = copy.deepcopy(row.payload)
+        for seat in payload["players"]:
+            if seat.get("playerId") == str(from_id):
+                seat["playerId"] = str(into_id)
+        await self.rederive(row, payload, career=False)
+
     async def summary(self, game_id: uuid.UUID) -> SummaryRow:
         """A live game's summary row; 404 for unknown or deleted games."""
-        rows = await games_repository.summaries(self.session, [game_id])
+        rows = await games_repository.summaries(self.session, [game_id], kind=GameKind.KACHUFUL)
         row = rows.get(game_id)
         if row is None or row.deleted_at is not None:
             raise ApiError(404, ErrorCode.NOT_FOUND, "No such game.")
@@ -381,7 +400,7 @@ class GamesService:
     async def detail(self, game_id: uuid.UUID) -> GameDetailOut:
         """The stored payload, its summary and its achievements."""
         summary = await self.summary(game_id)
-        row = await games_repository.get(self.session, game_id)
+        row = await games_repository.get(self.session, game_id, kind=GameKind.KACHUFUL)
         assert row is not None
         return GameDetailOut(
             game=row.payload,
@@ -412,6 +431,7 @@ class GamesService:
                 ) from exc
         rows = await games_repository.list_page(
             self.session,
+            kind=GameKind.KACHUFUL,
             updated_since=None if updated_since is None else from_ms(updated_since),
             before=before,
             owner_id=user.id if mine else None,
@@ -434,7 +454,7 @@ class GamesService:
     async def delete(self, game_id: uuid.UUID, user: User) -> set[uuid.UUID]:
         """Soft delete; derived rows go, so boards and stats no longer count it."""
         await games_repository.lock(self.session, game_id)
-        row = await games_repository.get(self.session, game_id)
+        row = await games_repository.get(self.session, game_id, kind=GameKind.KACHUFUL)
         if row is None or row.deleted_at is not None:
             raise ApiError(404, ErrorCode.NOT_FOUND, "No such game.")
         if row.owner_id != user.id and user.role != "admin":
@@ -463,32 +483,20 @@ class GamesService:
         logger.info("game deleted", extra={"game_id": str(game_id)})
         return players
 
-    async def start_fresh(self, user: User) -> DeletedOut:
-        """Delete every game the user scored, then the players they added that nothing else uses."""
-        games = await self._delete_owned(user)
-        players = await players_repository.delete_unused_created_by(self.session, user.id)
-        if players:
-            await app_state_repository.bump(self.session)
-        await self.session.commit()
-        logger.info("start fresh", extra={"games": games, "players": players})
-        return DeletedOut(games=games, players=players)
-
     async def delete_owned(self, owner: User, actor: User) -> int:
         """Soft-delete every live game `owner` scored, as `actor` (the owner, or an admin); commits."""
-        games = await self._delete_owned(owner, actor)
-        await self.session.commit()
-        return games
-
-    async def _delete_owned(self, user: User, actor: User | None = None) -> int:
-        """Each game goes through `delete`, so a single use case defines what deleting one means."""
+        # Each game goes through `delete`, so a single use case defines what deleting one means.
         deleted = 0
-        for game_id in await games_repository.owned_ids(self.session, user.id):
+        for game_id in await games_repository.owned_ids(
+            self.session, owner.id, kind=GameKind.KACHUFUL
+        ):
             try:
-                await self.delete(game_id, actor or user)
+                await self.delete(game_id, actor)
             except ApiError as error:
                 # Another request removed it first; the goal is the same.
                 if error.status != 404:
                     raise
                 continue
             deleted += 1
+        await self.session.commit()
         return deleted

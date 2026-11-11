@@ -1,0 +1,411 @@
+{
+  "kind": "ishaara",
+  "name": "spoken",
+  "setup": {
+    "id": "60000000-0000-4000-8000-000000000006",
+    "players": [
+      {
+        "id": "s-riya",
+        "name": "Riya",
+        "emoji": "🙂",
+        "color": "#f5a524",
+        "playerId": "00000000-0000-4000-8000-0000000000114",
+        "team": "sun",
+        "role": "clue-giver"
+      },
+      {
+        "id": "s-arjun",
+        "name": "Arjun",
+        "emoji": "🙂",
+        "color": "#f5a524",
+        "playerId": "00000000-0000-4000-8000-000000000097",
+        "team": "sun",
+        "role": "guesser"
+      },
+      {
+        "id": "s-dev",
+        "name": "Dev",
+        "emoji": "🙂",
+        "color": "#f5a524",
+        "playerId": "00000000-0000-4000-8000-0000000000100",
+        "team": "moon",
+        "role": "clue-giver"
+      },
+      {
+        "id": "s-meera",
+        "name": "Meera",
+        "emoji": "🙂",
+        "color": "#f5a524",
+        "playerId": "00000000-0000-4000-8000-0000000000109",
+        "team": "moon",
+        "role": "guesser"
+      }
+    ],
+    "words": [
+      "river",
+      "kite",
+      "train",
+      "cricket",
+      "mango",
+      "bridge",
+      "mirror",
+      "ghost",
+      "wedding",
+      "rocket",
+      "temple",
+      "pepper",
+      "lion",
+      "ocean",
+      "film",
+      "market",
+      "needle",
+      "crown",
+      "shadow",
+      "clock",
+      "garden",
+      "dosa",
+      "thunder",
+      "pilot",
+      "chai"
+    ],
+    "rules": {
+      "timerSec": null,
+      "clueEntry": "spoken",
+      "packs": [
+        "everyday"
+      ],
+      "bestOf": 3
+    },
+    "starting": "sun",
+    "key": [
+      "sun",
+      "sun",
+      "sun",
+      "sun",
+      "sun",
+      "sun",
+      "sun",
+      "sun",
+      "sun",
+      "moon",
+      "moon",
+      "moon",
+      "moon",
+      "moon",
+      "moon",
+      "moon",
+      "moon",
+      "blank",
+      "blank",
+      "blank",
+      "blank",
+      "blank",
+      "blank",
+      "blank",
+      "trap"
+    ],
+    "createdAt": 1793539800000
+  },
+  "steps": [
+    {
+      "at": 1793539801000,
+      "join": "sun",
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539802000,
+      "join": "moon",
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539803000,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "sun"
+      },
+      "action": {
+        "type": "clue",
+        "word": "spoken",
+        "number": 2
+      },
+      "expect": {
+        "ok": false,
+        "error": {
+          "code": "invalid_action",
+          "reason": "clue-format"
+        }
+      }
+    },
+    {
+      "at": 1793539804000,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "sun"
+      },
+      "action": {
+        "type": "clue",
+        "word": null,
+        "number": 2
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539805000,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 17
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539806000,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "resign",
+        "team": "moon"
+      },
+      "expect": {
+        "ok": true
+      }
+    }
+  ],
+  "expect": {
+    "state": {
+      "kind": "ishaara",
+      "schemaVersion": 1,
+      "id": "60000000-0000-4000-8000-000000000006",
+      "rev": 6,
+      "createdAt": 1793539800000,
+      "updatedAt": 1793539806000,
+      "players": [
+        {
+          "id": "s-riya",
+          "name": "Riya",
+          "emoji": "🙂",
+          "color": "#f5a524",
+          "playerId": "00000000-0000-4000-8000-0000000000114",
+          "team": "sun",
+          "role": "clue-giver"
+        },
+        {
+          "id": "s-arjun",
+          "name": "Arjun",
+          "emoji": "🙂",
+          "color": "#f5a524",
+          "playerId": "00000000-0000-4000-8000-000000000097",
+          "team": "sun",
+          "role": "guesser"
+        },
+        {
+          "id": "s-dev",
+          "name": "Dev",
+          "emoji": "🙂",
+          "color": "#f5a524",
+          "playerId": "00000000-0000-4000-8000-0000000000100",
+          "team": "moon",
+          "role": "clue-giver"
+        },
+        {
+          "id": "s-meera",
+          "name": "Meera",
+          "emoji": "🙂",
+          "color": "#f5a524",
+          "playerId": "00000000-0000-4000-8000-0000000000109",
+          "team": "moon",
+          "role": "guesser"
+        }
+      ],
+      "words": [
+        "river",
+        "kite",
+        "train",
+        "cricket",
+        "mango",
+        "bridge",
+        "mirror",
+        "ghost",
+        "wedding",
+        "rocket",
+        "temple",
+        "pepper",
+        "lion",
+        "ocean",
+        "film",
+        "market",
+        "needle",
+        "crown",
+        "shadow",
+        "clock",
+        "garden",
+        "dosa",
+        "thunder",
+        "pilot",
+        "chai"
+      ],
+      "revealed": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        "blank",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "starting": "sun",
+      "turn": "moon",
+      "clue": null,
+      "guessesLeft": 0,
+      "guessedThisTurn": 0,
+      "deadline": null,
+      "pending": null,
+      "undo": null,
+      "joined": {
+        "sun": true,
+        "moon": true
+      },
+      "log": [
+        {
+          "at": 1793539804000,
+          "team": "sun",
+          "type": "clue",
+          "number": 2
+        },
+        {
+          "at": 1793539805000,
+          "team": "sun",
+          "type": "guess",
+          "card": 17,
+          "word": "crown",
+          "identity": "blank"
+        }
+      ],
+      "rules": {
+        "timerSec": null,
+        "clueEntry": "spoken",
+        "packs": [
+          "everyday"
+        ],
+        "bestOf": 3
+      },
+      "match": {
+        "game": 1,
+        "sunWins": 1,
+        "moonWins": 0
+      },
+      "status": "finished",
+      "winner": "sun",
+      "endedBy": "resign",
+      "solution": [
+        "sun",
+        "sun",
+        "sun",
+        "sun",
+        "sun",
+        "sun",
+        "sun",
+        "sun",
+        "sun",
+        "moon",
+        "moon",
+        "moon",
+        "moon",
+        "moon",
+        "moon",
+        "moon",
+        "moon",
+        "blank",
+        "blank",
+        "blank",
+        "blank",
+        "blank",
+        "blank",
+        "blank",
+        "trap"
+      ],
+      "next": null,
+      "finishedAt": 1793539806000
+    },
+    "rows": [
+      {
+        "playerId": "00000000-0000-4000-8000-0000000000114",
+        "team": "sun",
+        "role": "clue-giver",
+        "won": true,
+        "wordsFound": 0,
+        "wrongPicks": 1,
+        "trapHit": false,
+        "cluesGiven": 1,
+        "avgClueNumber": 2,
+        "penalties": 0
+      },
+      {
+        "playerId": "00000000-0000-4000-8000-000000000097",
+        "team": "sun",
+        "role": "guesser",
+        "won": true,
+        "wordsFound": 0,
+        "wrongPicks": 1,
+        "trapHit": false,
+        "cluesGiven": 0,
+        "avgClueNumber": null,
+        "penalties": 0
+      },
+      {
+        "playerId": "00000000-0000-4000-8000-0000000000100",
+        "team": "moon",
+        "role": "clue-giver",
+        "won": false,
+        "wordsFound": 0,
+        "wrongPicks": 0,
+        "trapHit": false,
+        "cluesGiven": 0,
+        "avgClueNumber": null,
+        "penalties": 0
+      },
+      {
+        "playerId": "00000000-0000-4000-8000-0000000000109",
+        "team": "moon",
+        "role": "guesser",
+        "won": false,
+        "wordsFound": 0,
+        "wrongPicks": 0,
+        "trapHit": false,
+        "cluesGiven": 0,
+        "avgClueNumber": null,
+        "penalties": 0
+      }
+    ],
+    "revealedCount": 1
+  }
+}

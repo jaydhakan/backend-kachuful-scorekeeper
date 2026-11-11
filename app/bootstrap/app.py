@@ -9,6 +9,8 @@ from app.api.boards import boards_router
 from app.api.claims import claims_router
 from app.api.core import core_router
 from app.api.games import games_router, me_data_router
+from app.api.ishaara import ishaara_router
+from app.api.kaali_teeri import kaali_teeri_router
 from app.api.pages import pages_router
 from app.api.players import players_router
 from app.api.public import public_router
@@ -44,6 +46,8 @@ def create_app() -> FastAPI:
         players_router,
         games_router,
         me_data_router,
+        kaali_teeri_router,
+        ishaara_router,
         claims_router,
         boards_router,
         public_router,

@@ -1,0 +1,509 @@
+{
+  "kind": "ishaara",
+  "name": "penalty-and-skip",
+  "setup": {
+    "id": "60000000-0000-4000-8000-000000000016",
+    "players": [
+      {
+        "id": "s-riya",
+        "name": "Riya",
+        "emoji": "🙂",
+        "color": "#f5a524",
+        "playerId": "00000000-0000-4000-8000-0000000000114",
+        "team": "sun",
+        "role": "clue-giver"
+      },
+      {
+        "id": "s-arjun",
+        "name": "Arjun",
+        "emoji": "🙂",
+        "color": "#f5a524",
+        "playerId": "00000000-0000-4000-8000-000000000097",
+        "team": "sun",
+        "role": "guesser"
+      },
+      {
+        "id": "s-dev",
+        "name": "Dev",
+        "emoji": "🙂",
+        "color": "#f5a524",
+        "playerId": "00000000-0000-4000-8000-0000000000100",
+        "team": "moon",
+        "role": "clue-giver"
+      },
+      {
+        "id": "s-meera",
+        "name": "Meera",
+        "emoji": "🙂",
+        "color": "#f5a524",
+        "playerId": "00000000-0000-4000-8000-0000000000109",
+        "team": "moon",
+        "role": "guesser"
+      }
+    ],
+    "words": [
+      "river",
+      "kite",
+      "train",
+      "cricket",
+      "mango",
+      "bridge",
+      "mirror",
+      "ghost",
+      "wedding",
+      "rocket",
+      "temple",
+      "pepper",
+      "lion",
+      "ocean",
+      "film",
+      "market",
+      "needle",
+      "crown",
+      "shadow",
+      "clock",
+      "garden",
+      "dosa",
+      "thunder",
+      "pilot",
+      "chai"
+    ],
+    "rules": {
+      "timerSec": null,
+      "clueEntry": "typed",
+      "packs": [
+        "everyday"
+      ],
+      "bestOf": 1
+    },
+    "starting": "sun",
+    "key": [
+      "sun",
+      "sun",
+      "sun",
+      "sun",
+      "sun",
+      "sun",
+      "sun",
+      "sun",
+      "sun",
+      "moon",
+      "moon",
+      "moon",
+      "moon",
+      "moon",
+      "moon",
+      "moon",
+      "moon",
+      "blank",
+      "blank",
+      "blank",
+      "blank",
+      "blank",
+      "blank",
+      "blank",
+      "trap"
+    ],
+    "createdAt": 1793539800000
+  },
+  "steps": [
+    {
+      "at": 1793539801000,
+      "join": "sun",
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539802000,
+      "join": "moon",
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539803000,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "sun"
+      },
+      "action": {
+        "type": "clue",
+        "word": "water",
+        "number": 1
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539804000,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "moon"
+      },
+      "action": {
+        "type": "notAllowed"
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539804000,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 10
+      },
+      "expect": {
+        "ok": false,
+        "error": {
+          "code": "invalid_action",
+          "reason": "penalty-pending"
+        }
+      }
+    },
+    {
+      "at": 1793539804000,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "moon"
+      },
+      "action": {
+        "type": "clue",
+        "word": "king",
+        "number": 1
+      },
+      "expect": {
+        "ok": false,
+        "error": {
+          "code": "invalid_action",
+          "reason": "penalty-pending"
+        }
+      }
+    },
+    {
+      "at": 1793539805000,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "moon"
+      },
+      "action": {
+        "type": "penaltyReveal",
+        "card": 0
+      },
+      "expect": {
+        "ok": false,
+        "error": {
+          "code": "invalid_action",
+          "reason": "not-yours"
+        }
+      }
+    },
+    {
+      "at": 1793539806000,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "moon"
+      },
+      "action": {
+        "type": "penaltyReveal",
+        "card": 9
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539807000,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "moon"
+      },
+      "action": {
+        "type": "clue",
+        "word": "night",
+        "number": 1
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539808000,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "sun"
+      },
+      "action": {
+        "type": "notAllowed"
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539830000,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "skip"
+      },
+      "expect": {
+        "ok": false,
+        "error": {
+          "code": "invalid_action",
+          "reason": "too-early"
+        }
+      }
+    },
+    {
+      "at": 1793539870000,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "skip"
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539871000,
+      "actor": {
+        "kind": "clue-giver",
+        "team": "sun"
+      },
+      "action": {
+        "type": "clue",
+        "word": "king",
+        "number": 2
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "at": 1793539872000,
+      "actor": {
+        "kind": "table"
+      },
+      "action": {
+        "type": "guess",
+        "card": 0
+      },
+      "expect": {
+        "ok": true
+      }
+    }
+  ],
+  "expect": {
+    "state": {
+      "kind": "ishaara",
+      "schemaVersion": 1,
+      "id": "60000000-0000-4000-8000-000000000016",
+      "rev": 11,
+      "createdAt": 1793539800000,
+      "updatedAt": 1793539872000,
+      "players": [
+        {
+          "id": "s-riya",
+          "name": "Riya",
+          "emoji": "🙂",
+          "color": "#f5a524",
+          "playerId": "00000000-0000-4000-8000-0000000000114",
+          "team": "sun",
+          "role": "clue-giver"
+        },
+        {
+          "id": "s-arjun",
+          "name": "Arjun",
+          "emoji": "🙂",
+          "color": "#f5a524",
+          "playerId": "00000000-0000-4000-8000-000000000097",
+          "team": "sun",
+          "role": "guesser"
+        },
+        {
+          "id": "s-dev",
+          "name": "Dev",
+          "emoji": "🙂",
+          "color": "#f5a524",
+          "playerId": "00000000-0000-4000-8000-0000000000100",
+          "team": "moon",
+          "role": "clue-giver"
+        },
+        {
+          "id": "s-meera",
+          "name": "Meera",
+          "emoji": "🙂",
+          "color": "#f5a524",
+          "playerId": "00000000-0000-4000-8000-0000000000109",
+          "team": "moon",
+          "role": "guesser"
+        }
+      ],
+      "words": [
+        "river",
+        "kite",
+        "train",
+        "cricket",
+        "mango",
+        "bridge",
+        "mirror",
+        "ghost",
+        "wedding",
+        "rocket",
+        "temple",
+        "pepper",
+        "lion",
+        "ocean",
+        "film",
+        "market",
+        "needle",
+        "crown",
+        "shadow",
+        "clock",
+        "garden",
+        "dosa",
+        "thunder",
+        "pilot",
+        "chai"
+      ],
+      "revealed": [
+        "sun",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        "moon",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "starting": "sun",
+      "turn": "sun",
+      "clue": {
+        "team": "sun",
+        "word": "king",
+        "number": 2
+      },
+      "guessesLeft": 2,
+      "guessedThisTurn": 1,
+      "deadline": null,
+      "pending": null,
+      "undo": {
+        "card": 0,
+        "until": 1793539882000,
+        "turn": "sun",
+        "clue": {
+          "team": "sun",
+          "word": "king",
+          "number": 2
+        },
+        "guessesLeft": 3,
+        "guessedThisTurn": 0,
+        "deadline": null
+      },
+      "joined": {
+        "sun": true,
+        "moon": true
+      },
+      "log": [
+        {
+          "at": 1793539803000,
+          "team": "sun",
+          "type": "clue",
+          "number": 1,
+          "word": "water"
+        },
+        {
+          "at": 1793539804000,
+          "team": "moon",
+          "type": "not-allowed"
+        },
+        {
+          "at": 1793539806000,
+          "team": "moon",
+          "type": "penalty",
+          "card": 9,
+          "word": "rocket",
+          "identity": "moon"
+        },
+        {
+          "at": 1793539807000,
+          "team": "moon",
+          "type": "clue",
+          "number": 1,
+          "word": "night"
+        },
+        {
+          "at": 1793539808000,
+          "team": "sun",
+          "type": "not-allowed"
+        },
+        {
+          "at": 1793539870000,
+          "team": "sun",
+          "type": "skip"
+        },
+        {
+          "at": 1793539871000,
+          "team": "sun",
+          "type": "clue",
+          "number": 2,
+          "word": "king"
+        },
+        {
+          "at": 1793539872000,
+          "team": "sun",
+          "type": "guess",
+          "card": 0,
+          "word": "river",
+          "identity": "sun"
+        }
+      ],
+      "rules": {
+        "timerSec": null,
+        "clueEntry": "typed",
+        "packs": [
+          "everyday"
+        ],
+        "bestOf": 1
+      },
+      "match": {
+        "game": 1,
+        "sunWins": 0,
+        "moonWins": 0
+      },
+      "status": "active",
+      "winner": null,
+      "endedBy": null,
+      "solution": null,
+      "next": null
+    },
+    "rows": null,
+    "revealedCount": 2
+  }
+}

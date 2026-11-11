@@ -9,6 +9,7 @@ from sqlalchemy import (
     CheckConstraint,
     Date,
     DateTime,
+    Double,
     ForeignKey,
     Index,
     Integer,
@@ -21,7 +22,7 @@ from sqlalchemy import (
     text,
     true,
 )
-from sqlalchemy.dialects.postgresql import CITEXT, JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 NAMING_CONVENTION = {
@@ -250,8 +251,9 @@ class Game(Base):
     __tablename__ = "games"
     __table_args__ = (
         CheckConstraint("status IN ('active', 'finished')", name="status"),
-        # Sync and list order; also serves `updatedSince` tombstones, so it is not partial.
-        Index("ix_games_updated_at_id", "updated_at", "id"),
+        CheckConstraint("kind IN ('kachuful', 'kaali-teeri', 'ishaara')", name="kind"),
+        # Sync and list order per game; also serves `updatedSince` tombstones, so it is not partial.
+        Index("ix_games_kind_updated_at_id", "kind", "updated_at", "id"),
         Index("ix_games_owner_id_updated_at", "owner_id", text("updated_at DESC")),
         # A user's unfinished games, newest change first: the Home screen's resume card.
         Index(
@@ -276,6 +278,8 @@ class Game(Base):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    # A `GameKind` value; the payload's shape and every derived table depend on it.
+    kind: Mapped[str] = mapped_column(Text, server_default=text("'kachuful'"))
     owner_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
     rev: Mapped[int] = mapped_column(Integer)
     payload: Mapped[dict[str, Any]] = mapped_column(JSONB)
@@ -437,6 +441,242 @@ class PlayerDay(Base):
     games: Mapped[int] = mapped_column(Integer)
     games_ended: Mapped[int] = mapped_column(Integer)
     wins: Mapped[int] = mapped_column(Integer)
+
+
+class KtGamePlayer(Base):
+    """One player's whole Kaali Teeri game; rebuilt from the payload on every upload."""
+
+    __tablename__ = "kt_game_players"
+    __table_args__ = (
+        Index(
+            "ix_kt_game_players_player_id",
+            "player_id",
+            postgresql_include=["game_id", "points", "place", "last_done_at"],
+        ),
+        Index(
+            "ix_kt_game_players_first_done_at", "first_done_at", postgresql_include=["player_id"]
+        ),
+        Index(
+            "ix_kt_game_players_ended_at",
+            "ended_at",
+            postgresql_include=["player_id", "won"],
+            postgresql_where=text("ended_at IS NOT NULL"),
+        ),
+    )
+
+    game_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("games.id", ondelete="CASCADE"), primary_key=True
+    )
+    player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"), primary_key=True)
+    seat: Mapped[int] = mapped_column(SmallInteger)
+    points: Mapped[int] = mapped_column(Integer)
+    place: Mapped[int | None] = mapped_column(SmallInteger)
+    won: Mapped[bool]
+    hands_bid: Mapped[int] = mapped_column(Integer)
+    bids_made: Mapped[int] = mapped_column(Integer)
+    times_partner: Mapped[int] = mapped_column(Integer)
+    partner_made: Mapped[int] = mapped_column(Integer)
+    double_slots: Mapped[int] = mapped_column(Integer)
+    sweeps: Mapped[int] = mapped_column(Integer)
+    first_done_at: Mapped[datetime]
+    last_done_at: Mapped[datetime]
+    # The finish time once the game is finished (Kaali Teeri games never auto-end).
+    ended_at: Mapped[datetime | None]
+
+
+class KtHand(Base):
+    """One done Kaali Teeri hand, players by registry id; rebuilt on every upload."""
+
+    __tablename__ = "kt_hands"
+    __table_args__ = (
+        CheckConstraint("sweep IN ('none', 'bidders', 'defenders')", name="sweep"),
+        Index("ix_kt_hands_done_at", "done_at"),
+    )
+
+    game_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("games.id", ondelete="CASCADE"), primary_key=True
+    )
+    hand_index: Mapped[int] = mapped_column(Integer, primary_key=True)
+    dealer_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"))
+    bidder_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"))
+    bid: Mapped[int] = mapped_column(SmallInteger)
+    forced: Mapped[bool]
+    trump: Mapped[str] = mapped_column(Text)
+    partner_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
+    # {playerId: slots} for the bidding team.
+    slots: Mapped[dict[str, int]] = mapped_column(JSONB)
+    team_points: Mapped[int] = mapped_column(SmallInteger)
+    made: Mapped[bool]
+    sweep: Mapped[str] = mapped_column(Text)
+    # {playerId: points} for every seat: kt_player_day sums these.
+    scores: Mapped[dict[str, int]] = mapped_column(JSONB)
+    # The hand's doneAt, else the game's updatedAt (a done hand always counts on some day).
+    done_at: Mapped[datetime]
+
+
+class KtPlayerDay(Base):
+    """Per player per APP_TZ day Kaali Teeri rollup, rebuilt for the days an upload touches."""
+
+    __tablename__ = "kt_player_day"
+    __table_args__ = (
+        Index(
+            "ix_kt_player_day_day",
+            "day",
+            postgresql_include=[
+                "player_id",
+                "games",
+                "wins",
+                "points",
+                "hands_bid",
+                "bids_made",
+                "partner_hands",
+                "partner_made",
+            ],
+        ),
+    )
+
+    player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"), primary_key=True)
+    day: Mapped[date] = mapped_column(Date, primary_key=True)
+    games: Mapped[int] = mapped_column(Integer)
+    wins: Mapped[int] = mapped_column(Integer)
+    points: Mapped[int] = mapped_column(Integer)
+    hands_bid: Mapped[int] = mapped_column(Integer)
+    bids_made: Mapped[int] = mapped_column(Integer)
+    partner_hands: Mapped[int] = mapped_column(Integer)
+    partner_made: Mapped[int] = mapped_column(Integer)
+
+
+class IshaaraKey(Base):
+    """An Ishaara game's key: 25 identities, apart from the public state in `games.payload`."""
+
+    __tablename__ = "ishaara_keys"
+
+    game_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("games.id", ondelete="CASCADE"), primary_key=True
+    )
+    key: Mapped[list[str]] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+
+class IshaaraRole(Base):
+    """One seat of an Ishaara game: its team and role, and the account linked to it at creation."""
+
+    __tablename__ = "ishaara_roles"
+    __table_args__ = (
+        CheckConstraint("team IN ('sun', 'moon')", name="team"),
+        CheckConstraint("role IN ('clue-giver', 'guesser')", name="role"),
+        Index(
+            "uq_ishaara_roles_clue_giver",
+            "game_id",
+            "team",
+            unique=True,
+            postgresql_where=text("role = 'clue-giver'"),
+        ),
+        Index("ix_ishaara_roles_player_id", "player_id", postgresql_include=["game_id"]),
+        Index(
+            "ix_ishaara_roles_user_id_clue_giver",
+            "user_id",
+            postgresql_include=["game_id", "team"],
+            postgresql_where=text("role = 'clue-giver'"),
+        ),
+    )
+
+    game_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("games.id", ondelete="CASCADE"), primary_key=True
+    )
+    player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"), primary_key=True)
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    team: Mapped[str] = mapped_column(Text)
+    role: Mapped[str] = mapped_column(Text)
+
+
+class IshaaraAction(Base):
+    """An applied Ishaara action: the audit log, and what makes a retried `actionId` a no-op."""
+
+    __tablename__ = "ishaara_actions"
+    __table_args__ = (Index("uq_ishaara_actions_game_id_seq", "game_id", "seq", unique=True),)
+
+    game_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("games.id", ondelete="CASCADE"), primary_key=True
+    )
+    action_id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    seq: Mapped[int] = mapped_column(Integer)
+    type: Mapped[str] = mapped_column(Text)
+    # The action as sent, without the key (actions never carry it).
+    body: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    at: Mapped[datetime]
+    by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL")
+    )
+
+
+_ISHAARA_ROW_COLUMNS = [
+    "game_id",
+    "team",
+    "role",
+    "won",
+    "words_found",
+    "wrong_picks",
+    "trap_hit",
+    "clues_given",
+    "avg_clue_number",
+    "penalties",
+]
+
+
+class IshaaraGamePlayer(Base):
+    """One seat of a finished (not abandoned) Ishaara game: the domain's player row."""
+
+    __tablename__ = "ishaara_game_players"
+    __table_args__ = (
+        Index(
+            "ix_ishaara_game_players_player_id",
+            "player_id",
+            postgresql_include=[*_ISHAARA_ROW_COLUMNS, "finished_at"],
+        ),
+        Index(
+            "ix_ishaara_game_players_finished_at",
+            "finished_at",
+            postgresql_include=["player_id", *_ISHAARA_ROW_COLUMNS],
+        ),
+    )
+
+    game_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("games.id", ondelete="CASCADE"), primary_key=True
+    )
+    player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"), primary_key=True)
+    team: Mapped[str] = mapped_column(Text)
+    role: Mapped[str] = mapped_column(Text)
+    won: Mapped[bool]
+    words_found: Mapped[int] = mapped_column(SmallInteger)
+    wrong_picks: Mapped[int] = mapped_column(SmallInteger)
+    trap_hit: Mapped[bool]
+    clues_given: Mapped[int] = mapped_column(SmallInteger)
+    avg_clue_number: Mapped[float | None] = mapped_column(Double)
+    penalties: Mapped[int] = mapped_column(SmallInteger)
+    finished_at: Mapped[datetime]
+
+
+class IshaaraPlayerDay(Base):
+    """Per player per APP_TZ day Ishaara rollup (the domain's tallies), rebuilt when a game ends."""
+
+    __tablename__ = "ishaara_player_day"
+    __table_args__ = (Index("ix_ishaara_player_day_day", "day"),)
+
+    player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"), primary_key=True)
+    day: Mapped[date] = mapped_column(Date, primary_key=True)
+    games: Mapped[int] = mapped_column(Integer)
+    wins: Mapped[int] = mapped_column(Integer)
+    words_found: Mapped[int] = mapped_column(Integer)
+    wrong_picks: Mapped[int] = mapped_column(Integer)
+    trap_hits: Mapped[int] = mapped_column(Integer)
+    clue_games: Mapped[int] = mapped_column(Integer)
+    clue_wins: Mapped[int] = mapped_column(Integer)
+    clues_given: Mapped[int] = mapped_column(Integer)
+    # The sum and count of per-game average clue numbers, so a period's mean is exact.
+    avg_clue_sum: Mapped[float] = mapped_column(Double)
+    avg_clue_games: Mapped[int] = mapped_column(Integer)
+    penalties: Mapped[int] = mapped_column(Integer)
 
 
 class Achievement(Base):
