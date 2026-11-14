@@ -19,12 +19,13 @@ CLUE_GIVER = "clue-giver"
 
 @dataclass(frozen=True)
 class IshaaraListRow:
-    """What an IshaaraSummary is built from: the stored summary, host name and change time."""
+    """What an IshaaraSummary is built from: the stored summary, host, and change time."""
 
     game_id: uuid.UUID
     summary: dict[str, Any]
     host_name: str
     updated_at: datetime
+    owner_id: uuid.UUID
 
 
 @dataclass(frozen=True)
@@ -203,6 +204,7 @@ class IshaaraRepository:
                 Game.summary,
                 func.coalesce(_host_player.display_name, ""),
                 Game.updated_at,
+                Game.owner_id,
             )
             .join(_host, _host.id == Game.owner_id)
             .outerjoin(_host_player, _host_player.id == _host.player_id)
@@ -215,7 +217,7 @@ class IshaaraRepository:
             stmt = stmt.where(
                 or_(Game.updated_at < at, and_(Game.updated_at == at, Game.id < last_id))
             )
-        return [IshaaraListRow(r[0], r[1], r[2], r[3]) for r in await session.execute(stmt)]
+        return [IshaaraListRow(r[0], r[1], r[2], r[3], r[4]) for r in await session.execute(stmt)]
 
     async def accounts_of(
         self, session: AsyncSession, player_ids: list[uuid.UUID]

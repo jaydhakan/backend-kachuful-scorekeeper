@@ -171,6 +171,7 @@ class IshaaraSummaryOut(CamelModel):
     host: HostOut = Field(..., description="The host")
     players: list[SummaryPlayerOut] = Field(..., description="Every seat")
     my_team: Team | None = Field(..., description="The team the caller gives clues for")
+    is_host: bool = Field(..., description="The caller created the game (its device is the table)")
 
 
 class IshaaraPageOut(CamelModel):

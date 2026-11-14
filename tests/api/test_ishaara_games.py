@@ -286,6 +286,8 @@ async def test_lists_show_summaries_for_the_caller_only(
     assert first["wordsLeft"] == {active["starting"]: 9, second_team: 8}
     assert {p["role"] for p in first["players"]} == {"clue-giver", "guesser"}
     assert [g["myTeam"] for g in sun["items"]] == ["sun", "sun"]
+    assert all(g["isHost"] for g in hosted["items"])
+    assert not any(g["isHost"] for g in sun["items"] + running["items"])
     assert len(running["items"]) == 2 and done["items"] == []
     assert nothing["items"] == []
     assert not any("payload" in q for q in queries if "FROM games" in q)

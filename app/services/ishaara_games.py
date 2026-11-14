@@ -93,9 +93,14 @@ def check_clue_accounts(seats: list[dict[str, Any]], accounts: dict[uuid.UUID, u
         raise invalid_game("clue-giver-account")
 
 
-def _summary_out(row: IshaaraListRow, team: str | None) -> IshaaraSummaryOut:
+def _summary_out(row: IshaaraListRow, team: str | None, user_id: uuid.UUID) -> IshaaraSummaryOut:
     return IshaaraSummaryOut.model_validate(
-        {**row.summary, "host": {"name": row.host_name}, "myTeam": team}
+        {
+            **row.summary,
+            "host": {"name": row.host_name},
+            "myTeam": team,
+            "isHost": row.owner_id == user_id,
+        }
     )
 
 
@@ -358,7 +363,8 @@ class IshaaraGamesService:
             last_row = page[-1]
             next_cursor = encode_cursor(last_row.updated_at, str(last_row.game_id))
         return IshaaraPageOut(
-            items=[_summary_out(r, teams.get(r.game_id)) for r in page], next_cursor=next_cursor
+            items=[_summary_out(r, teams.get(r.game_id), user.id) for r in page],
+            next_cursor=next_cursor,
         )
 
     async def delete(self, game_id: uuid.UUID, user: User) -> None:
