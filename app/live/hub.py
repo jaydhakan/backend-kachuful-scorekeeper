@@ -1,7 +1,23 @@
 """Live fan-out: one LISTEN connection per worker feeds every SSE viewer on it (plan §15.4).
 
-Kachuful and Kaali Teeri viewers follow share links; Ishaara's table and clue phones follow a game
-directly (NOTIFY kind `ishaara`), through their own subscriber list and loader.
+Kachuful and Kaali Teeri viewers follow share links. Server-run games follow a game directly, each
+kind through the hooks it registers; signed-in users follow their own events (NOTIFY kind `user`,
+routed by `userId`, never by game).
+
+A server-run kind registers once, when its API module is imported:
+
+    hub.register_game_kind("spades", GameKindHooks(
+        loader=load_table,            # game id -> (rev, state) once per change; None once it's gone
+        frame_for=table_frame,        # (state, viewer) -> one follower's `state` frame (JSON)
+        events=("reaction", "ended"), # NOTIFY `data` keys sent to every follower after the state
+        presence_frame=seats_frame,   # seats present (across workers) -> `seat-presence` frame
+    ))
+    queue = await hub.subscribe_game("spades", game_id, viewer="2")  # a seat; None = no seat
+    await notify(session, game_id, "spades", data={"ended": {...}})  # delivered on commit
+    await notify(session, game_id, "spades", data={"reaction": {...}, STATELESS: True})
+
+Without `frame_for` the loader's state must already be the frame (Ishaara). Followers with a
+viewer are counted per seat across workers (`seats_present`), the way share-link watchers are.
 """
 
 import asyncio
@@ -23,9 +39,22 @@ logger = get_logger(__name__)
 CHANNEL = "kachuful_live"
 QUEUE_SIZE = 16
 
+# NOTIFY kinds. Share links use `game`, `presence`, `reaction` and `revoked`.
+ISHAARA = "ishaara"
+SPADES = "spades"
+USER = "user"
+SEAT_PRESENCE = "seat-presence"
+RESERVED_KINDS = frozenset({"game", "presence", "reaction", "revoked", USER, SEAT_PRESENCE})
+# A game NOTIFY whose data carries this key skips the state reload (reactions).
+STATELESS = "stateless"
+
 # Loads (rev, event JSON) for a game, or None when it has no active live link.
 EventLoader = Callable[[uuid.UUID], Awaitable[tuple[int, str] | None]]
-ISHAARA = "ishaara"
+# A follower's seat in a server-run game (as text), or None when it has none.
+Viewer = str | None
+GameLoader = Callable[[uuid.UUID], Awaitable[tuple[int, Any] | None]]
+FrameFor = Callable[[Any, Viewer], str]
+PresenceFrame = Callable[[frozenset[str]], str]
 
 
 @dataclass(frozen=True)
@@ -37,6 +66,16 @@ class LiveMessage:
     data: str | None = None
 
 
+@dataclass(frozen=True)
+class GameKindHooks:
+    """How the hub serves one server-run game kind (see the module docstring)."""
+
+    loader: GameLoader
+    frame_for: FrameFor | None = None
+    events: tuple[str, ...] = ()
+    presence_frame: PresenceFrame | None = None
+
+
 async def notify(
     session: AsyncSession,
     game_id: uuid.UUID,
@@ -46,13 +85,25 @@ async def notify(
 ) -> None:
     """Queue a notification; Postgres delivers it when the transaction commits."""
     payload = json.dumps({"gameId": str(game_id), "kind": kind, "tokens": tokens, "data": data})
+    await _pg_notify(session, payload)
+
+
+async def notify_user(
+    session: AsyncSession, user_id: uuid.UUID, event: str, data: dict[str, Any]
+) -> None:
+    """Queue an event for one user's streams (`GET /api/me/events`); delivered on commit."""
+    payload = json.dumps({"kind": USER, "userId": str(user_id), "event": event, "data": data})
+    await _pg_notify(session, payload)
+
+
+async def _pg_notify(session: AsyncSession, payload: str) -> None:
     await session.execute(
         text("SELECT pg_notify(:channel, :payload)"), {"channel": CHANNEL, "payload": payload}
     )
 
 
 class LiveHub:
-    """Subscribers per game; a game's event is loaded once and copied to each viewer."""
+    """Subscribers per game and per user; a game's event is loaded once and copied to each viewer."""
 
     def __init__(self) -> None:
         # Per game: each viewer's queue, its token, and whether it counts as a watcher.
@@ -63,34 +114,63 @@ class LiveHub:
         self._connection: asyncpg.Connection | None = None
         self._lock = asyncio.Lock()
         self._loader: EventLoader | None = None
-        # Ishaara: per game, the queues of its table and clue phones; the loader returns None once
-        # the game is gone.
-        self._games: dict[uuid.UUID, set[asyncio.Queue[LiveMessage]]] = {}
-        self._game_loader: EventLoader | None = None
+        # Server-run games: per game, each follower's queue and viewer, and the game's kind.
+        self._games: dict[uuid.UUID, dict[asyncio.Queue[LiveMessage], Viewer]] = {}
+        self._game_kinds: dict[uuid.UUID, str] = {}
+        self._kinds: dict[str, GameKindHooks] = {}
+        # Per game: each worker's followers per seat, so every worker knows who is present.
+        self._seats: dict[uuid.UUID, dict[str, dict[str, int]]] = {}
+        self._users: dict[uuid.UUID, set[asyncio.Queue[LiveMessage]]] = {}
         self._tasks: set[asyncio.Task[None]] = set()
 
     def set_loader(self, loader: EventLoader) -> None:
         """How to load a game's live event (set by the public API)."""
         self._loader = loader
 
-    def set_game_loader(self, loader: EventLoader) -> None:
-        """How to load an Ishaara game's `state` event (set by the Ishaara API)."""
-        self._game_loader = loader
+    def register_game_kind(self, kind: str, hooks: GameKindHooks) -> None:
+        """Serve a server-run game kind's followers (NOTIFY `kind`) with these hooks."""
+        if kind in RESERVED_KINDS:
+            raise ValueError(f"{kind!r} is a reserved NOTIFY kind")
+        self._kinds[kind] = hooks
 
-    async def subscribe_game(self, game_id: uuid.UUID) -> asyncio.Queue[LiveMessage]:
-        """A queue that receives an Ishaara game's events (no presence, no tokens)."""
+    async def subscribe_game(
+        self, kind: str, game_id: uuid.UUID, viewer: Viewer = None
+    ) -> asyncio.Queue[LiveMessage]:
+        """A queue that receives a server-run game's events, as seen from `viewer`'s seat."""
         await self._ensure_listening()
         queue: asyncio.Queue[LiveMessage] = asyncio.Queue(maxsize=QUEUE_SIZE)
-        self._games.setdefault(game_id, set()).add(queue)
+        self._games.setdefault(game_id, {})[queue] = viewer
+        self._game_kinds[game_id] = kind
+        if viewer is not None:
+            self._spawn(self._publish_seats(game_id))
         return queue
 
     def unsubscribe_game(self, game_id: uuid.UUID, queue: asyncio.Queue[LiveMessage]) -> None:
-        """Forget an Ishaara follower."""
+        """Forget a game's follower."""
         followers = self._games.get(game_id)
-        if followers is not None:
-            followers.discard(queue)
-            if not followers:
-                del self._games[game_id]
+        if followers is None or queue not in followers:
+            return
+        viewer = followers.pop(queue)
+        if not followers:
+            del self._games[game_id]
+            self._game_kinds.pop(game_id, None)
+        if viewer is not None:
+            self._spawn(self._publish_seats(game_id))
+
+    async def subscribe_user(self, user_id: uuid.UUID) -> asyncio.Queue[LiveMessage]:
+        """A queue that receives one user's own events (NOTIFY kind `user`)."""
+        await self._ensure_listening()
+        queue: asyncio.Queue[LiveMessage] = asyncio.Queue(maxsize=QUEUE_SIZE)
+        self._users.setdefault(user_id, set()).add(queue)
+        return queue
+
+    def unsubscribe_user(self, user_id: uuid.UUID, queue: asyncio.Queue[LiveMessage]) -> None:
+        """Forget a user's stream."""
+        queues = self._users.get(user_id)
+        if queues is not None:
+            queues.discard(queue)
+            if not queues:
+                del self._users[user_id]
 
     async def subscribe(
         self, game_id: uuid.UUID, token: str, *, counted: bool = True
@@ -114,30 +194,47 @@ class LiveHub:
                 del self._subscribers[game_id]
             self._spawn(self._publish_presence(game_id))
 
+    def seats_present(self, game_id: uuid.UUID) -> frozenset[str]:
+        """Seats of a game with at least one follower on any worker."""
+        counts = dict(self._seats.get(game_id, {}))
+        counts[self._worker] = self._seats_here(game_id)
+        return frozenset(seat for per in counts.values() for seat, n in per.items() if n > 0)
+
+    def _seats_here(self, game_id: uuid.UUID) -> dict[str, int]:
+        here: dict[str, int] = {}
+        for viewer in self._games.get(game_id, {}).values():
+            if viewer is not None:
+                here[viewer] = here.get(viewer, 0) + 1
+        return here
+
     def _counted(self, game_id: uuid.UUID) -> int:
         return sum(1 for _, counted in self._subscribers.get(game_id, {}).values() if counted)
 
     async def _publish_presence(self, game_id: uuid.UUID) -> None:
         """Tell every worker how many watchers this one has for the game."""
-        payload = json.dumps(
-            {
-                "gameId": str(game_id),
-                "kind": "presence",
-                "data": {"worker": self._worker, "n": self._counted(game_id)},
-            }
-        )
+        data = {"worker": self._worker, "n": self._counted(game_id)}
+        await self._publish({"gameId": str(game_id), "kind": "presence", "data": data})
+
+    async def _publish_seats(self, game_id: uuid.UUID) -> None:
+        """Tell every worker which seats of the game this one has followers for."""
+        data = {"worker": self._worker, "seats": self._seats_here(game_id)}
+        await self._publish({"gameId": str(game_id), "kind": SEAT_PRESENCE, "data": data})
+
+    async def _publish(self, message: dict[str, Any]) -> None:
         connection = self._connection
         if connection is None or connection.is_closed():
             return
         try:
-            await connection.execute("SELECT pg_notify($1, $2)", CHANNEL, payload)
+            await connection.execute("SELECT pg_notify($1, $2)", CHANNEL, json.dumps(message))
         except (asyncpg.PostgresError, OSError):
             logger.warning("live presence not published")
 
     def viewer_count(self) -> int:
         """Viewers connected to this worker."""
-        return sum(len(v) for v in self._subscribers.values()) + sum(
-            len(v) for v in self._games.values()
+        return (
+            sum(len(v) for v in self._subscribers.values())
+            + sum(len(v) for v in self._games.values())
+            + sum(len(v) for v in self._users.values())
         )
 
     async def _ensure_listening(self) -> None:
@@ -153,7 +250,7 @@ class LiveHub:
     def _on_lost(self, _: Any) -> None:
         # Postgres went away: reconnect if anyone is still watching.
         self._connection = None
-        if self._subscribers or self._games:
+        if self._subscribers or self._games or self._users:
             self._spawn(self._ensure_listening())
 
     def _on_notify(self, _conn: Any, _pid: int, _channel: str, payload: str) -> None:
@@ -165,10 +262,44 @@ class LiveHub:
         task.add_done_callback(self._tasks.discard)
 
     async def _dispatch(self, message: dict[str, Any]) -> None:
-        game_id = uuid.UUID(message["gameId"])
-        if message["kind"] == ISHAARA:
-            await self._dispatch_game(game_id, message.get("data") or {})
+        kind = message["kind"]
+        # A user's events carry `userId`, never a game.
+        if kind == USER:
+            self._dispatch_user(message)
             return
+        game_id = uuid.UUID(message["gameId"])
+        data = message.get("data") or {}
+        if kind == SEAT_PRESENCE:
+            self._dispatch_seats(game_id, data)
+            return
+        hooks = self._kinds.get(kind)
+        if hooks is not None:
+            await self._dispatch_game(game_id, hooks, data)
+            return
+        await self._dispatch_link(game_id, message)
+
+    def _dispatch_user(self, message: dict[str, Any]) -> None:
+        queues = self._users.get(uuid.UUID(message["userId"]))
+        if not queues:
+            return
+        live_message = LiveMessage(kind=message["event"], data=json.dumps(message.get("data")))
+        for queue in list(queues):
+            _offer(queue, live_message)
+
+    def _dispatch_seats(self, game_id: uuid.UUID, data: dict[str, Any]) -> None:
+        counts = self._seats.setdefault(game_id, {})
+        seats = data.get("seats") or {}
+        counts[str(data.get("worker"))] = {str(seat): int(n) for seat, n in seats.items()}
+        if not any(n > 0 for per in counts.values() for n in per.values()):
+            del self._seats[game_id]
+        hooks = self._kinds.get(self._game_kinds.get(game_id, ""))
+        if hooks is None or hooks.presence_frame is None:
+            return
+        present = hooks.presence_frame(self.seats_present(game_id))
+        for queue in list(self._games.get(game_id, {})):
+            _offer(queue, LiveMessage(kind=SEAT_PRESENCE, data=present))
+
+    async def _dispatch_link(self, game_id: uuid.UUID, message: dict[str, Any]) -> None:
         viewers = dict(self._subscribers.get(game_id, {}))
         if not viewers and message["kind"] != "presence":
             return
@@ -200,26 +331,33 @@ class LiveHub:
         for queue in viewers:
             _offer(queue, LiveMessage(kind="game", rev=rev, data=data))
 
-    async def _dispatch_game(self, game_id: uuid.UUID, data: dict[str, Any]) -> None:
-        """Load the public state once and copy it, then any `joined`/`ended`, to each follower."""
-        followers = list(self._games.get(game_id, ()))
-        if not followers or self._game_loader is None:
+    async def _dispatch_game(
+        self, game_id: uuid.UUID, hooks: GameKindHooks, data: dict[str, Any]
+    ) -> None:
+        """Load the state once, then send each follower its own frame and any extra events."""
+        followers = dict(self._games.get(game_id, {}))
+        if not followers:
             return
-        loaded = await self._game_loader(game_id)
-        if loaded is None:
-            for queue in followers:
-                _offer(queue, LiveMessage(kind="closed"))
-            return
-        rev, state = loaded
-        messages = [LiveMessage(kind="state", rev=rev, data=state)]
-        messages += [
+        extras = [
             LiveMessage(kind=event, data=json.dumps(data[event]))
-            for event in ("joined", "ended")
+            for event in hooks.events
             if event in data
         ]
-        for queue in followers:
-            for live_message in messages:
-                _offer(queue, live_message)
+        if data.get(STATELESS):
+            _offer_all(followers, extras)
+            return
+        loaded = await hooks.loader(game_id)
+        if loaded is None:
+            _offer_all(followers, [LiveMessage(kind="closed")])
+            return
+        rev, state = loaded
+        frames: dict[Viewer, str] = {}
+        for queue, viewer in followers.items():
+            if viewer not in frames:
+                frames[viewer] = _frame(hooks, state, viewer)
+            _offer(queue, LiveMessage(kind="state", rev=rev, data=frames[viewer]))
+            for extra in extras:
+                _offer(queue, extra)
 
     async def close(self) -> None:
         """Drop the LISTEN connection (shutdown, tests)."""
@@ -229,6 +367,23 @@ class LiveHub:
         self._subscribers.clear()
         self._watchers.clear()
         self._games.clear()
+        self._game_kinds.clear()
+        self._seats.clear()
+        self._users.clear()
+
+
+def _frame(hooks: GameKindHooks, state: Any, viewer: Viewer) -> str:
+    if hooks.frame_for is None:
+        return str(state)
+    return hooks.frame_for(state, viewer)
+
+
+def _offer_all(
+    followers: dict[asyncio.Queue[LiveMessage], Viewer], messages: list[LiveMessage]
+) -> None:
+    for queue in followers:
+        for message in messages:
+            _offer(queue, message)
 
 
 def _offer(queue: asyncio.Queue[LiveMessage], message: LiveMessage) -> None:
