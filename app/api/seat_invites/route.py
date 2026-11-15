@@ -1,17 +1,21 @@
-"""Seat invites and the circle they go to.
+"""Seat invites, the circle they go to, and the per-user live stream that delivers them.
 
 Each game kind creates its own invites (`POST /api/<game>/.../seat-invites`); these routes read,
 answer and cancel them for every kind.
 """
 
 import uuid
+from functools import partial
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, Depends, Header, Path
+from fastapi.responses import StreamingResponse
 
 from app.api.deps import CurrentAuth, get_seat_invites_service
+from app.live.hub import hub
+from app.live.sse import user_stream
 from app.schemas.seat_invites import CircleOut, SeatInviteOut, SeatInvitesOut
-from app.services.seat_invites import SeatInvitesService
+from app.services.seat_invites import SeatInvitesService, stamp_seen, stream_hello
 
 _InvitesDep = Annotated[SeatInvitesService, Depends(get_seat_invites_service)]
 _InviteId = Annotated[uuid.UUID, Path(description="Seat invite id")]
@@ -27,6 +31,32 @@ async def get_my_circle(ctx: CurrentAuth, service: _InvitesDep) -> CircleOut:
     "Online" is `serverNow - lastSeenAt < 60000`, decided by the app.
     """
     return await service.circle(ctx.user)
+
+
+@me_circle_router.get("/events", response_model=None, response_class=StreamingResponse)
+async def my_events(
+    ctx: CurrentAuth,
+    last_event_id: Annotated[
+        str | None, Header(alias="Last-Event-ID", description="Accepted; nothing is replayed")
+    ] = None,
+) -> StreamingResponse:
+    """SSE for me: `hello {serverNow}`, `seat-invite`, `seat-invite-gone`, `seat-invite-update`,
+    and `ping` every 25 s. Opening and each ping mark me seen (`lastSeenAt`).
+
+    After a reconnect the app re-reads `GET /api/seat-invites`.
+    """
+    queue = await hub.subscribe_user(ctx.user.id)
+    try:
+        # Own short session: a stream can last an hour and must not hold a pooled connection.
+        hello = await stream_hello(ctx.user.id)
+    except BaseException:
+        hub.unsubscribe_user(ctx.user.id, queue)
+        raise
+    return StreamingResponse(
+        user_stream(ctx.user.id, queue, hello, partial(stamp_seen, ctx.user.id)),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 @seat_invites_router.get("", response_model=SeatInvitesOut)

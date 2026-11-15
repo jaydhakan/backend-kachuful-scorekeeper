@@ -6,12 +6,14 @@ lifecycle change NOTIFYs the invitee (`seat-invite`, `seat-invite-gone`) and the
 `SEAT_INVITE_KINDS` (see `services/seat_invite_kinds.py`) and calling `create` from its route.
 """
 
+import json
 import uuid
 from datetime import datetime, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import SeatInvite, User
+from app.db.session import get_session_factory
 from app.domain.time import now_utc, to_ms, to_ms_or_none
 from app.exceptions import ApiError, ErrorCode
 from app.live.hub import notify_user
@@ -106,6 +108,20 @@ def staleness(view: InviteView, now: datetime) -> Staleness | None:
     if now - view.invite.created_at > INVITE_TTL:
         return Staleness.EXPIRED
     return SEAT_INVITE_KINDS[view.invite.kind].stale(view.game, view.invite)
+
+
+async def stamp_seen(user_id: uuid.UUID) -> int:
+    """Mark a user seen now in its own short session (stream open and pings); now in epoch ms."""
+    now = now_utc()
+    async with get_session_factory()() as session:
+        await users_repository.touch_last_seen(session, user_id, now)
+        await session.commit()
+    return to_ms(now)
+
+
+async def stream_hello(user_id: uuid.UUID) -> str:
+    """The user stream's `hello` frame data, after marking the user seen."""
+    return json.dumps({"serverNow": await stamp_seen(user_id)})
 
 
 class SeatInvitesService:
