@@ -199,6 +199,8 @@ class Player(Base):
             postgresql_using="gin",
             postgresql_ops={"name_key": "gin_trgm_ops"},
         ),
+        # The server's circle of a user starts from the players they created.
+        Index("ix_players_created_by", "created_by"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
@@ -815,3 +817,36 @@ class SeatClaim(Base):
     )
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     decided_at: Mapped[datetime | None]
+
+
+class SeatInvite(Base):
+    """A host invites a signed-in person to a seat of a server-run game.
+
+    Expiry is worked out on read; a stored `pending` row may already count as expired.
+    """
+
+    __tablename__ = "seat_invites"
+    __table_args__ = (
+        CheckConstraint("kind IN ('ishaara', 'spades-online')", name="kind"),
+        CheckConstraint(
+            "status IN ('pending', 'accepted', 'declined', 'cancelled', 'expired')", name="status"
+        ),
+        Index(
+            "uq_seat_invites_pending",
+            "game_id",
+            "to_user",
+            unique=True,
+            postgresql_where=text("status = 'pending'"),
+        ),
+        Index("ix_seat_invites_to_user_status", "to_user", "status"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, server_default=func.gen_random_uuid())
+    kind: Mapped[str] = mapped_column(Text)
+    game_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("games.id", ondelete="CASCADE"))
+    seat: Mapped[str] = mapped_column(Text)
+    from_user: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    to_user: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    status: Mapped[str] = mapped_column(Text, server_default="pending")
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    responded_at: Mapped[datetime | None]

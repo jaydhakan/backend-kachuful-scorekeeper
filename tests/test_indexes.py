@@ -165,6 +165,16 @@ CASES = [
         "ix_share_links_game_id_kind_active",
         f"SELECT token FROM share_links WHERE game_id = '{ID}' AND kind = 'live' AND revoked_at IS NULL",
     ),
+    ("ix_players_created_by", f"SELECT id FROM players WHERE created_by = '{ID}'"),
+    (
+        "ix_seat_invites_to_user_status",
+        f"SELECT id FROM seat_invites WHERE to_user = '{ID}' AND status = 'pending' "
+        "AND created_at >= now() - interval '30 minutes'",
+    ),
+    (
+        "uq_seat_invites_pending",
+        f"SELECT id FROM seat_invites WHERE game_id = '{ID}' AND status = 'pending'",
+    ),
 ]
 
 
