@@ -25,6 +25,7 @@ from app.services.links import LinksService
 from app.services.merge import MergeService
 from app.services.owned_games import MyDataService
 from app.services.players import PlayersService
+from app.services.seat_invites import SeatInvitesService
 
 
 async def get_session() -> AsyncIterator[AsyncSession]:
@@ -160,3 +161,8 @@ def get_ishaara_rematch_service(session: SessionDep) -> IshaaraRematchService:
 def get_ishaara_boards_service(session: SessionDep) -> IshaaraBoardsService:
     """IshaaraBoardsService for a request."""
     return IshaaraBoardsService(session)
+
+
+def get_seat_invites_service(session: SessionDep) -> SeatInvitesService:
+    """SeatInvitesService for a request."""
+    return SeatInvitesService(session)

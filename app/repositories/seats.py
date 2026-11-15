@@ -46,6 +46,13 @@ def seat_rows(name: str = "seats") -> Subquery:
     return union_all(*(_seat_select(seats) for seats in SEAT_TABLES)).subquery(name)
 
 
+def seat_pairs(name: str = "pairs") -> Subquery:
+    """Every kind's seats as (game_id, player_id) only: each branch reads one indexed table."""
+    return union_all(
+        *(select(s.table.c.game_id, s.table.c.player_id) for s in SEAT_TABLES)
+    ).subquery(name)
+
+
 def _seat_select(seats: SeatTable) -> Select[Any]:
     t = seats.table
     if seats.own_last_done_at:

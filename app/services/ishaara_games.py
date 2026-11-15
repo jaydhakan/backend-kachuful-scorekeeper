@@ -38,6 +38,7 @@ from app.schemas.ishaara import (
     IshaaraSummaryOut,
 )
 from app.services.games import resolve_players
+from app.services.ishaara_seat_invites import clue_seat
 from app.services.ishaara_state import (
     Access,
     abandoned,
@@ -52,6 +53,7 @@ from app.services.ishaara_state import (
     seat_ids,
 )
 from app.services.pagination import decode_cursor, encode_cursor
+from app.services.seat_invites import SeatInvitesService
 from app.settings import settings
 
 logger = get_logger(__name__)
@@ -216,6 +218,7 @@ class IshaaraGamesService:
         state = await self.start(
             game_id=body.id, seats=seats, words=body.words, rules=rules, owner=user
         )
+        await self._invite_clue_givers(body.id, user)
         await self.session.commit()
         logger.info("ishaara game created", extra={"game_id": str(body.id)})
         team = next(
@@ -227,6 +230,18 @@ class IshaaraGamesService:
             None,
         )
         return game_out(state, Access(host=True, team=team, member=True)), True
+
+    async def _invite_clue_givers(self, game_id: uuid.UUID, host: User) -> None:
+        """A seat invite (a notification) to each clue-giver account that isn't the host."""
+        roles = await ishaara_repository.roles(self.session, game_id)
+        seats = [
+            (clue_seat(r.team), r.user_id)
+            for r in roles
+            if r.role == CLUE_GIVER and r.user_id is not None
+        ]
+        await SeatInvitesService(self.session).invite_seats(
+            kind=KIND, game_id=game_id, host=host, seats=seats
+        )
 
     async def get(self, game_id: uuid.UUID, user: User) -> IshaaraGameOut:
         """`GET /games/{id}`: members and the admin."""
@@ -252,6 +267,7 @@ class IshaaraGamesService:
         joined = join(row.payload, access.team, to_ms(now_utc()))
         if joined is not row.payload:
             await self.save_state(row, joined, {"joined": {"team": access.team}})
+            await SeatInvitesService(self.session).accept_joined(game_id, user.id)
             await self.session.commit()
             logger.info("ishaara clue-giver joined", extra={"game_id": str(game_id)})
         return IshaaraKeyOut.model_validate({"key": key, "team": access.team})
@@ -329,6 +345,7 @@ class IshaaraGamesService:
             )
         await derived_repository.refresh_player_counters(self.session, players)
         await app_state_repository.bump(self.session)
+        await SeatInvitesService(self.session).expire_for_game(game_id)
 
     async def list_page(
         self,
@@ -383,6 +400,7 @@ class IshaaraGamesService:
         await ishaara_derived_repository.rebuild_player_days(self.session, pairs, settings.APP_TZ)
         await derived_repository.refresh_player_counters(self.session, players)
         await app_state_repository.bump(self.session)
+        await SeatInvitesService(self.session).expire_for_game(game_id)
         await notify(self.session, game_id, ISHAARA)
         await self.session.commit()
         logger.info("ishaara game deleted", extra={"game_id": str(game_id)})

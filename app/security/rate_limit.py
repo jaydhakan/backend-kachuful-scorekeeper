@@ -27,6 +27,8 @@ PLAYER_CHECK = Limit("check", 60, 60)
 # Ishaara: actions per game, creates per user.
 ISHAARA_ACTION = Limit("ishaara-action", 60, 60)
 ISHAARA_CREATE = Limit("ishaara-create", 20, 3600)
+# Seat invites a host sends, per user.
+SEAT_INVITE_CREATE = Limit("seat-invite-create", 30, 3600)
 
 
 async def enforce(limit: Limit, key: str) -> None:

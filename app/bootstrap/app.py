@@ -14,6 +14,7 @@ from app.api.kaali_teeri import kaali_teeri_router
 from app.api.pages import pages_router
 from app.api.players import players_router
 from app.api.public import public_router
+from app.api.seat_invites import me_circle_router, seat_invites_router
 from app.bootstrap.lifespan import lifespan
 from app.bootstrap.middleware import AccessLogMiddleware, BodySizeLimitMiddleware
 from app.exceptions import register_exception_handlers
@@ -49,6 +50,8 @@ def create_app() -> FastAPI:
         kaali_teeri_router,
         ishaara_router,
         claims_router,
+        seat_invites_router,
+        me_circle_router,
         boards_router,
         public_router,
     ):
