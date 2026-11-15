@@ -107,11 +107,15 @@ def _min_bid_ok(min_bid: Any, step: Any, decks: int) -> bool:
 
 
 def rules_ok(r: KtRules, n: int) -> bool:
-    """Whether a game's rules fit its table; the minimum sits on the step, so 250/500 is biddable."""
+    """Whether a game's rules fit its table; the minimum sits on the step, so 250/500 is biddable.
+
+    The table picks its partner count, from 1 up to everyone but the bidder and one defender.
+    """
     decks = decks_for(n)
     return (
         same(r.decks, decks)
-        and same(r.partners, partners_for(n))
+        and is_int(r.partners)
+        and 1 <= r.partners <= n - 2
         and includes(STEPS, r.step)
         and _min_bid_ok(r.min_bid, r.step, decks)
         and includes(LENGTHS, r.length)

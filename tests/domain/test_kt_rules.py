@@ -1,13 +1,20 @@
 """Kaali Teeri rules from plan §2 that the fixtures don't pin one by one."""
 
 import copy
+from typing import Any
 
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
 from app.domain.kaali_teeri.auction import auction
-from app.domain.kaali_teeri.cards import cards_each, default_rules, partners_for, removed_cards
+from app.domain.kaali_teeri.cards import (
+    cards_each,
+    default_rules,
+    partners_for,
+    removed_cards,
+    rules_ok,
+)
 from app.domain.kaali_teeri.game import MISSING, KtCall, KtHand, KtRules, kt_game_from_payload
 from app.domain.kaali_teeri.scoring import hand_score
 from app.domain.kaali_teeri.validate import KtInvalidReason, validate
@@ -108,3 +115,50 @@ def test_validation_names_a_reason_instead_of_raising(field: str, value: object,
     found = validate(kt_game_from_payload(game), KT_NOW)
 
     assert found is None or found.reason in set(KtInvalidReason)
+
+
+def _rules_with(n: int, partners: object) -> KtRules:
+    r = default_rules(n)
+    return KtRules(
+        decks=r.decks, partners=partners, min_bid=r.min_bid, step=r.step, length=r.length
+    )
+
+
+@pytest.mark.parametrize("n", range(4, 11))
+def test_the_table_calls_from_one_partner_up_to_all_but_two_players(n: int) -> None:
+    assert rules_ok(_rules_with(n, 1), n)
+    assert rules_ok(_rules_with(n, n - 2), n)
+
+
+@pytest.mark.parametrize("partners", [0, -1, 1.5, True, False, "1", None])
+def test_a_partner_count_that_is_not_a_whole_number_in_range_is_refused(partners: object) -> None:
+    assert not rules_ok(_rules_with(6, partners), 6)
+    assert not rules_ok(_rules_with(6, 5), 6)
+
+
+def _with_partners(name: str, partners: int, called: list[dict[str, str]], seats: list[str]) -> Any:
+    game = copy.deepcopy(load(name)["game"])
+    game["rules"]["partners"] = partners
+    for hand in game["hands"]:
+        hand["called"] = copy.deepcopy(called)
+        hand["playedBy"] = list(seats)
+    return game
+
+
+ACE, KING = {"rank": "A", "suit": "spades"}, {"rank": "K", "suit": "spades"}
+
+
+def test_a_six_player_game_calling_one_partner_takes_exactly_one_card() -> None:
+    one = _with_partners("kt-6p", 1, [ACE], ["p1"])
+    two = _with_partners("kt-6p", 1, [ACE, KING], ["p1", "p2"])
+
+    assert validate(kt_game_from_payload(one), KT_NOW) is None
+    found = validate(kt_game_from_payload(two), KT_NOW)
+    assert found is not None
+    assert (found.reason, found.hand_index) == (KtInvalidReason.CALLED, 0)
+
+
+def test_a_four_player_game_calling_two_partners_takes_two_cards() -> None:
+    two = _with_partners("kt-4p", 2, [ACE, KING], ["p1", "p2"])
+
+    assert validate(kt_game_from_payload(two), KT_NOW) is None

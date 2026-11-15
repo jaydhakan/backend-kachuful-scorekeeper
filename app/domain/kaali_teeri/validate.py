@@ -135,12 +135,12 @@ def _trump_bad(hand: KtHand, at: int) -> bool:
     return not includes(SUITS, hand.trump)
 
 
-def _called_bad(hand: KtHand, at: int, n: int) -> bool:
+def _called_bad(hand: KtHand, at: int, n: int, partners: int) -> bool:
     if at < CALLING:
         return len(hand.called) > 0
     if at == CALLING:
-        return not all(can_add(c, hand.called[:k], n) for k, c in enumerate(hand.called))
-    return not valid_called(hand.called, n)
+        return not all(can_add(c, hand.called[:k], n, partners) for k, c in enumerate(hand.called))
+    return not valid_called(hand.called, n, partners)
 
 
 def _points_bad(hand: KtHand, at: int, r: KtRules) -> bool:
@@ -164,7 +164,8 @@ def _hand_problem(game: KtGame, hand: KtHand, i: int, ids: Sequence[str]) -> KtI
         return KtInvalidReason.BID
     if _trump_bad(hand, at):
         return KtInvalidReason.TRUMP
-    if _called_bad(hand, at, n):
+    # rules_ok has passed, so partners is a whole number (2.0 counts, as in JS).
+    if _called_bad(hand, at, n, int(r.partners)):
         return KtInvalidReason.CALLED
     if not valid_played_by(hand, ids) or (at == DONE and any(p is None for p in hand.played_by)):
         return KtInvalidReason.PLAYED_BY

@@ -2,7 +2,7 @@
 
 from collections.abc import Sequence
 
-from app.domain.kaali_teeri.cards import RANKS, SUITS, copies_in_play, partners_for, same_card
+from app.domain.kaali_teeri.cards import RANKS, SUITS, copies_in_play, same_card
 from app.domain.kaali_teeri.game import MISSING, KtCard, KtHand, includes, same
 
 COPIES = (1, 2, "other")
@@ -29,19 +29,17 @@ def _clash(a: KtCard, b: KtCard) -> bool:
     )
 
 
-def can_add(card: KtCard, called: Sequence[KtCard], n: int) -> bool:
+def can_add(card: KtCard, called: Sequence[KtCard], n: int, partners: int) -> bool:
     """In play, marked right, no clash, and a partner left to call."""
     return (
-        len(called) < partners_for(n)
-        and _callable(card, n)
-        and not any(_clash(c, card) for c in called)
+        len(called) < partners and _callable(card, n) and not any(_clash(c, card) for c in called)
     )
 
 
-def valid_called(called: Sequence[KtCard], n: int) -> bool:
+def valid_called(called: Sequence[KtCard], n: int, partners: int) -> bool:
     """Exactly one card per partner, each addable in turn."""
-    return len(called) == partners_for(n) and all(
-        can_add(c, called[:i], n) for i, c in enumerate(called)
+    return len(called) == partners and all(
+        can_add(c, called[:i], n, partners) for i, c in enumerate(called)
     )
 
 
