@@ -2465,16 +2465,265 @@
       "ui": {
         "view": "hand"
       }
+    },
+    {
+      "kind": "kaali-teeri",
+      "schemaVersion": 1,
+      "id": "kt-40000000-0000-4000-8000-000000000032",
+      "syncId": "40000000-0000-4000-8000-000000000032",
+      "rev": 1,
+      "createdAt": 1796304600000,
+      "updatedAt": 1796305260000,
+      "finishedAt": 1796305260000,
+      "players": [
+        {
+          "id": "p0",
+          "playerId": "ana",
+          "name": "ana",
+          "emoji": "🙂",
+          "color": "#f87171"
+        },
+        {
+          "id": "p1",
+          "playerId": "ben",
+          "name": "ben",
+          "emoji": "🙂",
+          "color": "#60a5fa"
+        },
+        {
+          "id": "p2",
+          "playerId": "cy",
+          "name": "cy",
+          "emoji": "🙂",
+          "color": "#34d399"
+        },
+        {
+          "id": "p3",
+          "playerId": "dee",
+          "name": "dee",
+          "emoji": "🙂",
+          "color": "#fbbf24"
+        },
+        {
+          "id": "p4",
+          "playerId": "eli",
+          "name": "eli",
+          "emoji": "🙂",
+          "color": "#a78bfa"
+        },
+        {
+          "id": "p5",
+          "playerId": "fay",
+          "name": "fay",
+          "emoji": "🙂",
+          "color": "#f472b6"
+        }
+      ],
+      "firstDealerIndex": 0,
+      "direction": "cw",
+      "rules": {
+        "decks": 1,
+        "partners": 1,
+        "minBid": 150,
+        "step": 5,
+        "length": "endless"
+      },
+      "hands": [
+        {
+          "index": 0,
+          "dealerIndex": 0,
+          "phase": "done",
+          "mode": "quick",
+          "calls": [],
+          "bidder": "p1",
+          "bid": 170,
+          "trump": "hearts",
+          "called": [
+            {
+              "rank": "A",
+              "suit": "spades"
+            }
+          ],
+          "playedBy": [
+            "p2"
+          ],
+          "teamPoints": 180,
+          "countedBy": "defenders",
+          "doneAt": 1796304900000
+        },
+        {
+          "index": 1,
+          "dealerIndex": 1,
+          "phase": "done",
+          "mode": "quick",
+          "calls": [],
+          "bidder": "p4",
+          "bid": 160,
+          "trump": "hearts",
+          "called": [
+            {
+              "rank": "A",
+              "suit": "spades"
+            }
+          ],
+          "playedBy": [
+            "p4"
+          ],
+          "teamPoints": 120,
+          "countedBy": "defenders",
+          "doneAt": 1796305200000
+        }
+      ],
+      "status": "finished",
+      "ui": {
+        "view": "hand"
+      }
+    },
+    {
+      "kind": "kaali-teeri",
+      "schemaVersion": 1,
+      "id": "kt-40000000-0000-4000-8000-000000000033",
+      "syncId": "40000000-0000-4000-8000-000000000033",
+      "rev": 1,
+      "createdAt": 1796391000000,
+      "updatedAt": 1796391360000,
+      "finishedAt": 1796391360000,
+      "players": [
+        {
+          "id": "p0",
+          "playerId": "ana",
+          "name": "ana",
+          "emoji": "🙂",
+          "color": "#f87171"
+        },
+        {
+          "id": "p1",
+          "playerId": "ben",
+          "name": "ben",
+          "emoji": "🙂",
+          "color": "#60a5fa"
+        },
+        {
+          "id": "p2",
+          "playerId": "cy",
+          "name": "cy",
+          "emoji": "🙂",
+          "color": "#34d399"
+        },
+        {
+          "id": "p3",
+          "playerId": "dee",
+          "name": "dee",
+          "emoji": "🙂",
+          "color": "#fbbf24"
+        },
+        {
+          "id": "p4",
+          "playerId": "eli",
+          "name": "eli",
+          "emoji": "🙂",
+          "color": "#a78bfa"
+        },
+        {
+          "id": "p5",
+          "playerId": "fay",
+          "name": "fay",
+          "emoji": "🙂",
+          "color": "#f472b6"
+        },
+        {
+          "id": "p6",
+          "playerId": "gus",
+          "name": "gus",
+          "emoji": "🙂",
+          "color": "#22d3ee"
+        },
+        {
+          "id": "p7",
+          "playerId": "hal",
+          "name": "hal",
+          "emoji": "🙂",
+          "color": "#f87171"
+        }
+      ],
+      "firstDealerIndex": 0,
+      "direction": "cw",
+      "rules": {
+        "decks": 2,
+        "partners": 6,
+        "minBid": 350,
+        "step": 5,
+        "length": "endless"
+      },
+      "hands": [
+        {
+          "index": 0,
+          "dealerIndex": 0,
+          "phase": "done",
+          "mode": "quick",
+          "calls": [],
+          "bidder": "p2",
+          "bid": 360,
+          "trump": "hearts",
+          "called": [
+            {
+              "rank": "A",
+              "suit": "hearts",
+              "copy": 1
+            },
+            {
+              "rank": "K",
+              "suit": "hearts",
+              "copy": 1
+            },
+            {
+              "rank": "Q",
+              "suit": "hearts",
+              "copy": 1
+            },
+            {
+              "rank": "J",
+              "suit": "hearts",
+              "copy": 1
+            },
+            {
+              "rank": "10",
+              "suit": "hearts",
+              "copy": 1
+            },
+            {
+              "rank": "5",
+              "suit": "hearts",
+              "copy": 1
+            }
+          ],
+          "playedBy": [
+            "p3",
+            "p2",
+            "p5",
+            "p6",
+            "p7",
+            "p0"
+          ],
+          "teamPoints": 380,
+          "countedBy": "defenders",
+          "doneAt": 1796391300000
+        }
+      ],
+      "status": "finished",
+      "ui": {
+        "view": "hand"
+      }
     }
   ],
   "expect": {
     "players": {
       "ana": {
-        "games": 20,
+        "games": 22,
         "wins": 10,
-        "winRate": 0.5263157894736842,
-        "avgPlace": 2.263157894736842,
-        "points": 6500,
+        "winRate": 0.47619047619047616,
+        "avgPlace": 2.2857142857142856,
+        "points": 7020,
         "bestGame": {
           "gameId": "40000000-0000-4000-8000-000000000020",
           "points": 1130
@@ -2486,9 +2735,9 @@
         "highestMade": 360,
         "handsLost": 2,
         "sweeps": 2,
-        "timesPartner": 9,
-        "partnerMade": 7,
-        "partnerWinRate": 0.7777777777777778,
+        "timesPartner": 10,
+        "partnerMade": 8,
+        "partnerWinRate": 0.8,
         "doubleSlots": 2,
         "mostPartner": {
           "playerId": "ben",
@@ -2501,19 +2750,19 @@
         }
       },
       "ben": {
-        "games": 20,
-        "wins": 4,
-        "winRate": 0.21052631578947367,
-        "avgPlace": 3.263157894736842,
-        "points": 4215,
+        "games": 22,
+        "wins": 5,
+        "winRate": 0.23809523809523808,
+        "avgPlace": 3.3333333333333335,
+        "points": 4545,
         "bestGame": {
           "gameId": "40000000-0000-4000-8000-000000000020",
           "points": 1130
         },
-        "handsBid": 6,
-        "bidsMade": 3,
-        "madeRate": 0.5,
-        "avgBid": 168.33333333333334,
+        "handsBid": 7,
+        "bidsMade": 4,
+        "madeRate": 0.5714285714285714,
+        "avgBid": 168.57142857142858,
         "highestMade": 180,
         "handsLost": 3,
         "sweeps": 1,
@@ -2527,47 +2776,47 @@
           "made": 12
         },
         "madeStreak": {
-          "current": 1,
-          "best": 1
+          "current": 2,
+          "best": 2
         }
       },
       "cy": {
-        "games": 20,
-        "wins": 4,
-        "winRate": 0.21052631578947367,
-        "avgPlace": 3.1052631578947367,
-        "points": 3625,
+        "games": 22,
+        "wins": 6,
+        "winRate": 0.2857142857142857,
+        "avgPlace": 2.9047619047619047,
+        "points": 4675,
         "bestGame": {
-          "gameId": "40000000-0000-4000-8000-000000000002",
-          "points": 360
+          "gameId": "40000000-0000-4000-8000-000000000033",
+          "points": 720
         },
-        "handsBid": 7,
-        "bidsMade": 5,
-        "madeRate": 0.7142857142857143,
-        "avgBid": 172.85714285714286,
-        "highestMade": 190,
+        "handsBid": 8,
+        "bidsMade": 6,
+        "madeRate": 0.75,
+        "avgBid": 196.25,
+        "highestMade": 360,
         "handsLost": 2,
         "sweeps": 1,
-        "timesPartner": 12,
-        "partnerMade": 7,
-        "partnerWinRate": 0.5833333333333334,
-        "doubleSlots": 1,
+        "timesPartner": 13,
+        "partnerMade": 8,
+        "partnerWinRate": 0.6153846153846154,
+        "doubleSlots": 2,
         "mostPartner": {
           "playerId": "ben",
-          "hands": 10,
-          "made": 6
+          "hands": 11,
+          "made": 7
         },
         "madeStreak": {
-          "current": 1,
+          "current": 2,
           "best": 4
         }
       },
       "dee": {
-        "games": 20,
+        "games": 22,
         "wins": 7,
-        "winRate": 0.3684210526315789,
-        "avgPlace": 2.6315789473684212,
-        "points": 3805,
+        "winRate": 0.3333333333333333,
+        "avgPlace": 2.619047619047619,
+        "points": 4325,
         "bestGame": {
           "gameId": "40000000-0000-4000-8000-000000000006",
           "points": 800
@@ -2579,14 +2828,14 @@
         "highestMade": 450,
         "handsLost": 2,
         "sweeps": 3,
-        "timesPartner": 10,
-        "partnerMade": 6,
-        "partnerWinRate": 0.6,
+        "timesPartner": 11,
+        "partnerMade": 7,
+        "partnerWinRate": 0.6363636363636364,
         "doubleSlots": 1,
         "mostPartner": {
           "playerId": "cy",
-          "hands": 7,
-          "made": 4
+          "hands": 8,
+          "made": 5
         },
         "madeStreak": {
           "current": 0,
@@ -2594,42 +2843,42 @@
         }
       },
       "eli": {
-        "games": 12,
+        "games": 14,
         "wins": 4,
-        "winRate": 0.36363636363636365,
-        "avgPlace": 2.6363636363636362,
+        "winRate": 0.3076923076923077,
+        "avgPlace": 3.230769230769231,
         "points": 2740,
         "bestGame": {
           "gameId": "40000000-0000-4000-8000-000000000005",
           "points": 755
         },
-        "handsBid": 3,
+        "handsBid": 4,
         "bidsMade": 3,
-        "madeRate": 1,
-        "avgBid": 226.66666666666666,
+        "madeRate": 0.75,
+        "avgBid": 210,
         "highestMade": 355,
-        "handsLost": 0,
+        "handsLost": 1,
         "sweeps": 1,
         "timesPartner": 3,
         "partnerMade": 2,
         "partnerWinRate": 0.6666666666666666,
-        "doubleSlots": 0,
+        "doubleSlots": 1,
         "mostPartner": {
           "playerId": "ana",
           "hands": 3,
           "made": 3
         },
         "madeStreak": {
-          "current": 3,
+          "current": 0,
           "best": 3
         }
       },
       "fay": {
-        "games": 10,
+        "games": 12,
         "wins": 3,
-        "winRate": 0.3333333333333333,
-        "avgPlace": 2.3333333333333335,
-        "points": 2440,
+        "winRate": 0.2727272727272727,
+        "avgPlace": 2.3636363636363638,
+        "points": 2960,
         "bestGame": {
           "gameId": "40000000-0000-4000-8000-000000000017",
           "points": 500
@@ -2641,14 +2890,14 @@
         "highestMade": 150,
         "handsLost": 0,
         "sweeps": 1,
-        "timesPartner": 3,
-        "partnerMade": 2,
-        "partnerWinRate": 0.6666666666666666,
+        "timesPartner": 4,
+        "partnerMade": 3,
+        "partnerWinRate": 0.75,
         "doubleSlots": 0,
         "mostPartner": {
           "playerId": "ana",
-          "hands": 2,
-          "made": 2
+          "hands": 3,
+          "made": 3
         },
         "madeStreak": {
           "current": 1,
@@ -2656,11 +2905,11 @@
         }
       },
       "gus": {
-        "games": 5,
+        "games": 6,
         "wins": 2,
-        "winRate": 0.4,
-        "avgPlace": 2.6,
-        "points": 1710,
+        "winRate": 0.3333333333333333,
+        "avgPlace": 2.5,
+        "points": 2070,
         "bestGame": {
           "gameId": "40000000-0000-4000-8000-000000000017",
           "points": 500
@@ -2672,14 +2921,14 @@
         "highestMade": null,
         "handsLost": 1,
         "sweeps": 1,
-        "timesPartner": 2,
-        "partnerMade": 2,
+        "timesPartner": 3,
+        "partnerMade": 3,
         "partnerWinRate": 1,
         "doubleSlots": 0,
         "mostPartner": {
           "playerId": "fay",
-          "hands": 2,
-          "made": 2
+          "hands": 3,
+          "made": 3
         },
         "madeStreak": {
           "current": 0,
@@ -2687,11 +2936,11 @@
         }
       },
       "hal": {
-        "games": 3,
+        "games": 4,
         "wins": 1,
-        "winRate": 0.3333333333333333,
-        "avgPlace": 2.6666666666666665,
-        "points": 1205,
+        "winRate": 0.25,
+        "avgPlace": 2.5,
+        "points": 1565,
         "bestGame": {
           "gameId": "40000000-0000-4000-8000-000000000005",
           "points": 755
@@ -2703,12 +2952,12 @@
         "highestMade": null,
         "handsLost": 0,
         "sweeps": 0,
-        "timesPartner": 2,
-        "partnerMade": 2,
+        "timesPartner": 3,
+        "partnerMade": 3,
         "partnerWinRate": 1,
         "doubleSlots": 0,
         "mostPartner": {
-          "playerId": "eli",
+          "playerId": "ana",
           "hands": 2,
           "made": 2
         },
@@ -2784,26 +3033,26 @@
       {
         "a": "ana",
         "b": "ben",
-        "games": 20,
-        "aAhead": 10,
-        "bAhead": 3,
+        "games": 22,
+        "aAhead": 11,
+        "bAhead": 4,
         "level": 6,
         "together": 15,
         "togetherMade": 12,
         "aBidAgainstB": 4,
         "aMadeAgainstB": 4,
-        "bBidAgainstA": 6,
-        "bMadeAgainstA": 3
+        "bBidAgainstA": 7,
+        "bMadeAgainstA": 4
       },
       {
         "a": "ana",
         "b": "cy",
-        "games": 20,
+        "games": 22,
         "aAhead": 11,
-        "bAhead": 3,
+        "bAhead": 5,
         "level": 5,
-        "together": 7,
-        "togetherMade": 5,
+        "together": 8,
+        "togetherMade": 6,
         "aBidAgainstB": 12,
         "aMadeAgainstB": 11,
         "bBidAgainstA": 6,
@@ -2812,12 +3061,12 @@
       {
         "a": "ana",
         "b": "dee",
-        "games": 20,
+        "games": 22,
         "aAhead": 10,
         "bAhead": 7,
-        "level": 2,
-        "together": 5,
-        "togetherMade": 4,
+        "level": 4,
+        "together": 6,
+        "togetherMade": 5,
         "aBidAgainstB": 14,
         "aMadeAgainstB": 12,
         "bBidAgainstA": 2,
@@ -2826,26 +3075,26 @@
       {
         "a": "ana",
         "b": "eli",
-        "games": 12,
-        "aAhead": 6,
+        "games": 14,
+        "aAhead": 8,
         "bAhead": 3,
         "level": 2,
         "together": 3,
         "togetherMade": 3,
         "aBidAgainstB": 7,
         "aMadeAgainstB": 6,
-        "bBidAgainstA": 0,
+        "bBidAgainstA": 1,
         "bMadeAgainstA": 0
       },
       {
         "a": "ana",
         "b": "fay",
-        "games": 10,
+        "games": 12,
         "aAhead": 4,
         "bAhead": 3,
-        "level": 2,
-        "together": 2,
-        "togetherMade": 2,
+        "level": 4,
+        "together": 3,
+        "togetherMade": 3,
         "aBidAgainstB": 6,
         "aMadeAgainstB": 5,
         "bBidAgainstA": 0,
@@ -2854,12 +3103,12 @@
       {
         "a": "ana",
         "b": "gus",
-        "games": 5,
+        "games": 6,
         "aAhead": 1,
         "bAhead": 3,
-        "level": 1,
-        "together": 1,
-        "togetherMade": 1,
+        "level": 2,
+        "together": 2,
+        "togetherMade": 2,
         "aBidAgainstB": 2,
         "aMadeAgainstB": 1,
         "bBidAgainstA": 1,
@@ -2868,12 +3117,12 @@
       {
         "a": "ana",
         "b": "hal",
-        "games": 3,
+        "games": 4,
         "aAhead": 1,
         "bAhead": 2,
-        "level": 0,
-        "together": 1,
-        "togetherMade": 1,
+        "level": 1,
+        "together": 2,
+        "togetherMade": 2,
         "aBidAgainstB": 1,
         "aMadeAgainstB": 1,
         "bBidAgainstA": 0,
@@ -2910,65 +3159,65 @@
       {
         "a": "ben",
         "b": "cy",
-        "games": 20,
+        "games": 22,
         "aAhead": 5,
-        "bAhead": 6,
-        "level": 8,
-        "together": 10,
-        "togetherMade": 6,
+        "bAhead": 7,
+        "level": 9,
+        "together": 11,
+        "togetherMade": 7,
         "aBidAgainstB": 1,
         "aMadeAgainstB": 0,
-        "bBidAgainstA": 7,
-        "bMadeAgainstA": 5
+        "bBidAgainstA": 8,
+        "bMadeAgainstA": 6
       },
       {
         "a": "ben",
         "b": "dee",
-        "games": 20,
-        "aAhead": 6,
-        "bAhead": 8,
+        "games": 22,
+        "aAhead": 7,
+        "bAhead": 9,
         "level": 5,
         "together": 4,
         "togetherMade": 1,
-        "aBidAgainstB": 4,
-        "aMadeAgainstB": 3,
+        "aBidAgainstB": 5,
+        "aMadeAgainstB": 4,
         "bBidAgainstA": 3,
         "bMadeAgainstA": 2
       },
       {
         "a": "ben",
         "b": "eli",
-        "games": 12,
-        "aAhead": 1,
+        "games": 14,
+        "aAhead": 2,
         "bAhead": 7,
-        "level": 3,
+        "level": 4,
         "together": 0,
         "togetherMade": 0,
-        "aBidAgainstB": 2,
-        "aMadeAgainstB": 0,
-        "bBidAgainstA": 3,
+        "aBidAgainstB": 3,
+        "aMadeAgainstB": 1,
+        "bBidAgainstA": 4,
         "bMadeAgainstA": 3
       },
       {
         "a": "ben",
         "b": "fay",
-        "games": 10,
-        "aAhead": 1,
-        "bAhead": 5,
+        "games": 12,
+        "aAhead": 2,
+        "bAhead": 6,
         "level": 3,
         "together": 2,
         "togetherMade": 1,
-        "aBidAgainstB": 1,
-        "aMadeAgainstB": 0,
+        "aBidAgainstB": 2,
+        "aMadeAgainstB": 1,
         "bBidAgainstA": 0,
         "bMadeAgainstA": 0
       },
       {
         "a": "ben",
         "b": "gus",
-        "games": 5,
+        "games": 6,
         "aAhead": 1,
-        "bAhead": 4,
+        "bAhead": 5,
         "level": 0,
         "together": 0,
         "togetherMade": 0,
@@ -2980,9 +3229,9 @@
       {
         "a": "ben",
         "b": "hal",
-        "games": 3,
+        "games": 4,
         "aAhead": 0,
-        "bAhead": 2,
+        "bAhead": 3,
         "level": 1,
         "together": 0,
         "togetherMade": 0,
@@ -3022,12 +3271,12 @@
       {
         "a": "cy",
         "b": "dee",
-        "games": 20,
-        "aAhead": 6,
+        "games": 22,
+        "aAhead": 8,
         "bAhead": 8,
         "level": 5,
-        "together": 7,
-        "togetherMade": 4,
+        "together": 8,
+        "togetherMade": 5,
         "aBidAgainstB": 2,
         "aMadeAgainstB": 2,
         "bBidAgainstA": 4,
@@ -3036,26 +3285,26 @@
       {
         "a": "cy",
         "b": "eli",
-        "games": 12,
-        "aAhead": 4,
+        "games": 14,
+        "aAhead": 6,
         "bAhead": 5,
         "level": 2,
         "together": 2,
         "togetherMade": 1,
-        "aBidAgainstB": 1,
-        "aMadeAgainstB": 1,
-        "bBidAgainstA": 3,
+        "aBidAgainstB": 2,
+        "aMadeAgainstB": 2,
+        "bBidAgainstA": 4,
         "bMadeAgainstA": 3
       },
       {
         "a": "cy",
         "b": "fay",
-        "games": 10,
-        "aAhead": 1,
+        "games": 12,
+        "aAhead": 3,
         "bAhead": 5,
         "level": 3,
-        "together": 1,
-        "togetherMade": 1,
+        "together": 2,
+        "togetherMade": 2,
         "aBidAgainstB": 1,
         "aMadeAgainstB": 1,
         "bBidAgainstA": 1,
@@ -3064,12 +3313,12 @@
       {
         "a": "cy",
         "b": "gus",
-        "games": 5,
-        "aAhead": 1,
+        "games": 6,
+        "aAhead": 2,
         "bAhead": 3,
         "level": 1,
-        "together": 2,
-        "togetherMade": 1,
+        "together": 3,
+        "togetherMade": 2,
         "aBidAgainstB": 0,
         "aMadeAgainstB": 0,
         "bBidAgainstA": 0,
@@ -3078,12 +3327,12 @@
       {
         "a": "cy",
         "b": "hal",
-        "games": 3,
-        "aAhead": 1,
+        "games": 4,
+        "aAhead": 2,
         "bAhead": 2,
         "level": 0,
-        "together": 0,
-        "togetherMade": 0,
+        "together": 1,
+        "togetherMade": 1,
         "aBidAgainstB": 0,
         "aMadeAgainstB": 0,
         "bBidAgainstA": 0,
@@ -3120,26 +3369,26 @@
       {
         "a": "dee",
         "b": "eli",
-        "games": 12,
-        "aAhead": 4,
+        "games": 14,
+        "aAhead": 6,
         "bAhead": 5,
         "level": 2,
         "together": 1,
         "togetherMade": 1,
         "aBidAgainstB": 1,
         "aMadeAgainstB": 0,
-        "bBidAgainstA": 3,
+        "bBidAgainstA": 4,
         "bMadeAgainstA": 3
       },
       {
         "a": "dee",
         "b": "fay",
-        "games": 10,
+        "games": 12,
         "aAhead": 3,
         "bAhead": 2,
-        "level": 4,
-        "together": 2,
-        "togetherMade": 1,
+        "level": 6,
+        "together": 3,
+        "togetherMade": 2,
         "aBidAgainstB": 0,
         "aMadeAgainstB": 0,
         "bBidAgainstA": 1,
@@ -3148,12 +3397,12 @@
       {
         "a": "dee",
         "b": "gus",
-        "games": 5,
+        "games": 6,
         "aAhead": 2,
         "bAhead": 1,
-        "level": 2,
-        "together": 1,
-        "togetherMade": 1,
+        "level": 3,
+        "together": 2,
+        "togetherMade": 2,
         "aBidAgainstB": 0,
         "aMadeAgainstB": 0,
         "bBidAgainstA": 1,
@@ -3162,12 +3411,12 @@
       {
         "a": "dee",
         "b": "hal",
-        "games": 3,
+        "games": 4,
         "aAhead": 1,
         "bAhead": 1,
-        "level": 1,
-        "together": 1,
-        "togetherMade": 1,
+        "level": 2,
+        "together": 2,
+        "togetherMade": 2,
         "aBidAgainstB": 0,
         "aMadeAgainstB": 0,
         "bBidAgainstA": 0,
@@ -3204,13 +3453,13 @@
       {
         "a": "eli",
         "b": "fay",
-        "games": 10,
+        "games": 12,
         "aAhead": 2,
-        "bAhead": 2,
+        "bAhead": 4,
         "level": 5,
         "together": 1,
         "togetherMade": 1,
-        "aBidAgainstB": 1,
+        "aBidAgainstB": 2,
         "aMadeAgainstB": 1,
         "bBidAgainstA": 1,
         "bMadeAgainstA": 1
@@ -3218,9 +3467,9 @@
       {
         "a": "eli",
         "b": "gus",
-        "games": 5,
+        "games": 6,
         "aAhead": 1,
-        "bAhead": 1,
+        "bAhead": 2,
         "level": 3,
         "together": 2,
         "togetherMade": 1,
@@ -3232,9 +3481,9 @@
       {
         "a": "eli",
         "b": "hal",
-        "games": 3,
+        "games": 4,
         "aAhead": 0,
-        "bAhead": 0,
+        "bAhead": 1,
         "level": 3,
         "together": 2,
         "togetherMade": 2,
@@ -3274,12 +3523,12 @@
       {
         "a": "fay",
         "b": "gus",
-        "games": 5,
+        "games": 6,
         "aAhead": 1,
         "bAhead": 0,
-        "level": 4,
-        "together": 2,
-        "togetherMade": 2,
+        "level": 5,
+        "together": 3,
+        "togetherMade": 3,
         "aBidAgainstB": 0,
         "aMadeAgainstB": 0,
         "bBidAgainstA": 1,
@@ -3288,12 +3537,12 @@
       {
         "a": "fay",
         "b": "hal",
-        "games": 3,
+        "games": 4,
         "aAhead": 1,
         "bAhead": 1,
-        "level": 1,
-        "together": 1,
-        "togetherMade": 1,
+        "level": 2,
+        "together": 2,
+        "togetherMade": 2,
         "aBidAgainstB": 0,
         "aMadeAgainstB": 0,
         "bBidAgainstA": 0,
@@ -3330,12 +3579,12 @@
       {
         "a": "gus",
         "b": "hal",
-        "games": 3,
+        "games": 4,
         "aAhead": 1,
         "bAhead": 1,
-        "level": 1,
-        "together": 1,
-        "togetherMade": 1,
+        "level": 2,
+        "together": 2,
+        "togetherMade": 2,
         "aBidAgainstB": 0,
         "aMadeAgainstB": 0,
         "bBidAgainstA": 0,

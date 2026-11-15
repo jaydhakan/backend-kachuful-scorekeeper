@@ -25,7 +25,7 @@ GAMES = [n for n in names("kt-") if n not in INVALID and n != "kt-set-stats"]
 
 
 def test_the_fixture_set_is_present() -> None:
-    assert len(GAMES) == 20
+    assert len(GAMES) == 22
     assert len(INVALID) == 11
 
 
