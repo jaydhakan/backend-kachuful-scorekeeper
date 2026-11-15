@@ -24,7 +24,9 @@ logger = get_logger(__name__)
 
 PATHS = {"live": "l", "recap": "r"}
 # Kinds whose games can be shared; the others are not found here.
-LINKED_KINDS = frozenset({GameKind.KACHUFUL, GameKind.KAALI_TEERI})
+LINKED_KINDS = frozenset(
+    {GameKind.KACHUFUL, GameKind.KAALI_TEERI, GameKind.SPADES, GameKind.SPADES_ONLINE}
+)
 # A live table stays watchable this long after the game ends, then the recap takes over.
 LIVE_GRACE = timedelta(hours=2)
 
