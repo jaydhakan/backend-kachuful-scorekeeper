@@ -67,9 +67,7 @@ def _game_fk(table: str) -> sa.ForeignKeyConstraint:
 
 
 def _player_fk(table: str, column: str = "player_id") -> sa.ForeignKeyConstraint:
-    return sa.ForeignKeyConstraint(
-        [column], ["players.id"], name=op.f(f"fk_{table}_{column}")
-    )
+    return sa.ForeignKeyConstraint([column], ["players.id"], name=op.f(f"fk_{table}_{column}"))
 
 
 def _user_fk(table: str, column: str) -> sa.ForeignKeyConstraint:
