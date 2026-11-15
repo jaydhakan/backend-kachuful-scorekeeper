@@ -61,6 +61,8 @@ assets/fonts/         fonts for OG images
 - Game kinds: every `games` row has a `kind` (`domain.enums.GameKind`); `games_repository` reads take the kind they serve, and Kachuful code passes `GameKind.KACHUFUL`
 - Player-wide queries (in use, games count, merge, duplicates): `repositories/seats.py` reads every kind's seat table; a new game adds its table to `SEAT_TABLES` and its reseat to `services/merge.RESEAT_BY_KIND`
 - Deleting a user's games (start fresh, admin clear, delete user): `services/owned_games.DELETE_OWNED_BY_KIND`; share links: `services/links.LINKED_KINDS` (preview names and paths in `services/public._PAGES`); `jobs/prune_empty.KINDS`. A new game joins all three (Ishaara has no share links, and prune-empty only takes its finished games: `FINISHED_ONLY`)
+- Seat invites (server-run kinds): a kind adds its handler to `services/seat_invites.SEAT_INVITE_KINDS` (protocol in `services/seat_invite_kinds.py`) and its `POST .../seat-invites` route calls `SeatInvitesService.create` after `rate_limit.SEAT_INVITE_CREATE`; the circle is `repositories/circle.py`
+- Live: a server-run kind's followers via `hub.register_game_kind(kind, GameKindHooks(...))` (per-viewer frames, seat presence across workers); one user's events via `notify_user` (`GET /api/me/events`)
 - Settings: `from app.settings import settings`; never `os.environ`/`os.getenv` elsewhere
 - Session/CSRF/rate limits: `app/security`; DB sessions: `app/db/session.py`
 - Blocking work (Pillow): `render.run_in_thread()`, never on the event loop
