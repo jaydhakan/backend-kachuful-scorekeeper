@@ -1,0 +1,915 @@
+{
+  "kind": "spades-online",
+  "name": "timeouts",
+  "setup": {
+    "id": "70000000-0000-4000-8000-000000000019",
+    "code": "KQ7M",
+    "name": "Riya's table",
+    "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":true,"minTeamBid":null,"mercy":null},
+    "host": {"userId":"u-riya","playerId":"00000000-0000-4000-8000-000000000001","name":"Riya","emoji":"🙂","color":"#f5a524","photoUrl":null},
+    "now": 1794852000000
+  },
+  "steps": [
+    {
+      "at": 1794852001000,
+      "sit": {"who":{"userId":"u-arjun","playerId":"00000000-0000-4000-8000-000000000002","name":"Arjun","emoji":"🙂","color":"#f5a524","photoUrl":null},"seat":null},
+      "expect": {"ok":true,"rev":2,"status":"lobby","phase":"draw","turn":null,"deadline":null}
+    },
+    {
+      "at": 1794852002000,
+      "sit": {"who":{"userId":"u-dev","playerId":"00000000-0000-4000-8000-000000000003","name":"Dev","emoji":"🙂","color":"#f5a524","photoUrl":null},"seat":null},
+      "expect": {"ok":true,"rev":3,"status":"lobby","phase":"draw","turn":null,"deadline":null}
+    },
+    {
+      "at": 1794852003000,
+      "sit": {"who":{"userId":"u-meera","playerId":"00000000-0000-4000-8000-000000000004","name":"Meera","emoji":"🙂","color":"#f5a524","photoUrl":null},"seat":null},
+      "expect": {"ok":true,"rev":4,"status":"lobby","phase":"draw","turn":null,"deadline":null}
+    },
+    {"at":1794852004000,"actor":0,"action":{"type":"ready"},"expect":{"ok":true,"noop":false,"rev":5,"status":"lobby","phase":"draw","turn":null,"deadline":null}},
+    {"at":1794852005000,"actor":1,"action":{"type":"ready"},"expect":{"ok":true,"noop":false,"rev":6,"status":"lobby","phase":"draw","turn":null,"deadline":null}},
+    {"at":1794852006000,"actor":2,"action":{"type":"ready"},"expect":{"ok":true,"noop":false,"rev":7,"status":"lobby","phase":"draw","turn":null,"deadline":null}},
+    {"at":1794852007000,"actor":3,"action":{"type":"ready"},"expect":{"ok":true,"noop":false,"rev":8,"status":"lobby","phase":"draw","turn":null,"deadline":null}},
+    {
+      "at": 1794852008000,
+      "actor": 0,
+      "action": {"type":"drawForDeal"},
+      "ctx": {"draw":[{"rank":"K","suit":"hearts"},{"rank":"Q","suit":"diamonds"},{"rank":"J","suit":"clubs"},{"rank":"A","suit":"spades"}]},
+      "expect": {"ok":true,"noop":false,"rev":9,"status":"playing","phase":"deal","turn":3,"deadline":null}
+    },
+    {
+      "at": 1794852009000,
+      "actor": 3,
+      "action": {"type":"deal"},
+      "ctx": {
+        "deal": [
+          [
+            {"rank":"2","suit":"spades"},
+            {"rank":"3","suit":"spades"},
+            {"rank":"4","suit":"spades"},
+            {"rank":"5","suit":"spades"},
+            {"rank":"6","suit":"spades"},
+            {"rank":"7","suit":"spades"},
+            {"rank":"8","suit":"spades"},
+            {"rank":"9","suit":"spades"},
+            {"rank":"10","suit":"spades"},
+            {"rank":"J","suit":"spades"},
+            {"rank":"Q","suit":"spades"},
+            {"rank":"K","suit":"spades"},
+            {"rank":"A","suit":"spades"}
+          ],
+          [
+            {"rank":"2","suit":"hearts"},
+            {"rank":"3","suit":"hearts"},
+            {"rank":"4","suit":"hearts"},
+            {"rank":"5","suit":"hearts"},
+            {"rank":"6","suit":"hearts"},
+            {"rank":"7","suit":"hearts"},
+            {"rank":"8","suit":"hearts"},
+            {"rank":"9","suit":"hearts"},
+            {"rank":"10","suit":"hearts"},
+            {"rank":"J","suit":"hearts"},
+            {"rank":"Q","suit":"hearts"},
+            {"rank":"K","suit":"hearts"},
+            {"rank":"A","suit":"hearts"}
+          ],
+          [
+            {"rank":"2","suit":"diamonds"},
+            {"rank":"3","suit":"diamonds"},
+            {"rank":"4","suit":"diamonds"},
+            {"rank":"5","suit":"diamonds"},
+            {"rank":"6","suit":"diamonds"},
+            {"rank":"7","suit":"diamonds"},
+            {"rank":"8","suit":"diamonds"},
+            {"rank":"9","suit":"diamonds"},
+            {"rank":"10","suit":"diamonds"},
+            {"rank":"J","suit":"diamonds"},
+            {"rank":"Q","suit":"diamonds"},
+            {"rank":"K","suit":"diamonds"},
+            {"rank":"A","suit":"diamonds"}
+          ],
+          [
+            {"rank":"2","suit":"clubs"},
+            {"rank":"3","suit":"clubs"},
+            {"rank":"4","suit":"clubs"},
+            {"rank":"5","suit":"clubs"},
+            {"rank":"6","suit":"clubs"},
+            {"rank":"7","suit":"clubs"},
+            {"rank":"8","suit":"clubs"},
+            {"rank":"9","suit":"clubs"},
+            {"rank":"10","suit":"clubs"},
+            {"rank":"J","suit":"clubs"},
+            {"rank":"Q","suit":"clubs"},
+            {"rank":"K","suit":"clubs"},
+            {"rank":"A","suit":"clubs"}
+          ]
+        ]
+      },
+      "expect": {"ok":true,"noop":false,"rev":10,"status":"playing","phase":"bidding","turn":0,"deadline":1794852039000}
+    },
+    {
+      "at": 1794852038000,
+      "actor": 2,
+      "action": {"type":"timeout"},
+      "ctx": {"rev":10},
+      "expect": {"ok":false,"error":{"code":"invalid_action","reason":"too-early"},"rev":10,"status":"playing","phase":"bidding","turn":0,"deadline":1794852039000}
+    },
+    {
+      "at": 1794852039500,
+      "actor": 2,
+      "action": {"type":"timeout"},
+      "ctx": {"rev":10},
+      "expect": {
+        "ok": true,
+        "noop": false,
+        "rev": 11,
+        "status": "playing",
+        "phase": "bidding",
+        "turn": 1,
+        "deadline": 1794852069500,
+        "views": [
+          {
+            "me": {
+              "seat": 0,
+              "host": true,
+              "hand": [
+                {"rank":"2","suit":"spades"},
+                {"rank":"3","suit":"spades"},
+                {"rank":"4","suit":"spades"},
+                {"rank":"5","suit":"spades"},
+                {"rank":"6","suit":"spades"},
+                {"rank":"7","suit":"spades"},
+                {"rank":"8","suit":"spades"},
+                {"rank":"9","suit":"spades"},
+                {"rank":"10","suit":"spades"},
+                {"rank":"J","suit":"spades"},
+                {"rank":"Q","suit":"spades"},
+                {"rank":"K","suit":"spades"},
+                {"rank":"A","suit":"spades"}
+              ]
+            },
+            "blind": [false,false,false,false]
+          },
+          {"me":{"seat":1,"host":false,"hand":null},"blind":[false,false,false,false]},
+          {"me":{"seat":2,"host":false,"hand":null},"blind":[false,false,false,false]},
+          {"me":{"seat":3,"host":false,"hand":null},"blind":[false,false,false,false]},
+          {"me":{"seat":null,"host":false,"hand":null},"blind":[false,false,false,false]}
+        ]
+      }
+    },
+    {"at":1794852039510,"actor":3,"action":{"type":"timeout"},"ctx":{"rev":10},"expect":{"ok":true,"noop":true,"rev":11,"status":"playing","phase":"bidding","turn":1,"deadline":1794852069500}},
+    {"at":1794852040510,"actor":1,"action":{"type":"look"},"expect":{"ok":true,"noop":false,"rev":12,"status":"playing","phase":"bidding","turn":1,"deadline":1794852069500}},
+    {"at":1794852041510,"actor":1,"action":{"type":"bid","bid":3},"expect":{"ok":true,"noop":false,"rev":13,"status":"playing","phase":"bidding","turn":2,"deadline":1794852071510}},
+    {"at":1794852042510,"actor":2,"action":{"type":"look"},"expect":{"ok":true,"noop":false,"rev":14,"status":"playing","phase":"bidding","turn":2,"deadline":1794852071510}},
+    {"at":1794852043510,"actor":2,"action":{"type":"bid","bid":3},"expect":{"ok":true,"noop":false,"rev":15,"status":"playing","phase":"bidding","turn":3,"deadline":1794852073510}},
+    {"at":1794852044510,"actor":3,"action":{"type":"look"},"expect":{"ok":true,"noop":false,"rev":16,"status":"playing","phase":"bidding","turn":3,"deadline":1794852073510}},
+    {"at":1794852045510,"actor":3,"action":{"type":"bid","bid":4},"expect":{"ok":true,"noop":false,"rev":17,"status":"playing","phase":"playing","turn":0,"deadline":1794852075510}},
+    {"at":1794852076510,"actor":1,"action":{"type":"timeout"},"ctx":{"rev":17},"expect":{"ok":true,"noop":false,"rev":18,"status":"playing","phase":"playing","turn":1,"deadline":1794852106510}},
+    {
+      "at": 1794852077510,
+      "actor": 1,
+      "action": {"type":"play","card":{"rank":"2","suit":"hearts"}},
+      "expect": {"ok":true,"noop":false,"rev":19,"status":"playing","phase":"playing","turn":2,"deadline":1794852107510}
+    },
+    {
+      "at": 1794852078510,
+      "actor": 2,
+      "action": {"type":"play","card":{"rank":"2","suit":"diamonds"}},
+      "expect": {"ok":true,"noop":false,"rev":20,"status":"playing","phase":"playing","turn":3,"deadline":1794852108510}
+    },
+    {
+      "at": 1794852079510,
+      "actor": 3,
+      "action": {"type":"play","card":{"rank":"2","suit":"clubs"}},
+      "expect": {"ok":true,"noop":false,"rev":21,"status":"playing","phase":"playing","turn":0,"deadline":1794852084510}
+    },
+    {
+      "at": 1794852083510,
+      "actor": 3,
+      "action": {"type":"timeout"},
+      "expect": {"ok":false,"error":{"code":"invalid_action","reason":"too-early"},"rev":21,"status":"playing","phase":"playing","turn":0,"deadline":1794852084510}
+    },
+    {"at":1794852084510,"actor":3,"action":{"type":"timeout"},"expect":{"ok":true,"noop":false,"rev":22,"status":"playing","phase":"playing","turn":1,"deadline":1794852114510}},
+    {
+      "at": 1794852085510,
+      "actor": 1,
+      "action": {"type":"play","card":{"rank":"3","suit":"hearts"}},
+      "expect": {"ok":true,"noop":false,"rev":23,"status":"playing","phase":"playing","turn":2,"deadline":1794852115510}
+    },
+    {
+      "at": 1794852086510,
+      "actor": 2,
+      "action": {"type":"play","card":{"rank":"3","suit":"diamonds"}},
+      "expect": {"ok":true,"noop":false,"rev":24,"status":"playing","phase":"playing","turn":3,"deadline":1794852116510}
+    },
+    {
+      "at": 1794852087510,
+      "actor": 3,
+      "action": {"type":"play","card":{"rank":"3","suit":"clubs"}},
+      "expect": {"ok":true,"noop":false,"rev":25,"status":"playing","phase":"playing","turn":0,"deadline":1794852092510}
+    },
+    {
+      "at": 1794852088010,
+      "actor": 0,
+      "action": {"type":"ready"},
+      "expect": {
+        "ok": true,
+        "noop": false,
+        "rev": 26,
+        "status": "playing",
+        "phase": "playing",
+        "turn": 0,
+        "deadline": 1794852117510,
+        "views": [
+          {
+            "me": {
+              "seat": 0,
+              "host": true,
+              "hand": [
+                {"rank":"4","suit":"spades"},
+                {"rank":"5","suit":"spades"},
+                {"rank":"6","suit":"spades"},
+                {"rank":"7","suit":"spades"},
+                {"rank":"8","suit":"spades"},
+                {"rank":"9","suit":"spades"},
+                {"rank":"10","suit":"spades"},
+                {"rank":"J","suit":"spades"},
+                {"rank":"Q","suit":"spades"},
+                {"rank":"K","suit":"spades"},
+                {"rank":"A","suit":"spades"}
+              ]
+            },
+            "blind": [false,false,false,false]
+          },
+          {
+            "me": {
+              "seat": 1,
+              "host": false,
+              "hand": [
+                {"rank":"4","suit":"hearts"},
+                {"rank":"5","suit":"hearts"},
+                {"rank":"6","suit":"hearts"},
+                {"rank":"7","suit":"hearts"},
+                {"rank":"8","suit":"hearts"},
+                {"rank":"9","suit":"hearts"},
+                {"rank":"10","suit":"hearts"},
+                {"rank":"J","suit":"hearts"},
+                {"rank":"Q","suit":"hearts"},
+                {"rank":"K","suit":"hearts"},
+                {"rank":"A","suit":"hearts"}
+              ]
+            },
+            "blind": [false,false,false,false]
+          },
+          {
+            "me": {
+              "seat": 2,
+              "host": false,
+              "hand": [
+                {"rank":"4","suit":"diamonds"},
+                {"rank":"5","suit":"diamonds"},
+                {"rank":"6","suit":"diamonds"},
+                {"rank":"7","suit":"diamonds"},
+                {"rank":"8","suit":"diamonds"},
+                {"rank":"9","suit":"diamonds"},
+                {"rank":"10","suit":"diamonds"},
+                {"rank":"J","suit":"diamonds"},
+                {"rank":"Q","suit":"diamonds"},
+                {"rank":"K","suit":"diamonds"},
+                {"rank":"A","suit":"diamonds"}
+              ]
+            },
+            "blind": [false,false,false,false]
+          },
+          {
+            "me": {
+              "seat": 3,
+              "host": false,
+              "hand": [
+                {"rank":"4","suit":"clubs"},
+                {"rank":"5","suit":"clubs"},
+                {"rank":"6","suit":"clubs"},
+                {"rank":"7","suit":"clubs"},
+                {"rank":"8","suit":"clubs"},
+                {"rank":"9","suit":"clubs"},
+                {"rank":"10","suit":"clubs"},
+                {"rank":"J","suit":"clubs"},
+                {"rank":"Q","suit":"clubs"},
+                {"rank":"K","suit":"clubs"},
+                {"rank":"A","suit":"clubs"}
+              ]
+            },
+            "blind": [false,false,false,false]
+          },
+          {"me":{"seat":null,"host":false,"hand":null},"blind":[false,false,false,false]}
+        ]
+      }
+    },
+    {
+      "at": 1794852089010,
+      "actor": 0,
+      "action": {"type":"play","card":{"rank":"4","suit":"spades"}},
+      "expect": {"ok":true,"noop":false,"rev":27,"status":"playing","phase":"playing","turn":1,"deadline":1794852119010}
+    },
+    {"at":1794852120010,"actor":2,"action":{"type":"timeout"},"expect":{"ok":true,"noop":false,"rev":28,"status":"playing","phase":"playing","turn":2,"deadline":1794852150010}},
+    {
+      "at": 1794852121010,
+      "actor": 2,
+      "action": {"type":"play","card":{"rank":"4","suit":"diamonds"}},
+      "expect": {"ok":true,"noop":false,"rev":29,"status":"playing","phase":"playing","turn":3,"deadline":1794852151010}
+    },
+    {
+      "at": 1794852122010,
+      "actor": 3,
+      "action": {"type":"play","card":{"rank":"4","suit":"clubs"}},
+      "expect": {"ok":true,"noop":false,"rev":30,"status":"playing","phase":"playing","turn":0,"deadline":1794852152010}
+    },
+    {
+      "at": 1794852123010,
+      "actor": 0,
+      "action": {"type":"play","card":{"rank":"5","suit":"spades"}},
+      "expect": {"ok":true,"noop":false,"rev":31,"status":"playing","phase":"playing","turn":1,"deadline":1794852153010}
+    },
+    {"at":1794852154010,"actor":2,"action":{"type":"timeout"},"expect":{"ok":true,"noop":false,"rev":32,"status":"playing","phase":"playing","turn":2,"deadline":1794852184010}},
+    {
+      "at": 1794852155010,
+      "actor": 0,
+      "action": {"type":"replace","seat":1},
+      "expect": {"ok":false,"error":{"code":"invalid_action","reason":"mid-trick"},"rev":32,"status":"playing","phase":"playing","turn":2,"deadline":1794852184010}
+    },
+    {
+      "at": 1794852156010,
+      "actor": 2,
+      "action": {"type":"play","card":{"rank":"5","suit":"diamonds"}},
+      "expect": {"ok":true,"noop":false,"rev":33,"status":"playing","phase":"playing","turn":3,"deadline":1794852186010}
+    },
+    {
+      "at": 1794852157010,
+      "actor": 3,
+      "action": {"type":"play","card":{"rank":"5","suit":"clubs"}},
+      "expect": {"ok":true,"noop":false,"rev":34,"status":"playing","phase":"playing","turn":0,"deadline":1794852187010}
+    },
+    {
+      "at": 1794852158010,
+      "actor": 1,
+      "action": {"type":"replace","seat":1},
+      "expect": {"ok":false,"error":{"code":"not_your_turn"},"rev":34,"status":"playing","phase":"playing","turn":0,"deadline":1794852187010}
+    },
+    {
+      "at": 1794852159010,
+      "actor": 0,
+      "action": {"type":"replace","seat":1},
+      "expect": {
+        "ok": true,
+        "noop": false,
+        "rev": 35,
+        "status": "playing",
+        "phase": "playing",
+        "turn": 0,
+        "deadline": null,
+        "views": [
+          {
+            "me": {
+              "seat": 0,
+              "host": true,
+              "hand": [
+                {"rank":"6","suit":"spades"},
+                {"rank":"7","suit":"spades"},
+                {"rank":"8","suit":"spades"},
+                {"rank":"9","suit":"spades"},
+                {"rank":"10","suit":"spades"},
+                {"rank":"J","suit":"spades"},
+                {"rank":"Q","suit":"spades"},
+                {"rank":"K","suit":"spades"},
+                {"rank":"A","suit":"spades"}
+              ]
+            },
+            "blind": [false,false,false,false]
+          },
+          {
+            "me": {
+              "seat": 1,
+              "host": false,
+              "hand": [
+                {"rank":"6","suit":"hearts"},
+                {"rank":"7","suit":"hearts"},
+                {"rank":"8","suit":"hearts"},
+                {"rank":"9","suit":"hearts"},
+                {"rank":"10","suit":"hearts"},
+                {"rank":"J","suit":"hearts"},
+                {"rank":"Q","suit":"hearts"},
+                {"rank":"K","suit":"hearts"},
+                {"rank":"A","suit":"hearts"}
+              ]
+            },
+            "blind": [false,false,false,false]
+          },
+          {
+            "me": {
+              "seat": 2,
+              "host": false,
+              "hand": [
+                {"rank":"6","suit":"diamonds"},
+                {"rank":"7","suit":"diamonds"},
+                {"rank":"8","suit":"diamonds"},
+                {"rank":"9","suit":"diamonds"},
+                {"rank":"10","suit":"diamonds"},
+                {"rank":"J","suit":"diamonds"},
+                {"rank":"Q","suit":"diamonds"},
+                {"rank":"K","suit":"diamonds"},
+                {"rank":"A","suit":"diamonds"}
+              ]
+            },
+            "blind": [false,false,false,false]
+          },
+          {
+            "me": {
+              "seat": 3,
+              "host": false,
+              "hand": [
+                {"rank":"6","suit":"clubs"},
+                {"rank":"7","suit":"clubs"},
+                {"rank":"8","suit":"clubs"},
+                {"rank":"9","suit":"clubs"},
+                {"rank":"10","suit":"clubs"},
+                {"rank":"J","suit":"clubs"},
+                {"rank":"Q","suit":"clubs"},
+                {"rank":"K","suit":"clubs"},
+                {"rank":"A","suit":"clubs"}
+              ]
+            },
+            "blind": [false,false,false,false]
+          },
+          {"me":{"seat":null,"host":false,"hand":null},"blind":[false,false,false,false]}
+        ]
+      }
+    },
+    {
+      "at": 1794852160010,
+      "actor": 0,
+      "action": {"type":"play","card":{"rank":"7","suit":"spades"}},
+      "expect": {"ok":false,"error":{"code":"invalid_action","reason":"paused"},"rev":35,"status":"playing","phase":"playing","turn":0,"deadline":null}
+    },
+    {"at":1794852220010,"actor":2,"action":{"type":"timeout"},"expect":{"ok":true,"noop":true,"rev":35,"status":"playing","phase":"playing","turn":0,"deadline":null}},
+    {
+      "at": 1794852221010,
+      "sit": {"who":{"userId":"u-kabir","playerId":"00000000-0000-4000-8000-000000000005","name":"Kabir","emoji":"🙂","color":"#f5a524","photoUrl":null},"seat":1},
+      "expect": {"ok":true,"rev":36,"status":"playing","phase":"playing","turn":0,"deadline":1794852251010}
+    },
+    {
+      "at": 1794852222010,
+      "actor": 0,
+      "action": {"type":"play","card":{"rank":"6","suit":"spades"}},
+      "expect": {"ok":true,"noop":false,"rev":37,"status":"playing","phase":"playing","turn":1,"deadline":1794852252010}
+    },
+    {
+      "at": 1794852223010,
+      "actor": 1,
+      "action": {"type":"play","card":{"rank":"6","suit":"hearts"}},
+      "expect": {"ok":true,"noop":false,"rev":38,"status":"playing","phase":"playing","turn":2,"deadline":1794852253010}
+    },
+    {
+      "at": 1794852224010,
+      "actor": 2,
+      "action": {"type":"play","card":{"rank":"6","suit":"diamonds"}},
+      "expect": {"ok":true,"noop":false,"rev":39,"status":"playing","phase":"playing","turn":3,"deadline":1794852254010}
+    },
+    {
+      "at": 1794852225010,
+      "actor": 3,
+      "action": {"type":"play","card":{"rank":"6","suit":"clubs"}},
+      "expect": {"ok":true,"noop":false,"rev":40,"status":"playing","phase":"playing","turn":0,"deadline":1794852255010}
+    },
+    {
+      "at": 1794852226010,
+      "actor": 0,
+      "action": {"type":"play","card":{"rank":"7","suit":"spades"}},
+      "expect": {"ok":true,"noop":false,"rev":41,"status":"playing","phase":"playing","turn":1,"deadline":1794852256010}
+    },
+    {
+      "at": 1794852227010,
+      "actor": 1,
+      "action": {"type":"play","card":{"rank":"7","suit":"hearts"}},
+      "expect": {"ok":true,"noop":false,"rev":42,"status":"playing","phase":"playing","turn":2,"deadline":1794852257010}
+    },
+    {
+      "at": 1794852228010,
+      "actor": 2,
+      "action": {"type":"play","card":{"rank":"7","suit":"diamonds"}},
+      "expect": {"ok":true,"noop":false,"rev":43,"status":"playing","phase":"playing","turn":3,"deadline":1794852258010}
+    },
+    {
+      "at": 1794852229010,
+      "actor": 3,
+      "action": {"type":"play","card":{"rank":"7","suit":"clubs"}},
+      "expect": {"ok":true,"noop":false,"rev":44,"status":"playing","phase":"playing","turn":0,"deadline":1794852259010}
+    },
+    {
+      "at": 1794852230010,
+      "actor": 0,
+      "action": {"type":"play","card":{"rank":"8","suit":"spades"}},
+      "expect": {"ok":true,"noop":false,"rev":45,"status":"playing","phase":"playing","turn":1,"deadline":1794852260010}
+    },
+    {
+      "at": 1794852231010,
+      "actor": 1,
+      "action": {"type":"play","card":{"rank":"8","suit":"hearts"}},
+      "expect": {"ok":true,"noop":false,"rev":46,"status":"playing","phase":"playing","turn":2,"deadline":1794852261010}
+    },
+    {
+      "at": 1794852232010,
+      "actor": 2,
+      "action": {"type":"play","card":{"rank":"8","suit":"diamonds"}},
+      "expect": {"ok":true,"noop":false,"rev":47,"status":"playing","phase":"playing","turn":3,"deadline":1794852262010}
+    },
+    {
+      "at": 1794852233010,
+      "actor": 3,
+      "action": {"type":"play","card":{"rank":"8","suit":"clubs"}},
+      "expect": {"ok":true,"noop":false,"rev":48,"status":"playing","phase":"playing","turn":0,"deadline":1794852263010}
+    },
+    {
+      "at": 1794852234010,
+      "actor": 0,
+      "action": {"type":"play","card":{"rank":"9","suit":"spades"}},
+      "expect": {"ok":true,"noop":false,"rev":49,"status":"playing","phase":"playing","turn":1,"deadline":1794852264010}
+    },
+    {
+      "at": 1794852235010,
+      "actor": 1,
+      "action": {"type":"play","card":{"rank":"9","suit":"hearts"}},
+      "expect": {"ok":true,"noop":false,"rev":50,"status":"playing","phase":"playing","turn":2,"deadline":1794852265010}
+    },
+    {
+      "at": 1794852236010,
+      "actor": 2,
+      "action": {"type":"play","card":{"rank":"9","suit":"diamonds"}},
+      "expect": {"ok":true,"noop":false,"rev":51,"status":"playing","phase":"playing","turn":3,"deadline":1794852266010}
+    },
+    {
+      "at": 1794852237010,
+      "actor": 3,
+      "action": {"type":"play","card":{"rank":"9","suit":"clubs"}},
+      "expect": {"ok":true,"noop":false,"rev":52,"status":"playing","phase":"playing","turn":0,"deadline":1794852267010}
+    },
+    {
+      "at": 1794852238010,
+      "actor": 0,
+      "action": {"type":"play","card":{"rank":"10","suit":"spades"}},
+      "expect": {"ok":true,"noop":false,"rev":53,"status":"playing","phase":"playing","turn":1,"deadline":1794852268010}
+    },
+    {
+      "at": 1794852239010,
+      "actor": 1,
+      "action": {"type":"play","card":{"rank":"10","suit":"hearts"}},
+      "expect": {"ok":true,"noop":false,"rev":54,"status":"playing","phase":"playing","turn":2,"deadline":1794852269010}
+    },
+    {
+      "at": 1794852240010,
+      "actor": 2,
+      "action": {"type":"play","card":{"rank":"10","suit":"diamonds"}},
+      "expect": {"ok":true,"noop":false,"rev":55,"status":"playing","phase":"playing","turn":3,"deadline":1794852270010}
+    },
+    {
+      "at": 1794852241010,
+      "actor": 3,
+      "action": {"type":"play","card":{"rank":"10","suit":"clubs"}},
+      "expect": {"ok":true,"noop":false,"rev":56,"status":"playing","phase":"playing","turn":0,"deadline":1794852271010}
+    },
+    {
+      "at": 1794852242010,
+      "actor": 0,
+      "action": {"type":"play","card":{"rank":"J","suit":"spades"}},
+      "expect": {"ok":true,"noop":false,"rev":57,"status":"playing","phase":"playing","turn":1,"deadline":1794852272010}
+    },
+    {
+      "at": 1794852243010,
+      "actor": 1,
+      "action": {"type":"play","card":{"rank":"J","suit":"hearts"}},
+      "expect": {"ok":true,"noop":false,"rev":58,"status":"playing","phase":"playing","turn":2,"deadline":1794852273010}
+    },
+    {
+      "at": 1794852244010,
+      "actor": 2,
+      "action": {"type":"play","card":{"rank":"J","suit":"diamonds"}},
+      "expect": {"ok":true,"noop":false,"rev":59,"status":"playing","phase":"playing","turn":3,"deadline":1794852274010}
+    },
+    {
+      "at": 1794852245010,
+      "actor": 3,
+      "action": {"type":"play","card":{"rank":"J","suit":"clubs"}},
+      "expect": {"ok":true,"noop":false,"rev":60,"status":"playing","phase":"playing","turn":0,"deadline":1794852275010}
+    },
+    {
+      "at": 1794852246010,
+      "actor": 0,
+      "action": {"type":"play","card":{"rank":"Q","suit":"spades"}},
+      "expect": {"ok":true,"noop":false,"rev":61,"status":"playing","phase":"playing","turn":1,"deadline":1794852276010}
+    },
+    {
+      "at": 1794852247010,
+      "actor": 1,
+      "action": {"type":"play","card":{"rank":"Q","suit":"hearts"}},
+      "expect": {"ok":true,"noop":false,"rev":62,"status":"playing","phase":"playing","turn":2,"deadline":1794852277010}
+    },
+    {
+      "at": 1794852248010,
+      "actor": 2,
+      "action": {"type":"play","card":{"rank":"Q","suit":"diamonds"}},
+      "expect": {"ok":true,"noop":false,"rev":63,"status":"playing","phase":"playing","turn":3,"deadline":1794852278010}
+    },
+    {
+      "at": 1794852249010,
+      "actor": 3,
+      "action": {"type":"play","card":{"rank":"Q","suit":"clubs"}},
+      "expect": {"ok":true,"noop":false,"rev":64,"status":"playing","phase":"playing","turn":0,"deadline":1794852279010}
+    },
+    {
+      "at": 1794852250010,
+      "actor": 0,
+      "action": {"type":"play","card":{"rank":"K","suit":"spades"}},
+      "expect": {"ok":true,"noop":false,"rev":65,"status":"playing","phase":"playing","turn":1,"deadline":1794852280010}
+    },
+    {
+      "at": 1794852251010,
+      "actor": 1,
+      "action": {"type":"play","card":{"rank":"K","suit":"hearts"}},
+      "expect": {"ok":true,"noop":false,"rev":66,"status":"playing","phase":"playing","turn":2,"deadline":1794852281010}
+    },
+    {
+      "at": 1794852252010,
+      "actor": 2,
+      "action": {"type":"play","card":{"rank":"K","suit":"diamonds"}},
+      "expect": {"ok":true,"noop":false,"rev":67,"status":"playing","phase":"playing","turn":3,"deadline":1794852282010}
+    },
+    {
+      "at": 1794852253010,
+      "actor": 3,
+      "action": {"type":"play","card":{"rank":"K","suit":"clubs"}},
+      "expect": {"ok":true,"noop":false,"rev":68,"status":"playing","phase":"playing","turn":0,"deadline":1794852283010}
+    },
+    {
+      "at": 1794852254010,
+      "actor": 0,
+      "action": {"type":"play","card":{"rank":"A","suit":"spades"}},
+      "expect": {"ok":true,"noop":false,"rev":69,"status":"playing","phase":"playing","turn":1,"deadline":1794852284010}
+    },
+    {
+      "at": 1794852255010,
+      "actor": 1,
+      "action": {"type":"play","card":{"rank":"A","suit":"hearts"}},
+      "expect": {"ok":true,"noop":false,"rev":70,"status":"playing","phase":"playing","turn":2,"deadline":1794852285010}
+    },
+    {
+      "at": 1794852256010,
+      "actor": 2,
+      "action": {"type":"play","card":{"rank":"A","suit":"diamonds"}},
+      "expect": {"ok":true,"noop":false,"rev":71,"status":"playing","phase":"playing","turn":3,"deadline":1794852286010}
+    },
+    {"at":1794852257010,"actor":3,"action":{"type":"play","card":{"rank":"A","suit":"clubs"}},"expect":{"ok":true,"noop":false,"rev":72,"status":"playing","phase":"handEnd","turn":0,"deadline":null}},
+    {"at":1794852258010,"actor":0,"action":{"type":"cancelGame"},"expect":{"ok":true,"noop":false,"rev":73,"status":"cancelled","phase":"handEnd","turn":null,"deadline":null}}
+  ],
+  "expect": {
+    "state": {
+      "kind": "spades-online",
+      "schemaVersion": 1,
+      "id": "70000000-0000-4000-8000-000000000019",
+      "code": "KQ7M",
+      "name": "Riya's table",
+      "rev": 73,
+      "createdAt": 1794852000000,
+      "updatedAt": 1794852258010,
+      "status": "cancelled",
+      "paused": null,
+      "host": 0,
+      "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":true,"minTeamBid":null,"mercy":null},
+      "seats": [
+        {"who":{"userId":"u-riya","playerId":"00000000-0000-4000-8000-000000000001","name":"Riya","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0},
+        {"who":{"userId":"u-kabir","playerId":"00000000-0000-4000-8000-000000000005","name":"Kabir","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0},
+        {"who":{"userId":"u-dev","playerId":"00000000-0000-4000-8000-000000000003","name":"Dev","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0},
+        {"who":{"userId":"u-meera","playerId":"00000000-0000-4000-8000-000000000004","name":"Meera","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0}
+      ],
+      "drawn": [{"rank":"K","suit":"hearts"},{"rank":"Q","suit":"diamonds"},{"rank":"J","suit":"clubs"},{"rank":"A","suit":"spades"}],
+      "dealer": 0,
+      "phase": "handEnd",
+      "bids": [1,3,3,4],
+      "blind": [false,false,false,false],
+      "looked": [true,true,true,true],
+      "trick": [],
+      "tricks": [
+        {
+          "plays": [{"seat":0,"card":{"rank":"2","suit":"spades"}},{"seat":1,"card":{"rank":"2","suit":"hearts"}},{"seat":2,"card":{"rank":"2","suit":"diamonds"}},{"seat":3,"card":{"rank":"2","suit":"clubs"}}],
+          "winner": 0
+        },
+        {
+          "plays": [{"seat":0,"card":{"rank":"3","suit":"spades"}},{"seat":1,"card":{"rank":"3","suit":"hearts"}},{"seat":2,"card":{"rank":"3","suit":"diamonds"}},{"seat":3,"card":{"rank":"3","suit":"clubs"}}],
+          "winner": 0
+        },
+        {
+          "plays": [{"seat":0,"card":{"rank":"4","suit":"spades"}},{"seat":1,"card":{"rank":"4","suit":"hearts"}},{"seat":2,"card":{"rank":"4","suit":"diamonds"}},{"seat":3,"card":{"rank":"4","suit":"clubs"}}],
+          "winner": 0
+        },
+        {
+          "plays": [{"seat":0,"card":{"rank":"5","suit":"spades"}},{"seat":1,"card":{"rank":"5","suit":"hearts"}},{"seat":2,"card":{"rank":"5","suit":"diamonds"}},{"seat":3,"card":{"rank":"5","suit":"clubs"}}],
+          "winner": 0
+        },
+        {
+          "plays": [{"seat":0,"card":{"rank":"6","suit":"spades"}},{"seat":1,"card":{"rank":"6","suit":"hearts"}},{"seat":2,"card":{"rank":"6","suit":"diamonds"}},{"seat":3,"card":{"rank":"6","suit":"clubs"}}],
+          "winner": 0
+        },
+        {
+          "plays": [{"seat":0,"card":{"rank":"7","suit":"spades"}},{"seat":1,"card":{"rank":"7","suit":"hearts"}},{"seat":2,"card":{"rank":"7","suit":"diamonds"}},{"seat":3,"card":{"rank":"7","suit":"clubs"}}],
+          "winner": 0
+        },
+        {
+          "plays": [{"seat":0,"card":{"rank":"8","suit":"spades"}},{"seat":1,"card":{"rank":"8","suit":"hearts"}},{"seat":2,"card":{"rank":"8","suit":"diamonds"}},{"seat":3,"card":{"rank":"8","suit":"clubs"}}],
+          "winner": 0
+        },
+        {
+          "plays": [{"seat":0,"card":{"rank":"9","suit":"spades"}},{"seat":1,"card":{"rank":"9","suit":"hearts"}},{"seat":2,"card":{"rank":"9","suit":"diamonds"}},{"seat":3,"card":{"rank":"9","suit":"clubs"}}],
+          "winner": 0
+        },
+        {
+          "plays": [
+            {"seat":0,"card":{"rank":"10","suit":"spades"}},
+            {"seat":1,"card":{"rank":"10","suit":"hearts"}},
+            {"seat":2,"card":{"rank":"10","suit":"diamonds"}},
+            {"seat":3,"card":{"rank":"10","suit":"clubs"}}
+          ],
+          "winner": 0
+        },
+        {
+          "plays": [{"seat":0,"card":{"rank":"J","suit":"spades"}},{"seat":1,"card":{"rank":"J","suit":"hearts"}},{"seat":2,"card":{"rank":"J","suit":"diamonds"}},{"seat":3,"card":{"rank":"J","suit":"clubs"}}],
+          "winner": 0
+        },
+        {
+          "plays": [{"seat":0,"card":{"rank":"Q","suit":"spades"}},{"seat":1,"card":{"rank":"Q","suit":"hearts"}},{"seat":2,"card":{"rank":"Q","suit":"diamonds"}},{"seat":3,"card":{"rank":"Q","suit":"clubs"}}],
+          "winner": 0
+        },
+        {
+          "plays": [{"seat":0,"card":{"rank":"K","suit":"spades"}},{"seat":1,"card":{"rank":"K","suit":"hearts"}},{"seat":2,"card":{"rank":"K","suit":"diamonds"}},{"seat":3,"card":{"rank":"K","suit":"clubs"}}],
+          "winner": 0
+        },
+        {
+          "plays": [{"seat":0,"card":{"rank":"A","suit":"spades"}},{"seat":1,"card":{"rank":"A","suit":"hearts"}},{"seat":2,"card":{"rank":"A","suit":"diamonds"}},{"seat":3,"card":{"rank":"A","suit":"clubs"}}],
+          "winner": 0
+        }
+      ],
+      "broken": true,
+      "turn": null,
+      "turnStartedAt": null,
+      "deadline": null,
+      "history": [
+        {
+          "index": 0,
+          "dealer": 3,
+          "bids": [1,3,3,4],
+          "blind": [false,false,false,false],
+          "teamTricks": [13,0],
+          "nilTricks": [null,null,null,null],
+          "tricks": [
+            {
+              "plays": [
+                {"seat":0,"card":{"rank":"2","suit":"spades"}},
+                {"seat":1,"card":{"rank":"2","suit":"hearts"}},
+                {"seat":2,"card":{"rank":"2","suit":"diamonds"}},
+                {"seat":3,"card":{"rank":"2","suit":"clubs"}}
+              ],
+              "winner": 0
+            },
+            {
+              "plays": [
+                {"seat":0,"card":{"rank":"3","suit":"spades"}},
+                {"seat":1,"card":{"rank":"3","suit":"hearts"}},
+                {"seat":2,"card":{"rank":"3","suit":"diamonds"}},
+                {"seat":3,"card":{"rank":"3","suit":"clubs"}}
+              ],
+              "winner": 0
+            },
+            {
+              "plays": [
+                {"seat":0,"card":{"rank":"4","suit":"spades"}},
+                {"seat":1,"card":{"rank":"4","suit":"hearts"}},
+                {"seat":2,"card":{"rank":"4","suit":"diamonds"}},
+                {"seat":3,"card":{"rank":"4","suit":"clubs"}}
+              ],
+              "winner": 0
+            },
+            {
+              "plays": [
+                {"seat":0,"card":{"rank":"5","suit":"spades"}},
+                {"seat":1,"card":{"rank":"5","suit":"hearts"}},
+                {"seat":2,"card":{"rank":"5","suit":"diamonds"}},
+                {"seat":3,"card":{"rank":"5","suit":"clubs"}}
+              ],
+              "winner": 0
+            },
+            {
+              "plays": [
+                {"seat":0,"card":{"rank":"6","suit":"spades"}},
+                {"seat":1,"card":{"rank":"6","suit":"hearts"}},
+                {"seat":2,"card":{"rank":"6","suit":"diamonds"}},
+                {"seat":3,"card":{"rank":"6","suit":"clubs"}}
+              ],
+              "winner": 0
+            },
+            {
+              "plays": [
+                {"seat":0,"card":{"rank":"7","suit":"spades"}},
+                {"seat":1,"card":{"rank":"7","suit":"hearts"}},
+                {"seat":2,"card":{"rank":"7","suit":"diamonds"}},
+                {"seat":3,"card":{"rank":"7","suit":"clubs"}}
+              ],
+              "winner": 0
+            },
+            {
+              "plays": [
+                {"seat":0,"card":{"rank":"8","suit":"spades"}},
+                {"seat":1,"card":{"rank":"8","suit":"hearts"}},
+                {"seat":2,"card":{"rank":"8","suit":"diamonds"}},
+                {"seat":3,"card":{"rank":"8","suit":"clubs"}}
+              ],
+              "winner": 0
+            },
+            {
+              "plays": [
+                {"seat":0,"card":{"rank":"9","suit":"spades"}},
+                {"seat":1,"card":{"rank":"9","suit":"hearts"}},
+                {"seat":2,"card":{"rank":"9","suit":"diamonds"}},
+                {"seat":3,"card":{"rank":"9","suit":"clubs"}}
+              ],
+              "winner": 0
+            },
+            {
+              "plays": [
+                {"seat":0,"card":{"rank":"10","suit":"spades"}},
+                {"seat":1,"card":{"rank":"10","suit":"hearts"}},
+                {"seat":2,"card":{"rank":"10","suit":"diamonds"}},
+                {"seat":3,"card":{"rank":"10","suit":"clubs"}}
+              ],
+              "winner": 0
+            },
+            {
+              "plays": [
+                {"seat":0,"card":{"rank":"J","suit":"spades"}},
+                {"seat":1,"card":{"rank":"J","suit":"hearts"}},
+                {"seat":2,"card":{"rank":"J","suit":"diamonds"}},
+                {"seat":3,"card":{"rank":"J","suit":"clubs"}}
+              ],
+              "winner": 0
+            },
+            {
+              "plays": [
+                {"seat":0,"card":{"rank":"Q","suit":"spades"}},
+                {"seat":1,"card":{"rank":"Q","suit":"hearts"}},
+                {"seat":2,"card":{"rank":"Q","suit":"diamonds"}},
+                {"seat":3,"card":{"rank":"Q","suit":"clubs"}}
+              ],
+              "winner": 0
+            },
+            {
+              "plays": [
+                {"seat":0,"card":{"rank":"K","suit":"spades"}},
+                {"seat":1,"card":{"rank":"K","suit":"hearts"}},
+                {"seat":2,"card":{"rank":"K","suit":"diamonds"}},
+                {"seat":3,"card":{"rank":"K","suit":"clubs"}}
+              ],
+              "winner": 0
+            },
+            {
+              "plays": [
+                {"seat":0,"card":{"rank":"A","suit":"spades"}},
+                {"seat":1,"card":{"rank":"A","suit":"hearts"}},
+                {"seat":2,"card":{"rank":"A","suit":"diamonds"}},
+                {"seat":3,"card":{"rank":"A","suit":"clubs"}}
+              ],
+              "winner": 0
+            }
+          ],
+          "players": ["00000000-0000-4000-8000-000000000001","00000000-0000-4000-8000-000000000005","00000000-0000-4000-8000-000000000003","00000000-0000-4000-8000-000000000004"],
+          "phase": "done",
+          "doneAt": 1794852257010
+        }
+      ],
+      "result": null,
+      "next": null,
+      "finishedAt": 1794852258010
+    },
+    "hands": [[],[],[],[]],
+    "views": [
+      {"me":{"seat":0,"host":true,"hand":null},"blind":[false,false,false,false]},
+      {"me":{"seat":1,"host":false,"hand":null},"blind":[false,false,false,false]},
+      {"me":{"seat":2,"host":false,"hand":null},"blind":[false,false,false,false]},
+      {"me":{"seat":3,"host":false,"hand":null},"blind":[false,false,false,false]},
+      {"me":{"seat":null,"host":false,"hand":null},"blind":[false,false,false,false]}
+    ],
+    "totals": {"a":{"score":49,"bags":9,"penalties":0},"b":{"score":-70,"bags":0,"penalties":0}},
+    "lines": [
+      {
+        "index": 0,
+        "a": {"team":"a","contract":4,"took":13,"made":true,"points":49,"bags":9,"nils":[],"bagsBefore":0,"bagsAfter":9,"penalty":0,"net":49},
+        "b": {"team":"b","contract":7,"took":0,"made":false,"points":-70,"bags":0,"nils":[],"bagsBefore":0,"bagsAfter":0,"penalty":0,"net":-70},
+        "after": {"a":49,"b":-70}
+      }
+    ]
+  }
+}
