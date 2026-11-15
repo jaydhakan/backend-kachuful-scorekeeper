@@ -26,6 +26,9 @@ from app.services.merge import MergeService
 from app.services.owned_games import MyDataService
 from app.services.players import PlayersService
 from app.services.seat_invites import SeatInvitesService
+from app.services.spades_boards import SpadesBoardsService
+from app.services.spades_games import SpadesGamesService
+from app.services.spades_tables import SpadesTablesService
 
 
 async def get_session() -> AsyncIterator[AsyncSession]:
@@ -161,6 +164,21 @@ def get_ishaara_rematch_service(session: SessionDep) -> IshaaraRematchService:
 def get_ishaara_boards_service(session: SessionDep) -> IshaaraBoardsService:
     """IshaaraBoardsService for a request."""
     return IshaaraBoardsService(session)
+
+
+def get_spades_games_service(session: SessionDep) -> SpadesGamesService:
+    """SpadesGamesService (table mode) for a request."""
+    return SpadesGamesService(session)
+
+
+def get_spades_boards_service(session: SessionDep) -> SpadesBoardsService:
+    """SpadesBoardsService for a request."""
+    return SpadesBoardsService(session)
+
+
+def get_spades_tables_service(session: SessionDep) -> SpadesTablesService:
+    """SpadesTablesService (online tables) for a request."""
+    return SpadesTablesService(session)
 
 
 def get_seat_invites_service(session: SessionDep) -> SeatInvitesService:

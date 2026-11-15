@@ -9,6 +9,7 @@ from app.schemas.auth import PreferencesOut, UserOut
 from app.schemas.games import GameSummaryOut
 from app.schemas.kaali_teeri import KtGameSummaryOut
 from app.schemas.players import PlayerOut, PlayerSummaryOut
+from app.schemas.spades import SpGameSummaryOut
 
 
 def user_out(user: User) -> UserOut:
@@ -99,6 +100,25 @@ def summary_out(row: SummaryRow, *, public: bool = False) -> GameSummaryOut:
         for seat in stored["players"]
     ]
     return GameSummaryOut.model_validate(
+        {
+            **stored,
+            "players": players,
+            "id": row.game_id,
+            "owner": {"id": None if public else row.owner_id, "name": row.owner_name},
+            "updatedAt": to_ms(row.updated_at),
+            "live": row.live,
+        }
+    )
+
+
+def sp_summary_out(row: SummaryRow, *, public: bool = False) -> SpGameSummaryOut:
+    """A table-mode Spades game's summary; `public` hides the owner's user id."""
+    stored = row.summary
+    players = [
+        {**seat, "photoUrl": _seat_photo(row.photos, seat.get("playerId"))}
+        for seat in stored["players"]
+    ]
+    return SpGameSummaryOut.model_validate(
         {
             **stored,
             "players": players,
