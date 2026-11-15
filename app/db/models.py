@@ -253,7 +253,10 @@ class Game(Base):
     __tablename__ = "games"
     __table_args__ = (
         CheckConstraint("status IN ('active', 'finished')", name="status"),
-        CheckConstraint("kind IN ('kachuful', 'kaali-teeri', 'ishaara')", name="kind"),
+        CheckConstraint(
+            "kind IN ('kachuful', 'kaali-teeri', 'ishaara', 'spades', 'spades-online')",
+            name="kind",
+        ),
         # Sync and list order per game; also serves `updatedSince` tombstones, so it is not partial.
         Index("ix_games_kind_updated_at_id", "kind", "updated_at", "id"),
         Index("ix_games_owner_id_updated_at", "owner_id", text("updated_at DESC")),
@@ -271,6 +274,15 @@ class Game(Base):
             "ix_games_payload_players",
             text("(payload -> 'players') jsonb_path_ops"),
             postgresql_using="gin",
+        ),
+        # An open Spades table's join code is unique.
+        Index(
+            "uq_games_spades_code",
+            text("(summary ->> 'code')"),
+            unique=True,
+            postgresql_where=text(
+                "kind = 'spades-online' AND status = 'active' AND deleted_at IS NULL"
+            ),
         ),
         Index(
             "ix_games_auto_end",
@@ -679,6 +691,164 @@ class IshaaraPlayerDay(Base):
     avg_clue_sum: Mapped[float] = mapped_column(Double)
     avg_clue_games: Mapped[int] = mapped_column(Integer)
     penalties: Mapped[int] = mapped_column(Integer)
+
+
+_SPADES_ROW_COLUMNS = [
+    "game_id",
+    "kind",
+    "seat",
+    "team",
+    "partner_id",
+    "result",
+    "score",
+    "opp_score",
+    "hands",
+    "bids",
+    "bids_made",
+    "nils",
+    "nils_made",
+    "blind_nils",
+    "blind_nils_made",
+    "bags",
+    "sets",
+]
+
+
+class SpadesSeat(Base):
+    """A seat of a table-mode Spades game (kind `spades`): the registry's seat table for it."""
+
+    __tablename__ = "spades_seats"
+    __table_args__ = (
+        Index(
+            "ix_spades_seats_player_id",
+            "player_id",
+            postgresql_include=["game_id", "last_done_at"],
+        ),
+    )
+
+    game_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("games.id", ondelete="CASCADE"), primary_key=True
+    )
+    player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"), primary_key=True)
+    seat: Mapped[int] = mapped_column(SmallInteger)
+    last_done_at: Mapped[datetime | None]
+
+
+class SpadesTableSeat(Base):
+    """A player at an online Spades table (kind `spades-online`); `seat` is null once replaced.
+
+    The registry's seat table for the kind, and where each seat's account and presence live.
+    """
+
+    __tablename__ = "spades_table_seats"
+    __table_args__ = (
+        Index(
+            "uq_spades_table_seats_game_id_seat",
+            "game_id",
+            "seat",
+            unique=True,
+            postgresql_where=text("seat IS NOT NULL"),
+        ),
+        Index(
+            "ix_spades_table_seats_player_id",
+            "player_id",
+            postgresql_include=["game_id", "last_done_at"],
+        ),
+        Index(
+            "ix_spades_table_seats_user_id",
+            "user_id",
+            postgresql_include=["game_id", "seat"],
+            postgresql_where=text("user_id IS NOT NULL"),
+        ),
+    )
+
+    game_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("games.id", ondelete="CASCADE"), primary_key=True
+    )
+    player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"), primary_key=True)
+    seat: Mapped[int | None] = mapped_column(SmallInteger)
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    last_done_at: Mapped[datetime | None]
+    # Stamped by the seat's stream (open and pings) and its actions: the timer-off away check.
+    last_seen_at: Mapped[datetime | None]
+
+
+class SpadesHand(Base):
+    """One seat's private cards at an online table; never in `games.payload`."""
+
+    __tablename__ = "spades_hands"
+
+    game_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("games.id", ondelete="CASCADE"), primary_key=True
+    )
+    seat: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
+    cards: Mapped[list[dict[str, Any]]] = mapped_column(JSONB)
+
+
+class SpadesAction(Base):
+    """An applied Spades action: the audit log, and what makes a retried `actionId` a no-op."""
+
+    __tablename__ = "spades_actions"
+    __table_args__ = (Index("uq_spades_actions_game_id_seq", "game_id", "seq", unique=True),)
+
+    game_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("games.id", ondelete="CASCADE"), primary_key=True
+    )
+    action_id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    seq: Mapped[int] = mapped_column(Integer)
+    type: Mapped[str] = mapped_column(Text)
+    body: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    at: Mapped[datetime]
+    by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL")
+    )
+
+
+class SpadesGamePlayer(Base):
+    """One player of a finished (not cancelled) Spades game of either kind, for boards and stats.
+
+    `result` is null for someone replaced before the end: their hands count, the game doesn't.
+    """
+
+    __tablename__ = "spades_game_players"
+    __table_args__ = (
+        CheckConstraint("kind IN ('spades', 'spades-online')", name="kind"),
+        CheckConstraint("team IN ('a', 'b')", name="team"),
+        CheckConstraint("result IN ('win', 'loss', 'draw')", name="result"),
+        Index(
+            "ix_spades_game_players_player_id",
+            "player_id",
+            postgresql_include=[*_SPADES_ROW_COLUMNS, "finished_at"],
+        ),
+        Index(
+            "ix_spades_game_players_finished_at",
+            "finished_at",
+            postgresql_include=["player_id", *_SPADES_ROW_COLUMNS],
+        ),
+    )
+
+    game_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("games.id", ondelete="CASCADE"), primary_key=True
+    )
+    player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"), primary_key=True)
+    kind: Mapped[str] = mapped_column(Text)
+    seat: Mapped[int] = mapped_column(SmallInteger)
+    team: Mapped[str] = mapped_column(Text)
+    partner_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("players.id"))
+    result: Mapped[str | None] = mapped_column(Text)
+    ended_by: Mapped[str] = mapped_column(Text)
+    score: Mapped[int] = mapped_column(Integer)
+    opp_score: Mapped[int] = mapped_column(Integer)
+    hands: Mapped[int] = mapped_column(Integer)
+    bids: Mapped[int] = mapped_column(Integer)
+    bids_made: Mapped[int] = mapped_column(Integer)
+    nils: Mapped[int] = mapped_column(Integer)
+    nils_made: Mapped[int] = mapped_column(Integer)
+    blind_nils: Mapped[int] = mapped_column(Integer)
+    blind_nils_made: Mapped[int] = mapped_column(Integer)
+    bags: Mapped[int] = mapped_column(Integer)
+    sets: Mapped[int] = mapped_column(Integer)
+    finished_at: Mapped[datetime]
 
 
 class Achievement(Base):

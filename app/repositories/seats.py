@@ -10,7 +10,14 @@ from typing import Any
 from sqlalchemy import ColumnElement, FromClause, Select, Subquery, exists, or_, select, union_all
 from sqlalchemy.orm import QueryableAttribute
 
-from app.db.models import Game, GamePlayer, IshaaraRole, KtGamePlayer
+from app.db.models import (
+    Game,
+    GamePlayer,
+    IshaaraRole,
+    KtGamePlayer,
+    SpadesSeat,
+    SpadesTableSeat,
+)
 from app.domain.enums import GameKind
 
 
@@ -31,6 +38,9 @@ SEAT_TABLES: tuple[SeatTable, ...] = (
     SeatTable(kind=GameKind.KAALI_TEERI, table=KtGamePlayer.__table__),
     # Every seat from creation on; its last reveal is the game row's `last_done_at`.
     SeatTable(kind=GameKind.ISHAARA, table=IshaaraRole.__table__, own_last_done_at=False),
+    SeatTable(kind=GameKind.SPADES, table=SpadesSeat.__table__),
+    # Everyone who sat at an online table, a replaced seat included (its hands are theirs).
+    SeatTable(kind=GameKind.SPADES_ONLINE, table=SpadesTableSeat.__table__),
 )
 
 
