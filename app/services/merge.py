@@ -22,6 +22,8 @@ from app.services.games import GamesService
 from app.services.ishaara_games import IshaaraGamesService
 from app.services.kt_games import KtGamesService
 from app.services.presenters import player_out
+from app.services.spades_games import SpadesGamesService
+from app.services.spades_tables import SpadesTablesService
 
 logger = get_logger(__name__)
 
@@ -46,12 +48,26 @@ async def _reseat_ishaara(
     await IshaaraGamesService(session).reseat(row, from_id, into_id)
 
 
+async def _reseat_spades(
+    session: AsyncSession, row: Game, from_id: uuid.UUID, into_id: uuid.UUID
+) -> None:
+    await SpadesGamesService(session).reseat(row, from_id, into_id)
+
+
+async def _reseat_spades_online(
+    session: AsyncSession, row: Game, from_id: uuid.UUID, into_id: uuid.UUID
+) -> None:
+    await SpadesTablesService(session).reseat(row, from_id, into_id)
+
+
 # How each kind moves a seat in its payload and derived rows: one entry per kind that has a
 # table in `repositories.seats.SEAT_TABLES`.
 RESEAT_BY_KIND: dict[GameKind, Reseat] = {
     GameKind.KACHUFUL: _reseat_kachuful,
     GameKind.KAALI_TEERI: _reseat_kaali_teeri,
     GameKind.ISHAARA: _reseat_ishaara,
+    GameKind.SPADES: _reseat_spades,
+    GameKind.SPADES_ONLINE: _reseat_spades_online,
 }
 
 
