@@ -5,12 +5,14 @@ import os
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Game, ShareLink
 from app.db.session import get_session_factory
 from app.domain.enums import GameKind
+from app.domain.spades.seats import team_of
 from app.domain.time import from_ms, to_ms, to_ms_or_none
 from app.exceptions import ApiError, ErrorCode
 from app.live.hub import notify
@@ -20,13 +22,15 @@ from app.repositories.games import games_repository
 from app.repositories.players import players_repository
 from app.repositories.share_links import share_links_repository
 from app.repositories.users import users_repository
-from app.schemas.games import SummaryPlayerOut
-from app.schemas.kaali_teeri import KtGameSummaryOut, KtSummaryPlayerOut
+from app.schemas.kaali_teeri import KtGameSummaryOut
 from app.schemas.public import LiveOut, RecapOut, Summary
+from app.schemas.spades import SpGameSummaryOut, SpSummaryPlayerOut
+from app.schemas.spades_tables import SpSummarySeatOut, SpTableSummaryOut
 from app.security.rate_limit import REACTION_LINK, REACTION_VIEWER
 from app.services.achievements_read import achievements_for_game
 from app.services.links import LINKED_KINDS, PATHS, live_expired
-from app.services.presenters import kt_summary_out, summary_out
+from app.services.presenters import kt_summary_out, sp_summary_out, summary_out
+from app.services.spades_state import public_table, table_summary_out
 from app.settings import settings
 
 _PAGE = """<!doctype html>
@@ -67,26 +71,81 @@ class _KindPage:
 _PAGES = {
     GameKind.KACHUFUL: _KindPage(name="Kachuful", path="/", unit="rounds"),
     GameKind.KAALI_TEERI: _KindPage(name="Kaali Teeri", path="/kaali-teeri", unit="hands"),
+    GameKind.SPADES: _KindPage(name="Spades", path="/spades", unit="hands"),
+    GameKind.SPADES_ONLINE: _KindPage(name="Spades", path="/spades", unit="hands"),
 }
 
 
 @dataclass(frozen=True)
-class _Shown:
-    """What previews show of either kind's summary."""
+class _ShownPlayer:
+    """A seat as previews and the recap card show it."""
 
-    players: list[SummaryPlayerOut | KtSummaryPlayerOut]
+    player_id: str | None
+    name: str
+    emoji: str
+    photo_url: str | None
+    points: int
+    place: int | None
+
+
+@dataclass(frozen=True)
+class _Shown:
+    """What previews show of any kind's summary."""
+
+    players: list[_ShownPlayer]
     done: int
     ended: bool
     ended_at: int | None
 
 
+def _plain(players: list[Any]) -> list[_ShownPlayer]:
+    return [
+        _ShownPlayer(p.player_id, p.name, p.emoji, p.photo_url, p.points, p.place) for p in players
+    ]
+
+
+def _spades_place(team: str, scores: dict[str, int], result: dict[str, str] | None) -> int | None:
+    """1 for the winning team (both teams on a draw), 2 for the other; none until finished."""
+    if result is None:
+        return None
+    return 1 if result["winner"] in (team, "draw") else 2
+
+
+def _spades_shown(summary: SpGameSummaryOut | SpTableSummaryOut) -> _Shown:
+    """Each seat with its team's score as points."""
+    ended = summary.status in ("finished", "cancelled")
+    end = (summary.finished_at or summary.updated_at) if ended else None
+    seats: list[tuple[str, SpSummaryPlayerOut | SpSummarySeatOut]]
+    if isinstance(summary, SpGameSummaryOut):
+        scores = summary.scores.model_dump()
+        result = None if summary.result is None else summary.result.model_dump(by_alias=True)
+        seats = [(p.team, p) for p in summary.players]
+    else:
+        scores, result = summary.scores, summary.result
+        seats = [(team_of(i), p) for i, p in enumerate(summary.seats) if p is not None]
+    players = [
+        _ShownPlayer(
+            p.player_id,
+            p.name,
+            p.emoji,
+            p.photo_url,
+            int(scores[team]),
+            _spades_place(team, scores, result),
+        )
+        for team, p in seats
+    ]
+    return _Shown(players, summary.hands, ended, end)
+
+
 def _shown(summary: Summary) -> _Shown:
+    if isinstance(summary, SpGameSummaryOut | SpTableSummaryOut):
+        return _spades_shown(summary)
     if isinstance(summary, KtGameSummaryOut):
         ended = summary.status == "finished"
         end = (summary.finished_at or summary.updated_at) if ended else None
-        return _Shown(list(summary.players), summary.hands, ended, end)
-    players: list[SummaryPlayerOut | KtSummaryPlayerOut] = list(summary.players)
-    return _Shown(players, summary.rounds, summary.ended_at is not None, summary.ended_at)
+        return _Shown(_plain(summary.players), summary.hands, ended, end)
+    shown = _plain(summary.players)
+    return _Shown(shown, summary.rounds, summary.ended_at is not None, summary.ended_at)
 
 
 def _when(ms: int) -> str:
@@ -122,9 +181,13 @@ class PublicService:
 
     async def _summary(self, game: Game) -> Summary:
         kind = GameKind(game.kind)
+        if kind == GameKind.SPADES_ONLINE:
+            return table_summary_out(game.id, game.summary, player_id=None, is_host=False)
         row = (await games_repository.summaries(self.session, [game.id], kind=kind))[game.id]
         if kind == GameKind.KAALI_TEERI:
             return kt_summary_out(row, public=True)
+        if kind == GameKind.SPADES:
+            return sp_summary_out(row, public=True)
         return summary_out(row, public=True)
 
     async def live_body(self, game: Game, link: ShareLink) -> LiveOut:
@@ -133,7 +196,7 @@ class PublicService:
         recap = await share_links_repository.active(self.session, game.id, "recap")
         return LiveOut(
             kind=game.kind,
-            game=game.payload,
+            game=_public_payload(game),
             summary=await self._summary(game),
             updated_at=to_ms(game.updated_at),
             scorer_seen_at=None if owner is None else to_ms_or_none(owner.last_seen_at),
@@ -162,7 +225,7 @@ class PublicService:
         kachuful = game.kind == GameKind.KACHUFUL
         return RecapOut(
             kind=game.kind,
-            game=game.payload,
+            game=_public_payload(game),
             summary=await self._summary(game),
             achievements=await achievements_for_game(self.session, game.id) if kachuful else [],
         )
@@ -222,6 +285,13 @@ class PublicService:
             image = ""
         url = f"{settings.APP_ORIGIN}/{PATHS[kind]}/{token}"
         return 200, _render_page(title, description, target, url, image)
+
+
+def _public_payload(game: Game) -> dict[str, Any]:
+    """What a link shows of the payload: an online Spades table as no seat sees it."""
+    if game.kind == GameKind.SPADES_ONLINE:
+        return public_table(game.payload)
+    return game.payload
 
 
 def _render_page(title: str, description: str, target: str, url: str, image: str) -> str:

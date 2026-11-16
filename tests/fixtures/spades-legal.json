@@ -1,0 +1,275 @@
+{
+  "kind": "spades-legal",
+  "plays": [
+    {
+      "name": "first lead, spades locked",
+      "hand": [{"rank":"2","suit":"hearts"},{"rank":"A","suit":"spades"},{"rank":"3","suit":"clubs"},{"rank":"K","suit":"diamonds"}],
+      "trick": [],
+      "broken": false,
+      "expect": {"legal":[{"rank":"2","suit":"hearts"},{"rank":"3","suit":"clubs"},{"rank":"K","suit":"diamonds"}],"problems":{"2h":null,"as":"spades-locked","3c":null,"kd":null,"qh":"not-in-hand"}}
+    },
+    {
+      "name": "first lead, only spades",
+      "hand": [{"rank":"A","suit":"spades"},{"rank":"2","suit":"spades"},{"rank":"9","suit":"spades"}],
+      "trick": [],
+      "broken": false,
+      "expect": {"legal":[{"rank":"A","suit":"spades"},{"rank":"2","suit":"spades"},{"rank":"9","suit":"spades"}],"problems":{"as":null,"2s":null,"9s":null,"qh":"not-in-hand"}}
+    },
+    {
+      "name": "lead after spades broke",
+      "hand": [{"rank":"2","suit":"hearts"},{"rank":"A","suit":"spades"},{"rank":"3","suit":"clubs"}],
+      "trick": [],
+      "broken": true,
+      "expect": {"legal":[{"rank":"2","suit":"hearts"},{"rank":"A","suit":"spades"},{"rank":"3","suit":"clubs"}],"problems":{"2h":null,"as":null,"3c":null,"qh":"not-in-hand"}}
+    },
+    {
+      "name": "must follow",
+      "hand": [{"rank":"2","suit":"hearts"},{"rank":"K","suit":"hearts"},{"rank":"3","suit":"clubs"},{"rank":"A","suit":"spades"}],
+      "trick": [{"seat":0,"card":{"rank":"9","suit":"hearts"}}],
+      "broken": false,
+      "expect": {"legal":[{"rank":"2","suit":"hearts"},{"rank":"K","suit":"hearts"}],"problems":{"2h":null,"kh":null,"3c":"must-follow","as":"must-follow","qh":"not-in-hand"}}
+    },
+    {
+      "name": "cannot follow: anything, a cut included",
+      "hand": [{"rank":"3","suit":"clubs"},{"rank":"A","suit":"spades"},{"rank":"4","suit":"diamonds"}],
+      "trick": [{"seat":0,"card":{"rank":"9","suit":"hearts"}}],
+      "broken": false,
+      "expect": {"legal":[{"rank":"3","suit":"clubs"},{"rank":"A","suit":"spades"},{"rank":"4","suit":"diamonds"}],"problems":{"3c":null,"as":null,"4d":null,"qh":"not-in-hand"}}
+    },
+    {
+      "name": "spades led",
+      "hand": [{"rank":"3","suit":"spades"},{"rank":"Q","suit":"spades"},{"rank":"4","suit":"diamonds"}],
+      "trick": [{"seat":1,"card":{"rank":"9","suit":"spades"}}],
+      "broken": true,
+      "expect": {"legal":[{"rank":"3","suit":"spades"},{"rank":"Q","suit":"spades"}],"problems":{"3s":null,"qs":null,"4d":"must-follow","qh":"not-in-hand"}}
+    },
+    {
+      "name": "last to play, void",
+      "hand": [{"rank":"3","suit":"clubs"},{"rank":"4","suit":"diamonds"}],
+      "trick": [{"seat":1,"card":{"rank":"9","suit":"hearts"}},{"seat":2,"card":{"rank":"A","suit":"hearts"}},{"seat":3,"card":{"rank":"2","suit":"spades"}}],
+      "broken": true,
+      "expect": {"legal":[{"rank":"3","suit":"clubs"},{"rank":"4","suit":"diamonds"}],"problems":{"3c":null,"4d":null,"qh":"not-in-hand"}}
+    }
+  ],
+  "tricks": [
+    {
+      "plays": [{"seat":0,"card":{"rank":"9","suit":"hearts"}},{"seat":1,"card":{"rank":"A","suit":"hearts"}},{"seat":2,"card":{"rank":"2","suit":"spades"}},{"seat":3,"card":{"rank":"K","suit":"hearts"}}],
+      "winner": 2
+    },
+    {
+      "plays": [{"seat":0,"card":{"rank":"9","suit":"hearts"}},{"seat":1,"card":{"rank":"3","suit":"spades"}},{"seat":2,"card":{"rank":"2","suit":"spades"}},{"seat":3,"card":{"rank":"K","suit":"spades"}}],
+      "winner": 3
+    },
+    {
+      "plays": [{"seat":1,"card":{"rank":"9","suit":"hearts"}},{"seat":2,"card":{"rank":"A","suit":"diamonds"}},{"seat":3,"card":{"rank":"K","suit":"hearts"}},{"seat":0,"card":{"rank":"2","suit":"clubs"}}],
+      "winner": 3
+    },
+    {
+      "plays": [{"seat":2,"card":{"rank":"5","suit":"clubs"}},{"seat":3,"card":{"rank":"A","suit":"hearts"}},{"seat":0,"card":{"rank":"A","suit":"diamonds"}},{"seat":1,"card":{"rank":"4","suit":"clubs"}}],
+      "winner": 2
+    },
+    {
+      "plays": [{"seat":3,"card":{"rank":"A","suit":"spades"}},{"seat":0,"card":{"rank":"K","suit":"spades"}},{"seat":1,"card":{"rank":"A","suit":"hearts"}},{"seat":2,"card":{"rank":"2","suit":"spades"}}],
+      "winner": 3
+    }
+  ],
+  "timeoutPlay": [
+    {"hand":[{"rank":"K","suit":"hearts"},{"rank":"2","suit":"spades"},{"rank":"3","suit":"clubs"},{"rank":"5","suit":"hearts"}],"trick":[],"broken":true,"expect":{"rank":"3","suit":"clubs"}},
+    {
+      "hand": [{"rank":"K","suit":"hearts"},{"rank":"2","suit":"spades"},{"rank":"5","suit":"hearts"}],
+      "trick": [{"seat":0,"card":{"rank":"4","suit":"diamonds"}}],
+      "broken": true,
+      "expect": {"rank":"5","suit":"hearts"}
+    },
+    {
+      "hand": [{"rank":"K","suit":"hearts"},{"rank":"2","suit":"spades"},{"rank":"5","suit":"hearts"}],
+      "trick": [{"seat":0,"card":{"rank":"4","suit":"hearts"}}],
+      "broken": true,
+      "expect": {"rank":"5","suit":"hearts"}
+    },
+    {"hand":[{"rank":"K","suit":"spades"},{"rank":"2","suit":"spades"}],"trick":[],"broken":false,"expect":{"rank":"2","suit":"spades"}},
+    {
+      "hand": [{"rank":"A","suit":"hearts"},{"rank":"A","suit":"diamonds"},{"rank":"2","suit":"spades"}],
+      "trick": [{"seat":0,"card":{"rank":"3","suit":"clubs"}}],
+      "broken": true,
+      "expect": {"rank":"A","suit":"diamonds"}
+    },
+    {"hand":[{"rank":"5","suit":"clubs"},{"rank":"5","suit":"diamonds"},{"rank":"5","suit":"hearts"}],"trick":[],"broken":false,"expect":{"rank":"5","suit":"clubs"}}
+  ],
+  "draws": [
+    {"draw":[{"rank":"5","suit":"clubs"},{"rank":"Q","suit":"diamonds"},{"rank":"9","suit":"hearts"},{"rank":"2","suit":"spades"}],"dealer":1},
+    {"draw":[{"rank":"K","suit":"diamonds"},{"rank":"K","suit":"hearts"},{"rank":"3","suit":"clubs"},{"rank":"K","suit":"clubs"}],"dealer":1},
+    {"draw":[{"rank":"A","suit":"spades"},{"rank":"A","suit":"hearts"},{"rank":"A","suit":"diamonds"},{"rank":"A","suit":"clubs"}],"dealer":0},
+    {"draw":[{"rank":"2","suit":"clubs"},{"rank":"2","suit":"diamonds"},{"rank":"3","suit":"clubs"},{"rank":"2","suit":"spades"}],"dealer":2}
+  ],
+  "bids": [
+    {
+      "name": "standard",
+      "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+      "seat": 0,
+      "bids": [null,null,null,null],
+      "expect": {"min":1,"allowed":[0,1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":null,"1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "standard",
+      "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+      "seat": 2,
+      "bids": [1,null,null,null],
+      "expect": {"min":1,"allowed":[0,1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":null,"1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "standard",
+      "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+      "seat": 2,
+      "bids": [0,null,null,null],
+      "expect": {"min":1,"allowed":[0,1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":null,"1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "standard",
+      "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+      "seat": 2,
+      "bids": [5,null,null,null],
+      "expect": {"min":1,"allowed":[0,1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":null,"1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "standard",
+      "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+      "seat": 3,
+      "bids": [2,3,1,null],
+      "expect": {"min":1,"allowed":[0,1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":null,"1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "standard",
+      "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+      "seat": 1,
+      "bids": [4,null,3,2],
+      "expect": {"min":1,"allowed":[0,1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":null,"1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "nil off",
+      "rules": {"target":200,"timerSec":30,"nil":false,"blindNil":false,"minTeamBid":null,"mercy":null},
+      "seat": 0,
+      "bids": [null,null,null,null],
+      "expect": {"min":1,"allowed":[1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":"nil-off","1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "nil off",
+      "rules": {"target":200,"timerSec":30,"nil":false,"blindNil":false,"minTeamBid":null,"mercy":null},
+      "seat": 2,
+      "bids": [1,null,null,null],
+      "expect": {"min":1,"allowed":[1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":"nil-off","1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "nil off",
+      "rules": {"target":200,"timerSec":30,"nil":false,"blindNil":false,"minTeamBid":null,"mercy":null},
+      "seat": 2,
+      "bids": [0,null,null,null],
+      "expect": {"min":1,"allowed":[1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":"nil-off","1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "nil off",
+      "rules": {"target":200,"timerSec":30,"nil":false,"blindNil":false,"minTeamBid":null,"mercy":null},
+      "seat": 2,
+      "bids": [5,null,null,null],
+      "expect": {"min":1,"allowed":[1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":"nil-off","1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "nil off",
+      "rules": {"target":200,"timerSec":30,"nil":false,"blindNil":false,"minTeamBid":null,"mercy":null},
+      "seat": 3,
+      "bids": [2,3,1,null],
+      "expect": {"min":1,"allowed":[1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":"nil-off","1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "nil off",
+      "rules": {"target":200,"timerSec":30,"nil":false,"blindNil":false,"minTeamBid":null,"mercy":null},
+      "seat": 1,
+      "bids": [4,null,3,2],
+      "expect": {"min":1,"allowed":[1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":"nil-off","1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "min team bid 4",
+      "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":4,"mercy":null},
+      "seat": 0,
+      "bids": [null,null,null,null],
+      "expect": {"min":1,"allowed":[0,1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":null,"1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "min team bid 4",
+      "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":4,"mercy":null},
+      "seat": 2,
+      "bids": [1,null,null,null],
+      "expect": {"min":3,"allowed":[0,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":null,"1":"below-min","2":"below-min","3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "min team bid 4",
+      "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":4,"mercy":null},
+      "seat": 2,
+      "bids": [0,null,null,null],
+      "expect": {"min":1,"allowed":[0,1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":null,"1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "min team bid 4",
+      "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":4,"mercy":null},
+      "seat": 2,
+      "bids": [5,null,null,null],
+      "expect": {"min":1,"allowed":[0,1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":null,"1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "min team bid 4",
+      "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":4,"mercy":null},
+      "seat": 3,
+      "bids": [2,3,1,null],
+      "expect": {"min":1,"allowed":[0,1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":null,"1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "min team bid 4",
+      "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":4,"mercy":null},
+      "seat": 1,
+      "bids": [4,null,3,2],
+      "expect": {"min":2,"allowed":[0,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":null,"1":"below-min","2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "min team bid 4, nil off",
+      "rules": {"target":200,"timerSec":30,"nil":false,"blindNil":false,"minTeamBid":4,"mercy":null},
+      "seat": 0,
+      "bids": [null,null,null,null],
+      "expect": {"min":1,"allowed":[1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":"nil-off","1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "min team bid 4, nil off",
+      "rules": {"target":200,"timerSec":30,"nil":false,"blindNil":false,"minTeamBid":4,"mercy":null},
+      "seat": 2,
+      "bids": [1,null,null,null],
+      "expect": {"min":3,"allowed":[3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":"nil-off","1":"below-min","2":"below-min","3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "min team bid 4, nil off",
+      "rules": {"target":200,"timerSec":30,"nil":false,"blindNil":false,"minTeamBid":4,"mercy":null},
+      "seat": 2,
+      "bids": [0,null,null,null],
+      "expect": {"min":1,"allowed":[1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":"nil-off","1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "min team bid 4, nil off",
+      "rules": {"target":200,"timerSec":30,"nil":false,"blindNil":false,"minTeamBid":4,"mercy":null},
+      "seat": 2,
+      "bids": [5,null,null,null],
+      "expect": {"min":1,"allowed":[1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":"nil-off","1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "min team bid 4, nil off",
+      "rules": {"target":200,"timerSec":30,"nil":false,"blindNil":false,"minTeamBid":4,"mercy":null},
+      "seat": 3,
+      "bids": [2,3,1,null],
+      "expect": {"min":1,"allowed":[1,2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":"nil-off","1":null,"2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    },
+    {
+      "name": "min team bid 4, nil off",
+      "rules": {"target":200,"timerSec":30,"nil":false,"blindNil":false,"minTeamBid":4,"mercy":null},
+      "seat": 1,
+      "bids": [4,null,3,2],
+      "expect": {"min":2,"allowed":[2,3,4,5,6,7,8,9,10,11,12,13],"problems":{"0":"nil-off","1":"below-min","2":null,"3":null,"13":null,"14":"bad-bid","-1":"bad-bid","2.5":"bad-bid"}}
+    }
+  ]
+}

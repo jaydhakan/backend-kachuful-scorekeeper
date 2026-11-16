@@ -12,14 +12,23 @@ from app.repositories.users import users_repository
 from app.services.games import GamesService
 from app.services.ishaara_games import IshaaraGamesService
 from app.services.kt_games import KtGamesService
+from app.services.spades_games import SpadesGamesService
+from app.services.spades_tables import SpadesTablesService
 
 logger = get_logger(__name__)
 
 HELP = "Soft-delete every game with no round or hand done (--dry-run only counts them)"
-# Kinds with a delete use case; empty means no hand done (Kaali Teeri), no card face up (Ishaara).
-KINDS = (GameKind.KACHUFUL, GameKind.KAALI_TEERI, GameKind.ISHAARA)
-# The server holds Ishaara games from Start, so one waiting for its clue-givers is not empty yet.
-FINISHED_ONLY = frozenset({GameKind.ISHAARA})
+# Kinds with a delete use case; empty means no hand done (Kaali Teeri, Spades), no card face up
+# (Ishaara).
+KINDS = (
+    GameKind.KACHUFUL,
+    GameKind.KAALI_TEERI,
+    GameKind.ISHAARA,
+    GameKind.SPADES,
+    GameKind.SPADES_ONLINE,
+)
+# The server holds these from Start, so one waiting for its players is not empty yet.
+FINISHED_ONLY = frozenset({GameKind.ISHAARA, GameKind.SPADES_ONLINE})
 
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
@@ -41,6 +50,10 @@ async def _delete_one(game_id: uuid.UUID, owner_id: uuid.UUID, kind: GameKind) -
             await KtGamesService(session).delete(game_id, owner)
         elif kind == GameKind.ISHAARA:
             await IshaaraGamesService(session).delete(game_id, owner)
+        elif kind == GameKind.SPADES:
+            await SpadesGamesService(session).delete(game_id, owner)
+        elif kind == GameKind.SPADES_ONLINE:
+            await SpadesTablesService(session).delete(game_id, owner)
         else:
             await GamesService(session).delete(game_id, owner)
         return True

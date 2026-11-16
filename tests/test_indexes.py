@@ -165,6 +165,50 @@ CASES = [
         "ix_share_links_game_id_kind_active",
         f"SELECT token FROM share_links WHERE game_id = '{ID}' AND kind = 'live' AND revoked_at IS NULL",
     ),
+    ("ix_players_created_by", f"SELECT id FROM players WHERE created_by = '{ID}'"),
+    (
+        "ix_seat_invites_to_user_status",
+        f"SELECT id FROM seat_invites WHERE to_user = '{ID}' AND status = 'pending' "
+        "AND created_at >= now() - interval '30 minutes'",
+    ),
+    (
+        "uq_seat_invites_pending",
+        f"SELECT id FROM seat_invites WHERE game_id = '{ID}' AND status = 'pending'",
+    ),
+    (
+        "ix_spades_game_players_finished_at",
+        "SELECT game_id, player_id, team, partner_id, result, score, hands, bids, bids_made, "
+        "nils, nils_made, blind_nils, blind_nils_made, bags, sets FROM spades_game_players "
+        "WHERE finished_at >= now() - interval '7 days' AND finished_at < now()",
+    ),
+    (
+        "ix_spades_game_players_player_id",
+        "SELECT game_id, player_id, team, partner_id, result, score, hands, bids, bids_made, "
+        "nils, nils_made, blind_nils, blind_nils_made, bags, sets FROM spades_game_players "
+        f"WHERE player_id IN ('{ID}')",
+    ),
+    (
+        "ix_spades_seats_player_id",
+        f"SELECT g.id FROM games g JOIN (SELECT game_id FROM spades_seats WHERE player_id = '{ID}' "
+        f"UNION ALL SELECT game_id FROM spades_table_seats WHERE player_id = '{ID}') s "
+        "ON s.game_id = g.id WHERE g.deleted_at IS NULL ORDER BY g.created_at DESC, g.id DESC",
+    ),
+    (
+        "ix_spades_table_seats_player_id",
+        f"SELECT g.id FROM games g JOIN (SELECT game_id FROM spades_seats WHERE player_id = '{ID}' "
+        f"UNION ALL SELECT game_id FROM spades_table_seats WHERE player_id = '{ID}') s "
+        "ON s.game_id = g.id WHERE g.deleted_at IS NULL ORDER BY g.created_at DESC, g.id DESC",
+    ),
+    (
+        "uq_games_spades_code",
+        "SELECT id FROM games WHERE kind = 'spades-online' AND status = 'active' "
+        "AND deleted_at IS NULL AND (summary ->> 'code') = 'KQ7M'",
+    ),
+    # A deleted account's seats are found by user (the foreign key sets them null).
+    (
+        "ix_spades_table_seats_user_id",
+        f"SELECT game_id FROM spades_table_seats WHERE user_id = '{ID}'",
+    ),
 ]
 
 

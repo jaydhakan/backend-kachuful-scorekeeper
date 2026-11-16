@@ -1,9 +1,9 @@
-"""Server-Sent Events: live viewers (`game`, `reaction`, `watchers`, `revoked`) and Ishaara's
-table and clue phones (`state`, `joined`, `ended`); both `ping` every 25 s."""
+"""Server-Sent Events: live viewers (`game`, `reaction`, `watchers`, `revoked`), server-run
+games' followers (`state` and the kind's events) and a user's own stream; all `ping` every 25 s."""
 
 import asyncio
 import uuid
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Awaitable, Callable
 
 from app.live.hub import LiveMessage, hub
 
@@ -65,3 +65,28 @@ async def game_stream(
                 yield sse(message.kind, message.data, message.rev)
     finally:
         hub.unsubscribe_game(game_id, queue)
+
+
+async def user_stream(
+    user_id: uuid.UUID,
+    queue: asyncio.Queue[LiveMessage],
+    hello: str,
+    on_ping: Callable[[], Awaitable[object]],
+) -> AsyncIterator[str]:
+    """Frames for one user's stream (`hello`, then their events) until they leave.
+
+    `on_ping` runs before each ping (it marks the user seen).
+    """
+    try:
+        yield sse("hello", hello)
+        while True:
+            try:
+                message = await asyncio.wait_for(queue.get(), PING_EVERY_S)
+            except TimeoutError:
+                await on_ping()
+                yield sse("ping", "{}")
+                continue
+            if message.data is not None:
+                yield sse(message.kind, message.data)
+    finally:
+        hub.unsubscribe_user(user_id, queue)

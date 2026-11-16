@@ -1,0 +1,722 @@
+{
+  "kind": "spades-validate",
+  "now": 1794938400000,
+  "cases": [
+    {
+      "name": "won on target",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 4,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794853800000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000},
+          {"index":1,"dealer":1,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794853200000},
+          {"index":2,"dealer":2,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794853800000}
+        ],
+        "status": "finished",
+        "result": {"winner":"a","endedBy":"target"},
+        "finishedAt": 1794853800000
+      },
+      "expect": null
+    },
+    {
+      "name": "in progress, bids in order",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 4,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794853800000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000},
+          {"index":1,"dealer":1,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794853200000},
+          {"index":2,"dealer":2,"bids":[3,null,null,2],"blind":[false,false,false,false],"teamTricks":null,"nilTricks":[null,null,null,null],"phase":"bidding"}
+        ],
+        "status": "active"
+      },
+      "expect": null
+    },
+    {
+      "name": "cancelled",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 2,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794852600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000}],
+        "status": "cancelled"
+      },
+      "expect": null
+    },
+    {
+      "name": "ended by the host, hand in progress dropped",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 4,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794853800000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000},
+          {"index":1,"dealer":1,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794853200000},
+          {"index":2,"dealer":2,"bids":[null,null,null,2],"blind":[false,false,false,false],"teamTricks":null,"nilTricks":[null,null,null,null],"phase":"bidding"}
+        ],
+        "status": "finished",
+        "result": {"winner":"a","endedBy":"end"}
+      },
+      "expect": null
+    },
+    {
+      "name": "called a draw",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 3,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794853200000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000},
+          {"index":1,"dealer":1,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794853200000}
+        ],
+        "status": "finished",
+        "result": {"winner":"draw","endedBy":"draw"}
+      },
+      "expect": null
+    },
+    {
+      "name": "Nil, Blind Nil and both Nil",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 2,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794852600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":true,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[0,0,0,4],"blind":[true,false,false,false],"teamTricks":[3,10],"nilTricks":[1,0,2,null],"phase":"done","doneAt":1794852600000}],
+        "status": "active"
+      },
+      "expect": null
+    },
+    {
+      "name": "three players",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 2,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794852600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000}],
+        "status": "active"
+      },
+      "expect": {"reason":"players","handIndex":null}
+    },
+    {
+      "name": "player name blank",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 2,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794852600000,
+        "players": [
+          {"id":"p0","name":" ","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000}],
+        "status": "active"
+      },
+      "expect": {"reason":"players","handIndex":null}
+    },
+    {
+      "name": "rules: target 55",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 2,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794852600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":55,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000}],
+        "status": "active"
+      },
+      "expect": {"reason":"rules","handIndex":null}
+    },
+    {
+      "name": "rules: Blind Nil without Nil",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 2,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794852600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":false,"blindNil":true,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000}],
+        "status": "active"
+      },
+      "expect": {"reason":"rules","handIndex":null}
+    },
+    {
+      "name": "first dealer 4",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 2,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794852600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 4,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000}],
+        "status": "active"
+      },
+      "expect": {"reason":"dealer","handIndex":null}
+    },
+    {
+      "name": "hand dealer wrong",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 2,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794852600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000}],
+        "status": "active"
+      },
+      "expect": {"reason":"dealer","handIndex":0}
+    },
+    {
+      "name": "hand after the game was won",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 5,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794854400000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000},
+          {"index":1,"dealer":1,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794853200000},
+          {"index":2,"dealer":2,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794853800000},
+          {"index":3,"dealer":3,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794854400000}
+        ],
+        "status": "active"
+      },
+      "expect": {"reason":"hands","handIndex":3}
+    },
+    {
+      "name": "unfinished hand before the last",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 3,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794853200000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":null,"nilTricks":[null,null,null,null],"phase":"tricks"},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794853200000}
+        ],
+        "status": "active"
+      },
+      "expect": {"reason":"hands","handIndex":0}
+    },
+    {
+      "name": "bid of 14",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 2,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794852600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[3,3,14,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000}],
+        "status": "active"
+      },
+      "expect": {"reason":"bids","handIndex":0}
+    },
+    {
+      "name": "bids out of turn",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 2,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794852600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[null,3,null,3],"blind":[false,false,false,false],"teamTricks":null,"nilTricks":[null,null,null,null],"phase":"bidding"}],
+        "status": "active"
+      },
+      "expect": {"reason":"bids","handIndex":0}
+    },
+    {
+      "name": "below the minimum team bid",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 2,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794852600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":4,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[3,1,3,2],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000}],
+        "status": "active"
+      },
+      "expect": {"reason":"bids","handIndex":0}
+    },
+    {
+      "name": "Nil while Nil is off",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 2,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794852600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":false,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[0,3,3,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1794852600000}],
+        "status": "active"
+      },
+      "expect": {"reason":"bids","handIndex":0}
+    },
+    {
+      "name": "Blind Nil while off",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 2,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794852600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[0,3,3,3],"blind":[true,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1794852600000}],
+        "status": "active"
+      },
+      "expect": {"reason":"bids","handIndex":0}
+    },
+    {
+      "name": "tricks over 13",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 2,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794852600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[14,-1],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000}],
+        "status": "active"
+      },
+      "expect": {"reason":"tricks","handIndex":0}
+    },
+    {
+      "name": "Nil tricks over the team’s",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 2,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794852600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[0,3,3,3],"blind":[false,false,false,false],"teamTricks":[3,10],"nilTricks":[4,null,null,null],"phase":"done","doneAt":1794852600000}],
+        "status": "active"
+      },
+      "expect": {"reason":"tricks","handIndex":0}
+    },
+    {
+      "name": "both Nil, tricks not all theirs",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 2,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794852600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[0,3,0,3],"blind":[false,false,false,false],"teamTricks":[3,10],"nilTricks":[1,null,1,null],"phase":"done","doneAt":1794852600000}],
+        "status": "active"
+      },
+      "expect": {"reason":"tricks","handIndex":0}
+    },
+    {
+      "name": "finished without a result",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 4,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794853800000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000},
+          {"index":1,"dealer":1,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794853200000},
+          {"index":2,"dealer":2,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794853800000}
+        ],
+        "status": "finished"
+      },
+      "expect": {"reason":"result","handIndex":null}
+    },
+    {
+      "name": "result disagrees with the hands",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 4,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794853800000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000},
+          {"index":1,"dealer":1,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794853200000},
+          {"index":2,"dealer":2,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794853800000}
+        ],
+        "status": "finished",
+        "result": {"winner":"b","endedBy":"target"}
+      },
+      "expect": {"reason":"result","handIndex":null}
+    },
+    {
+      "name": "ended by hand after the game was won",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 4,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794853800000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000},
+          {"index":1,"dealer":1,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794853200000},
+          {"index":2,"dealer":2,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794853800000}
+        ],
+        "status": "finished",
+        "result": {"winner":"a","endedBy":"end"}
+      },
+      "expect": {"reason":"result","handIndex":null}
+    },
+    {
+      "name": "active with a result",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 3,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794853200000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000},
+          {"index":1,"dealer":1,"bids":[4,3,4,3],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794853200000}
+        ],
+        "status": "active",
+        "result": {"winner":"a","endedBy":"end"}
+      },
+      "expect": {"reason":"result","handIndex":null}
+    },
+    {
+      "name": "from the future",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 2,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794942000000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794852600000}],
+        "status": "active"
+      },
+      "expect": {"reason":"times","handIndex":null}
+    },
+    {
+      "name": "hand before the game began",
+      "game": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g-1",
+        "syncId": "80000000-0000-4000-8000-000000000001",
+        "rev": 2,
+        "createdAt": 1794852000000,
+        "updatedAt": 1794852600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794851999999}],
+        "status": "active"
+      },
+      "expect": {"reason":"times","handIndex":0}
+    }
+  ]
+}

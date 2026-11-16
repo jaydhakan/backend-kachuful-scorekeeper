@@ -9,3 +9,5 @@ class GameKind(StrEnum):
     KACHUFUL = "kachuful"
     KAALI_TEERI = "kaali-teeri"
     ISHAARA = "ishaara"
+    SPADES = "spades"
+    SPADES_ONLINE = "spades-online"

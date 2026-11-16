@@ -7,6 +7,8 @@ from pydantic import Field
 from app.schemas.common import CamelModel
 from app.schemas.games import AchievementOut, GameSummaryOut
 from app.schemas.kaali_teeri import KtGameSummaryOut
+from app.schemas.spades import SpGameSummaryOut
+from app.schemas.spades_tables import SpTableSummaryOut
 
 
 class CreateLinkIn(CamelModel):
@@ -37,8 +39,8 @@ class LinkSettingsIn(CamelModel):
 
 REACTION_KINDS = ("clap", "fire", "laugh", "wow", "party")
 
-Summary = KtGameSummaryOut | GameSummaryOut
-GameKindName = Literal["kachuful", "kaali-teeri"]
+Summary = KtGameSummaryOut | SpGameSummaryOut | SpTableSummaryOut | GameSummaryOut
+GameKindName = Literal["kachuful", "kaali-teeri", "spades", "spades-online"]
 
 
 class ReactionIn(CamelModel):
@@ -51,7 +53,9 @@ class LiveOut(CamelModel):
     """`GET /api/public/live/{token}` and every SSE `game` event."""
 
     kind: GameKindName = Field(..., description="Which game: picks the payload and summary shape")
-    game: dict[str, Any] = Field(..., description="The game payload")
+    game: dict[str, Any] = Field(
+        ..., description="The game payload; spades-online: the table no seat sees, no account ids"
+    )
     summary: Summary = Field(..., description="owner.id is always null here")
     updated_at: int = Field(..., description="Epoch ms of the last upload")
     scorer_seen_at: int | None = Field(..., description="Epoch ms the scorer was last online")
@@ -65,6 +69,8 @@ class RecapOut(CamelModel):
     """`GET /api/public/recap/{token}`."""
 
     kind: GameKindName = Field(..., description="Which game: picks the payload and summary shape")
-    game: dict[str, Any]
-    summary: Summary
-    achievements: list[AchievementOut] = Field(..., description="Always empty for Kaali Teeri")
+    game: dict[str, Any] = Field(
+        ..., description="The game payload; spades-online: the table no seat sees, no account ids"
+    )
+    summary: Summary = Field(..., description="owner.id is always null here")
+    achievements: list[AchievementOut] = Field(..., description="Empty for every kind but Kachuful")

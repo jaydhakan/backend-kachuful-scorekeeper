@@ -14,7 +14,7 @@ from app.api.deps import (
 )
 from app.api.etag import IfNoneMatch, respond
 from app.db.session import get_session_factory
-from app.live.hub import hub
+from app.live.hub import ISHAARA, GameKindHooks, hub
 from app.live.sse import game_stream
 from app.schemas.ishaara import (
     ActionIn,
@@ -34,7 +34,7 @@ from app.services.ishaara_rematch import IshaaraRematchService
 from app.services.kt_boards import KtPeriod
 from app.services.pagination import DEFAULT_LIMIT, MAX_LIMIT
 
-hub.set_game_loader(load_game_event)
+hub.register_game_kind(ISHAARA, GameKindHooks(loader=load_game_event, events=("joined", "ended")))
 
 _GamesDep = Annotated[IshaaraGamesService, Depends(get_ishaara_games_service)]
 _RematchDep = Annotated[IshaaraRematchService, Depends(get_ishaara_rematch_service)]
@@ -129,7 +129,7 @@ async def ishaara_events(
     last_event_id: Annotated[str | None, Header(alias="Last-Event-ID")] = None,
 ) -> StreamingResponse:
     """SSE: `state` first and on every change (id = rev), `joined`, `ended`, `ping` every 25 s."""
-    queue = await hub.subscribe_game(game_id)
+    queue = await hub.subscribe_game(ISHAARA, game_id)
     try:
         # Own short session: a stream can last an hour and must not hold a pooled connection.
         async with get_session_factory()() as session:

@@ -10,7 +10,14 @@ from typing import Any
 from sqlalchemy import ColumnElement, FromClause, Select, Subquery, exists, or_, select, union_all
 from sqlalchemy.orm import QueryableAttribute
 
-from app.db.models import Game, GamePlayer, IshaaraRole, KtGamePlayer
+from app.db.models import (
+    Game,
+    GamePlayer,
+    IshaaraRole,
+    KtGamePlayer,
+    SpadesSeat,
+    SpadesTableSeat,
+)
 from app.domain.enums import GameKind
 
 
@@ -31,6 +38,9 @@ SEAT_TABLES: tuple[SeatTable, ...] = (
     SeatTable(kind=GameKind.KAALI_TEERI, table=KtGamePlayer.__table__),
     # Every seat from creation on; its last reveal is the game row's `last_done_at`.
     SeatTable(kind=GameKind.ISHAARA, table=IshaaraRole.__table__, own_last_done_at=False),
+    SeatTable(kind=GameKind.SPADES, table=SpadesSeat.__table__),
+    # Everyone who sat at an online table, a replaced seat included (its hands are theirs).
+    SeatTable(kind=GameKind.SPADES_ONLINE, table=SpadesTableSeat.__table__),
 )
 
 
@@ -44,6 +54,13 @@ def seated_anywhere(
 def seat_rows(name: str = "seats") -> Subquery:
     """Every kind's seats as (game_id, player_id, last_done_at); Postgres pushes filters into each."""
     return union_all(*(_seat_select(seats) for seats in SEAT_TABLES)).subquery(name)
+
+
+def seat_pairs(name: str = "pairs") -> Subquery:
+    """Every kind's seats as (game_id, player_id) only: each branch reads one indexed table."""
+    return union_all(
+        *(select(s.table.c.game_id, s.table.c.player_id) for s in SEAT_TABLES)
+    ).subquery(name)
 
 
 def _seat_select(seats: SeatTable) -> Select[Any]:

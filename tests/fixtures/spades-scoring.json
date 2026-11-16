@@ -1,0 +1,248 @@
+{
+  "kind": "spades-scoring",
+  "hands": [
+    {
+      "name": "E1 made exactly",
+      "hand": {"index":0,"dealer":3,"phase":"done","bids":[2,4,3,4],"blind":[false,false,false,false],"teamTricks":[5,8],"nilTricks":[null,null,null,null]},
+      "bagsBefore": {"a":0,"b":0},
+      "expect": {
+        "a": {"team":"a","contract":5,"took":5,"made":true,"points":50,"bags":0,"nils":[],"bagsBefore":0,"bagsAfter":0,"penalty":0,"net":50},
+        "b": {"team":"b","contract":8,"took":8,"made":true,"points":80,"bags":0,"nils":[],"bagsBefore":0,"bagsAfter":0,"penalty":0,"net":80}
+      }
+    },
+    {
+      "name": "E2 made with 2 over",
+      "hand": {"index":0,"dealer":3,"phase":"done","bids":[2,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null]},
+      "bagsBefore": {"a":0,"b":0},
+      "expect": {
+        "a": {"team":"a","contract":5,"took":7,"made":true,"points":52,"bags":2,"nils":[],"bagsBefore":0,"bagsAfter":2,"penalty":0,"net":52},
+        "b": {"team":"b","contract":6,"took":6,"made":true,"points":60,"bags":0,"nils":[],"bagsBefore":0,"bagsAfter":0,"penalty":0,"net":60}
+      }
+    },
+    {
+      "name": "E3 set earns no bags",
+      "hand": {"index":0,"dealer":3,"phase":"done","bids":[2,4,3,4],"blind":[false,false,false,false],"teamTricks":[4,9],"nilTricks":[null,null,null,null]},
+      "bagsBefore": {"a":0,"b":0},
+      "expect": {
+        "a": {"team":"a","contract":5,"took":4,"made":false,"points":-50,"bags":0,"nils":[],"bagsBefore":0,"bagsAfter":0,"penalty":0,"net":-50},
+        "b": {"team":"b","contract":8,"took":9,"made":true,"points":81,"bags":1,"nils":[],"bagsBefore":0,"bagsAfter":1,"penalty":0,"net":81}
+      }
+    },
+    {
+      "name": "E4 Nil made, partner over",
+      "hand": {"index":0,"dealer":3,"phase":"done","bids":[0,4,4,4],"blind":[false,false,false,false],"teamTricks":[5,8],"nilTricks":[0,null,null,null]},
+      "bagsBefore": {"a":0,"b":0},
+      "expect": {
+        "a": {"team":"a","contract":4,"took":5,"made":true,"points":141,"bags":1,"nils":[{"seat":0,"blind":false,"made":true,"tricks":0,"points":100}],"bagsBefore":0,"bagsAfter":1,"penalty":0,"net":141},
+        "b": {"team":"b","contract":8,"took":8,"made":true,"points":80,"bags":0,"nils":[],"bagsBefore":0,"bagsAfter":0,"penalty":0,"net":80}
+      }
+    },
+    {
+      "name": "E5 Nil failed, partner made",
+      "hand": {"index":0,"dealer":3,"phase":"done","bids":[0,4,4,4],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[2,null,null,null]},
+      "bagsBefore": {"a":0,"b":0},
+      "expect": {
+        "a": {"team":"a","contract":4,"took":4,"made":true,"points":-58,"bags":2,"nils":[{"seat":0,"blind":false,"made":false,"tricks":2,"points":-100}],"bagsBefore":0,"bagsAfter":2,"penalty":0,"net":-58},
+        "b": {"team":"b","contract":8,"took":7,"made":false,"points":-80,"bags":0,"nils":[],"bagsBefore":0,"bagsAfter":0,"penalty":0,"net":-80}
+      }
+    },
+    {
+      "name": "E6 Nil failed, partner set, Nil tricks still bags",
+      "hand": {"index":0,"dealer":3,"phase":"done","bids":[0,4,4,4],"blind":[false,false,false,false],"teamTricks":[5,8],"nilTricks":[2,null,null,null]},
+      "bagsBefore": {"a":0,"b":0},
+      "expect": {
+        "a": {
+          "team": "a",
+          "contract": 4,
+          "took": 3,
+          "made": false,
+          "points": -138,
+          "bags": 2,
+          "nils": [{"seat":0,"blind":false,"made":false,"tricks":2,"points":-100}],
+          "bagsBefore": 0,
+          "bagsAfter": 2,
+          "penalty": 0,
+          "net": -138
+        },
+        "b": {"team":"b","contract":8,"took":8,"made":true,"points":80,"bags":0,"nils":[],"bagsBefore":0,"bagsAfter":0,"penalty":0,"net":80}
+      }
+    },
+    {
+      "name": "E7 Blind Nil made",
+      "hand": {"index":0,"dealer":3,"phase":"done","bids":[0,3,5,3],"blind":[true,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null]},
+      "bagsBefore": {"a":0,"b":0},
+      "expect": {
+        "a": {"team":"a","contract":5,"took":6,"made":true,"points":251,"bags":1,"nils":[{"seat":0,"blind":true,"made":true,"tricks":0,"points":200}],"bagsBefore":0,"bagsAfter":1,"penalty":0,"net":251},
+        "b": {"team":"b","contract":6,"took":7,"made":true,"points":61,"bags":1,"nils":[],"bagsBefore":0,"bagsAfter":1,"penalty":0,"net":61}
+      }
+    },
+    {
+      "name": "E8 Blind Nil failed",
+      "hand": {"index":0,"dealer":3,"phase":"done","bids":[0,3,5,3],"blind":[true,false,false,false],"teamTricks":[6,7],"nilTricks":[1,null,null,null]},
+      "bagsBefore": {"a":0,"b":0},
+      "expect": {
+        "a": {"team":"a","contract":5,"took":5,"made":true,"points":-149,"bags":1,"nils":[{"seat":0,"blind":true,"made":false,"tricks":1,"points":-200}],"bagsBefore":0,"bagsAfter":1,"penalty":0,"net":-149},
+        "b": {"team":"b","contract":6,"took":7,"made":true,"points":61,"bags":1,"nils":[],"bagsBefore":0,"bagsAfter":1,"penalty":0,"net":61}
+      }
+    },
+    {
+      "name": "both partners Nil",
+      "hand": {"index":0,"dealer":3,"phase":"done","bids":[0,5,0,5],"blind":[false,false,false,false],"teamTricks":[2,11],"nilTricks":[0,null,2,null]},
+      "bagsBefore": {"a":0,"b":0},
+      "expect": {
+        "a": {
+          "team": "a",
+          "contract": 0,
+          "took": 0,
+          "made": null,
+          "points": 2,
+          "bags": 2,
+          "nils": [{"seat":0,"blind":false,"made":true,"tricks":0,"points":100},{"seat":2,"blind":false,"made":false,"tricks":2,"points":-100}],
+          "bagsBefore": 0,
+          "bagsAfter": 2,
+          "penalty": 0,
+          "net": 2
+        },
+        "b": {"team":"b","contract":10,"took":11,"made":true,"points":101,"bags":1,"nils":[],"bagsBefore":0,"bagsAfter":1,"penalty":0,"net":101}
+      }
+    },
+    {
+      "name": "both teams Nil, b Blind",
+      "hand": {"index":0,"dealer":3,"phase":"done","bids":[0,0,4,6],"blind":[false,true,false,false],"teamTricks":[4,9],"nilTricks":[0,1,null,null]},
+      "bagsBefore": {"a":3,"b":8},
+      "expect": {
+        "a": {"team":"a","contract":4,"took":4,"made":true,"points":140,"bags":0,"nils":[{"seat":0,"blind":false,"made":true,"tricks":0,"points":100}],"bagsBefore":3,"bagsAfter":3,"penalty":0,"net":140},
+        "b": {
+          "team": "b",
+          "contract": 6,
+          "took": 8,
+          "made": true,
+          "points": -137,
+          "bags": 3,
+          "nils": [{"seat":1,"blind":true,"made":false,"tricks":1,"points":-200}],
+          "bagsBefore": 8,
+          "bagsAfter": 11,
+          "penalty": 1,
+          "net": -237
+        }
+      }
+    },
+    {
+      "name": "the tenth bag",
+      "hand": {"index":0,"dealer":3,"phase":"done","bids":[1,3,2,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null]},
+      "bagsBefore": {"a":9,"b":0},
+      "expect": {
+        "a": {"team":"a","contract":3,"took":6,"made":true,"points":33,"bags":3,"nils":[],"bagsBefore":9,"bagsAfter":12,"penalty":1,"net":-67},
+        "b": {"team":"b","contract":6,"took":7,"made":true,"points":61,"bags":1,"nils":[],"bagsBefore":0,"bagsAfter":1,"penalty":0,"net":61}
+      }
+    },
+    {
+      "name": "two penalties in one hand",
+      "hand": {"index":0,"dealer":3,"phase":"done","bids":[0,0,0,0],"blind":[false,false,false,false],"teamTricks":[13,0],"nilTricks":[13,0,0,0]},
+      "bagsBefore": {"a":9,"b":19},
+      "expect": {
+        "a": {
+          "team": "a",
+          "contract": 0,
+          "took": 0,
+          "made": null,
+          "points": 13,
+          "bags": 13,
+          "nils": [{"seat":0,"blind":false,"made":false,"tricks":13,"points":-100},{"seat":2,"blind":false,"made":true,"tricks":0,"points":100}],
+          "bagsBefore": 9,
+          "bagsAfter": 22,
+          "penalty": 2,
+          "net": -187
+        },
+        "b": {
+          "team": "b",
+          "contract": 0,
+          "took": 0,
+          "made": null,
+          "points": 200,
+          "bags": 0,
+          "nils": [{"seat":1,"blind":false,"made":true,"tricks":0,"points":100},{"seat":3,"blind":false,"made":true,"tricks":0,"points":100}],
+          "bagsBefore": 19,
+          "bagsAfter": 19,
+          "penalty": 0,
+          "net": 200
+        }
+      }
+    }
+  ],
+  "runs": [
+    {
+      "name": "bag run: 52, 44, 63, 33 → 92",
+      "hands": [
+        {"index":0,"dealer":3,"bids":[3,3,2,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done"},
+        {"index":1,"dealer":0,"bids":[2,2,2,2],"blind":[false,false,false,false],"teamTricks":[8,5],"nilTricks":[null,null,null,null],"phase":"done"},
+        {"index":2,"dealer":1,"bids":[3,2,3,2],"blind":[false,false,false,false],"teamTricks":[9,4],"nilTricks":[null,null,null,null],"phase":"done"},
+        {"index":3,"dealer":2,"bids":[1,3,2,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null],"phase":"done"}
+      ],
+      "expect": {
+        "lines": [
+          {
+            "index": 0,
+            "a": {"team":"a","contract":5,"took":7,"made":true,"points":52,"bags":2,"nils":[],"bagsBefore":0,"bagsAfter":2,"penalty":0,"net":52},
+            "b": {"team":"b","contract":6,"took":6,"made":true,"points":60,"bags":0,"nils":[],"bagsBefore":0,"bagsAfter":0,"penalty":0,"net":60},
+            "after": {"a":52,"b":60}
+          },
+          {
+            "index": 1,
+            "a": {"team":"a","contract":4,"took":8,"made":true,"points":44,"bags":4,"nils":[],"bagsBefore":2,"bagsAfter":6,"penalty":0,"net":44},
+            "b": {"team":"b","contract":4,"took":5,"made":true,"points":41,"bags":1,"nils":[],"bagsBefore":0,"bagsAfter":1,"penalty":0,"net":41},
+            "after": {"a":96,"b":101}
+          },
+          {
+            "index": 2,
+            "a": {"team":"a","contract":6,"took":9,"made":true,"points":63,"bags":3,"nils":[],"bagsBefore":6,"bagsAfter":9,"penalty":0,"net":63},
+            "b": {"team":"b","contract":4,"took":4,"made":true,"points":40,"bags":0,"nils":[],"bagsBefore":1,"bagsAfter":1,"penalty":0,"net":40},
+            "after": {"a":159,"b":141}
+          },
+          {
+            "index": 3,
+            "a": {"team":"a","contract":3,"took":6,"made":true,"points":33,"bags":3,"nils":[],"bagsBefore":9,"bagsAfter":12,"penalty":1,"net":-67},
+            "b": {"team":"b","contract":6,"took":7,"made":true,"points":61,"bags":1,"nils":[],"bagsBefore":1,"bagsAfter":2,"penalty":0,"net":61},
+            "after": {"a":92,"b":202}
+          }
+        ],
+        "totals": {"a":{"score":92,"bags":12,"penalties":1},"b":{"score":202,"bags":2,"penalties":0}}
+      }
+    }
+  ],
+  "gameOver": [
+    {"name":"below the target","scores":{"a":199,"b":150},"rules":{"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},"expect":null},
+    {"name":"at the target","scores":{"a":200,"b":150},"rules":{"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},"expect":{"winner":"a","endedBy":"target"}},
+    {
+      "name": "both past, higher wins",
+      "scores": {"a":205,"b":231},
+      "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+      "expect": {"winner":"b","endedBy":"target"}
+    },
+    {"name":"tie at the target plays on","scores":{"a":210,"b":210},"rules":{"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},"expect":"tie"},
+    {"name":"Endless never ends on score","scores":{"a":5000,"b":-3000},"rules":{"target":null,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},"expect":null},
+    {"name":"mercy off","scores":{"a":-500,"b":20},"rules":{"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},"expect":null},
+    {
+      "name": "mercy: below −200 loses",
+      "scores": {"a":40,"b":-210},
+      "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":-200},
+      "expect": {"winner":"a","endedBy":"mercy"}
+    },
+    {"name":"mercy: exactly −200 does not","scores":{"a":40,"b":-200},"rules":{"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":-200},"expect":null},
+    {"name":"mercy in Endless","scores":{"a":-250,"b":0},"rules":{"target":null,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":-200},"expect":{"winner":"b","endedBy":"mercy"}},
+    {"name":"target beats mercy","scores":{"a":-230,"b":215},"rules":{"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":-200},"expect":{"winner":"b","endedBy":"target"}},
+    {
+      "name": "both below −200, higher wins",
+      "scores": {"a":-260,"b":-230},
+      "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":-200},
+      "expect": {"winner":"b","endedBy":"mercy"}
+    },
+    {"name":"both below −200, equal plays on","scores":{"a":-230,"b":-230},"rules":{"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":-200},"expect":"tie"},
+    {"name":"custom target 250","scores":{"a":250,"b":0},"rules":{"target":250,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},"expect":{"winner":"a","endedBy":"target"}}
+  ],
+  "endResult": [
+    {"scores":{"a":90,"b":120},"expect":{"winner":"b","endedBy":"end"}},
+    {"scores":{"a":120,"b":120},"expect":{"winner":"draw","endedBy":"end"}},
+    {"scores":{"a":300,"b":-20},"expect":{"winner":"a","endedBy":"end"}}
+  ]
+}

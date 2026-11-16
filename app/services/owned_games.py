@@ -17,6 +17,8 @@ from app.schemas.games import DeletedOut
 from app.services.games import GamesService
 from app.services.ishaara_games import IshaaraGamesService
 from app.services.kt_games import KtGamesService
+from app.services.spades_games import SpadesGamesService
+from app.services.spades_tables import SpadesTablesService
 
 logger = get_logger(__name__)
 
@@ -35,11 +37,21 @@ async def _delete_ishaara(session: AsyncSession, owner: User, actor: User) -> in
     return await IshaaraGamesService(session).delete_owned(owner, actor)
 
 
+async def _delete_spades(session: AsyncSession, owner: User, actor: User) -> int:
+    return await SpadesGamesService(session).delete_owned(owner, actor)
+
+
+async def _delete_spades_online(session: AsyncSession, owner: User, actor: User) -> int:
+    return await SpadesTablesService(session).delete_owned(owner, actor)
+
+
 # One entry per kind that stores games; a kind missing here would outlive its owner's account.
 DELETE_OWNED_BY_KIND: dict[GameKind, DeleteOwned] = {
     GameKind.KACHUFUL: _delete_kachuful,
     GameKind.KAALI_TEERI: _delete_kaali_teeri,
     GameKind.ISHAARA: _delete_ishaara,
+    GameKind.SPADES: _delete_spades,
+    GameKind.SPADES_ONLINE: _delete_spades_online,
 }
 
 

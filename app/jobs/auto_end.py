@@ -1,5 +1,6 @@
-"""`auto-end` (every 15 min): end Kachuful games idle for 24 hours at their last done round, and
-unfinished Ishaara games idle for 2 hours as abandoned."""
+"""`auto-end` (every 15 min): end Kachuful games idle for 24 hours at their last done round,
+unfinished Ishaara games idle for 2 hours as abandoned, and open Spades tables idle for 2 hours
+(as the host's End game would, or cancelled when no hand was finished)."""
 
 import argparse
 import sys
@@ -12,12 +13,15 @@ from app.domain.time import now_utc
 from app.logger import get_logger
 from app.repositories.games import games_repository
 from app.repositories.ishaara import ishaara_repository
+from app.repositories.spades_tables import spades_tables_repository
 from app.services.games import GamesService
 from app.services.ishaara_games import IDLE_MS, IshaaraGamesService
+from app.services.spades_tables import IDLE_MS as SPADES_IDLE_MS
+from app.services.spades_tables import SpadesTablesService
 
 logger = get_logger(__name__)
 
-HELP = "End games idle for 24 hours (Ishaara: 2 hours, as abandoned)"
+HELP = "End games idle for 24 hours (Ishaara and Spades tables: 2 hours)"
 BATCH = 200
 
 
@@ -46,6 +50,7 @@ async def run(_: argparse.Namespace) -> int:
     logger.info("auto-end finished", extra={"candidates": len(candidates), "ended": ended})
     sys.stdout.write(f"auto-end: {ended} of {len(candidates)} idle games ended\n")
     await _end_idle_ishaara()
+    await _end_idle_spades()
     return 0
 
 
@@ -60,3 +65,16 @@ async def _end_idle_ishaara() -> None:
             ended += await IshaaraGamesService(session).end_idle(game_id)
     logger.info("ishaara auto-end finished", extra={"candidates": len(candidates), "ended": ended})
     sys.stdout.write(f"auto-end: {ended} of {len(candidates)} idle Ishaara games abandoned\n")
+
+
+async def _end_idle_spades() -> None:
+    """Open Spades tables (lobby or in play) with no change for 2 hours end."""
+    idle_before = now_utc() - timedelta(milliseconds=SPADES_IDLE_MS)
+    async with get_session_factory()() as session:
+        candidates = await spades_tables_repository.idle_ids(session, idle_before, BATCH)
+    ended = 0
+    for game_id in candidates:
+        async with get_session_factory()() as session:
+            ended += await SpadesTablesService(session).end_idle(game_id)
+    logger.info("spades auto-end finished", extra={"candidates": len(candidates), "ended": ended})
+    sys.stdout.write(f"auto-end: {ended} of {len(candidates)} idle Spades tables ended\n")

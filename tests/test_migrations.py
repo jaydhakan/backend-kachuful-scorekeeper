@@ -45,3 +45,34 @@ def test_the_ishaara_migration_adds_and_drops_its_five_tables() -> None:
 
     assert not ISHAARA_TABLES & after_down
     assert _tables() >= ISHAARA_TABLES
+
+
+def test_the_seat_invites_migration_adds_and_drops_its_table() -> None:
+    config = alembic_config()
+
+    command.downgrade(config, "0018")
+    after_down = _tables()
+    command.upgrade(config, "head")
+
+    assert "seat_invites" not in after_down
+    assert "seat_invites" in _tables()
+
+
+SPADES_TABLES = {
+    "spades_seats",
+    "spades_table_seats",
+    "spades_hands",
+    "spades_actions",
+    "spades_game_players",
+}
+
+
+def test_the_spades_migration_adds_and_drops_its_five_tables() -> None:
+    config = alembic_config()
+
+    command.downgrade(config, "0020")
+    after_down = _tables()
+    command.upgrade(config, "head")
+
+    assert not SPADES_TABLES & after_down
+    assert _tables() >= SPADES_TABLES
