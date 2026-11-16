@@ -27,6 +27,9 @@ PLAYER_CHECK = Limit("check", 60, 60)
 # Ishaara: actions per game, creates per user.
 ISHAARA_ACTION = Limit("ishaara-action", 60, 60)
 ISHAARA_CREATE = Limit("ishaara-create", 20, 3600)
+# Spades online: actions per game, tables created per user.
+SPADES_ACTION = Limit("spades-action", 300, 60)
+SPADES_CREATE = Limit("spades-create", 20, 3600)
 # Seat invites a host sends, per user.
 SEAT_INVITE_CREATE = Limit("seat-invite-create", 30, 3600)
 
@@ -83,3 +86,5 @@ class Burst:
 # Spectator reactions: a viewer at most 1 a second and 20 a minute; a link at most 15 a second.
 REACTION_VIEWER = Burst((1, 1.0), (20, 60.0))
 REACTION_LINK = Burst((15, 1.0))
+# A Spades seat's reactions: at most 1 every 2 seconds.
+SPADES_REACTION = Burst((1, 2.0))

@@ -8,6 +8,7 @@ the game row FOR UPDATE through a create, and works out the 30-minute expiry its
 """
 
 from dataclasses import dataclass
+from datetime import timedelta
 from enum import StrEnum
 from typing import Protocol
 
@@ -15,6 +16,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import SeatInvite, User
 from app.repositories.seat_invites import InviteGame
+
+# A pending invite expires this long after it was sent (worked out on read).
+INVITE_TTL = timedelta(minutes=30)
 
 
 class Staleness(StrEnum):

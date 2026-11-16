@@ -199,6 +199,16 @@ CASES = [
         f"UNION ALL SELECT game_id FROM spades_table_seats WHERE player_id = '{ID}') s "
         "ON s.game_id = g.id WHERE g.deleted_at IS NULL ORDER BY g.created_at DESC, g.id DESC",
     ),
+    (
+        "uq_games_spades_code",
+        "SELECT id FROM games WHERE kind = 'spades-online' AND status = 'active' "
+        "AND deleted_at IS NULL AND (summary ->> 'code') = 'KQ7M'",
+    ),
+    # A deleted account's seats are found by user (the foreign key sets them null).
+    (
+        "ix_spades_table_seats_user_id",
+        f"SELECT game_id FROM spades_table_seats WHERE user_id = '{ID}'",
+    ),
 ]
 
 

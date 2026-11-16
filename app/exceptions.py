@@ -53,6 +53,7 @@ class ErrorCode(StrEnum):
     NO_ACCOUNT = "no_account"
     ALREADY_SEATED = "already_seated"
     FILLED = "filled"
+    FULL = "full"
     EXPIRED = "expired"
     TOO_LARGE = "too_large"
     UNSUPPORTED_MEDIA_TYPE = "unsupported_media_type"

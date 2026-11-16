@@ -8,7 +8,7 @@ lifecycle change NOTIFYs the invitee (`seat-invite`, `seat-invite-gone`) and the
 
 import json
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -37,18 +37,21 @@ from app.schemas.seat_invites import (
 )
 from app.services.ishaara_seat_invites import IshaaraSeatInvites
 from app.services.presenters import photo_url
-from app.services.seat_invite_kinds import SeatInviteKind, Staleness
+from app.services.seat_invite_kinds import INVITE_TTL, SeatInviteKind, Staleness
+from app.services.spades_seat_invites import SpadesSeatInvites
 
 logger = get_logger(__name__)
 
-INVITE_TTL = timedelta(minutes=30)
 ACCEPTED = "accepted"
 DECLINED = "declined"
 CANCELLED = "cancelled"
 EXPIRED = "expired"
 
 # One handler per kind that takes seat invites; the key is `games.kind` and `seat_invites.kind`.
-SEAT_INVITE_KINDS: dict[str, SeatInviteKind] = {"ishaara": IshaaraSeatInvites()}
+SEAT_INVITE_KINDS: dict[str, SeatInviteKind] = {
+    "ishaara": IshaaraSeatInvites(),
+    "spades-online": SpadesSeatInvites(),
+}
 
 
 def _not_found() -> ApiError:
