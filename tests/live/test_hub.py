@@ -162,3 +162,32 @@ def test_link_and_user_kinds_cannot_be_registered(hub: LiveHub) -> None:
     for kind in ("presence", "reaction", "revoked", "game", USER, SEAT_PRESENCE):
         with pytest.raises(ValueError, match="reserved"):
             hub.register_game_kind(kind, GameKindHooks(loader=Loader()))
+
+
+class _OneQueryAtATime:
+    """A LISTEN connection that, like asyncpg's, refuses a second query while one runs."""
+
+    def __init__(self) -> None:
+        self.busy = False
+        self.sent: list[str] = []
+
+    def is_closed(self) -> bool:
+        return False
+
+    async def execute(self, _: str, __: str, payload: str) -> None:
+        if self.busy:
+            raise AssertionError("another operation is in progress")
+        self.busy = True
+        await asyncio.sleep(0.01)
+        self.sent.append(payload)
+        self.busy = False
+
+
+async def test_presence_publishes_take_turns_on_the_listen_connection(hub: LiveHub) -> None:
+    connection = _OneQueryAtATime()
+    hub._connection = connection  # type: ignore[assignment]
+    game_id = uuid.uuid4()
+
+    await asyncio.gather(*(hub._publish_seats(game_id) for _ in range(3)))
+
+    assert len(connection.sent) == 3

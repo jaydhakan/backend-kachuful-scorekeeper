@@ -113,6 +113,8 @@ class LiveHub:
         self._worker = uuid.uuid4().hex
         self._connection: asyncpg.Connection | None = None
         self._lock = asyncio.Lock()
+        # The LISTEN connection runs one query at a time; presence publishes take turns on it.
+        self._publish_lock = asyncio.Lock()
         self._loader: EventLoader | None = None
         # Server-run games: per game, each follower's queue and viewer, and the game's kind.
         self._games: dict[uuid.UUID, dict[asyncio.Queue[LiveMessage], Viewer]] = {}
@@ -225,8 +227,9 @@ class LiveHub:
         if connection is None or connection.is_closed():
             return
         try:
-            await connection.execute("SELECT pg_notify($1, $2)", CHANNEL, json.dumps(message))
-        except (asyncpg.PostgresError, OSError):
+            async with self._publish_lock:
+                await connection.execute("SELECT pg_notify($1, $2)", CHANNEL, json.dumps(message))
+        except (asyncpg.PostgresError, asyncpg.InterfaceError, OSError):
             logger.warning("live presence not published")
 
     def viewer_count(self) -> int:
@@ -364,6 +367,8 @@ class LiveHub:
         if self._connection is not None and not self._connection.is_closed():
             await self._connection.close()
         self._connection = None
+        # A new connection (and event loop) gets a fresh lock.
+        self._publish_lock = asyncio.Lock()
         self._subscribers.clear()
         self._watchers.clear()
         self._games.clear()
