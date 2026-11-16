@@ -14,7 +14,7 @@ Backend for the Kachuful scorekeeper PWA (https://play.vectanix.com): invite-onl
 - `app/settings.py` loads `.env` with python-dotenv when the file exists; real environment variables win. No `--env-file` flags needed.
 - `uv run pytest -k "pattern"` for a subset. Performance: `make load` once (the load dataset in the dev database), then `make perf` (budgets in `tests/perf`; report in `var/perf-report.json`).
 - Golden fixtures: copy the app's `contract/fixtures/*.json` into `tests/fixtures/` and update `tests/fixtures/VERSION.md`.
-- Jobs: `uv run python -m app.cli <command>` (`auto-end` (also abandons Ishaara games idle for 2 h), `close-day`, `close-season`, `prune`, `prune-empty`, `backup`, `seed-admin`, `seed-demo`, `seed-load`). `prune-empty` is a one-off (2026-11-06): it deletes games stored before the rule that a game with no round done leaves no trace; `--dry-run` only counts.
+- Jobs: `uv run python -m app.cli <command>` (`auto-end` (also abandons Ishaara games and ends open Spades tables idle for 2 h), `close-day`, `close-season`, `prune`, `prune-empty`, `backup`, `seed-admin`, `seed-demo`, `seed-load`). `prune-empty` is a one-off (2026-11-06): it deletes games stored before the rule that a game with no round done leaves no trace; `--dry-run` only counts.
 - Runtime (systemd) runs `.venv/bin/python -m app`, never `uv run` or a shell. `app/__main__.py` passes the `"app.bootstrap.app:app"` string to uvicorn (workers + `proxy_headers` from settings) and never imports the app object.
 
 ## Architecture
@@ -24,6 +24,7 @@ Backend for the Kachuful scorekeeper PWA (https://play.vectanix.com): invite-onl
 - Repositories: SQL only, no business rules.
 - Domain: pure rules over the game JSON, mirroring the app's TypeScript `src/domain`. Every derived number comes from it.
 - **Ishaara is server-run** (`app/domain/ishaara`, `services/ishaara_*`): the server deals the key with `secrets`, keeps it only in `ishaara_keys`, and applies every action through `apply_action` under a row lock (`actionId` idempotent, `rev` checked, 409 `stale`, 403 `not_your_turn`, 422 `invalid_action {reason}`). The key never goes into `payload`, `summary`, SSE, bootstrap, logs or error bodies; only `GET /api/ishaara/games/{id}/key` returns it, to the two clue-giver accounts. Live events reuse the hub's channel with `kind: 'ishaara'`.
+- **Spades has two kinds.** `spades` is table mode, synced like Kaali Teeri (`services/spades_games`). `spades-online` is server-run (`app/domain/spades`, `services/spades_tables`, `spades_store`, `spades_state`): the service draws and deals with `secrets.SystemRandom` and passes them to `apply_action` (the domain never randomises); hands live only in `spades_hands`; every action runs under the row lock (`actionId` idempotent; `rev` checked except for `timeout`, which the domain settles, and `react`, which is never stored). Nothing leaves the server but `view_for` output per viewer: never `payload` raw (an early Blind Nil is in it), and share links get `spades_state.public_table`. Live followers are keyed by account, not seat (`table_stream` maps presence onto seats), so a seat move can't hand anyone another seat's frame. Boards for both kinds read `spades_game_players`, written only when a game finishes (a cancelled one writes nothing).
 
 ```
 app/
