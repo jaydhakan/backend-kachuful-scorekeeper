@@ -4,10 +4,15 @@ import uuid
 
 from pydantic import Field
 
+from app.domain.enums import ProgressionGame
 from app.schemas.auth import UserOut
 from app.schemas.common import CamelModel
 from app.schemas.games import AchievementOut, GameSummaryOut
+from app.schemas.ishaara import IshaaraSummaryOut
+from app.schemas.kaali_teeri import KtGameSummaryOut
 from app.schemas.players import PlayerOut, PlayerSummaryOut
+from app.schemas.spades import SpGameSummaryOut
+from app.schemas.spades_tables import SpTableFeedOut
 
 
 class LeaderboardRowOut(CamelModel):
@@ -135,11 +140,35 @@ class BootstrapOut(CamelModel):
 class ActivityItemOut(CamelModel):
     """One feed item."""
 
-    id: int
+    id: int = Field(..., description="Feed item id (newest is highest)")
+    game_kind: ProgressionGame = Field(
+        ..., description="The game it belongs to: kachuful | spades | kaali-teeri | ishaara"
+    )
     kind: str = Field(
         ..., description="achievement | game_finished | season_closed | player_joined"
     )
-    player: PlayerSummaryOut | None
-    game: GameSummaryOut | None
-    data: dict[str, object]
+    player: PlayerSummaryOut | None = Field(..., description="Who it is about, if anyone")
+    game: (
+        GameSummaryOut
+        | KtGameSummaryOut
+        | SpGameSummaryOut
+        | SpTableFeedOut
+        | IshaaraSummaryOut
+        | None
+    ) = Field(
+        ...,
+        description="The game's summary, of its own kind (null when none or deleted); "
+        "`gameKind` says which game",
+    )
+    data: dict[str, object] = Field(..., description="Kind-specific details")
     created_at: int = Field(..., description="Epoch ms")
+
+
+class LaddersOut(CamelModel):
+    """`GET /api/achievements/ladders`."""
+
+    game_kind: ProgressionGame = Field(..., description="The game counted")
+    player_id: uuid.UUID = Field(..., description="Registry player id")
+    counts: dict[str, int] = Field(
+        ..., description="Each ladder's count, counted the way its codes are earned"
+    )

@@ -53,6 +53,7 @@ from app.services.ishaara_state import (
     seat_ids,
 )
 from app.services.pagination import decode_cursor, encode_cursor
+from app.services.progression.hooks import progress_game
 from app.services.seat_invites import SeatInvitesService
 from app.settings import settings
 
@@ -95,7 +96,10 @@ def check_clue_accounts(seats: list[dict[str, Any]], accounts: dict[uuid.UUID, u
         raise invalid_game("clue-giver-account")
 
 
-def _summary_out(row: IshaaraListRow, team: str | None, user_id: uuid.UUID) -> IshaaraSummaryOut:
+def ishaara_summary_out(
+    row: IshaaraListRow, team: str | None, user_id: uuid.UUID
+) -> IshaaraSummaryOut:
+    """A list item for this account: its clue team and whether it hosts."""
     return IshaaraSummaryOut.model_validate(
         {
             **row.summary,
@@ -344,6 +348,11 @@ class IshaaraGamesService:
                 self.session, {(p, day) for p in players}, settings.APP_TZ
             )
         await derived_repository.refresh_player_counters(self.session, players)
+        abandoned = state["endedBy"] == "abandoned"
+        # Abandoned games earn nothing and leave no `game_finished` item.
+        await progress_game(
+            self.session, KIND, game_id, players, finished=not abandoned, void=abandoned
+        )
         await app_state_repository.bump(self.session)
         await SeatInvitesService(self.session).expire_for_game(game_id)
 
@@ -380,7 +389,7 @@ class IshaaraGamesService:
             last_row = page[-1]
             next_cursor = encode_cursor(last_row.updated_at, str(last_row.game_id))
         return IshaaraPageOut(
-            items=[_summary_out(r, teams.get(r.game_id), user.id) for r in page],
+            items=[ishaara_summary_out(r, teams.get(r.game_id), user.id) for r in page],
             next_cursor=next_cursor,
         )
 
@@ -399,6 +408,7 @@ class IshaaraGamesService:
         pairs = {(p, at.astimezone(tz).date()) for p, at in moments}
         await ishaara_derived_repository.rebuild_player_days(self.session, pairs, settings.APP_TZ)
         await derived_repository.refresh_player_counters(self.session, players)
+        await progress_game(self.session, KIND, game_id, players, finished=False, void=True)
         await app_state_repository.bump(self.session)
         await SeatInvitesService(self.session).expire_for_game(game_id)
         await notify(self.session, game_id, ISHAARA)
@@ -420,7 +430,10 @@ class IshaaraGamesService:
         return deleted
 
     async def reseat(self, row: Game, from_id: uuid.UUID, into_id: uuid.UUID) -> None:
-        """Move a seat to another registry player (admin merge); keeps the rev."""
+        """Move a seat to another registry player (admin merge); keeps the rev.
+
+        The game's own achievements follow the seat; careers are the caller's.
+        """
         state = copy.deepcopy(row.payload)
         for seat in state["players"]:
             if seat.get("playerId") == str(from_id):
@@ -432,6 +445,17 @@ class IshaaraGamesService:
         pairs = {(p, at.astimezone(tz).date()) for _, at in moments for p in (from_id, into_id)}
         await ishaara_derived_repository.rebuild_player_days(self.session, pairs, settings.APP_TZ)
         await self.save_state(row, state)
+        ended = state["status"] == "finished"
+        abandoned = state.get("endedBy") == "abandoned"
+        await progress_game(
+            self.session,
+            KIND,
+            row.id,
+            set(),
+            finished=ended and not abandoned,
+            void=abandoned,
+            career=False,
+        )
 
     async def end_idle(self, game_id: uuid.UUID) -> bool:
         """Auto-end: an unfinished game idle for 2 hours ends as abandoned. Commits."""

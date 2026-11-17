@@ -338,9 +338,10 @@ class BoardsRepository:
     async def achievements_earned(
         self, session: AsyncSession, player_id: uuid.UUID, window: Window
     ) -> int:
-        """Round, game and career achievements earned in a window (not awards)."""
+        """Kachuful's round, game and career achievements earned in a window (not awards)."""
         stmt = text(
-            "SELECT count(*) FROM achievements WHERE player_id = :player_id AND period IS NULL "
+            "SELECT count(*) FROM achievements WHERE player_id = :player_id "
+            "AND game = 'kachuful' AND period IS NULL "
             "AND earned_at >= :range_from AND earned_at < :range_to"
         )
         params = {

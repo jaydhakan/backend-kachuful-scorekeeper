@@ -5,6 +5,7 @@ from typing import Any, Literal
 
 from pydantic import ConfigDict, Field
 
+from app.domain.enums import ProgressionGame
 from app.schemas.common import CamelModel
 
 
@@ -116,6 +117,9 @@ class AchievementOut(CamelModel):
     """The contract's Achievement."""
 
     id: uuid.UUID
+    game_kind: ProgressionGame = Field(
+        ..., description="The game it belongs to: kachuful | spades | kaali-teeri | ishaara"
+    )
     code: str
     player_id: uuid.UUID
     game_id: uuid.UUID | None

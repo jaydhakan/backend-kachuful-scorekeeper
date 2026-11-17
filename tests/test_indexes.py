@@ -7,6 +7,11 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 ID = "00000000-0000-4000-8000-000000000001"
+_ISHAARA_CAREER = (
+    "SELECT game_id, player_id, finished_at, won, role, words_found, clues_given "
+    "FROM ishaara_game_players WHERE game_id IN "
+    f"(SELECT game_id FROM ishaara_game_players WHERE player_id IN ('{ID}'))"
+)
 
 CASES = [
     ("uq_users_email", "SELECT id FROM users WHERE email = 'a@b.co'"),
@@ -143,15 +148,41 @@ CASES = [
         "SELECT player_id, won, words_found FROM ishaara_game_players "
         "WHERE finished_at >= now() - interval '7 days' AND finished_at < now()",
     ),
+    # Ishaara's progression facts: careers (the players' games, then every seat of them), a
+    # day's or month's rows, and each day game's first clue.
+    (
+        "ix_ishaara_game_players_player_id",
+        _ISHAARA_CAREER,
+    ),
+    (
+        "pk_ishaara_game_players",
+        _ISHAARA_CAREER,
+    ),
+    (
+        "ix_ishaara_game_players_finished_at",
+        "SELECT game_id, player_id, team, role, won, words_found, clues_given, trap_hit, "
+        "finished_at FROM ishaara_game_players "
+        "WHERE finished_at >= now() - interval '1 day' AND finished_at < now()",
+    ),
+    (
+        "pk_ishaara_actions",
+        f"SELECT g.id, g.summary ->> 'endedBy', (SELECT min(a.at) FROM ishaara_actions a "
+        f"WHERE a.game_id = g.id AND a.type = 'clue') FROM games g WHERE g.id IN ('{ID}')",
+    ),
     (
         "ix_games_kind_updated_at_id",
         "SELECT id FROM games WHERE kind = 'ishaara' AND status = 'active' "
         "AND deleted_at IS NULL AND updated_at < now() - interval '2 hours' ORDER BY updated_at",
     ),
     (
-        "ix_achievements_player_id_earned_at",
-        f"SELECT id FROM achievements WHERE player_id = '{ID}' "
+        "ix_achievements_player_id_game_earned_at",
+        f"SELECT id FROM achievements WHERE player_id = '{ID}' AND game = 'spades' "
         "ORDER BY earned_at DESC, id DESC LIMIT 50",
+    ),
+    (
+        "uq_achievements_key",
+        f"SELECT id FROM achievements WHERE game = 'kachuful' AND player_id IN ('{ID}') "
+        "AND code IN ('games_10', 'first_win')",
     ),
     (
         "ix_achievements_code_period",
@@ -160,6 +191,16 @@ CASES = [
     (
         "ix_activity_created_at_id",
         "SELECT id FROM activity ORDER BY created_at DESC, id DESC LIMIT 50",
+    ),
+    (
+        "ix_activity_game_created_at_id",
+        "SELECT id FROM activity WHERE game = 'ishaara' ORDER BY created_at DESC, id DESC LIMIT 50",
+    ),
+    (
+        "ix_kt_game_players_ended_at",
+        "SELECT player_id, count(*), count(*) FILTER (WHERE won) FROM kt_game_players "
+        "WHERE ended_at >= now() - interval '30 days' AND ended_at < now() AND place IS NOT NULL "
+        "GROUP BY player_id",
     ),
     (
         "ix_share_links_game_id_kind_active",
@@ -186,6 +227,16 @@ CASES = [
         "SELECT game_id, player_id, team, partner_id, result, score, hands, bids, bids_made, "
         "nils, nils_made, blind_nils, blind_nils_made, bags, sets FROM spades_game_players "
         f"WHERE player_id IN ('{ID}')",
+    ),
+    (
+        "pk_spades_game_players",
+        "SELECT game_id, player_id FROM spades_game_players "
+        f"WHERE game_id IN ('{ID}') AND result IS NOT NULL",
+    ),
+    (
+        "ix_achievements_game_id",
+        f"SELECT player_id, code FROM achievements WHERE game_id IN ('{ID}') "
+        "AND game = 'spades' AND code IN ('set_them', 'boston')",
     ),
     (
         "ix_spades_seats_player_id",

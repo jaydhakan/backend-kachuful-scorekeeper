@@ -30,9 +30,11 @@ from app.repositories.share_links import share_links_repository
 from app.repositories.spades_derived import spades_derived_repository
 from app.schemas.games import GameTombstoneOut, UploadOut
 from app.schemas.spades import SpGameDetailOut, SpGameIn, SpGamesPageOut, SpGameSummaryOut
-from app.services.games import check_shape, payload_hash, resolve_players
+from app.services.achievements_read import achievement_out
+from app.services.games import Stored, check_shape, payload_hash, resolve_players
 from app.services.pagination import decode_cursor, encode_cursor
 from app.services.presenters import sp_summary_out
+from app.services.progression.hooks import progress_game
 from app.services.spades_derive import game_player_dicts
 
 logger = get_logger(__name__)
@@ -224,13 +226,17 @@ class SpadesGamesService:
             row = GameRow(id=game_id, kind=KIND, owner_id=user.id)
         derived = derive(stored)
         _apply_to_row(row, stored, derived, digest)
-        await self.store(row, derived)
+        result = await self.store(row, derived)
         await self.session.commit()
         logger.info("spades game uploaded", extra={"game_id": str(game_id), "rev": row.rev})
-        return UploadOut(rev=row.rev, earned=[], remap=remap or None)
+        return UploadOut(
+            rev=row.rev,
+            earned=[achievement_out(a) for a in result.earned],
+            remap=remap or None,
+        )
 
-    async def store(self, row: GameRow, derived: SpDerived) -> set[uuid.UUID]:
-        """Save the row and rebuild everything derived from it; returns the players involved."""
+    async def store(self, row: GameRow, derived: SpDerived, *, career: bool = True) -> Stored:
+        """Save the row and rebuild everything derived from it, achievements included."""
         if row.kind != KIND:
             raise _kind_mismatch()
         old = set(await spades_derived_repository.seat_ids(self.session, row.id))
@@ -243,19 +249,27 @@ class SpadesGamesService:
         )
         players = old | {s["player_id"] for s in seats}
         await derived_repository.refresh_player_counters(self.session, players)
+        earned = await progress_game(
+            self.session,
+            KIND,
+            row.id,
+            players,
+            finished=derived.result is not None,
+            career=career,
+        )
         await app_state_repository.bump(self.session)
         await notify(self.session, row.id, "game")
-        return players
+        return Stored(players=players, earned=earned)
 
     async def reseat(self, row: GameRow, from_id: uuid.UUID, into_id: uuid.UUID) -> None:
-        """Move a seat to another registry player (admin merge); keeps the rev and hash."""
+        """Move a seat to another registry player (admin merge); careers are the caller's."""
         payload = copy.deepcopy(row.payload)
         for seat in payload["players"]:
             if seat.get("playerId") == str(from_id):
                 seat["playerId"] = str(into_id)
         derived = derive(payload)
         _apply_to_row(row, payload, derived, row.payload_hash)
-        await self.store(row, derived)
+        await self.store(row, derived, career=False)
 
     async def summary(self, game_id: uuid.UUID) -> SummaryRow:
         """A live game's summary row; 404 for unknown, deleted or other kinds' games."""
@@ -322,6 +336,7 @@ class SpadesGamesService:
         await spades_derived_repository.delete_seats(self.session, game_id)
         await games_repository.soft_delete(self.session, game_id)
         await derived_repository.refresh_player_counters(self.session, players)
+        await progress_game(self.session, KIND, game_id, players, finished=False, void=True)
         await share_links_repository.revoke(self.session, game_id, ("live", "recap"))
         await notify(self.session, game_id, "revoked")
         await app_state_repository.bump(self.session)

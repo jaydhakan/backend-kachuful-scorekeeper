@@ -2,11 +2,12 @@
 
 from collections import defaultdict
 from collections.abc import Iterable
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 from zoneinfo import ZoneInfo
 
 from app.domain.derive import Facts, GameFact, RoundFact
+from app.domain.progression import Earned
 from app.domain.time import hour_of
 
 STEPS = (3, 5, 8, 12)
@@ -122,24 +123,6 @@ CAREER_CODES = frozenset(c for c, d in CATALOGUE.items() if d.group == "career")
 ROUND_MILESTONE_CODES = frozenset(
     c for c in CAREER_CODES if c.startswith(("rounds_", "made_", "points_"))
 )
-
-
-@dataclass(frozen=True)
-class Earned:
-    """One earned achievement (the contract's Achievement without the row id)."""
-
-    code: str
-    player_id: str
-    game_id: str | None
-    round_index: int | None
-    period: str | None
-    earned_at: int
-    data: dict[str, Any] = field(default_factory=dict)
-
-    @property
-    def key(self) -> tuple[str, str, str | None, int | None, str | None]:
-        """Earned at most once per player, code, game, round and period."""
-        return (self.player_id, self.code, self.game_id, self.round_index, self.period)
 
 
 def _at(r: RoundFact, code: str, data: dict[str, Any] | None = None) -> Earned:

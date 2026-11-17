@@ -1,0 +1,749 @@
+{
+  "kind": "spades-awards",
+  "name": "daily awards over three days, both kinds",
+  "tz": "Asia/Kolkata",
+  "games": [
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g201",
+        "syncId": "80000000-0000-4000-8000-000000000201",
+        "rev": 6,
+        "createdAt": 1794888000000,
+        "updatedAt": 1794891000000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794888600000},
+          {"index":1,"dealer":1,"bids":[3,5,3,5],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794889200000},
+          {"index":2,"dealer":2,"bids":[3,5,3,5],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794889800000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1794890400000},
+          {"index":4,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794891000000}
+        ],
+        "status": "finished",
+        "finishedAt": 1794891000000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g202",
+        "syncId": "80000000-0000-4000-8000-000000000202",
+        "rev": 4,
+        "createdAt": 1794895200000,
+        "updatedAt": 1794897000000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794895800000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[13,0],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794896400000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794897000000}
+        ],
+        "status": "finished",
+        "finishedAt": 1794897000000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g203",
+        "syncId": "80000000-0000-4000-8000-000000000203",
+        "rev": 3,
+        "createdAt": 1794902400000,
+        "updatedAt": 1794903600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[2,4,2,4],"blind":[false,false,false,false],"teamTricks":[9,4],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794903000000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794903600000}
+        ],
+        "status": "finished",
+        "finishedAt": 1794903600000,
+        "result": {"winner":"b","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades-online",
+      "payload": {
+        "kind": "spades-online",
+        "schemaVersion": 1,
+        "id": "80000000-0000-4000-8000-000000000204",
+        "code": "KQ7M",
+        "name": "Riya’s table",
+        "rev": 5,
+        "createdAt": 1794909600000,
+        "updatedAt": 1794912000000,
+        "finishedAt": 1794912000000,
+        "status": "finished",
+        "paused": null,
+        "host": 0,
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "seats": [
+          {"who":{"userId":"u-riya","playerId":"00000000-0000-4000-8000-000000000001","name":"Riya","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0},
+          {"who":{"userId":"u-arjun","playerId":"00000000-0000-4000-8000-000000000002","name":"Arjun","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0},
+          {"who":{"userId":"u-dev","playerId":"00000000-0000-4000-8000-000000000003","name":"Dev","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0},
+          {"who":{"userId":"u-meera","playerId":"00000000-0000-4000-8000-000000000004","name":"Meera","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0}
+        ],
+        "drawn": null,
+        "dealer": 0,
+        "phase": "handEnd",
+        "bids": [null,null,null,null],
+        "blind": [false,false,false,false],
+        "looked": [false,false,false,false],
+        "trick": [],
+        "tricks": [],
+        "broken": false,
+        "turn": null,
+        "turnStartedAt": null,
+        "deadline": null,
+        "history": [
+          {
+            "index": 0,
+            "dealer": 0,
+            "bids": [3,3,3,3],
+            "blind": [false,false,false,false],
+            "teamTricks": [7,6],
+            "nilTricks": [null,null,null,null],
+            "phase": "done",
+            "doneAt": 1794910200000,
+            "tricks": [
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"3","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"4","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"5","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"6","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"6","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"6","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"7","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"7","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"7","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"8","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"8","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"8","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"9","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"9","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"9","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"10","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"10","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"10","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"J","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"J","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"J","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"Q","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"Q","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"Q","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"3","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"4","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"5","suit":"clubs"}}
+                ],
+                "winner": 1
+              }
+            ],
+            "players": ["00000000-0000-4000-8000-000000000001","00000000-0000-4000-8000-000000000002","00000000-0000-4000-8000-000000000003","00000000-0000-4000-8000-000000000004"]
+          },
+          {
+            "index": 1,
+            "dealer": 1,
+            "bids": [3,3,3,3],
+            "blind": [false,false,false,false],
+            "teamTricks": [0,13],
+            "nilTricks": [null,null,null,null],
+            "phase": "done",
+            "doneAt": 1794910800000,
+            "tricks": [
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"3","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"4","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"5","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"6","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"6","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"6","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"7","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"7","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"7","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"8","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"8","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"8","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"9","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"9","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"9","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"10","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"10","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"10","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"J","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"J","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"J","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"Q","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"Q","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"Q","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"3","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"4","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"5","suit":"clubs"}}
+                ],
+                "winner": 1
+              }
+            ],
+            "players": ["00000000-0000-4000-8000-000000000001","00000000-0000-4000-8000-000000000002","00000000-0000-4000-8000-000000000003","00000000-0000-4000-8000-000000000004"]
+          },
+          {
+            "index": 2,
+            "dealer": 2,
+            "bids": [3,3,3,3],
+            "blind": [false,false,false,false],
+            "teamTricks": [7,6],
+            "nilTricks": [null,null,null,null],
+            "phase": "done",
+            "doneAt": 1794911400000,
+            "tricks": [
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"3","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"4","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"5","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"6","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"6","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"6","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"7","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"7","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"7","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"8","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"8","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"8","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"9","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"9","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"9","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"10","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"10","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"10","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"J","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"J","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"J","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"Q","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"Q","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"Q","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"3","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"4","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"5","suit":"clubs"}}
+                ],
+                "winner": 1
+              }
+            ],
+            "players": ["00000000-0000-4000-8000-000000000001","00000000-0000-4000-8000-000000000002","00000000-0000-4000-8000-000000000003","00000000-0000-4000-8000-000000000004"]
+          },
+          {
+            "index": 3,
+            "dealer": 3,
+            "bids": [3,3,3,3],
+            "blind": [false,false,false,false],
+            "teamTricks": [7,6],
+            "nilTricks": [null,null,null,null],
+            "phase": "done",
+            "doneAt": 1794912000000,
+            "tricks": [
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"3","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"4","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"5","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"6","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"6","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"6","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"7","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"7","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"7","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"8","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"8","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"8","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"9","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"9","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"9","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"10","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"10","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"10","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"J","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"J","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"J","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"Q","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"Q","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"Q","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"3","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"4","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"5","suit":"clubs"}}
+                ],
+                "winner": 1
+              }
+            ],
+            "players": ["00000000-0000-4000-8000-000000000001","00000000-0000-4000-8000-000000000002","00000000-0000-4000-8000-000000000003","00000000-0000-4000-8000-000000000004"]
+          }
+        ],
+        "result": {"winner":"b","endedBy":"target"},
+        "next": null
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g205",
+        "syncId": "80000000-0000-4000-8000-000000000205",
+        "rev": 3,
+        "createdAt": 1794848400000,
+        "updatedAt": 1794849600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794849000000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794849600000}
+        ],
+        "status": "finished",
+        "finishedAt": 1794849600000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g206",
+        "syncId": "80000000-0000-4000-8000-000000000206",
+        "rev": 4,
+        "createdAt": 1794916800000,
+        "updatedAt": 1794918600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794917400000},
+          {"index":1,"dealer":1,"bids":[3,5,3,5],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794918000000},
+          {"index":2,"dealer":2,"bids":[3,5,3,5],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794918600000}
+        ],
+        "status": "cancelled",
+        "finishedAt": 1794918600000
+      }
+    }
+  ],
+  "expect": {
+    "daily": [
+      {
+        "date": "2026-11-16",
+        "awards": [
+          {"code":"day_grinder","playerId":"00000000-0000-4000-8000-000000000001","value":2},
+          {"code":"day_grinder","playerId":"00000000-0000-4000-8000-000000000002","value":2},
+          {"code":"day_grinder","playerId":"00000000-0000-4000-8000-000000000003","value":2},
+          {"code":"day_grinder","playerId":"00000000-0000-4000-8000-000000000004","value":2}
+        ]
+      },
+      {
+        "date": "2026-11-17",
+        "awards": [
+          {"code":"day_pair","playerId":"00000000-0000-4000-8000-000000000001","value":2},
+          {"code":"day_pair","playerId":"00000000-0000-4000-8000-000000000002","value":2},
+          {"code":"day_pair","playerId":"00000000-0000-4000-8000-000000000003","value":2},
+          {"code":"day_pair","playerId":"00000000-0000-4000-8000-000000000004","value":2},
+          {"code":"day_sharp","playerId":"00000000-0000-4000-8000-000000000003","value":0.9285714285714286},
+          {"code":"day_nil","playerId":"00000000-0000-4000-8000-000000000001","value":1},
+          {"code":"day_setter","playerId":"00000000-0000-4000-8000-000000000001","value":4},
+          {"code":"day_setter","playerId":"00000000-0000-4000-8000-000000000003","value":4},
+          {"code":"day_boston","playerId":"00000000-0000-4000-8000-000000000001","value":1},
+          {"code":"day_boston","playerId":"00000000-0000-4000-8000-000000000002","value":1},
+          {"code":"day_boston","playerId":"00000000-0000-4000-8000-000000000003","value":1},
+          {"code":"day_boston","playerId":"00000000-0000-4000-8000-000000000004","value":1},
+          {"code":"day_bags","playerId":"00000000-0000-4000-8000-000000000001","value":20},
+          {"code":"day_bags","playerId":"00000000-0000-4000-8000-000000000003","value":20},
+          {"code":"day_grinder","playerId":"00000000-0000-4000-8000-000000000001","value":14},
+          {"code":"day_grinder","playerId":"00000000-0000-4000-8000-000000000002","value":14},
+          {"code":"day_grinder","playerId":"00000000-0000-4000-8000-000000000003","value":14},
+          {"code":"day_grinder","playerId":"00000000-0000-4000-8000-000000000004","value":14}
+        ]
+      },
+      {"date":"2026-11-18","awards":[]}
+    ],
+    "season": []
+  }
+}

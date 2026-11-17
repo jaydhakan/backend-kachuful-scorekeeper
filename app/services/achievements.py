@@ -1,4 +1,9 @@
-"""Recomputing achievements after a write (plan §8.6). Rows that still hold keep their earned_at."""
+"""Recomputing achievements after a write (plan §8.6). Rows that still hold keep their earned_at.
+
+Kachuful runs through `game` and `career` (its incremental milestones keep PUT inside its budget);
+every game, Kachuful included, can run through `recompute_game` and `recompute_careers` with its
+`GameProgression` (`services/progression`).
+"""
 
 import uuid
 from collections.abc import Iterable, Sequence
@@ -11,7 +16,6 @@ from app.domain.achievements import (
     CAREER_CODES,
     GAME_SCOPED_CODES,
     ROUND_MILESTONE_CODES,
-    Earned,
     career_from_games,
     game_finishes,
     milestones_reached,
@@ -19,44 +23,66 @@ from app.domain.achievements import (
     round_moments,
 )
 from app.domain.derive import Facts, GameFact, GameInfo, RoundFact
+from app.domain.enums import ProgressionGame
+from app.domain.progression import Earned
 from app.domain.time import to_ms
 from app.repositories.achievements import achievements_repository, key_of
+from app.services.progression.base import GameProgression
 from app.settings import settings
 
 SEQUENCE_CODES = CAREER_CODES - ROUND_MILESTONE_CODES
+KACHUFUL = ProgressionGame.KACHUFUL
 
 
-def activity_rows(rows: Sequence[Achievement]) -> list[dict[str, Any]]:
+def activity_rows(rows: Sequence[Achievement], *, backfill: bool = False) -> list[dict[str, Any]]:
+    """Feed items for new rows; a backfill dates each at its earning, not now."""
     return [
         {
+            "game": row.game,
             "kind": "achievement",
             "player_id": row.player_id,
             "game_id": row.game_id,
             "achievement_id": row.id,
             "data": {"code": row.code, **row.data},
+            **({"created_at": row.earned_at} if backfill else {}),
         }
         for row in rows
     ]
 
 
+def _check_codes(desired: Iterable[Earned], codes: frozenset[str], game: str) -> None:
+    """A row outside its scope's codes would never be found again (and then clash on insert)."""
+    stray = {e.code for e in desired} - codes
+    if stray:
+        raise ValueError(f"{game} earned codes outside their scope: {sorted(stray)}")
+
+
 class AchievementsEngine:
     """Keeps the achievements table equal to what the rules say, scope by scope."""
 
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(self, session: AsyncSession, *, backfill: bool = False) -> None:
         self.session = session
+        # The recompute job: feed items keep the time each achievement was earned.
+        self.backfill = backfill
 
     async def _apply(
-        self, desired: Iterable[Earned], existing: Iterable[Achievement]
+        self,
+        desired: Iterable[Earned],
+        existing: Iterable[Achievement],
+        game: ProgressionGame = KACHUFUL,
     ) -> list[Achievement]:
+        """Insert wanted keys, delete keys that no longer hold, never touch a kept row."""
         wanted = {e.key: e for e in desired}
         stored = {key_of(row): row for row in existing}
         await achievements_repository.delete_ids(
             self.session, [row.id for key, row in stored.items() if key not in wanted]
         )
         inserted = await achievements_repository.insert(
-            self.session, [e for key, e in wanted.items() if key not in stored]
+            self.session, [e for key, e in wanted.items() if key not in stored], game=game
         )
-        await achievements_repository.add_activity(self.session, activity_rows(inserted))
+        await achievements_repository.add_activity(
+            self.session, activity_rows(inserted, backfill=self.backfill)
+        )
         return inserted
 
     async def game(
@@ -71,7 +97,9 @@ class AchievementsEngine:
         if info is not None:
             facts = Facts(rounds=rounds, players=players, games=[info])
             desired = round_moments(rounds) + game_finishes(facts, settings.tz)
-        existing = await achievements_repository.for_game(self.session, game_id, GAME_SCOPED_CODES)
+        existing = await achievements_repository.for_game(
+            self.session, game_id, GAME_SCOPED_CODES, game=KACHUFUL
+        )
         return await self._apply(desired, existing)
 
     async def career(
@@ -84,7 +112,9 @@ class AchievementsEngine:
         """Career rows for some players. `changed_from_ms`: earliest round touched (None = all)."""
         if not player_ids:
             return []
-        existing = await achievements_repository.for_players(self.session, player_ids, CAREER_CODES)
+        existing = await achievements_repository.for_players(
+            self.session, player_ids, CAREER_CODES, game=KACHUFUL
+        )
         inserted: list[Achievement] = []
         if sequence_changed:
             games = await achievements_repository.career_games(self.session, player_ids)
@@ -108,3 +138,27 @@ class AchievementsEngine:
             rows = await achievements_repository.milestone_rounds(self.session, pid)
             inserted += await self._apply(round_milestones(rows), mine)
         return inserted
+
+    async def recompute_game(
+        self, rules: GameProgression, game_id: uuid.UUID, *, void: bool = False
+    ) -> list[Achievement]:
+        """One stored game's moment and game rows; `void` (deleted, abandoned) earns nothing."""
+        desired = [] if void else await rules.game_earned(self.session, game_id)
+        _check_codes(desired, rules.game_codes, rules.game)
+        existing = await achievements_repository.for_game(
+            self.session, game_id, rules.game_codes, game=rules.game
+        )
+        return await self._apply(desired, existing, rules.game)
+
+    async def recompute_careers(
+        self, rules: GameProgression, player_ids: set[uuid.UUID]
+    ) -> list[Achievement]:
+        """Some players' career rows in one game, from everything stored."""
+        if not player_ids:
+            return []
+        desired = await rules.career_earned(self.session, player_ids)
+        _check_codes(desired, rules.career_codes, rules.game)
+        existing = await achievements_repository.for_players(
+            self.session, player_ids, rules.career_codes, game=rules.game
+        )
+        return await self._apply(desired, existing, rules.game)

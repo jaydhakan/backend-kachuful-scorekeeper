@@ -851,13 +851,19 @@ class SpadesGamePlayer(Base):
     finished_at: Mapped[datetime]
 
 
+# The game an achievement, feed item or closed period belongs to (both Spades kinds are `spades`).
+_GAMES = "game IN ('kachuful', 'spades', 'kaali-teeri', 'ishaara')"
+
+
 class Achievement(Base):
     """An earned achievement, daily award or season award. Unique per key, NULLs equal."""
 
     __tablename__ = "achievements"
     __table_args__ = (
+        CheckConstraint(_GAMES, name="game"),
         Index(
             "uq_achievements_key",
+            "game",
             "player_id",
             "code",
             "game_id",
@@ -867,8 +873,9 @@ class Achievement(Base):
             postgresql_nulls_not_distinct=True,
         ),
         Index(
-            "ix_achievements_player_id_earned_at",
+            "ix_achievements_player_id_game_earned_at",
             "player_id",
+            "game",
             text("earned_at DESC"),
             text("id DESC"),
         ),
@@ -878,6 +885,7 @@ class Achievement(Base):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, server_default=func.gen_random_uuid())
+    game: Mapped[str] = mapped_column(Text, server_default=text("'kachuful'"))
     player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"))
     code: Mapped[str] = mapped_column(Text)
     game_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("games.id", ondelete="CASCADE"))
@@ -896,11 +904,14 @@ class Activity(Base):
             "kind IN ('achievement', 'game_finished', 'season_closed', 'player_joined')",
             name="kind",
         ),
+        CheckConstraint(_GAMES, name="game"),
         Index("ix_activity_created_at_id", text("created_at DESC"), text("id DESC")),
+        Index("ix_activity_game_created_at_id", "game", text("created_at DESC"), text("id DESC")),
         Index("ix_activity_game_id", "game_id"),
     )
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    game: Mapped[str] = mapped_column(Text, server_default=text("'kachuful'"))
     kind: Mapped[str] = mapped_column(Text)
     player_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("players.id"))
     game_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("games.id", ondelete="CASCADE"))
@@ -912,11 +923,12 @@ class Activity(Base):
 
 
 class ClosedPeriod(Base):
-    """A finalised day or season: its awards (and season standings), frozen."""
+    """A finalised day or season of one game: its awards (and season standings), frozen."""
 
     __tablename__ = "closed_periods"
     __table_args__ = (CheckConstraint("kind IN ('day', 'season')", name="kind"),)
 
+    game: Mapped[str] = mapped_column(Text, primary_key=True, server_default=text("'kachuful'"))
     period: Mapped[str] = mapped_column(Text, primary_key=True)
     kind: Mapped[str] = mapped_column(Text)
     closed_at: Mapped[datetime] = mapped_column(server_default=func.now())

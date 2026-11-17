@@ -164,6 +164,32 @@ class SpTableSummaryOut(CamelModel):
     is_host: bool = Field(..., description="The caller hosts this table")
 
 
+class SpTableFeedOut(CamelModel):
+    """An online table in the activity feed: its summary without the join code.
+
+    Any signed-in reader sees the feed, and a hand's achievements are posted while the table is
+    still open, so the code (which lets anyone take an empty chair) never goes there.
+    """
+
+    id: uuid.UUID = Field(..., description="Table id")
+    kind: Literal["spades-online"] = Field("spades-online", description="Always spades-online")
+    name: str = Field(..., description="The table's name")
+    status: SpStatus = Field(..., description="Table status")
+    phase: SpPhase = Field(..., description="Current phase")
+    paused: Literal["replace"] | None = Field(..., description="Paused to replace a seat")
+    rules: dict[str, Any] = Field(..., description="SpRules")
+    host: int = Field(..., description="The host's seat")
+    seats: list[SpSummarySeatOut | None] = Field(..., description="By seat (4); null when empty")
+    scores: dict[str, int] = Field(..., description="{a, b}: totals over finished hands")
+    hands: int = Field(..., description="Finished hands")
+    result: dict[str, str] | None = Field(..., description="SpResult once finished, else null")
+    created_at: int = Field(..., description="Epoch ms")
+    updated_at: int = Field(..., description="Epoch ms of the table's last change")
+    finished_at: int | None = Field(..., description="Epoch ms, once finished")
+    my_seat: int | None = Field(..., description="The reader's seat now, or null")
+    is_host: bool = Field(..., description="The reader hosts this table")
+
+
 class SpTablesPageOut(CamelModel):
     """`GET /api/spades/tables`."""
 

@@ -1,6 +1,7 @@
 """Stored games of every kind; reads take a kind. Lists read `summary`, never `payload`."""
 
 import uuid
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -17,6 +18,7 @@ from sqlalchemy import (
     or_,
     select,
     text,
+    union,
     update,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -212,6 +214,29 @@ class GamesRepository:
             Game.owner_id == owner_id, Game.kind == kind, Game.deleted_at.is_(None)
         )
         return list((await session.execute(stmt.order_by(Game.id))).scalars())
+
+    async def live_ids(self, session: AsyncSession, kinds: Sequence[GameKind]) -> list[uuid.UUID]:
+        """Ids of every live game of some kinds, oldest first (jobs)."""
+        stmt = (
+            select(Game.id)
+            .where(Game.kind.in_(kinds), Game.deleted_at.is_(None))
+            .order_by(Game.created_at, Game.id)
+        )
+        return list((await session.execute(stmt)).scalars())
+
+    async def seated_players(
+        self, session: AsyncSession, kinds: Sequence[GameKind]
+    ) -> list[uuid.UUID]:
+        """Every player seated in a live game of some kinds (jobs)."""
+        selects = [
+            select(seats.table.c.player_id)
+            .join(Game, Game.id == seats.table.c.game_id)
+            .where(Game.deleted_at.is_(None))
+            for seats in SEAT_TABLES
+            if seats.kind in kinds
+        ]
+        stmt = union(*selects)
+        return sorted((await session.execute(stmt)).scalars())
 
     async def soft_delete(self, session: AsyncSession, game_id: uuid.UUID) -> None:
         """Mark deleted; `updated_at` moves so sync clients see the tombstone."""

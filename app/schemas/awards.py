@@ -4,6 +4,7 @@ import uuid
 
 from pydantic import Field
 
+from app.domain.enums import ProgressionGame
 from app.schemas.boards import LeaderboardRowOut, PlayerStatsOut
 from app.schemas.common import CamelModel
 from app.schemas.players import PlayerSummaryOut
@@ -34,6 +35,30 @@ class SeasonOut(CamelModel):
     final: bool
     standings: list[LeaderboardRowOut]
     awards: list[AwardOut]
+
+
+class StandingOut(CamelModel):
+    """One player in a month's win-rate standings."""
+
+    rank: int | None = Field(..., description="Null until qualified; ties share a rank")
+    qualified: bool = Field(..., description="Played at least minGames finished games")
+    player: PlayerSummaryOut = Field(..., description="The player")
+    value: float = Field(..., description="Win rate, 0-1")
+    games: int = Field(..., description="Finished games in the month")
+    wins: int = Field(..., description="Games won in the month")
+
+
+class GameSeasonOut(CamelModel):
+    """`GET /api/seasons/{yyyy-mm}?game=` for every game but Kachuful: win-rate standings."""
+
+    season: str = Field(..., description="YYYY-MM")
+    final: bool = Field(..., description="False until the season is closed")
+    game_kind: ProgressionGame = Field(..., description="spades | kaali-teeri | ishaara")
+    min_games: int = Field(..., description="Finished games in the month a player needs to rank")
+    standings: list[StandingOut] = Field(
+        ..., description="Qualified first by win rate, then more games; then the rest"
+    )
+    awards: list[AwardOut] = Field(..., description="The season's awards")
 
 
 class SeasonListItemOut(CamelModel):

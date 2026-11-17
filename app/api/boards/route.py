@@ -1,15 +1,22 @@
 """Boards, bootstrap, achievements and the activity feed (plan §6.1, §6.5)."""
 
 import uuid
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Path, Query, Response
 
 from app.api.deps import CurrentAuth, SessionDep, get_boards_service
 from app.api.etag import IMMUTABLE, REVALIDATE, IfNoneMatch, respond
+from app.domain.enums import ProgressionGame
 from app.domain.leaderboard import Metric
-from app.schemas.awards import DailyAwardsOut, SeasonListItemOut, SeasonOut, WrappedOut
-from app.schemas.boards import ActivityItemOut, BootstrapOut, LeaderboardOut
+from app.schemas.awards import (
+    DailyAwardsOut,
+    GameSeasonOut,
+    SeasonListItemOut,
+    SeasonOut,
+    WrappedOut,
+)
+from app.schemas.boards import ActivityItemOut, BootstrapOut, LaddersOut, LeaderboardOut
 from app.schemas.common import Page
 from app.schemas.games import AchievementOut
 from app.services.achievements_read import achievements_page
@@ -17,8 +24,17 @@ from app.services.activity import ActivityService
 from app.services.awards import AwardsService
 from app.services.boards import ALL_TIME_TO, BoardsService
 from app.services.pagination import DEFAULT_LIMIT, MAX_LIMIT
+from app.services.progression.ladders import ladders
 
 _BoardsServiceDep = Annotated[BoardsService, Depends(get_boards_service)]
+_Game = Annotated[
+    ProgressionGame,
+    Query(description="The game: kachuful (default) | spades | kaali-teeri | ishaara"),
+]
+_FeedGame = Annotated[
+    Literal["all", "kachuful", "spades", "kaali-teeri", "ishaara"],
+    Query(description="The game (default kachuful), or `all` for every game"),
+]
 
 boards_router = APIRouter(tags=["Boards"])
 
@@ -67,23 +83,39 @@ async def get_bootstrap(
 async def list_achievements(
     _: CurrentAuth,
     session: SessionDep,
+    game: _Game = ProgressionGame.KACHUFUL,
     player_id: Annotated[uuid.UUID | None, Query(alias="playerId")] = None,
     cursor: Annotated[str | None, Query(max_length=200)] = None,
     limit: Annotated[int, Query(ge=1, le=MAX_LIMIT)] = DEFAULT_LIMIT,
 ) -> Page[AchievementOut]:
-    """Achievements, newest first, optionally for one player."""
-    return await achievements_page(session, player_id=player_id, cursor=cursor, limit=limit)
+    """One game's achievements, newest first, optionally for one player."""
+    return await achievements_page(
+        session, game=game, player_id=player_id, cursor=cursor, limit=limit
+    )
+
+
+@boards_router.get("/achievements/ladders", response_model=LaddersOut)
+async def get_ladders(
+    _: CurrentAuth,
+    session: SessionDep,
+    player_id: Annotated[uuid.UUID, Query(alias="playerId", description="Registry player id")],
+    game: _Game = ProgressionGame.KACHUFUL,
+) -> LaddersOut:
+    """Each of a game's ladders for one player, counted the way its codes are earned."""
+    return await ladders(session, game=game, player_id=player_id)
 
 
 @boards_router.get("/activity", response_model=Page[ActivityItemOut])
 async def list_activity(
-    _: CurrentAuth,
+    ctx: CurrentAuth,
     session: SessionDep,
+    game: _FeedGame = "kachuful",
     cursor: Annotated[str | None, Query(max_length=200)] = None,
     limit: Annotated[int, Query(ge=1, le=MAX_LIMIT)] = DEFAULT_LIMIT,
 ) -> Page[ActivityItemOut]:
     """The feed: achievements, finished games, closed seasons and new players."""
-    return await ActivityService(session).page(cursor, limit)
+    feed = None if game == "all" else ProgressionGame(game)
+    return await ActivityService(session).page(feed, cursor, limit, ctx.user)
 
 
 @boards_router.get("/awards/daily", response_model=DailyAwardsOut)
@@ -92,31 +124,41 @@ async def get_daily_awards(
     session: SessionDep,
     response: Response,
     day: Annotated[str, Query(alias="date", min_length=10, max_length=10)],
+    game: _Game = ProgressionGame.KACHUFUL,
     if_none_match: IfNoneMatch = None,
 ) -> DailyAwardsOut | Response:
-    """A day's awards (APP_TZ day). Provisional until the day is closed; then cached forever."""
-    cached, final = await AwardsService(session).daily(day, if_none_match)
+    """A game's awards for a day (APP_TZ). Provisional until the day is closed; then cached forever."""
+    cached, final = await AwardsService(session).daily(day, if_none_match, game)
     return respond(cached, response, cache_control=IMMUTABLE if final else REVALIDATE)
 
 
 @boards_router.get("/seasons", response_model=list[SeasonListItemOut])
 async def list_seasons(
-    _: CurrentAuth, session: SessionDep, response: Response, if_none_match: IfNoneMatch = None
+    _: CurrentAuth,
+    session: SessionDep,
+    response: Response,
+    game: _Game = ProgressionGame.KACHUFUL,
+    if_none_match: IfNoneMatch = None,
 ) -> list[SeasonListItemOut] | Response:
-    """Every month since the first game, newest first, with its champion."""
-    return respond(await AwardsService(session).seasons(if_none_match), response)
+    """Every month since the game's first, newest first, with its champion."""
+    return respond(await AwardsService(session).seasons(if_none_match, game), response)
 
 
-@boards_router.get("/seasons/{season}", response_model=SeasonOut)
+@boards_router.get("/seasons/{season}", response_model=SeasonOut | GameSeasonOut)
 async def get_season(
     season: Annotated[str, Path(pattern=r"^\d{4}-\d{2}$", description="YYYY-MM")],
     _: CurrentAuth,
     session: SessionDep,
     response: Response,
+    game: _Game = ProgressionGame.KACHUFUL,
     if_none_match: IfNoneMatch = None,
-) -> SeasonOut | Response:
-    """A month's standings and awards; live during the month, frozen once closed."""
-    cached, final = await AwardsService(session).season(season, if_none_match)
+) -> SeasonOut | GameSeasonOut | Response:
+    """A month's standings and awards; live during the month, frozen once closed.
+
+    Kachuful's rank points per round (`SeasonOut`); every other game's rank win rate
+    (`GameSeasonOut`, at least `minGames` finished games: Spades 10, Kaali Teeri 8, Ishaara 8).
+    """
+    cached, final = await AwardsService(session).season(season, if_none_match, game)
     return respond(cached, response, cache_control=IMMUTABLE if final else REVALIDATE)
 
 

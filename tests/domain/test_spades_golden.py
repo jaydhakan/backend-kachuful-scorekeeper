@@ -32,7 +32,9 @@ from app.domain.spades import (
 from tests.domain.golden import load, names
 
 CASE_TABLES = ("spades-scoring", "spades-legal", "spades-validate")
-GAMES = [n for n in names("spades-") if n not in CASE_TABLES]
+# The achievements and awards sets have their own tests (test_spades_achievements.py).
+_PROGRESSION = ("spades-achievements-", "spades-awards-")
+GAMES = [n for n in names("spades-") if n not in CASE_TABLES and not n.startswith(_PROGRESSION)]
 VIEWERS = (0, 1, 2, 3, None)
 _SUMMARY = ("rev", "status", "phase", "turn", "deadline")
 

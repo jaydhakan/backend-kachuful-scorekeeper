@@ -1,0 +1,1204 @@
+{
+  "kind": "spades-awards",
+  "name": "seasons: Oct and Nov by win rate, ties, the climber and the month awards",
+  "tz": "Asia/Kolkata",
+  "games": [
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g301",
+        "syncId": "80000000-0000-4000-8000-000000000301",
+        "rev": 5,
+        "createdAt": 1791007200000,
+        "updatedAt": 1791009600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791007800000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791008400000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791009000000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1791009600000}
+        ],
+        "status": "finished",
+        "finishedAt": 1791009600000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g302",
+        "syncId": "80000000-0000-4000-8000-000000000302",
+        "rev": 5,
+        "createdAt": 1791028800000,
+        "updatedAt": 1791031200000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791029400000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791030000000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791030600000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1791031200000}
+        ],
+        "status": "finished",
+        "finishedAt": 1791031200000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g303",
+        "syncId": "80000000-0000-4000-8000-000000000303",
+        "rev": 5,
+        "createdAt": 1791050400000,
+        "updatedAt": 1791052800000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791051000000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791051600000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791052200000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1791052800000}
+        ],
+        "status": "finished",
+        "finishedAt": 1791052800000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g304",
+        "syncId": "80000000-0000-4000-8000-000000000304",
+        "rev": 5,
+        "createdAt": 1791072000000,
+        "updatedAt": 1791074400000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791072600000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791073200000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791073800000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1791074400000}
+        ],
+        "status": "finished",
+        "finishedAt": 1791074400000,
+        "result": {"winner":"b","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g305",
+        "syncId": "80000000-0000-4000-8000-000000000305",
+        "rev": 5,
+        "createdAt": 1791093600000,
+        "updatedAt": 1791096000000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791094200000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791094800000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791095400000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1791096000000}
+        ],
+        "status": "finished",
+        "finishedAt": 1791096000000,
+        "result": {"winner":"b","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g306",
+        "syncId": "80000000-0000-4000-8000-000000000306",
+        "rev": 5,
+        "createdAt": 1791115200000,
+        "updatedAt": 1791117600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791115800000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791116400000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791117000000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1791117600000}
+        ],
+        "status": "finished",
+        "finishedAt": 1791117600000,
+        "result": {"winner":"b","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g307",
+        "syncId": "80000000-0000-4000-8000-000000000307",
+        "rev": 5,
+        "createdAt": 1791136800000,
+        "updatedAt": 1791139200000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791137400000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791138000000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791138600000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1791139200000}
+        ],
+        "status": "finished",
+        "finishedAt": 1791139200000,
+        "result": {"winner":"b","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g308",
+        "syncId": "80000000-0000-4000-8000-000000000308",
+        "rev": 5,
+        "createdAt": 1791158400000,
+        "updatedAt": 1791160800000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791159000000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791159600000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791160200000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1791160800000}
+        ],
+        "status": "finished",
+        "finishedAt": 1791160800000,
+        "result": {"winner":"b","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g309",
+        "syncId": "80000000-0000-4000-8000-000000000309",
+        "rev": 5,
+        "createdAt": 1791180000000,
+        "updatedAt": 1791182400000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791180600000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791181200000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791181800000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1791182400000}
+        ],
+        "status": "finished",
+        "finishedAt": 1791182400000,
+        "result": {"winner":"b","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g310",
+        "syncId": "80000000-0000-4000-8000-000000000310",
+        "rev": 5,
+        "createdAt": 1791201600000,
+        "updatedAt": 1791204000000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791202200000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791202800000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1791203400000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1791204000000}
+        ],
+        "status": "finished",
+        "finishedAt": 1791204000000,
+        "result": {"winner":"b","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g311",
+        "syncId": "80000000-0000-4000-8000-000000000311",
+        "rev": 5,
+        "createdAt": 1793685600000,
+        "updatedAt": 1793688000000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793686200000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793686800000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793687400000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1793688000000}
+        ],
+        "status": "finished",
+        "finishedAt": 1793688000000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g312",
+        "syncId": "80000000-0000-4000-8000-000000000312",
+        "rev": 5,
+        "createdAt": 1793707200000,
+        "updatedAt": 1793709600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793707800000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793708400000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793709000000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1793709600000}
+        ],
+        "status": "finished",
+        "finishedAt": 1793709600000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g313",
+        "syncId": "80000000-0000-4000-8000-000000000313",
+        "rev": 5,
+        "createdAt": 1793728800000,
+        "updatedAt": 1793731200000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793729400000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793730000000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793730600000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1793731200000}
+        ],
+        "status": "finished",
+        "finishedAt": 1793731200000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g314",
+        "syncId": "80000000-0000-4000-8000-000000000314",
+        "rev": 5,
+        "createdAt": 1793750400000,
+        "updatedAt": 1793752800000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793751000000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793751600000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793752200000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1793752800000}
+        ],
+        "status": "finished",
+        "finishedAt": 1793752800000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g315",
+        "syncId": "80000000-0000-4000-8000-000000000315",
+        "rev": 5,
+        "createdAt": 1793772000000,
+        "updatedAt": 1793774400000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793772600000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793773200000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793773800000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1793774400000}
+        ],
+        "status": "finished",
+        "finishedAt": 1793774400000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g316",
+        "syncId": "80000000-0000-4000-8000-000000000316",
+        "rev": 5,
+        "createdAt": 1793793600000,
+        "updatedAt": 1793796000000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793794200000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793794800000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793795400000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1793796000000}
+        ],
+        "status": "finished",
+        "finishedAt": 1793796000000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g317",
+        "syncId": "80000000-0000-4000-8000-000000000317",
+        "rev": 5,
+        "createdAt": 1793815200000,
+        "updatedAt": 1793817600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793815800000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793816400000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793817000000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1793817600000}
+        ],
+        "status": "finished",
+        "finishedAt": 1793817600000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g318",
+        "syncId": "80000000-0000-4000-8000-000000000318",
+        "rev": 5,
+        "createdAt": 1793836800000,
+        "updatedAt": 1793839200000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793837400000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793838000000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793838600000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1793839200000}
+        ],
+        "status": "finished",
+        "finishedAt": 1793839200000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g319",
+        "syncId": "80000000-0000-4000-8000-000000000319",
+        "rev": 5,
+        "createdAt": 1793858400000,
+        "updatedAt": 1793860800000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793859000000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793859600000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793860200000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1793860800000}
+        ],
+        "status": "finished",
+        "finishedAt": 1793860800000,
+        "result": {"winner":"b","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g320",
+        "syncId": "80000000-0000-4000-8000-000000000320",
+        "rev": 5,
+        "createdAt": 1793880000000,
+        "updatedAt": 1793882400000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793880600000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793881200000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793881800000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1793882400000}
+        ],
+        "status": "finished",
+        "finishedAt": 1793882400000,
+        "result": {"winner":"b","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g321",
+        "syncId": "80000000-0000-4000-8000-000000000321",
+        "rev": 5,
+        "createdAt": 1793901600000,
+        "updatedAt": 1793904000000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793902200000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793902800000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1793903400000},
+          {"index":3,"dealer":3,"bids":[0,3,6,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[0,null,null,null],"phase":"done","doneAt":1793904000000}
+        ],
+        "status": "finished",
+        "finishedAt": 1793904000000,
+        "result": {"winner":"draw","endedBy":"draw"}
+      }
+    },
+    {
+      "kind": "spades-online",
+      "payload": {
+        "kind": "spades-online",
+        "schemaVersion": 1,
+        "id": "80000000-0000-4000-8000-000000000322",
+        "code": "KQ7M",
+        "name": "Riya’s table",
+        "rev": 2,
+        "createdAt": 1793973600000,
+        "updatedAt": 1793974200000,
+        "finishedAt": 1793974200000,
+        "status": "finished",
+        "paused": null,
+        "host": 0,
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "seats": [
+          {"who":{"userId":"u-riya","playerId":"00000000-0000-4000-8000-000000000001","name":"Riya","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0},
+          {"who":{"userId":"u-arjun","playerId":"00000000-0000-4000-8000-000000000002","name":"Arjun","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0},
+          {"who":{"userId":"u-kabir","playerId":"00000000-0000-4000-8000-000000000005","name":"Kabir","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0},
+          {"who":{"userId":"u-meera","playerId":"00000000-0000-4000-8000-000000000004","name":"Meera","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0}
+        ],
+        "drawn": null,
+        "dealer": 0,
+        "phase": "handEnd",
+        "bids": [null,null,null,null],
+        "blind": [false,false,false,false],
+        "looked": [false,false,false,false],
+        "trick": [],
+        "tricks": [],
+        "broken": false,
+        "turn": null,
+        "turnStartedAt": null,
+        "deadline": null,
+        "history": [
+          {
+            "index": 0,
+            "dealer": 0,
+            "bids": [3,3,3,3],
+            "blind": [false,false,false,false],
+            "teamTricks": [7,6],
+            "nilTricks": [null,null,null,null],
+            "phase": "done",
+            "doneAt": 1793974200000,
+            "tricks": [
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"3","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"4","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"5","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"6","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"6","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"6","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"7","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"7","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"7","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"8","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"8","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"8","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"9","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"9","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"9","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"10","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"10","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"10","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"J","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"J","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"J","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"Q","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"Q","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"Q","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"3","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"4","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"5","suit":"clubs"}}
+                ],
+                "winner": 1
+              }
+            ],
+            "players": ["00000000-0000-4000-8000-000000000001","00000000-0000-4000-8000-000000000002","00000000-0000-4000-8000-000000000005","00000000-0000-4000-8000-000000000004"]
+          }
+        ],
+        "result": {"winner":"a","endedBy":"target"},
+        "next": null
+      }
+    },
+    {
+      "kind": "spades-online",
+      "payload": {
+        "kind": "spades-online",
+        "schemaVersion": 1,
+        "id": "80000000-0000-4000-8000-000000000323",
+        "code": "KQ7M",
+        "name": "Riya’s table",
+        "rev": 2,
+        "createdAt": 1793977200000,
+        "updatedAt": 1793977800000,
+        "finishedAt": 1793977800000,
+        "status": "finished",
+        "paused": null,
+        "host": 0,
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "seats": [
+          {"who":{"userId":"u-riya","playerId":"00000000-0000-4000-8000-000000000001","name":"Riya","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0},
+          {"who":{"userId":"u-arjun","playerId":"00000000-0000-4000-8000-000000000002","name":"Arjun","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0},
+          {"who":{"userId":"u-kabir","playerId":"00000000-0000-4000-8000-000000000005","name":"Kabir","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0},
+          {"who":{"userId":"u-meera","playerId":"00000000-0000-4000-8000-000000000004","name":"Meera","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0}
+        ],
+        "drawn": null,
+        "dealer": 0,
+        "phase": "handEnd",
+        "bids": [null,null,null,null],
+        "blind": [false,false,false,false],
+        "looked": [false,false,false,false],
+        "trick": [],
+        "tricks": [],
+        "broken": false,
+        "turn": null,
+        "turnStartedAt": null,
+        "deadline": null,
+        "history": [
+          {
+            "index": 0,
+            "dealer": 0,
+            "bids": [3,3,3,3],
+            "blind": [false,false,false,false],
+            "teamTricks": [7,6],
+            "nilTricks": [null,null,null,null],
+            "phase": "done",
+            "doneAt": 1793977800000,
+            "tricks": [
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"3","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"4","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"5","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"6","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"6","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"6","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"7","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"7","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"7","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"8","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"8","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"8","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"9","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"9","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"9","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"10","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"10","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"10","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"J","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"J","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"J","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"Q","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"Q","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"Q","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"3","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"4","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"5","suit":"clubs"}}
+                ],
+                "winner": 1
+              }
+            ],
+            "players": ["00000000-0000-4000-8000-000000000001","00000000-0000-4000-8000-000000000002","00000000-0000-4000-8000-000000000005","00000000-0000-4000-8000-000000000004"]
+          }
+        ],
+        "result": {"winner":"a","endedBy":"target"},
+        "next": null
+      }
+    },
+    {
+      "kind": "spades-online",
+      "payload": {
+        "kind": "spades-online",
+        "schemaVersion": 1,
+        "id": "80000000-0000-4000-8000-000000000324",
+        "code": "KQ7M",
+        "name": "Riya’s table",
+        "rev": 2,
+        "createdAt": 1793980800000,
+        "updatedAt": 1793981400000,
+        "finishedAt": 1793981400000,
+        "status": "finished",
+        "paused": null,
+        "host": 0,
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "seats": [
+          {"who":{"userId":"u-riya","playerId":"00000000-0000-4000-8000-000000000001","name":"Riya","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0},
+          {"who":{"userId":"u-arjun","playerId":"00000000-0000-4000-8000-000000000002","name":"Arjun","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0},
+          {"who":{"userId":"u-kabir","playerId":"00000000-0000-4000-8000-000000000005","name":"Kabir","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0},
+          {"who":{"userId":"u-meera","playerId":"00000000-0000-4000-8000-000000000004","name":"Meera","emoji":"🙂","color":"#f5a524","photoUrl":null},"ready":true,"away":false,"timeouts":0}
+        ],
+        "drawn": null,
+        "dealer": 0,
+        "phase": "handEnd",
+        "bids": [null,null,null,null],
+        "blind": [false,false,false,false],
+        "looked": [false,false,false,false],
+        "trick": [],
+        "tricks": [],
+        "broken": false,
+        "turn": null,
+        "turnStartedAt": null,
+        "deadline": null,
+        "history": [
+          {
+            "index": 0,
+            "dealer": 0,
+            "bids": [3,3,3,3],
+            "blind": [false,false,false,false],
+            "teamTricks": [7,6],
+            "nilTricks": [null,null,null,null],
+            "phase": "done",
+            "doneAt": 1793981400000,
+            "tricks": [
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"3","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"4","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"5","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"6","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"6","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"6","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"7","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"7","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"7","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"8","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"8","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"8","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":0,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":1,"card":{"rank":"9","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"9","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"9","suit":"clubs"}}
+                ],
+                "winner": 0
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"10","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"10","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"10","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"J","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"J","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"J","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"Q","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"Q","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"Q","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"3","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"3","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"4","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"4","suit":"clubs"}}
+                ],
+                "winner": 1
+              },
+              {
+                "plays": [
+                  {"seat":1,"card":{"rank":"A","suit":"clubs"}},
+                  {"seat":2,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":3,"card":{"rank":"5","suit":"clubs"}},
+                  {"seat":0,"card":{"rank":"5","suit":"clubs"}}
+                ],
+                "winner": 1
+              }
+            ],
+            "players": ["00000000-0000-4000-8000-000000000001","00000000-0000-4000-8000-000000000002","00000000-0000-4000-8000-000000000005","00000000-0000-4000-8000-000000000004"]
+          }
+        ],
+        "result": {"winner":"a","endedBy":"target"},
+        "next": null
+      }
+    }
+  ],
+  "expect": {
+    "daily": [],
+    "season": [
+      {"season":"2026-09","standings":[],"awards":[]},
+      {
+        "season": "2026-10",
+        "standings": [
+          {"playerId":"00000000-0000-4000-8000-000000000002","rank":1,"qualified":true,"value":0.7,"games":10,"wins":7},
+          {"playerId":"00000000-0000-4000-8000-000000000004","rank":1,"qualified":true,"value":0.7,"games":10,"wins":7},
+          {"playerId":"00000000-0000-4000-8000-000000000001","rank":3,"qualified":true,"value":0.3,"games":10,"wins":3},
+          {"playerId":"00000000-0000-4000-8000-000000000003","rank":3,"qualified":true,"value":0.3,"games":10,"wins":3}
+        ],
+        "awards": [
+          {"code":"season_champion","playerId":"00000000-0000-4000-8000-000000000002","value":0.7},
+          {"code":"season_champion","playerId":"00000000-0000-4000-8000-000000000004","value":0.7},
+          {"code":"season_third","playerId":"00000000-0000-4000-8000-000000000001","value":0.3},
+          {"code":"season_third","playerId":"00000000-0000-4000-8000-000000000003","value":0.3},
+          {"code":"season_sharpest","playerId":"00000000-0000-4000-8000-000000000002","value":1},
+          {"code":"season_sharpest","playerId":"00000000-0000-4000-8000-000000000003","value":1},
+          {"code":"season_sharpest","playerId":"00000000-0000-4000-8000-000000000004","value":1},
+          {"code":"season_nil","playerId":"00000000-0000-4000-8000-000000000001","value":10},
+          {"code":"season_pair","playerId":"00000000-0000-4000-8000-000000000002","value":0.7},
+          {"code":"season_pair","playerId":"00000000-0000-4000-8000-000000000004","value":0.7},
+          {"code":"season_iron","playerId":"00000000-0000-4000-8000-000000000001","value":10},
+          {"code":"season_iron","playerId":"00000000-0000-4000-8000-000000000002","value":10},
+          {"code":"season_iron","playerId":"00000000-0000-4000-8000-000000000003","value":10},
+          {"code":"season_iron","playerId":"00000000-0000-4000-8000-000000000004","value":10}
+        ]
+      },
+      {
+        "season": "2026-11",
+        "standings": [
+          {"playerId":"00000000-0000-4000-8000-000000000001","rank":1,"qualified":true,"value":0.7857142857142857,"games":14,"wins":11},
+          {"playerId":"00000000-0000-4000-8000-000000000003","rank":2,"qualified":true,"value":0.7272727272727273,"games":11,"wins":8},
+          {"playerId":"00000000-0000-4000-8000-000000000002","rank":3,"qualified":true,"value":0.14285714285714285,"games":14,"wins":2},
+          {"playerId":"00000000-0000-4000-8000-000000000004","rank":3,"qualified":true,"value":0.14285714285714285,"games":14,"wins":2},
+          {"playerId":"00000000-0000-4000-8000-000000000005","rank":null,"qualified":false,"value":1,"games":3,"wins":3}
+        ],
+        "awards": [
+          {"code":"season_champion","playerId":"00000000-0000-4000-8000-000000000001","value":0.7857142857142857},
+          {"code":"season_runner_up","playerId":"00000000-0000-4000-8000-000000000003","value":0.7272727272727273},
+          {"code":"season_third","playerId":"00000000-0000-4000-8000-000000000002","value":0.14285714285714285},
+          {"code":"season_third","playerId":"00000000-0000-4000-8000-000000000004","value":0.14285714285714285},
+          {"code":"season_sharpest","playerId":"00000000-0000-4000-8000-000000000002","value":1},
+          {"code":"season_sharpest","playerId":"00000000-0000-4000-8000-000000000003","value":1},
+          {"code":"season_sharpest","playerId":"00000000-0000-4000-8000-000000000004","value":1},
+          {"code":"season_nil","playerId":"00000000-0000-4000-8000-000000000001","value":11},
+          {"code":"season_pair","playerId":"00000000-0000-4000-8000-000000000001","value":0.7272727272727273},
+          {"code":"season_pair","playerId":"00000000-0000-4000-8000-000000000003","value":0.7272727272727273},
+          {"code":"season_iron","playerId":"00000000-0000-4000-8000-000000000001","value":14},
+          {"code":"season_iron","playerId":"00000000-0000-4000-8000-000000000002","value":14},
+          {"code":"season_iron","playerId":"00000000-0000-4000-8000-000000000004","value":14},
+          {"code":"season_climber","playerId":"00000000-0000-4000-8000-000000000001","value":2}
+        ]
+      }
+    ]
+  }
+}

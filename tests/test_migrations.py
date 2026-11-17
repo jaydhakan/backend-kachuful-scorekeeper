@@ -76,3 +76,31 @@ def test_the_spades_migration_adds_and_drops_its_five_tables() -> None:
 
     assert not SPADES_TABLES & after_down
     assert _tables() >= SPADES_TABLES
+
+
+GAME_TABLES = ("achievements", "activity", "closed_periods")
+
+
+async def _read_game_columns() -> set[str]:
+    engine = build_engine(statement_timeout_ms=10000)
+    async with engine.connect() as conn:
+        names = await conn.execute(
+            text(
+                "SELECT table_name FROM information_schema.columns "
+                "WHERE table_schema = 'public' AND column_name = 'game'"
+            )
+        )
+        found = set(names.scalars())
+    await engine.dispose()
+    return found
+
+
+def test_the_game_migration_adds_and_drops_the_game_columns() -> None:
+    config = alembic_config()
+
+    command.downgrade(config, "0021")
+    after_down = anyio.run(_read_game_columns)
+    command.upgrade(config, "head")
+
+    assert not set(GAME_TABLES) & after_down
+    assert anyio.run(_read_game_columns) >= set(GAME_TABLES)

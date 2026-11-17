@@ -7,7 +7,7 @@ from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Game, Invite, Player, PlayerAlias, User
-from app.domain.enums import GameKind
+from app.domain.enums import GameKind, ProgressionGame
 from app.exceptions import ApiError, ErrorCode
 from app.logger import get_logger
 from app.repositories.achievements import achievements_repository
@@ -22,6 +22,7 @@ from app.services.games import GamesService
 from app.services.ishaara_games import IshaaraGamesService
 from app.services.kt_games import KtGamesService
 from app.services.presenters import player_out
+from app.services.progression.registry import REGISTRY
 from app.services.spades_games import SpadesGamesService
 from app.services.spades_tables import SpadesTablesService
 
@@ -114,9 +115,12 @@ class MergeService:
             raise ApiError(409, ErrorCode.BOTH_LINKED, "Both players have accounts.")
         await self._move_references(source.id, target.id)
         await achievements_repository.move_player(self.session, source.id, target.id)
-        await AchievementsEngine(self.session).career(
-            {target.id}, changed_from_ms=None, sequence_changed=True
-        )
+        engine = AchievementsEngine(self.session)
+        await engine.career({target.id}, changed_from_ms=None, sequence_changed=True)
+        # Every other game's careers too (the reseats above moved each game's own rows).
+        for game, rules in REGISTRY.items():
+            if game != ProgressionGame.KACHUFUL:
+                await engine.recompute_careers(rules, {target.id})
         if source_user is not None:
             await users_repository.move_player_link(self.session, source.id, target.id)
         await players_repository.redirect_merged(self.session, source.id, target.id)
