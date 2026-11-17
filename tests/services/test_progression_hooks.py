@@ -34,7 +34,7 @@ from tests.kt_builder import freeze_clock as freeze_kt
 from tests.progression_fake import AT, FakeRules, swap_in
 from tests.spades_builder import case, seat_registry
 from tests.spades_builder import freeze_clock as freeze_spades
-from tests.spades_tables_builder import Seats, bid_all, make_seats, ok, play_cards, started
+from tests.spades_tables_builder import Seats, bid_all, make_seats, ok, play_cards, started, view
 from tests.spades_tables_builder import freeze as freeze_tables
 
 KT = ProgressionGame.KAALI_TEERI
@@ -193,6 +193,30 @@ async def test_an_idle_online_table_ends_and_a_deleted_one_earns_nothing(
 
     assert await _rows(session, table) == []
     assert await _finished_items(session, table) == []
+
+
+async def test_a_feed_item_for_an_open_table_never_carries_its_join_code(
+    seats: Seats,
+    session: AsyncSession,
+    client: httpx.AsyncClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fake = swap_in(monkeypatch, SPADES)
+    fake.players = [str(seats.users[0].player_id)]
+    await started(seats)
+    await bid_all(seats, (5, 3, 3, 2))
+    await play_cards(seats)
+    code = (await view(seats, 0))["table"]["code"]
+    stranger = await make_user(session, email="stranger@example.com", player_name="Stranger")
+    await sign_in(client, stranger)
+
+    response = await client.get("/api/activity", params={"game": "spades"})
+
+    # Career items have no game; the hand's moment item carries the open table.
+    games = [i["game"] for i in response.json()["items"] if i["game"] is not None]
+    assert games and all(g["kind"] == "spades-online" for g in games)
+    assert all(g["status"] == "playing" and "code" not in g for g in games)
+    assert code not in response.text
 
 
 # Ishaara: the finish, abandoning and delete.

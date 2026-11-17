@@ -12,7 +12,7 @@ from app.schemas.ishaara import IshaaraSummaryOut
 from app.schemas.kaali_teeri import KtGameSummaryOut
 from app.schemas.players import PlayerOut, PlayerSummaryOut
 from app.schemas.spades import SpGameSummaryOut
-from app.schemas.spades_tables import SpTableSummaryOut
+from app.schemas.spades_tables import SpTableFeedOut
 
 
 class LeaderboardRowOut(CamelModel):
@@ -152,7 +152,7 @@ class ActivityItemOut(CamelModel):
         GameSummaryOut
         | KtGameSummaryOut
         | SpGameSummaryOut
-        | SpTableSummaryOut
+        | SpTableFeedOut
         | IshaaraSummaryOut
         | None
     ) = Field(

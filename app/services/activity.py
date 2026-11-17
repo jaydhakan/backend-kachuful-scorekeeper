@@ -21,14 +21,14 @@ from app.schemas.ishaara import IshaaraSummaryOut
 from app.schemas.kaali_teeri import KtGameSummaryOut
 from app.schemas.players import PlayerSummaryOut
 from app.schemas.spades import SpGameSummaryOut
-from app.schemas.spades_tables import SpTableSummaryOut
+from app.schemas.spades_tables import SpTableFeedOut
 from app.services.ishaara_games import ishaara_summary_out
 from app.services.pagination import decode_cursor, encode_cursor
 from app.services.presenters import kt_summary_out, player_summary_out, sp_summary_out, summary_out
 from app.services.spades_state import table_summary_out
 
 type AnySummary = (
-    GameSummaryOut | KtGameSummaryOut | SpGameSummaryOut | SpTableSummaryOut | IshaaraSummaryOut
+    GameSummaryOut | KtGameSummaryOut | SpGameSummaryOut | SpTableFeedOut | IshaaraSummaryOut
 )
 
 
@@ -126,9 +126,11 @@ def _summary(kind: GameKind, row: SummaryRow, user: User) -> AnySummary:
     if kind == GameKind.SPADES:
         return sp_summary_out(row)
     if kind == GameKind.SPADES_ONLINE:
-        return table_summary_out(
+        # Never the join code: any signed-in reader sees the feed, open tables included.
+        table = table_summary_out(
             row.game_id, row.summary, player_id=user.player_id, is_host=row.owner_id == user.id
         )
+        return SpTableFeedOut.model_validate(table.model_dump(exclude={"code"}))
     return summary_out(row)
 
 
