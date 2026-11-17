@@ -1,4 +1,9 @@
-"""Daily awards, seasons and Wrapped (plan §8.4-8.5). Closed days and seasons are frozen."""
+"""Daily awards, seasons and Wrapped (plan §8.4-8.5). Closed days and seasons are frozen.
+
+Every game has daily awards (its `GameProgression`) and seasons: Kachuful's rank its points board
+(`SeasonOut`), every other game's rank win rate (`GameSeasonOut`, its `WinRateSeasons`). A day
+or month closes once per game.
+"""
 
 import uuid
 from collections.abc import Callable
@@ -8,9 +13,10 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domain.achievements import Earned
-from app.domain.awards import SEASON_MIN_ROUNDS, Award, daily_awards, season_awards
+from app.domain.awards import SEASON_MIN_ROUNDS, season_awards
+from app.domain.enums import ProgressionGame
 from app.domain.leaderboard import Board, BoardRow, Metric
+from app.domain.progression import Award, Earned, StandingRow, win_rate_standings
 from app.domain.time import (
     day_of,
     day_range_ms,
@@ -31,11 +37,13 @@ from app.schemas.awards import (
     DailyAwardsOut,
     DayPointsOut,
     DayRoundsOut,
+    GameSeasonOut,
     MonthPointsOut,
     NemesisOut,
     PartnerOut,
     SeasonListItemOut,
     SeasonOut,
+    StandingOut,
     TrumpOut,
     WrappedOut,
     WrappedRankOut,
@@ -45,7 +53,11 @@ from app.services.achievements import activity_rows
 from app.services.boards import BoardsService, make_window
 from app.services.cache import Cached, etag_for, etag_matches
 from app.services.presenters import player_summary_out
+from app.services.progression.base import WinRateSeasons
+from app.services.progression.registry import progression_of, seasons_of
 from app.settings import settings
+
+KACHUFUL = ProgressionGame.KACHUFUL
 
 
 def parse_day(raw: str) -> date:
@@ -94,6 +106,48 @@ def _board_row_dict(row: BoardRow) -> dict[str, Any]:
     return asdict(row)
 
 
+def _scope(game: ProgressionGame) -> tuple[str, ...]:
+    """Cache and ETag key parts: none for Kachuful, so its keys stay as they were."""
+    return () if game == KACHUFUL else (game.value,)
+
+
+def _months_since(first: date) -> list[str]:
+    """Every month from `first`'s to the current one, oldest first."""
+    months: list[str] = []
+    cursor = date(first.year, first.month, 1)
+    current = today()
+    while cursor <= current:
+        months.append(cursor.strftime("%Y-%m"))
+        cursor = (cursor + timedelta(days=32)).replace(day=1)
+    return months
+
+
+def _award_out(view: PlayerView, a: Award) -> AwardOut:
+    return AwardOut(
+        code=a.code,
+        player=player_summary_out(view),
+        value=a.value,
+        game_id=None if a.game_id is None else uuid.UUID(a.game_id),
+        round_index=a.round_index,
+    )
+
+
+def _standing_out(view: PlayerView, r: StandingRow) -> StandingOut:
+    return StandingOut(
+        rank=r.rank,
+        qualified=r.qualified,
+        player=player_summary_out(view),
+        value=r.value,
+        games=r.games,
+        wins=r.wins,
+    )
+
+
+def _top(standings: list[StandingRow]) -> str | None:
+    top = next((r for r in standings if r.rank == 1), None)
+    return None if top is None else top.player_id
+
+
 def award_earned(award: Award, period: str, earned_at: int) -> Earned:
     """An award as an achievements row for its day or season."""
     return Earned(
@@ -114,12 +168,9 @@ class AwardsService:
         self.session = session
         self.boards = BoardsService(session)
 
-    async def compute_daily(self, day: date) -> list[Award]:
-        """The day's awards from its rounds (two queries)."""
-        window = make_window(*day_range_ms(day, settings.tz))
-        rounds = await boards_repository.day_rounds(self.session, window)
-        tallies = await boards_repository.tallies(self.session, window)
-        return daily_awards(rounds, tallies.values())
+    async def compute_daily(self, day: date, game: ProgressionGame = KACHUFUL) -> list[Award]:
+        """One game's awards for a day (Kachuful: from its rounds, two queries)."""
+        return await progression_of(game).daily_awards(self.session, day)
 
     async def compute_season(self, month: str) -> tuple[Board, list[Award]]:
         """A month's standings (more than 50 rounds) and its awards."""
@@ -143,25 +194,16 @@ class AwardsService:
 
     async def _awards_out(self, awards: list[Award]) -> list[AwardOut]:
         views = await self._views({a.player_id for a in awards})
-        return [
-            AwardOut(
-                code=a.code,
-                player=player_summary_out(views[a.player_id]),
-                value=a.value,
-                game_id=None if a.game_id is None else uuid.UUID(a.game_id),
-                round_index=a.round_index,
-            )
-            for a in awards
-        ]
+        return [_award_out(views[a.player_id], a) for a in awards]
 
     async def daily(
-        self, raw_day: str, if_none_match: str | None
+        self, raw_day: str, if_none_match: str | None, game: ProgressionGame = KACHUFUL
     ) -> tuple[Cached[DailyAwardsOut], bool]:
         """`GET /api/awards/daily`; the flag is True when the day is closed (cache forever)."""
         day = parse_day(raw_day)
-        closed = await achievements_repository.closed(self.session, day.isoformat())
+        closed = await achievements_repository.closed(self.session, game, day.isoformat())
         if closed is not None:
-            etag = etag_for(0, "closed-day", day.isoformat())
+            etag = etag_for(0, "closed-day", *_scope(game), day.isoformat())
             if etag_matches(if_none_match, etag):
                 return Cached(etag=etag, body=None), True
             awards = [_award_from_dict(a) for a in closed.data["awards"]]
@@ -170,22 +212,24 @@ class AwardsService:
             )
             return Cached(etag=etag, body=body), True
         cached = await self.boards.cached(
-            if_none_match, ("day", day), lambda: self._live_daily(day)
+            if_none_match, ("day", *_scope(game), day), lambda: self._live_daily(day, game)
         )
         return cached, False
 
-    async def _live_daily(self, day: date) -> DailyAwardsOut:
-        awards = await self.compute_daily(day) if day <= today() else []
+    async def _live_daily(self, day: date, game: ProgressionGame) -> DailyAwardsOut:
+        awards = await self.compute_daily(day, game) if day <= today() else []
         return DailyAwardsOut(
             date=day.isoformat(), final=False, awards=await self._awards_out(awards)
         )
 
     async def season(
-        self, raw_month: str, if_none_match: str | None
-    ) -> tuple[Cached[SeasonOut], bool]:
+        self, raw_month: str, if_none_match: str | None, game: ProgressionGame = KACHUFUL
+    ) -> tuple[Cached[SeasonOut | GameSeasonOut], bool]:
         """`GET /api/seasons/{yyyy-mm}`; the flag is True once the season is closed."""
         month = parse_month(raw_month)
-        closed = await achievements_repository.closed(self.session, month)
+        if game != KACHUFUL:
+            return await self._game_season(seasons_of(game), month, if_none_match)
+        closed = await achievements_repository.closed(self.session, game, month)
         if closed is not None:
             etag = etag_for(0, "closed-season", month)
             if etag_matches(if_none_match, etag):
@@ -215,21 +259,26 @@ class AwardsService:
             awards=await self._awards_out(awards),
         )
 
-    async def seasons(self, if_none_match: str | None) -> Cached[list[SeasonListItemOut]]:
-        """`GET /api/seasons`: every month since the first game, newest first."""
+    async def seasons(
+        self, if_none_match: str | None, game: ProgressionGame = KACHUFUL
+    ) -> Cached[list[SeasonListItemOut]]:
+        """`GET /api/seasons`: every month since the game's first, newest first."""
+        if game != KACHUFUL:
+            rules = seasons_of(game)
+            return await self.boards.cached(
+                if_none_match, ("seasons", game.value), lambda: self._game_seasons_body(rules)
+            )
         return await self.boards.cached(if_none_match, ("seasons",), self._seasons_body)
 
     async def _seasons_body(self) -> list[SeasonListItemOut]:
         first = await boards_repository.first_played_day(self.session)
         if first is None:
             return []
-        closed = {c.period: c for c in await achievements_repository.closed_seasons(self.session)}
-        months: list[str] = []
-        cursor = date(first.year, first.month, 1)
-        current = today()
-        while cursor <= current:
-            months.append(cursor.strftime("%Y-%m"))
-            cursor = (cursor + timedelta(days=32)).replace(day=1)
+        closed = {
+            c.period: c
+            for c in await achievements_repository.closed_seasons(self.session, KACHUFUL)
+        }
+        months = _months_since(first)
         champions: dict[str, str | None] = {}
         for month in months:
             if month in closed:
@@ -239,40 +288,126 @@ class AwardsService:
                 board, _ = await self.compute_season(month)
                 top = next((r for r in board.rows if r.rank == 1), None)
                 champions[month] = None if top is None else top.player_id
+        return await self._season_list(months, champions)
+
+    async def _season_list(
+        self, months: list[str], champions: dict[str, str | None]
+    ) -> list[SeasonListItemOut]:
         views = await self._views({pid for pid in champions.values() if pid})
         return [
             SeasonListItemOut(season=month, champion=_champion(views, champions[month]))
             for month in reversed(months)
         ]
 
-    async def close_day(self, day: date) -> list[Award] | None:
-        """Freeze a past day's awards (None when it was already closed). Does not commit."""
+    async def standings(self, rules: WinRateSeasons, month: str) -> list[StandingRow]:
+        """A month's win-rate standings (one query)."""
+        start, end = month_range_ms(month, settings.tz)
+        tallies = await rules.month_tallies(self.session, start, end)
+        return win_rate_standings(tallies, rules.min_games)
+
+    async def compute_game_season(
+        self, rules: WinRateSeasons, month: str
+    ) -> tuple[list[StandingRow], list[Award]]:
+        """A non-Kachuful month's standings and awards (with last month's standings)."""
+        standings = await self.standings(rules, month)
+        last = await self.standings(rules, previous_month(month))
+        return standings, await rules.season_awards(self.session, month, standings, last)
+
+    async def _game_season(
+        self, rules: WinRateSeasons, month: str, if_none_match: str | None
+    ) -> tuple[Cached[GameSeasonOut], bool]:
+        closed = await achievements_repository.closed(self.session, rules.game, month)
+        if closed is not None:
+            etag = etag_for(0, "closed-season", rules.game.value, month)
+            if etag_matches(if_none_match, etag):
+                return Cached(etag=etag, body=None), True
+            standings = [StandingRow(**r) for r in closed.data["standings"]]
+            awards = [_award_from_dict(a) for a in closed.data["awards"]]
+            body = await self._game_season_out(
+                rules, month, (True, closed.data["minGames"]), standings, awards
+            )
+            return Cached(etag=etag, body=body), True
+        cached = await self.boards.cached(
+            if_none_match,
+            ("season", rules.game.value, month),
+            lambda: self._live_game_season(rules, month),
+        )
+        return cached, False
+
+    async def _live_game_season(self, rules: WinRateSeasons, month: str) -> GameSeasonOut:
+        standings, awards = await self.compute_game_season(rules, month)
+        return await self._game_season_out(
+            rules, month, (False, rules.min_games), standings, awards
+        )
+
+    async def _game_season_out(
+        self,
+        rules: WinRateSeasons,
+        month: str,
+        state: tuple[bool, int],
+        standings: list[StandingRow],
+        awards: list[Award],
+    ) -> GameSeasonOut:
+        """`state`: (final, minGames) - a closed season keeps the minimum it closed with."""
+        final, min_games = state
+        views = await self._views({r.player_id for r in standings} | {a.player_id for a in awards})
+        return GameSeasonOut(
+            season=month,
+            final=final,
+            game_kind=rules.game,
+            min_games=min_games,
+            standings=[_standing_out(views[r.player_id], r) for r in standings],
+            awards=[_award_out(views[a.player_id], a) for a in awards],
+        )
+
+    async def _game_seasons_body(self, rules: WinRateSeasons) -> list[SeasonListItemOut]:
+        first = await rules.first_played(self.session)
+        if first is None:
+            return []
+        closed = {
+            c.period: c
+            for c in await achievements_repository.closed_seasons(self.session, rules.game)
+        }
+        months = _months_since(first)
+        champions: dict[str, str | None] = {}
+        for month in months:
+            if month in closed:
+                rows = [StandingRow(**r) for r in closed[month].data["standings"]]
+            else:
+                rows = await self.standings(rules, month)
+            champions[month] = _top(rows)
+        return await self._season_list(months, champions)
+
+    async def close_day(self, day: date, game: ProgressionGame = KACHUFUL) -> list[Award] | None:
+        """Freeze a past day's awards for one game (None when already closed). No commit."""
         period = day.isoformat()
-        if await achievements_repository.closed(self.session, period) is not None:
+        if await achievements_repository.closed(self.session, game, period) is not None:
             return None
-        awards = await self.compute_daily(day)
+        awards = await self.compute_daily(day, game)
         _, end = day_range_ms(day, settings.tz)
-        await self._record(awards, period, end - 1)
+        await self._record(awards, period, end - 1, game)
         await achievements_repository.close(
-            self.session, period, "day", {"awards": [_award_dict(a) for a in awards]}
+            self.session, game, period, "day", {"awards": [_award_dict(a) for a in awards]}
         )
         await app_state_repository.bump(self.session)
         return awards
 
-    async def close_season(self, month: str) -> list[Award] | None:
-        """Freeze a past month's standings and awards (None when already closed). No commit."""
-        if await achievements_repository.closed(self.session, month) is not None:
+    async def close_season(
+        self, month: str, game: ProgressionGame = KACHUFUL
+    ) -> list[Award] | None:
+        """Freeze a past month's standings and awards for one game (None when already closed).
+
+        Does not commit.
+        """
+        if await achievements_repository.closed(self.session, game, month) is not None:
             return None
+        if game != KACHUFUL:
+            return await self._close_game_season(seasons_of(game), month)
         board, awards = await self.compute_season(month)
-        _, end = month_range_ms(month, settings.tz)
-        await self._record(awards, month, end - 1)
-        champions = [a.player_id for a in awards if a.code == "season_champion"]
-        await achievements_repository.add_activity(
-            self.session,
-            [{"kind": "season_closed", "data": {"season": month, "champions": champions}}],
-        )
+        await self._season_closed(awards, month, game)
         await achievements_repository.close(
             self.session,
+            game,
             month,
             "season",
             {
@@ -283,9 +418,44 @@ class AwardsService:
         await app_state_repository.bump(self.session)
         return awards
 
-    async def _record(self, awards: list[Award], period: str, earned_at: int) -> None:
+    async def _close_game_season(self, rules: WinRateSeasons, month: str) -> list[Award]:
+        standings, awards = await self.compute_game_season(rules, month)
+        # A month nobody played this game posts no feed item (it would only be noise).
+        await self._season_closed(awards, month, rules.game, post=bool(standings))
+        data = {
+            "minGames": rules.min_games,
+            "standings": [asdict(r) for r in standings],
+            "awards": [_award_dict(a) for a in awards],
+        }
+        await achievements_repository.close(self.session, rules.game, month, "season", data)
+        await app_state_repository.bump(self.session)
+        return awards
+
+    async def _season_closed(
+        self, awards: list[Award], month: str, game: ProgressionGame, *, post: bool = True
+    ) -> None:
+        """Store a closing season's awards and (with `post`) its feed item."""
+        _, end = month_range_ms(month, settings.tz)
+        await self._record(awards, month, end - 1, game)
+        if not post:
+            return
+        champions = [a.player_id for a in awards if a.code == "season_champion"]
+        await achievements_repository.add_activity(
+            self.session,
+            [
+                {
+                    "game": game.value,
+                    "kind": "season_closed",
+                    "data": {"season": month, "champions": champions},
+                }
+            ],
+        )
+
+    async def _record(
+        self, awards: list[Award], period: str, earned_at: int, game: ProgressionGame
+    ) -> None:
         rows = await achievements_repository.insert(
-            self.session, [award_earned(a, period, earned_at) for a in awards]
+            self.session, [award_earned(a, period, earned_at) for a in awards], game=game
         )
         await achievements_repository.add_activity(self.session, activity_rows(rows))
 
