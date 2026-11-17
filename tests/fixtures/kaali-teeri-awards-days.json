@@ -1156,20 +1156,20 @@
         "season": "2026-11",
         "standings": [
           {
-            "playerId": "ana",
-            "rank": null,
-            "qualified": false,
-            "value": 0,
-            "games": 1,
-            "wins": 0
-          },
-          {
             "playerId": "ben",
             "rank": null,
             "qualified": false,
             "value": 1,
             "games": 1,
             "wins": 1
+          },
+          {
+            "playerId": "ana",
+            "rank": null,
+            "qualified": false,
+            "value": 0,
+            "games": 1,
+            "wins": 0
           },
           {
             "playerId": "cy",

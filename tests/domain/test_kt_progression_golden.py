@@ -253,10 +253,6 @@ def _standing_json(r: StandingRow) -> dict[str, Any]:
     }
 
 
-def _unranked(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    return sorted((r for r in rows if not r["qualified"]), key=lambda r: str(r["playerId"]))
-
-
 @pytest.mark.parametrize("name", AWARDS)
 def test_seasons_match_the_app(name: str) -> None:
     fixture = load(name)
@@ -277,10 +273,6 @@ def test_seasons_match_the_app(name: str) -> None:
         )
 
         rows = [_standing_json(r) for r in standings]
-        assert [r for r in rows if r["qualified"]] == [
-            r for r in expect["standings"] if r["qualified"]
-        ]
-        # The shared kits order unranked rows differently (app: games; server: rate); same rows.
-        assert _unranked(rows) == _unranked(expect["standings"])
+        assert rows == expect["standings"]
         assert [_award_json(a) for a in found] == expect["awards"]
         assert {a.code for a in found} <= SEASON_CODES

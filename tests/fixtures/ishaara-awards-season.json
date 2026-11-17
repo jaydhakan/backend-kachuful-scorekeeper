@@ -9031,27 +9031,27 @@
      "wins": 2
     },
     {
-     "playerId": "00000000-0000-4000-8000-000000000004",
+     "playerId": "00000000-0000-4000-8000-000000000008",
      "rank": null,
      "qualified": false,
-     "value": 0.6,
-     "games": 5,
-     "wins": 3
+     "value": 1,
+     "games": 4,
+     "wins": 4
     },
     {
-     "playerId": "00000000-0000-4000-8000-000000000012",
+     "playerId": "00000000-0000-4000-8000-000000000003",
      "rank": null,
      "qualified": false,
-     "value": 0.4,
-     "games": 5,
+     "value": 1,
+     "games": 2,
      "wins": 2
     },
     {
-     "playerId": "00000000-0000-4000-8000-000000000013",
+     "playerId": "00000000-0000-4000-8000-000000000011",
      "rank": null,
      "qualified": false,
-     "value": 0.2,
-     "games": 5,
+     "value": 1,
+     "games": 1,
      "wins": 1
     },
     {
@@ -9061,38 +9061,6 @@
      "value": 0.75,
      "games": 4,
      "wins": 3
-    },
-    {
-     "playerId": "00000000-0000-4000-8000-000000000006",
-     "rank": null,
-     "qualified": false,
-     "value": 0.25,
-     "games": 4,
-     "wins": 1
-    },
-    {
-     "playerId": "00000000-0000-4000-8000-000000000007",
-     "rank": null,
-     "qualified": false,
-     "value": 0.5,
-     "games": 4,
-     "wins": 2
-    },
-    {
-     "playerId": "00000000-0000-4000-8000-000000000008",
-     "rank": null,
-     "qualified": false,
-     "value": 1,
-     "games": 4,
-     "wins": 4
-    },
-    {
-     "playerId": "00000000-0000-4000-8000-000000000009",
-     "rank": null,
-     "qualified": false,
-     "value": 0.5,
-     "games": 4,
-     "wins": 2
     },
     {
      "playerId": "00000000-0000-4000-8000-000000000014",
@@ -9111,19 +9079,51 @@
      "wins": 2
     },
     {
-     "playerId": "00000000-0000-4000-8000-000000000003",
+     "playerId": "00000000-0000-4000-8000-000000000004",
      "rank": null,
      "qualified": false,
-     "value": 1,
-     "games": 2,
+     "value": 0.6,
+     "games": 5,
+     "wins": 3
+    },
+    {
+     "playerId": "00000000-0000-4000-8000-000000000007",
+     "rank": null,
+     "qualified": false,
+     "value": 0.5,
+     "games": 4,
      "wins": 2
     },
     {
-     "playerId": "00000000-0000-4000-8000-000000000011",
+     "playerId": "00000000-0000-4000-8000-000000000009",
      "rank": null,
      "qualified": false,
-     "value": 1,
-     "games": 1,
+     "value": 0.5,
+     "games": 4,
+     "wins": 2
+    },
+    {
+     "playerId": "00000000-0000-4000-8000-000000000012",
+     "rank": null,
+     "qualified": false,
+     "value": 0.4,
+     "games": 5,
+     "wins": 2
+    },
+    {
+     "playerId": "00000000-0000-4000-8000-000000000006",
+     "rank": null,
+     "qualified": false,
+     "value": 0.25,
+     "games": 4,
+     "wins": 1
+    },
+    {
+     "playerId": "00000000-0000-4000-8000-000000000013",
+     "rank": null,
+     "qualified": false,
+     "value": 0.2,
+     "games": 5,
      "wins": 1
     }
    ],
