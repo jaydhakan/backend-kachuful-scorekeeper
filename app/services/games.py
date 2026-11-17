@@ -193,7 +193,8 @@ class Stored:
     earned: list[Achievement]
 
 
-def _info(derived: Derived) -> GameInfo:
+def game_info(derived: Derived) -> GameInfo:
+    """The game-level facts of a derived game."""
     game = derived.game
     return GameInfo(
         game_id=game.id,
@@ -354,7 +355,7 @@ class GamesService:
         players = old_players | {uuid.UUID(p.player_id) for p in derived.players}
         await derived_repository.refresh_player_counters(self.session, players)
         engine = AchievementsEngine(self.session)
-        earned = await engine.game(row.id, derived.rounds, derived.players, _info(derived))
+        earned = await engine.game(row.id, derived.rounds, derived.players, game_info(derived))
         moments = [to_ms(at) for _, at in old] + [ms for _, ms in _moments(derived)]
         ended = derived.ended.at is not None
         if career and moments:

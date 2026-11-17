@@ -5,11 +5,12 @@ from collections.abc import Iterable, Sequence
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import and_, delete, insert, or_, select, text, tuple_, update
+from sqlalchemy import and_, delete, insert, literal, or_, select, text, tuple_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Achievement, Activity, ClosedPeriod
-from app.domain.achievements import CareerGame, Earned, MilestoneRow
+from app.domain.achievements import CareerGame, MilestoneRow
+from app.domain.progression import Earned
 from app.domain.time import from_ms, to_ms
 
 Key = tuple[str, str, str | None, int | None, str | None]
@@ -34,6 +35,15 @@ _TOTALS = text(
     FROM player_day
     WHERE player_id = ANY(CAST(:player_ids AS uuid[]))
     GROUP BY player_id
+    """
+)
+
+_LADDER_TOTALS = text(
+    """
+    SELECT coalesce(sum(rounds), 0), coalesce(sum(made), 0), coalesce(sum(pos_points), 0),
+           coalesce(max(max_hot), 0), coalesce(max(max_cold), 0)
+    FROM player_day
+    WHERE player_id = :player_id
     """
 )
 
@@ -71,8 +81,9 @@ def key_of(row: Achievement) -> Key:
     )
 
 
-def _values(e: Earned) -> dict[str, Any]:
+def _values(e: Earned, game: str) -> dict[str, Any]:
     return {
+        "game": game,
         "player_id": uuid.UUID(e.player_id),
         "code": e.code,
         "game_id": None if e.game_id is None else uuid.UUID(e.game_id),
@@ -87,28 +98,40 @@ class AchievementsRepository:
     """Data access for `achievements`, `activity` and `closed_periods`."""
 
     async def for_game(
-        self, session: AsyncSession, game_id: uuid.UUID, codes: Iterable[str]
+        self, session: AsyncSession, game_id: uuid.UUID, codes: Iterable[str], *, game: str
     ) -> list[Achievement]:
-        """Rows a game owns among some codes."""
+        """Rows a stored game owns among some codes."""
         stmt = select(Achievement).where(
-            Achievement.game_id == game_id, Achievement.code.in_(set(codes))
+            Achievement.game_id == game_id,
+            Achievement.game == game,
+            Achievement.code.in_(set(codes)),
         )
         return list((await session.execute(stmt)).scalars())
 
     async def for_players(
-        self, session: AsyncSession, player_ids: Iterable[uuid.UUID], codes: Iterable[str]
+        self,
+        session: AsyncSession,
+        player_ids: Iterable[uuid.UUID],
+        codes: Iterable[str],
+        *,
+        game: str,
     ) -> list[Achievement]:
-        """Rows of some players among some codes."""
+        """Rows of some players among some codes of one game."""
         stmt = select(Achievement).where(
-            Achievement.player_id.in_(set(player_ids)), Achievement.code.in_(set(codes))
+            Achievement.game == game,
+            Achievement.player_id.in_(set(player_ids)),
+            Achievement.code.in_(set(codes)),
         )
         return list((await session.execute(stmt)).scalars())
 
-    async def insert(self, session: AsyncSession, earned: Sequence[Earned]) -> list[Achievement]:
-        """Insert rows (one statement) and return them."""
+    async def insert(
+        self, session: AsyncSession, earned: Sequence[Earned], *, game: str
+    ) -> list[Achievement]:
+        """Insert one game's rows (one statement) and return them."""
         if not earned:
             return []
-        stmt = insert(Achievement).values([_values(e) for e in earned]).returning(Achievement)
+        values = [_values(e, game) for e in earned]
+        stmt = insert(Achievement).values(values).returning(Achievement)
         return list((await session.execute(stmt)).scalars())
 
     async def delete_ids(self, session: AsyncSession, ids: Iterable[uuid.UUID]) -> None:
@@ -145,6 +168,14 @@ class AchievementsRepository:
         rows = await session.execute(_TOTALS, {"player_ids": list(player_ids)})
         return {str(p): (int(r), int(m), int(pos)) for p, r, m, pos in rows}
 
+    async def ladder_totals(
+        self, session: AsyncSession, player_id: uuid.UUID
+    ) -> tuple[int, int, int, int, int]:
+        """(rounds, made, positive points, longest made run, longest missed run) of one player."""
+        row = (await session.execute(_LADDER_TOTALS, {"player_id": player_id})).one()
+        rounds, made, positive, hot, cold = (int(v) for v in row)
+        return rounds, made, positive, hot, cold
+
     async def milestone_rounds(
         self, session: AsyncSession, player_id: uuid.UUID
     ) -> list[MilestoneRow]:
@@ -165,16 +196,34 @@ class AchievementsRepository:
             for game_id, round_index, done_at, outcome, points, n, made_n, positive in rows
         ]
 
+    async def holders(
+        self, session: AsyncSession, codes: Iterable[str], *, game: str
+    ) -> list[uuid.UUID]:
+        """Every player holding one of some codes in one game (jobs)."""
+        stmt = (
+            select(Achievement.player_id)
+            .where(Achievement.game == game, Achievement.code.in_(set(codes)))
+            .distinct()
+        )
+        return list((await session.execute(stmt)).scalars())
+
     async def add_activity(self, session: AsyncSession, rows: Sequence[dict[str, Any]]) -> None:
         """Append feed items (one statement)."""
         if rows:
             await session.execute(insert(Activity), list(rows))
 
     async def activity_page(
-        self, session: AsyncSession, *, before: tuple[datetime, int] | None, limit: int
+        self,
+        session: AsyncSession,
+        *,
+        game: str | None,
+        before: tuple[datetime, int] | None,
+        limit: int,
     ) -> list[Activity]:
-        """The feed, newest first."""
+        """The feed of one game (None: every game), newest first."""
         stmt = select(Activity).order_by(Activity.created_at.desc(), Activity.id.desc())
+        if game is not None:
+            stmt = stmt.where(Activity.game == game)
         if before is not None:
             at, last_id = before
             stmt = stmt.where(
@@ -183,6 +232,21 @@ class AchievementsRepository:
                 )
             )
         return list((await session.execute(stmt.limit(limit))).scalars())
+
+    async def ensure_game_finished(
+        self, session: AsyncSession, game_id: uuid.UUID, *, game: str
+    ) -> None:
+        """Add a stored game's `game_finished` item unless it has one (one statement)."""
+        exists = (
+            select(Activity.id)
+            .where(Activity.game_id == game_id, Activity.kind == "game_finished")
+            .exists()
+        )
+        stmt = insert(Activity).from_select(
+            ["game", "kind", "game_id"],
+            select(literal(game), literal("game_finished"), literal(game_id)).where(~exists),
+        )
+        await session.execute(stmt)
 
     async def delete_activity(self, session: AsyncSession, game_id: uuid.UUID, kind: str) -> None:
         """Remove a game's feed items of one kind."""
@@ -194,12 +258,17 @@ class AchievementsRepository:
         self,
         session: AsyncSession,
         *,
+        game: str,
         player_id: uuid.UUID | None,
         before: tuple[datetime, uuid.UUID] | None,
         limit: int,
     ) -> list[Achievement]:
-        """Newest first, optionally for one player."""
-        stmt = select(Achievement).order_by(Achievement.earned_at.desc(), Achievement.id.desc())
+        """One game's rows, newest first, optionally for one player."""
+        stmt = (
+            select(Achievement)
+            .where(Achievement.game == game)
+            .order_by(Achievement.earned_at.desc(), Achievement.id.desc())
+        )
         if player_id is not None:
             stmt = stmt.where(Achievement.player_id == player_id)
         if before is not None:
@@ -212,11 +281,13 @@ class AchievementsRepository:
             )
         return list((await session.execute(stmt.limit(limit))).scalars())
 
-    async def of_player(self, session: AsyncSession, player_id: uuid.UUID) -> list[Achievement]:
-        """Every row of one player, newest first."""
+    async def of_player(
+        self, session: AsyncSession, player_id: uuid.UUID, *, game: str
+    ) -> list[Achievement]:
+        """Every row of one player in one game, newest first."""
         stmt = (
             select(Achievement)
-            .where(Achievement.player_id == player_id)
+            .where(Achievement.player_id == player_id, Achievement.game == game)
             .order_by(Achievement.earned_at.desc(), Achievement.id.desc())
         )
         return list((await session.execute(stmt)).scalars())
@@ -230,9 +301,15 @@ class AchievementsRepository:
         )
         return list((await session.execute(stmt)).scalars())
 
-    async def of_period(self, session: AsyncSession, period: str) -> list[Achievement]:
-        """Awards stored for a closed day or season."""
-        stmt = select(Achievement).where(Achievement.period == period).order_by(Achievement.code)
+    async def of_period(
+        self, session: AsyncSession, period: str, *, game: str
+    ) -> list[Achievement]:
+        """Awards stored for one game's closed day or season."""
+        stmt = (
+            select(Achievement)
+            .where(Achievement.period == period, Achievement.game == game)
+            .order_by(Achievement.code)
+        )
         return list((await session.execute(stmt)).scalars())
 
     async def move_player(
@@ -240,10 +317,18 @@ class AchievementsRepository:
     ) -> None:
         """Merge: move period awards that don't clash, drop the rest of `from_id`'s rows."""
         target = select(
-            Achievement.code, Achievement.game_id, Achievement.round_index, Achievement.period
+            Achievement.game,
+            Achievement.code,
+            Achievement.game_id,
+            Achievement.round_index,
+            Achievement.period,
         ).where(Achievement.player_id == into_id)
         clashes = tuple_(
-            Achievement.code, Achievement.game_id, Achievement.round_index, Achievement.period
+            Achievement.game,
+            Achievement.code,
+            Achievement.game_id,
+            Achievement.round_index,
+            Achievement.period,
         ).in_(target)
         await session.execute(
             update(Achievement)
@@ -252,22 +337,22 @@ class AchievementsRepository:
         )
         await session.execute(delete(Achievement).where(Achievement.player_id == from_id))
 
-    async def closed(self, session: AsyncSession, period: str) -> ClosedPeriod | None:
-        """A finalised day or season."""
-        return await session.get(ClosedPeriod, period)
+    async def closed(self, session: AsyncSession, game: str, period: str) -> ClosedPeriod | None:
+        """One game's finalised day or season."""
+        return await session.get(ClosedPeriod, (game, period))
 
     async def close(
-        self, session: AsyncSession, period: str, kind: str, data: dict[str, Any]
+        self, session: AsyncSession, game: str, period: str, kind: str, data: dict[str, Any]
     ) -> None:
-        """Freeze a day or season."""
-        session.add(ClosedPeriod(period=period, kind=kind, data=data))
+        """Freeze one game's day or season."""
+        session.add(ClosedPeriod(game=game, period=period, kind=kind, data=data))
         await session.flush()
 
-    async def closed_seasons(self, session: AsyncSession) -> list[ClosedPeriod]:
-        """Every closed season, newest first."""
+    async def closed_seasons(self, session: AsyncSession, game: str) -> list[ClosedPeriod]:
+        """Every closed season of one game, newest first."""
         stmt = (
             select(ClosedPeriod)
-            .where(ClosedPeriod.kind == "season")
+            .where(ClosedPeriod.game == game, ClosedPeriod.kind == "season")
             .order_by(ClosedPeriod.period.desc())
         )
         return list((await session.execute(stmt)).scalars())
