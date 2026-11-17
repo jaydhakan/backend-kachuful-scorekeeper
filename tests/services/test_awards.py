@@ -59,8 +59,8 @@ async def test_close_day_freezes_awards_once_and_serves_them_forever(
     viewer = await make_user(session, email="v@example.com", player_name="Viewer")
     await sign_in(client, viewer)
 
-    first = await close_day.run(argparse.Namespace(date="2026-10-10"))
-    again = await close_day.run(argparse.Namespace(date="2026-10-10"))
+    first = await close_day.run(argparse.Namespace(date="2026-10-10", since=None, game="kachuful"))
+    again = await close_day.run(argparse.Namespace(date="2026-10-10", since=None, game="kachuful"))
     response = await client.get("/api/awards/daily", params={"date": "2026-10-10"})
 
     assert (first, again) == (0, 0)
@@ -84,7 +84,10 @@ async def test_close_day_freezes_awards_once_and_serves_them_forever(
 async def test_close_day_refuses_today(session: AsyncSession) -> None:
     from app.services.awards import today
 
-    assert await close_day.run(argparse.Namespace(date=today().isoformat())) == 2
+    assert (
+        await close_day.run(argparse.Namespace(date=today().isoformat(), since=None, game=None))
+        == 2
+    )
 
 
 async def test_close_season_freezes_last_months_awards_and_posts_to_the_feed(
@@ -94,7 +97,7 @@ async def test_close_season_freezes_last_months_awards_and_posts_to_the_feed(
     viewer = await make_user(session, email="v@example.com", player_name="Viewer")
     await sign_in(client, viewer)
 
-    code = await close_season.run(argparse.Namespace(month="2026-09"))
+    code = await close_season.run(argparse.Namespace(month="2026-09", since=None, game="kachuful"))
     response = await client.get("/api/seasons/2026-09")
     listing = await client.get("/api/seasons")
 
