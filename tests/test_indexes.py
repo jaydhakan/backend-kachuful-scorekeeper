@@ -7,6 +7,11 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 ID = "00000000-0000-4000-8000-000000000001"
+_ISHAARA_CAREER = (
+    "SELECT game_id, player_id, finished_at, won, role, words_found, clues_given "
+    "FROM ishaara_game_players WHERE game_id IN "
+    f"(SELECT game_id FROM ishaara_game_players WHERE player_id IN ('{ID}'))"
+)
 
 CASES = [
     ("uq_users_email", "SELECT id FROM users WHERE email = 'a@b.co'"),
@@ -142,6 +147,27 @@ CASES = [
         "ix_ishaara_game_players_finished_at",
         "SELECT player_id, won, words_found FROM ishaara_game_players "
         "WHERE finished_at >= now() - interval '7 days' AND finished_at < now()",
+    ),
+    # Ishaara's progression facts: careers (the players' games, then every seat of them), a
+    # day's or month's rows, and each day game's first clue.
+    (
+        "ix_ishaara_game_players_player_id",
+        _ISHAARA_CAREER,
+    ),
+    (
+        "pk_ishaara_game_players",
+        _ISHAARA_CAREER,
+    ),
+    (
+        "ix_ishaara_game_players_finished_at",
+        "SELECT game_id, player_id, team, role, won, words_found, clues_given, trap_hit, "
+        "finished_at FROM ishaara_game_players "
+        "WHERE finished_at >= now() - interval '1 day' AND finished_at < now()",
+    ),
+    (
+        "pk_ishaara_actions",
+        f"SELECT g.id, g.summary ->> 'endedBy', (SELECT min(a.at) FROM ishaara_actions a "
+        f"WHERE a.game_id = g.id AND a.type = 'clue') FROM games g WHERE g.id IN ('{ID}')",
     ),
     (
         "ix_games_kind_updated_at_id",
