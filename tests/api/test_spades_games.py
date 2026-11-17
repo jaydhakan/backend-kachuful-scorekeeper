@@ -91,7 +91,10 @@ async def test_upload_stores_the_game_its_seats_and_player_rows(
     response = await _put(client, payload)
 
     assert response.status_code == 200, response.text
-    assert response.json() == {"rev": payload["rev"], "earned": []}
+    body = response.json()
+    assert body["rev"] == payload["rev"]
+    # A finished game earns its winners' achievements (and everyone's first-game careers).
+    assert body["earned"] and all(e["gameKind"] == "spades" for e in body["earned"])
     row = await session.get(Game, uuid.UUID(payload["syncId"]))
     assert row is not None and row.kind == "spades" and row.status == "finished"
     assert row.round_count == 3 and row.ended_at is not None
