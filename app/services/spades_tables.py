@@ -46,6 +46,7 @@ from app.schemas.spades_tables import (
 )
 from app.security.rate_limit import SPADES_REACTION
 from app.services.pagination import decode_cursor, encode_cursor
+from app.services.progression.hooks import progress_game
 from app.services.seat_invites import SeatInvitesService
 from app.services.spades_derive import game_player_dicts
 from app.services.spades_state import (
@@ -121,6 +122,10 @@ def _seat_param(raw: Any) -> Any:
 
 def _ending(before: State, after: State) -> bool:
     return before["status"] in ("lobby", "playing") and after["status"] in ("finished", "cancelled")
+
+
+def _hand_ended(before: State, after: State) -> bool:
+    return len(after["history"]) > len(before["history"])
 
 
 def _ended_event(state: State) -> dict[str, Any]:
@@ -345,6 +350,9 @@ class SpadesTablesService:
             await self._open_rematch(row, state, bool(action.get("swap")))
         if ending:
             await self.finish_derived(row.id, state)
+        elif _hand_ended(before, state):
+            # Hand moments are earned as each hand ends, not only at the end of the game.
+            await progress_game(self.session, KIND, row.id, _player_ids(state), finished=False)
         await self.session.commit()
 
     async def _open_rematch(self, row: Game, old: State, swap: bool) -> None:
@@ -371,7 +379,9 @@ class SpadesTablesService:
             finished_at = from_ms(int(state["finishedAt"]))
             dicts = game_player_dicts(game_id, KIND, rows, finished_at, result["endedBy"])
             await spades_derived_repository.replace_players(self.session, game_id, dicts)
-        await derived_repository.refresh_player_counters(self.session, _player_ids(state))
+        players = _player_ids(state)
+        await derived_repository.refresh_player_counters(self.session, players)
+        await progress_game(self.session, KIND, game_id, players, finished=result is not None)
         await app_state_repository.bump(self.session)
         await SeatInvitesService(self.session).expire_for_game(game_id)
 
@@ -431,6 +441,7 @@ class SpadesTablesService:
         await spades_tables_repository.delete_hands(self.session, game_id)
         await games_repository.soft_delete(self.session, game_id)
         await derived_repository.refresh_player_counters(self.session, players)
+        await progress_game(self.session, KIND, game_id, players, finished=False, void=True)
         await share_links_repository.revoke(self.session, game_id, ("live", "recap"))
         await self.store.tell(game_id)
         await SeatInvitesService(self.session).expire_for_game(game_id)
@@ -453,12 +464,17 @@ class SpadesTablesService:
         return deleted
 
     async def reseat(self, row: Game, from_id: uuid.UUID, into_id: uuid.UUID) -> None:
-        """Move a seat to another registry player (admin merge); keeps the rev."""
+        """Move a seat to another registry player (admin merge); keeps the rev.
+
+        The game's own achievements follow the seat; careers are the caller's.
+        """
         state = _reseated(row.payload, str(from_id), str(into_id))
         await spades_tables_repository.reseat(self.session, row.id, from_id, into_id)
         await spades_derived_repository.reseat_players(self.session, row.id, from_id, into_id)
         apply_state(row, state)
         await spades_tables_repository.save(self.session, row)
+        finished = state["status"] == "finished" and state["result"] is not None
+        await progress_game(self.session, KIND, row.id, set(), finished=finished, career=False)
         await self.store.tell(row.id)
 
     async def end_idle(self, game_id: uuid.UUID) -> bool:
