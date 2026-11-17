@@ -149,9 +149,14 @@ CASES = [
         "AND deleted_at IS NULL AND updated_at < now() - interval '2 hours' ORDER BY updated_at",
     ),
     (
-        "ix_achievements_player_id_earned_at",
-        f"SELECT id FROM achievements WHERE player_id = '{ID}' "
+        "ix_achievements_player_id_game_earned_at",
+        f"SELECT id FROM achievements WHERE player_id = '{ID}' AND game = 'spades' "
         "ORDER BY earned_at DESC, id DESC LIMIT 50",
+    ),
+    (
+        "uq_achievements_key",
+        f"SELECT id FROM achievements WHERE game = 'kachuful' AND player_id IN ('{ID}') "
+        "AND code IN ('games_10', 'first_win')",
     ),
     (
         "ix_achievements_code_period",
@@ -160,6 +165,16 @@ CASES = [
     (
         "ix_activity_created_at_id",
         "SELECT id FROM activity ORDER BY created_at DESC, id DESC LIMIT 50",
+    ),
+    (
+        "ix_activity_game_created_at_id",
+        "SELECT id FROM activity WHERE game = 'ishaara' ORDER BY created_at DESC, id DESC LIMIT 50",
+    ),
+    (
+        "ix_kt_game_players_ended_at",
+        "SELECT player_id, count(*), count(*) FILTER (WHERE won) FROM kt_game_players "
+        "WHERE ended_at >= now() - interval '30 days' AND ended_at < now() AND place IS NOT NULL "
+        "GROUP BY player_id",
     ),
     (
         "ix_share_links_game_id_kind_active",
