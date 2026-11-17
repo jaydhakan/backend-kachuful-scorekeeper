@@ -1,0 +1,1242 @@
+{
+  "kind": "awards",
+  "name": "daily awards over two days: ties share, single-hand bids, minimums",
+  "tz": "Asia/Kolkata",
+  "games": [
+    {
+      "kind": "kaali-teeri",
+      "schemaVersion": 1,
+      "id": "kt-50000000-0000-4000-8000-000000000037",
+      "syncId": "50000000-0000-4000-8000-000000000037",
+      "rev": 1,
+      "createdAt": 1796790600000,
+      "updatedAt": 1796793060000,
+      "finishedAt": 1796793060000,
+      "players": [
+        {
+          "id": "p0",
+          "playerId": "ana",
+          "name": "ana",
+          "emoji": "🙂",
+          "color": "#f87171"
+        },
+        {
+          "id": "p1",
+          "playerId": "ben",
+          "name": "ben",
+          "emoji": "🙂",
+          "color": "#60a5fa"
+        },
+        {
+          "id": "p2",
+          "playerId": "cy",
+          "name": "cy",
+          "emoji": "🙂",
+          "color": "#34d399"
+        },
+        {
+          "id": "p3",
+          "playerId": "dee",
+          "name": "dee",
+          "emoji": "🙂",
+          "color": "#fbbf24"
+        }
+      ],
+      "firstDealerIndex": 0,
+      "direction": "cw",
+      "rules": {
+        "decks": 1,
+        "partners": 1,
+        "minBid": 150,
+        "step": 5,
+        "length": "endless"
+      },
+      "hands": [
+        {
+          "index": 0,
+          "dealerIndex": 0,
+          "phase": "done",
+          "mode": "quick",
+          "calls": [],
+          "bidder": "p0",
+          "bid": 200,
+          "trump": "hearts",
+          "called": [
+            {
+              "rank": "A",
+              "suit": "spades"
+            }
+          ],
+          "playedBy": [
+            "p1"
+          ],
+          "teamPoints": 210,
+          "countedBy": "defenders",
+          "doneAt": 1796790900000
+        },
+        {
+          "index": 1,
+          "dealerIndex": 1,
+          "phase": "done",
+          "mode": "quick",
+          "calls": [],
+          "bidder": "p1",
+          "bid": 220,
+          "trump": "hearts",
+          "called": [
+            {
+              "rank": "A",
+              "suit": "spades"
+            }
+          ],
+          "playedBy": [
+            "p2"
+          ],
+          "teamPoints": 100,
+          "countedBy": "defenders",
+          "doneAt": 1796791200000
+        },
+        {
+          "index": 2,
+          "dealerIndex": 2,
+          "phase": "done",
+          "mode": "quick",
+          "calls": [],
+          "bidder": "p2",
+          "bid": 200,
+          "trump": "hearts",
+          "called": [
+            {
+              "rank": "A",
+              "suit": "spades"
+            }
+          ],
+          "playedBy": [
+            "p3"
+          ],
+          "teamPoints": 205,
+          "countedBy": "defenders",
+          "doneAt": 1796791500000
+        },
+        {
+          "index": 3,
+          "dealerIndex": 3,
+          "phase": "done",
+          "mode": "quick",
+          "calls": [],
+          "bidder": "p3",
+          "bid": 150,
+          "trump": "hearts",
+          "called": [
+            {
+              "rank": "A",
+              "suit": "spades"
+            }
+          ],
+          "playedBy": [
+            "p1"
+          ],
+          "teamPoints": 160,
+          "countedBy": "defenders",
+          "doneAt": 1796791800000
+        },
+        {
+          "index": 4,
+          "dealerIndex": 0,
+          "phase": "done",
+          "mode": "quick",
+          "calls": [],
+          "bidder": "p3",
+          "bid": 150,
+          "trump": "hearts",
+          "called": [
+            {
+              "rank": "A",
+              "suit": "spades"
+            }
+          ],
+          "playedBy": [
+            "p1"
+          ],
+          "teamPoints": 160,
+          "countedBy": "defenders",
+          "doneAt": 1796792100000
+        },
+        {
+          "index": 5,
+          "dealerIndex": 1,
+          "phase": "done",
+          "mode": "quick",
+          "calls": [],
+          "bidder": "p0",
+          "bid": 180,
+          "trump": "hearts",
+          "called": [
+            {
+              "rank": "A",
+              "suit": "spades"
+            }
+          ],
+          "playedBy": [
+            "p1"
+          ],
+          "teamPoints": 120,
+          "countedBy": "defenders",
+          "doneAt": 1796792400000
+        },
+        {
+          "index": 6,
+          "dealerIndex": 2,
+          "phase": "done",
+          "mode": "quick",
+          "calls": [],
+          "bidder": "p0",
+          "bid": 150,
+          "trump": "hearts",
+          "called": [
+            {
+              "rank": "A",
+              "suit": "spades"
+            }
+          ],
+          "playedBy": [
+            "p0"
+          ],
+          "teamPoints": 160,
+          "countedBy": "defenders",
+          "doneAt": 1796792700000
+        },
+        {
+          "index": 7,
+          "dealerIndex": 3,
+          "phase": "done",
+          "mode": "quick",
+          "calls": [],
+          "bidder": "p0",
+          "bid": 150,
+          "trump": "hearts",
+          "called": [
+            {
+              "rank": "A",
+              "suit": "spades"
+            }
+          ],
+          "playedBy": [
+            "p0"
+          ],
+          "teamPoints": 160,
+          "countedBy": "defenders",
+          "doneAt": 1796793000000
+        }
+      ],
+      "status": "finished",
+      "ui": {
+        "view": "hand"
+      }
+    },
+    {
+      "kind": "kaali-teeri",
+      "schemaVersion": 1,
+      "id": "kt-50000000-0000-4000-8000-000000000038",
+      "syncId": "50000000-0000-4000-8000-000000000038",
+      "rev": 1,
+      "createdAt": 1793683800000,
+      "updatedAt": 1793685660000,
+      "finishedAt": 1793685660000,
+      "players": [
+        {
+          "id": "p0",
+          "playerId": "ana",
+          "name": "ana",
+          "emoji": "🙂",
+          "color": "#f87171"
+        },
+        {
+          "id": "p1",
+          "playerId": "ben",
+          "name": "ben",
+          "emoji": "🙂",
+          "color": "#60a5fa"
+        },
+        {
+          "id": "p2",
+          "playerId": "cy",
+          "name": "cy",
+          "emoji": "🙂",
+          "color": "#34d399"
+        },
+        {
+          "id": "p3",
+          "playerId": "dee",
+          "name": "dee",
+          "emoji": "🙂",
+          "color": "#fbbf24"
+        },
+        {
+          "id": "p4",
+          "playerId": "eli",
+          "name": "eli",
+          "emoji": "🙂",
+          "color": "#a78bfa"
+        }
+      ],
+      "firstDealerIndex": 0,
+      "direction": "cw",
+      "rules": {
+        "decks": 1,
+        "partners": 1,
+        "minBid": 150,
+        "step": 5,
+        "length": "endless"
+      },
+      "hands": [
+        {
+          "index": 0,
+          "dealerIndex": 0,
+          "phase": "done",
+          "mode": "quick",
+          "calls": [],
+          "bidder": "p0",
+          "bid": 200,
+          "trump": "hearts",
+          "called": [
+            {
+              "rank": "A",
+              "suit": "spades"
+            }
+          ],
+          "playedBy": [
+            "p1"
+          ],
+          "teamPoints": 100,
+          "countedBy": "defenders",
+          "doneAt": 1793684100000
+        },
+        {
+          "index": 1,
+          "dealerIndex": 1,
+          "phase": "done",
+          "mode": "quick",
+          "calls": [],
+          "bidder": "p0",
+          "bid": 200,
+          "trump": "hearts",
+          "called": [
+            {
+              "rank": "A",
+              "suit": "spades"
+            }
+          ],
+          "playedBy": [
+            "p1"
+          ],
+          "teamPoints": 100,
+          "countedBy": "defenders",
+          "doneAt": 1793684400000
+        },
+        {
+          "index": 2,
+          "dealerIndex": 2,
+          "phase": "done",
+          "mode": "quick",
+          "calls": [],
+          "bidder": "p4",
+          "bid": 150,
+          "trump": "hearts",
+          "called": [
+            {
+              "rank": "A",
+              "suit": "spades"
+            }
+          ],
+          "playedBy": [
+            "p4"
+          ],
+          "teamPoints": 160,
+          "countedBy": "defenders",
+          "doneAt": 1793684700000
+        },
+        {
+          "index": 3,
+          "dealerIndex": 3,
+          "phase": "done",
+          "mode": "quick",
+          "calls": [],
+          "bidder": "p1",
+          "bid": 150,
+          "trump": "hearts",
+          "called": [
+            {
+              "rank": "A",
+              "suit": "spades"
+            }
+          ],
+          "playedBy": [
+            "p2"
+          ],
+          "teamPoints": 160,
+          "countedBy": "defenders",
+          "doneAt": 1793685000000
+        },
+        {
+          "index": 4,
+          "dealerIndex": 4,
+          "phase": "done",
+          "mode": "quick",
+          "calls": [],
+          "bidder": "p1",
+          "bid": 150,
+          "trump": "hearts",
+          "called": [
+            {
+              "rank": "A",
+              "suit": "spades"
+            }
+          ],
+          "playedBy": [
+            "p1"
+          ],
+          "teamPoints": 160,
+          "countedBy": "defenders",
+          "doneAt": 1793685300000
+        },
+        {
+          "index": 5,
+          "dealerIndex": 0,
+          "phase": "done",
+          "mode": "quick",
+          "calls": [],
+          "bidder": "p1",
+          "bid": 150,
+          "trump": "hearts",
+          "called": [
+            {
+              "rank": "A",
+              "suit": "spades"
+            }
+          ],
+          "playedBy": [
+            "p1"
+          ],
+          "teamPoints": 160,
+          "countedBy": "defenders",
+          "doneAt": 1793685600000
+        }
+      ],
+      "status": "finished",
+      "ui": {
+        "view": "hand"
+      }
+    },
+    {
+      "kind": "kaali-teeri",
+      "schemaVersion": 1,
+      "id": "kt-50000000-0000-4000-8000-000000000039",
+      "syncId": "50000000-0000-4000-8000-000000000039",
+      "rev": 1,
+      "createdAt": 1793687400000,
+      "updatedAt": 1793687700000,
+      "players": [
+        {
+          "id": "p0",
+          "playerId": "ana",
+          "name": "ana",
+          "emoji": "🙂",
+          "color": "#f87171"
+        },
+        {
+          "id": "p1",
+          "playerId": "ben",
+          "name": "ben",
+          "emoji": "🙂",
+          "color": "#60a5fa"
+        },
+        {
+          "id": "p2",
+          "playerId": "cy",
+          "name": "cy",
+          "emoji": "🙂",
+          "color": "#34d399"
+        },
+        {
+          "id": "p3",
+          "playerId": "dee",
+          "name": "dee",
+          "emoji": "🙂",
+          "color": "#fbbf24"
+        }
+      ],
+      "firstDealerIndex": 0,
+      "direction": "cw",
+      "rules": {
+        "decks": 1,
+        "partners": 1,
+        "minBid": 150,
+        "step": 5,
+        "length": "endless"
+      },
+      "hands": [
+        {
+          "index": 0,
+          "dealerIndex": 0,
+          "phase": "done",
+          "mode": "quick",
+          "calls": [],
+          "bidder": "p2",
+          "bid": 150,
+          "trump": "hearts",
+          "called": [
+            {
+              "rank": "A",
+              "suit": "spades"
+            }
+          ],
+          "playedBy": [
+            "p2"
+          ],
+          "teamPoints": 160,
+          "countedBy": "defenders",
+          "doneAt": 1793687700000
+        }
+      ],
+      "status": "active",
+      "ui": {
+        "view": "hand"
+      }
+    }
+  ],
+  "facts": {
+    "hands": [
+      {
+        "gameId": "50000000-0000-4000-8000-000000000037",
+        "handIndex": 0,
+        "doneAt": 1796790900000,
+        "deck": 250,
+        "bidderId": "ana",
+        "bid": 200,
+        "forced": false,
+        "partnerIds": [
+          "ben"
+        ],
+        "slots": {
+          "ana": 1,
+          "ben": 1
+        },
+        "teamPoints": 210,
+        "made": true,
+        "sweep": "none",
+        "scores": {
+          "ana": 200,
+          "ben": 200,
+          "cy": 0,
+          "dee": 0
+        }
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000037",
+        "handIndex": 1,
+        "doneAt": 1796791200000,
+        "deck": 250,
+        "bidderId": "ben",
+        "bid": 220,
+        "forced": false,
+        "partnerIds": [
+          "cy"
+        ],
+        "slots": {
+          "ben": 1,
+          "cy": 1
+        },
+        "teamPoints": 100,
+        "made": false,
+        "sweep": "none",
+        "scores": {
+          "ana": 220,
+          "ben": 0,
+          "cy": 0,
+          "dee": 220
+        }
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000037",
+        "handIndex": 2,
+        "doneAt": 1796791500000,
+        "deck": 250,
+        "bidderId": "cy",
+        "bid": 200,
+        "forced": false,
+        "partnerIds": [
+          "dee"
+        ],
+        "slots": {
+          "cy": 1,
+          "dee": 1
+        },
+        "teamPoints": 205,
+        "made": true,
+        "sweep": "none",
+        "scores": {
+          "ana": 0,
+          "ben": 0,
+          "cy": 200,
+          "dee": 200
+        }
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000037",
+        "handIndex": 3,
+        "doneAt": 1796791800000,
+        "deck": 250,
+        "bidderId": "dee",
+        "bid": 150,
+        "forced": false,
+        "partnerIds": [
+          "ben"
+        ],
+        "slots": {
+          "dee": 1,
+          "ben": 1
+        },
+        "teamPoints": 160,
+        "made": true,
+        "sweep": "none",
+        "scores": {
+          "ana": 0,
+          "ben": 150,
+          "cy": 0,
+          "dee": 150
+        }
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000037",
+        "handIndex": 4,
+        "doneAt": 1796792100000,
+        "deck": 250,
+        "bidderId": "dee",
+        "bid": 150,
+        "forced": false,
+        "partnerIds": [
+          "ben"
+        ],
+        "slots": {
+          "dee": 1,
+          "ben": 1
+        },
+        "teamPoints": 160,
+        "made": true,
+        "sweep": "none",
+        "scores": {
+          "ana": 0,
+          "ben": 150,
+          "cy": 0,
+          "dee": 150
+        }
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000037",
+        "handIndex": 5,
+        "doneAt": 1796792400000,
+        "deck": 250,
+        "bidderId": "ana",
+        "bid": 180,
+        "forced": false,
+        "partnerIds": [
+          "ben"
+        ],
+        "slots": {
+          "ana": 1,
+          "ben": 1
+        },
+        "teamPoints": 120,
+        "made": false,
+        "sweep": "none",
+        "scores": {
+          "ana": 0,
+          "ben": 0,
+          "cy": 180,
+          "dee": 180
+        }
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000037",
+        "handIndex": 6,
+        "doneAt": 1796792700000,
+        "deck": 250,
+        "bidderId": "ana",
+        "bid": 150,
+        "forced": false,
+        "partnerIds": [],
+        "slots": {
+          "ana": 2
+        },
+        "teamPoints": 160,
+        "made": true,
+        "sweep": "none",
+        "scores": {
+          "ana": 300,
+          "ben": 0,
+          "cy": 0,
+          "dee": 0
+        }
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000037",
+        "handIndex": 7,
+        "doneAt": 1796793000000,
+        "deck": 250,
+        "bidderId": "ana",
+        "bid": 150,
+        "forced": false,
+        "partnerIds": [],
+        "slots": {
+          "ana": 2
+        },
+        "teamPoints": 160,
+        "made": true,
+        "sweep": "none",
+        "scores": {
+          "ana": 300,
+          "ben": 0,
+          "cy": 0,
+          "dee": 0
+        }
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000038",
+        "handIndex": 0,
+        "doneAt": 1793684100000,
+        "deck": 250,
+        "bidderId": "ana",
+        "bid": 200,
+        "forced": false,
+        "partnerIds": [
+          "ben"
+        ],
+        "slots": {
+          "ana": 1,
+          "ben": 1
+        },
+        "teamPoints": 100,
+        "made": false,
+        "sweep": "none",
+        "scores": {
+          "ana": 0,
+          "ben": 0,
+          "cy": 200,
+          "dee": 200,
+          "eli": 200
+        }
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000038",
+        "handIndex": 1,
+        "doneAt": 1793684400000,
+        "deck": 250,
+        "bidderId": "ana",
+        "bid": 200,
+        "forced": false,
+        "partnerIds": [
+          "ben"
+        ],
+        "slots": {
+          "ana": 1,
+          "ben": 1
+        },
+        "teamPoints": 100,
+        "made": false,
+        "sweep": "none",
+        "scores": {
+          "ana": 0,
+          "ben": 0,
+          "cy": 200,
+          "dee": 200,
+          "eli": 200
+        }
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000038",
+        "handIndex": 2,
+        "doneAt": 1793684700000,
+        "deck": 250,
+        "bidderId": "eli",
+        "bid": 150,
+        "forced": false,
+        "partnerIds": [],
+        "slots": {
+          "eli": 2
+        },
+        "teamPoints": 160,
+        "made": true,
+        "sweep": "none",
+        "scores": {
+          "ana": 0,
+          "ben": 0,
+          "cy": 0,
+          "dee": 0,
+          "eli": 300
+        }
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000038",
+        "handIndex": 3,
+        "doneAt": 1793685000000,
+        "deck": 250,
+        "bidderId": "ben",
+        "bid": 150,
+        "forced": false,
+        "partnerIds": [
+          "cy"
+        ],
+        "slots": {
+          "ben": 1,
+          "cy": 1
+        },
+        "teamPoints": 160,
+        "made": true,
+        "sweep": "none",
+        "scores": {
+          "ana": 0,
+          "ben": 150,
+          "cy": 150,
+          "dee": 0,
+          "eli": 0
+        }
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000038",
+        "handIndex": 4,
+        "doneAt": 1793685300000,
+        "deck": 250,
+        "bidderId": "ben",
+        "bid": 150,
+        "forced": false,
+        "partnerIds": [],
+        "slots": {
+          "ben": 2
+        },
+        "teamPoints": 160,
+        "made": true,
+        "sweep": "none",
+        "scores": {
+          "ana": 0,
+          "ben": 300,
+          "cy": 0,
+          "dee": 0,
+          "eli": 0
+        }
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000038",
+        "handIndex": 5,
+        "doneAt": 1793685600000,
+        "deck": 250,
+        "bidderId": "ben",
+        "bid": 150,
+        "forced": false,
+        "partnerIds": [],
+        "slots": {
+          "ben": 2
+        },
+        "teamPoints": 160,
+        "made": true,
+        "sweep": "none",
+        "scores": {
+          "ana": 0,
+          "ben": 300,
+          "cy": 0,
+          "dee": 0,
+          "eli": 0
+        }
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000039",
+        "handIndex": 0,
+        "doneAt": 1793687700000,
+        "deck": 250,
+        "bidderId": "cy",
+        "bid": 150,
+        "forced": false,
+        "partnerIds": [],
+        "slots": {
+          "cy": 2
+        },
+        "teamPoints": 160,
+        "made": true,
+        "sweep": "none",
+        "scores": {
+          "ana": 0,
+          "ben": 0,
+          "cy": 300,
+          "dee": 0
+        }
+      }
+    ],
+    "seats": [
+      {
+        "gameId": "50000000-0000-4000-8000-000000000037",
+        "playerId": "ana",
+        "points": 1020,
+        "place": 1,
+        "endedAt": 1796793060000,
+        "handsBid": 4,
+        "bidsMade": 3,
+        "partnerMade": 0
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000037",
+        "playerId": "ben",
+        "points": 500,
+        "place": 3,
+        "endedAt": 1796793060000,
+        "handsBid": 1,
+        "bidsMade": 0,
+        "partnerMade": 3
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000037",
+        "playerId": "cy",
+        "points": 380,
+        "place": 4,
+        "endedAt": 1796793060000,
+        "handsBid": 1,
+        "bidsMade": 1,
+        "partnerMade": 0
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000037",
+        "playerId": "dee",
+        "points": 900,
+        "place": 2,
+        "endedAt": 1796793060000,
+        "handsBid": 2,
+        "bidsMade": 2,
+        "partnerMade": 1
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000038",
+        "playerId": "ana",
+        "points": 0,
+        "place": 5,
+        "endedAt": 1793685660000,
+        "handsBid": 2,
+        "bidsMade": 0,
+        "partnerMade": 0
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000038",
+        "playerId": "ben",
+        "points": 750,
+        "place": 1,
+        "endedAt": 1793685660000,
+        "handsBid": 3,
+        "bidsMade": 3,
+        "partnerMade": 0
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000038",
+        "playerId": "cy",
+        "points": 550,
+        "place": 3,
+        "endedAt": 1793685660000,
+        "handsBid": 0,
+        "bidsMade": 0,
+        "partnerMade": 1
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000038",
+        "playerId": "dee",
+        "points": 400,
+        "place": 4,
+        "endedAt": 1793685660000,
+        "handsBid": 0,
+        "bidsMade": 0,
+        "partnerMade": 0
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000038",
+        "playerId": "eli",
+        "points": 700,
+        "place": 2,
+        "endedAt": 1793685660000,
+        "handsBid": 1,
+        "bidsMade": 1,
+        "partnerMade": 0
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000039",
+        "playerId": "ana",
+        "points": 0,
+        "place": null,
+        "endedAt": null,
+        "handsBid": 0,
+        "bidsMade": 0,
+        "partnerMade": 0
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000039",
+        "playerId": "ben",
+        "points": 0,
+        "place": null,
+        "endedAt": null,
+        "handsBid": 0,
+        "bidsMade": 0,
+        "partnerMade": 0
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000039",
+        "playerId": "cy",
+        "points": 300,
+        "place": null,
+        "endedAt": null,
+        "handsBid": 1,
+        "bidsMade": 1,
+        "partnerMade": 0
+      },
+      {
+        "gameId": "50000000-0000-4000-8000-000000000039",
+        "playerId": "dee",
+        "points": 0,
+        "place": null,
+        "endedAt": null,
+        "handsBid": 0,
+        "bidsMade": 0,
+        "partnerMade": 0
+      }
+    ]
+  },
+  "expect": {
+    "daily": [
+      {
+        "date": "2026-11-03",
+        "awards": [
+          {
+            "code": "day_star",
+            "playerId": "cy",
+            "value": 850
+          },
+          {
+            "code": "day_bid",
+            "playerId": "ben",
+            "value": 150,
+            "gameId": "50000000-0000-4000-8000-000000000038",
+            "roundIndex": 3
+          },
+          {
+            "code": "day_bid",
+            "playerId": "cy",
+            "value": 150,
+            "gameId": "50000000-0000-4000-8000-000000000039",
+            "roundIndex": 0
+          },
+          {
+            "code": "day_bid",
+            "playerId": "eli",
+            "value": 150,
+            "gameId": "50000000-0000-4000-8000-000000000038",
+            "roundIndex": 2
+          },
+          {
+            "code": "day_sharp",
+            "playerId": "ben",
+            "value": 1
+          },
+          {
+            "code": "day_killer",
+            "playerId": "cy",
+            "value": 2
+          },
+          {
+            "code": "day_killer",
+            "playerId": "dee",
+            "value": 2
+          },
+          {
+            "code": "day_killer",
+            "playerId": "eli",
+            "value": 2
+          },
+          {
+            "code": "day_overcooked",
+            "playerId": "ana",
+            "value": 200,
+            "gameId": "50000000-0000-4000-8000-000000000038",
+            "roundIndex": 0
+          },
+          {
+            "code": "day_grinder",
+            "playerId": "ana",
+            "value": 7
+          },
+          {
+            "code": "day_grinder",
+            "playerId": "ben",
+            "value": 7
+          },
+          {
+            "code": "day_grinder",
+            "playerId": "cy",
+            "value": 7
+          },
+          {
+            "code": "day_grinder",
+            "playerId": "dee",
+            "value": 7
+          }
+        ]
+      },
+      {
+        "date": "2026-12-09",
+        "awards": [
+          {
+            "code": "day_star",
+            "playerId": "ana",
+            "value": 1020
+          },
+          {
+            "code": "day_bid",
+            "playerId": "ana",
+            "value": 200,
+            "gameId": "50000000-0000-4000-8000-000000000037",
+            "roundIndex": 0
+          },
+          {
+            "code": "day_bid",
+            "playerId": "cy",
+            "value": 200,
+            "gameId": "50000000-0000-4000-8000-000000000037",
+            "roundIndex": 2
+          },
+          {
+            "code": "day_partner",
+            "playerId": "ben",
+            "value": 3
+          },
+          {
+            "code": "day_sharp",
+            "playerId": "ana",
+            "value": 0.75
+          },
+          {
+            "code": "day_killer",
+            "playerId": "dee",
+            "value": 2
+          },
+          {
+            "code": "day_overcooked",
+            "playerId": "ben",
+            "value": 220,
+            "gameId": "50000000-0000-4000-8000-000000000037",
+            "roundIndex": 1
+          },
+          {
+            "code": "day_grinder",
+            "playerId": "ana",
+            "value": 8
+          },
+          {
+            "code": "day_grinder",
+            "playerId": "ben",
+            "value": 8
+          },
+          {
+            "code": "day_grinder",
+            "playerId": "cy",
+            "value": 8
+          },
+          {
+            "code": "day_grinder",
+            "playerId": "dee",
+            "value": 8
+          }
+        ]
+      }
+    ],
+    "seasons": [
+      {
+        "season": "2026-11",
+        "standings": [
+          {
+            "playerId": "ana",
+            "rank": null,
+            "qualified": false,
+            "value": 0,
+            "games": 1,
+            "wins": 0
+          },
+          {
+            "playerId": "ben",
+            "rank": null,
+            "qualified": false,
+            "value": 1,
+            "games": 1,
+            "wins": 1
+          },
+          {
+            "playerId": "cy",
+            "rank": null,
+            "qualified": false,
+            "value": 0,
+            "games": 1,
+            "wins": 0
+          },
+          {
+            "playerId": "dee",
+            "rank": null,
+            "qualified": false,
+            "value": 0,
+            "games": 1,
+            "wins": 0
+          },
+          {
+            "playerId": "eli",
+            "rank": null,
+            "qualified": false,
+            "value": 0,
+            "games": 1,
+            "wins": 0
+          }
+        ],
+        "awards": []
+      },
+      {
+        "season": "2026-12",
+        "standings": [
+          {
+            "playerId": "ana",
+            "rank": null,
+            "qualified": false,
+            "value": 1,
+            "games": 1,
+            "wins": 1
+          },
+          {
+            "playerId": "ben",
+            "rank": null,
+            "qualified": false,
+            "value": 0,
+            "games": 1,
+            "wins": 0
+          },
+          {
+            "playerId": "cy",
+            "rank": null,
+            "qualified": false,
+            "value": 0,
+            "games": 1,
+            "wins": 0
+          },
+          {
+            "playerId": "dee",
+            "rank": null,
+            "qualified": false,
+            "value": 0,
+            "games": 1,
+            "wins": 0
+          }
+        ],
+        "awards": []
+      }
+    ],
+    "playerGames": 9
+  }
+}
