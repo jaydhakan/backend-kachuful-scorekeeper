@@ -203,6 +203,16 @@ CASES = [
         f"WHERE player_id IN ('{ID}')",
     ),
     (
+        "pk_spades_game_players",
+        "SELECT game_id, player_id FROM spades_game_players "
+        f"WHERE game_id IN ('{ID}') AND result IS NOT NULL",
+    ),
+    (
+        "ix_achievements_game_id",
+        f"SELECT player_id, code FROM achievements WHERE game_id IN ('{ID}') "
+        "AND game = 'spades' AND code IN ('set_them', 'boston')",
+    ),
+    (
         "ix_spades_seats_player_id",
         f"SELECT g.id FROM games g JOIN (SELECT game_id FROM spades_seats WHERE player_id = '{ID}' "
         f"UNION ALL SELECT game_id FROM spades_table_seats WHERE player_id = '{ID}') s "
