@@ -40,7 +40,8 @@ def build_engine(*, statement_timeout_ms: int) -> AsyncEngine:
     return create_async_engine(
         settings.DATABASE_URL,
         pool_size=settings.DB_POOL_SIZE,
-        max_overflow=0,
+        max_overflow=settings.DB_MAX_OVERFLOW,
+        pool_timeout=settings.DB_POOL_TIMEOUT_S,
         pool_pre_ping=True,
         connect_args=connect_args,
     )
