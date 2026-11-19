@@ -58,7 +58,10 @@ async def test_upload_stores_the_game_and_derives_every_table(
     response = await _put(client, payload)
 
     assert response.status_code == 200, response.text
-    assert response.json() == {"rev": payload["rev"], "earned": []}
+    body = response.json()
+    assert body["rev"] == payload["rev"]
+    # What it earned (its achievements are their own tests) is Kaali Teeri's.
+    assert body["earned"] and {e["gameKind"] for e in body["earned"]} == {"kaali-teeri"}
     row = await session.get(Game, uuid.UUID(payload["syncId"]))
     assert row is not None and row.kind == "kaali-teeri" and row.round_count == 4
     assert await _count(session, KtHand, payload["syncId"]) == 4

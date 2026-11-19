@@ -17,7 +17,9 @@ from app.domain.ishaara import (
 )
 from tests.domain.golden import load, names
 
-GAMES = [n for n in names("ishaara-") if n != "ishaara-set-boards"]
+# The achievement and award fixtures are case tables, not replays.
+_NOT_REPLAYS = ("ishaara-set-boards", "ishaara-achievements-", "ishaara-awards-")
+GAMES = [n for n in names("ishaara-") if not n.startswith(_NOT_REPLAYS)]
 
 
 def test_the_fixture_set_is_present() -> None:

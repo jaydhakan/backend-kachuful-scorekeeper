@@ -1,0 +1,1128 @@
+{
+ "kind": "ishaara-awards-daily",
+ "tz": "Asia/Kolkata",
+ "days": [
+  {
+   "date": "2026-09-21",
+   "rows": [
+    {
+     "gameId": "70000000-0000-4000-8000-000000000002",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "team": "sun",
+     "role": "clue-giver",
+     "won": false,
+     "wordsFound": 9,
+     "cluesGiven": 6,
+     "trapHit": false,
+     "finishedAt": 1789966740000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000002",
+     "playerId": "00000000-0000-4000-8000-000000000013",
+     "team": "moon",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 6,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1789966740000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000002",
+     "playerId": "00000000-0000-4000-8000-000000000009",
+     "team": "sun",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 9,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1789966740000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000002",
+     "playerId": "00000000-0000-4000-8000-000000000003",
+     "team": "moon",
+     "role": "clue-giver",
+     "won": true,
+     "wordsFound": 6,
+     "cluesGiven": 4,
+     "trapHit": false,
+     "finishedAt": 1789966740000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000002",
+     "playerId": "00000000-0000-4000-8000-000000000012",
+     "team": "sun",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 9,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1789966740000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000002",
+     "playerId": "00000000-0000-4000-8000-000000000002",
+     "team": "moon",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 6,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1789966740000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000003",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "team": "sun",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 4,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1790002860000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000003",
+     "playerId": "00000000-0000-4000-8000-000000000002",
+     "team": "moon",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 3,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1790002860000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000003",
+     "playerId": "00000000-0000-4000-8000-000000000003",
+     "team": "sun",
+     "role": "clue-giver",
+     "won": false,
+     "wordsFound": 4,
+     "cluesGiven": 2,
+     "trapHit": false,
+     "finishedAt": 1790002860000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000003",
+     "playerId": "00000000-0000-4000-8000-000000000010",
+     "team": "moon",
+     "role": "clue-giver",
+     "won": true,
+     "wordsFound": 3,
+     "cluesGiven": 2,
+     "trapHit": false,
+     "finishedAt": 1790002860000
+    }
+   ],
+   "games": [
+    {
+     "gameId": "70000000-0000-4000-8000-000000000002",
+     "endedBy": "all-found",
+     "startedAt": 1789965240000,
+     "finishedAt": 1789966740000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000003",
+     "endedBy": "resign",
+     "startedAt": 1790002500000,
+     "finishedAt": 1790002860000
+    }
+   ],
+   "expect": [
+    {
+     "code": "day_star",
+     "playerId": "00000000-0000-4000-8000-000000000002",
+     "value": 2
+    },
+    {
+     "code": "day_giver",
+     "playerId": "00000000-0000-4000-8000-000000000003",
+     "value": 1.6666666666666667
+    },
+    {
+     "code": "day_speed",
+     "playerId": "00000000-0000-4000-8000-000000000002",
+     "value": 1500000
+    },
+    {
+     "code": "day_speed",
+     "playerId": "00000000-0000-4000-8000-000000000003",
+     "value": 1500000
+    },
+    {
+     "code": "day_speed",
+     "playerId": "00000000-0000-4000-8000-000000000013",
+     "value": 1500000
+    },
+    {
+     "code": "day_grinder",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "value": 2
+    },
+    {
+     "code": "day_grinder",
+     "playerId": "00000000-0000-4000-8000-000000000002",
+     "value": 2
+    },
+    {
+     "code": "day_grinder",
+     "playerId": "00000000-0000-4000-8000-000000000003",
+     "value": 2
+    }
+   ]
+  },
+  {
+   "date": "2026-10-01",
+   "rows": [
+    {
+     "gameId": "70000000-0000-4000-8000-000000000040",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "team": "sun",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 2,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1790819100000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000040",
+     "playerId": "00000000-0000-4000-8000-000000000005",
+     "team": "moon",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 5,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1790819100000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000040",
+     "playerId": "00000000-0000-4000-8000-000000000004",
+     "team": "sun",
+     "role": "clue-giver",
+     "won": true,
+     "wordsFound": 2,
+     "cluesGiven": 7,
+     "trapHit": false,
+     "finishedAt": 1790819100000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000040",
+     "playerId": "00000000-0000-4000-8000-000000000007",
+     "team": "moon",
+     "role": "clue-giver",
+     "won": false,
+     "wordsFound": 5,
+     "cluesGiven": 3,
+     "trapHit": false,
+     "finishedAt": 1790819100000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000040",
+     "playerId": "00000000-0000-4000-8000-000000000009",
+     "team": "sun",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 2,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1790819100000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000040",
+     "playerId": "00000000-0000-4000-8000-000000000013",
+     "team": "moon",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 5,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1790819100000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000041",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "team": "sun",
+     "role": "clue-giver",
+     "won": false,
+     "wordsFound": 9,
+     "cluesGiven": 6,
+     "trapHit": false,
+     "finishedAt": 1790847480000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000041",
+     "playerId": "00000000-0000-4000-8000-000000000012",
+     "team": "moon",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 5,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1790847480000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000041",
+     "playerId": "00000000-0000-4000-8000-000000000002",
+     "team": "sun",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 9,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1790847480000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000041",
+     "playerId": "00000000-0000-4000-8000-000000000006",
+     "team": "moon",
+     "role": "clue-giver",
+     "won": true,
+     "wordsFound": 5,
+     "cluesGiven": 3,
+     "trapHit": false,
+     "finishedAt": 1790847480000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000042",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "team": "sun",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 4,
+     "cluesGiven": 0,
+     "trapHit": true,
+     "finishedAt": 1790856420000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000042",
+     "playerId": "00000000-0000-4000-8000-000000000014",
+     "team": "moon",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 3,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1790856420000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000042",
+     "playerId": "00000000-0000-4000-8000-000000000007",
+     "team": "sun",
+     "role": "clue-giver",
+     "won": false,
+     "wordsFound": 4,
+     "cluesGiven": 4,
+     "trapHit": true,
+     "finishedAt": 1790856420000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000042",
+     "playerId": "00000000-0000-4000-8000-000000000006",
+     "team": "moon",
+     "role": "clue-giver",
+     "won": true,
+     "wordsFound": 3,
+     "cluesGiven": 2,
+     "trapHit": false,
+     "finishedAt": 1790856420000
+    }
+   ],
+   "games": [
+    {
+     "gameId": "70000000-0000-4000-8000-000000000040",
+     "endedBy": "all-found",
+     "startedAt": 1790817660000,
+     "finishedAt": 1790819100000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000041",
+     "endedBy": "all-found",
+     "startedAt": 1790846040000,
+     "finishedAt": 1790847480000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000042",
+     "endedBy": "trap",
+     "startedAt": 1790855040000,
+     "finishedAt": 1790856420000
+    }
+   ],
+   "expect": [
+    {
+     "code": "day_star",
+     "playerId": "00000000-0000-4000-8000-000000000006",
+     "value": 2
+    },
+    {
+     "code": "day_giver",
+     "playerId": "00000000-0000-4000-8000-000000000006",
+     "value": 1.6
+    },
+    {
+     "code": "day_speed",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "value": 1440000
+    },
+    {
+     "code": "day_speed",
+     "playerId": "00000000-0000-4000-8000-000000000004",
+     "value": 1440000
+    },
+    {
+     "code": "day_speed",
+     "playerId": "00000000-0000-4000-8000-000000000006",
+     "value": 1440000
+    },
+    {
+     "code": "day_speed",
+     "playerId": "00000000-0000-4000-8000-000000000009",
+     "value": 1440000
+    },
+    {
+     "code": "day_speed",
+     "playerId": "00000000-0000-4000-8000-000000000012",
+     "value": 1440000
+    },
+    {
+     "code": "day_trapped",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "value": 1
+    },
+    {
+     "code": "day_grinder",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "value": 3
+    }
+   ]
+  },
+  {
+   "date": "2026-10-10",
+   "rows": [
+    {
+     "gameId": "70000000-0000-4000-8000-000000000076",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "team": "sun",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 2,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1791596160000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000076",
+     "playerId": "00000000-0000-4000-8000-000000000003",
+     "team": "moon",
+     "role": "clue-giver",
+     "won": true,
+     "wordsFound": 6,
+     "cluesGiven": 4,
+     "trapHit": false,
+     "finishedAt": 1791596160000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000076",
+     "playerId": "00000000-0000-4000-8000-000000000007",
+     "team": "sun",
+     "role": "clue-giver",
+     "won": false,
+     "wordsFound": 2,
+     "cluesGiven": 3,
+     "trapHit": false,
+     "finishedAt": 1791596160000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000076",
+     "playerId": "00000000-0000-4000-8000-000000000005",
+     "team": "moon",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 6,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1791596160000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000076",
+     "playerId": "00000000-0000-4000-8000-000000000008",
+     "team": "sun",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 2,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1791596160000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000076",
+     "playerId": "00000000-0000-4000-8000-000000000002",
+     "team": "moon",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 6,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1791596160000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000077",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "team": "sun",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 4,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1791629160000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000077",
+     "playerId": "00000000-0000-4000-8000-000000000004",
+     "team": "moon",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 8,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1791629160000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000077",
+     "playerId": "00000000-0000-4000-8000-000000000009",
+     "team": "sun",
+     "role": "clue-giver",
+     "won": true,
+     "wordsFound": 4,
+     "cluesGiven": 3,
+     "trapHit": false,
+     "finishedAt": 1791629160000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000077",
+     "playerId": "00000000-0000-4000-8000-000000000005",
+     "team": "moon",
+     "role": "clue-giver",
+     "won": false,
+     "wordsFound": 8,
+     "cluesGiven": 3,
+     "trapHit": false,
+     "finishedAt": 1791629160000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000077",
+     "playerId": "00000000-0000-4000-8000-000000000014",
+     "team": "sun",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 4,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1791629160000
+    }
+   ],
+   "games": [
+    {
+     "gameId": "70000000-0000-4000-8000-000000000076",
+     "endedBy": "resign",
+     "startedAt": null,
+     "finishedAt": 1791596160000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000077",
+     "endedBy": "all-found",
+     "startedAt": 1791628980000,
+     "finishedAt": 1791629160000
+    }
+   ],
+   "expect": [
+    {
+     "code": "day_giver",
+     "playerId": "00000000-0000-4000-8000-000000000003",
+     "value": 1.5
+    },
+    {
+     "code": "day_speed",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "value": 180000
+    },
+    {
+     "code": "day_speed",
+     "playerId": "00000000-0000-4000-8000-000000000009",
+     "value": 180000
+    },
+    {
+     "code": "day_speed",
+     "playerId": "00000000-0000-4000-8000-000000000014",
+     "value": 180000
+    },
+    {
+     "code": "day_grinder",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "value": 2
+    },
+    {
+     "code": "day_grinder",
+     "playerId": "00000000-0000-4000-8000-000000000005",
+     "value": 2
+    }
+   ]
+  },
+  {
+   "date": "2026-10-24",
+   "rows": [
+    {
+     "gameId": "70000000-0000-4000-8000-000000000123",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "team": "sun",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 2,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1792805520000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000123",
+     "playerId": "00000000-0000-4000-8000-000000000013",
+     "team": "moon",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 7,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1792805520000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000123",
+     "playerId": "00000000-0000-4000-8000-000000000005",
+     "team": "sun",
+     "role": "clue-giver",
+     "won": false,
+     "wordsFound": 2,
+     "cluesGiven": 7,
+     "trapHit": false,
+     "finishedAt": 1792805520000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000123",
+     "playerId": "00000000-0000-4000-8000-000000000007",
+     "team": "moon",
+     "role": "clue-giver",
+     "won": true,
+     "wordsFound": 7,
+     "cluesGiven": 4,
+     "trapHit": false,
+     "finishedAt": 1792805520000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000123",
+     "playerId": "00000000-0000-4000-8000-000000000003",
+     "team": "sun",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 2,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1792805520000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000124",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "team": "sun",
+     "role": "clue-giver",
+     "won": false,
+     "wordsFound": 7,
+     "cluesGiven": 3,
+     "trapHit": false,
+     "finishedAt": 1792818420000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000124",
+     "playerId": "00000000-0000-4000-8000-000000000009",
+     "team": "moon",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 6,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1792818420000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000124",
+     "playerId": "00000000-0000-4000-8000-000000000005",
+     "team": "sun",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 7,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1792818420000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000124",
+     "playerId": "00000000-0000-4000-8000-000000000011",
+     "team": "moon",
+     "role": "clue-giver",
+     "won": true,
+     "wordsFound": 6,
+     "cluesGiven": 5,
+     "trapHit": false,
+     "finishedAt": 1792818420000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000124",
+     "playerId": "00000000-0000-4000-8000-000000000008",
+     "team": "sun",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 7,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1792818420000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000125",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "team": "sun",
+     "role": "clue-giver",
+     "won": false,
+     "wordsFound": 9,
+     "cluesGiven": 4,
+     "trapHit": true,
+     "finishedAt": 1792824480000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000125",
+     "playerId": "00000000-0000-4000-8000-000000000010",
+     "team": "moon",
+     "role": "clue-giver",
+     "won": true,
+     "wordsFound": 6,
+     "cluesGiven": 2,
+     "trapHit": false,
+     "finishedAt": 1792824480000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000125",
+     "playerId": "00000000-0000-4000-8000-000000000002",
+     "team": "sun",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 9,
+     "cluesGiven": 0,
+     "trapHit": true,
+     "finishedAt": 1792824480000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000125",
+     "playerId": "00000000-0000-4000-8000-000000000011",
+     "team": "moon",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 6,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1792824480000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000125",
+     "playerId": "00000000-0000-4000-8000-000000000008",
+     "team": "sun",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 9,
+     "cluesGiven": 0,
+     "trapHit": true,
+     "finishedAt": 1792824480000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000125",
+     "playerId": "00000000-0000-4000-8000-000000000014",
+     "team": "moon",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 6,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1792824480000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000126",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "team": "sun",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 2,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1792852440000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000126",
+     "playerId": "00000000-0000-4000-8000-000000000006",
+     "team": "moon",
+     "role": "clue-giver",
+     "won": false,
+     "wordsFound": 6,
+     "cluesGiven": 6,
+     "trapHit": true,
+     "finishedAt": 1792852440000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000126",
+     "playerId": "00000000-0000-4000-8000-000000000011",
+     "team": "sun",
+     "role": "clue-giver",
+     "won": true,
+     "wordsFound": 2,
+     "cluesGiven": 6,
+     "trapHit": false,
+     "finishedAt": 1792852440000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000126",
+     "playerId": "00000000-0000-4000-8000-000000000013",
+     "team": "moon",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 6,
+     "cluesGiven": 0,
+     "trapHit": true,
+     "finishedAt": 1792852440000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000126",
+     "playerId": "00000000-0000-4000-8000-000000000004",
+     "team": "sun",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 2,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1792852440000
+    }
+   ],
+   "games": [
+    {
+     "gameId": "70000000-0000-4000-8000-000000000123",
+     "endedBy": "all-found",
+     "startedAt": 1792804020000,
+     "finishedAt": 1792805520000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000124",
+     "endedBy": "all-found",
+     "startedAt": null,
+     "finishedAt": 1792818420000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000125",
+     "endedBy": "trap",
+     "startedAt": 1792823820000,
+     "finishedAt": 1792824480000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000126",
+     "endedBy": "trap",
+     "startedAt": 1792852140000,
+     "finishedAt": 1792852440000
+    }
+   ],
+   "expect": [
+    {
+     "code": "day_star",
+     "playerId": "00000000-0000-4000-8000-000000000011",
+     "value": 3
+    },
+    {
+     "code": "day_giver",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "value": 2.2857142857142856
+    },
+    {
+     "code": "day_speed",
+     "playerId": "00000000-0000-4000-8000-000000000007",
+     "value": 1500000
+    },
+    {
+     "code": "day_speed",
+     "playerId": "00000000-0000-4000-8000-000000000013",
+     "value": 1500000
+    },
+    {
+     "code": "day_trapped",
+     "playerId": "00000000-0000-4000-8000-000000000002",
+     "value": 1
+    },
+    {
+     "code": "day_trapped",
+     "playerId": "00000000-0000-4000-8000-000000000008",
+     "value": 1
+    },
+    {
+     "code": "day_trapped",
+     "playerId": "00000000-0000-4000-8000-000000000013",
+     "value": 1
+    },
+    {
+     "code": "day_grinder",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "value": 4
+    }
+   ]
+  },
+  {
+   "date": "2026-11-02",
+   "rows": [
+    {
+     "gameId": "70000000-0000-4000-8000-000000000160",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "team": "sun",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 6,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1793567640000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000160",
+     "playerId": "00000000-0000-4000-8000-000000000012",
+     "team": "moon",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 2,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1793567640000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000160",
+     "playerId": "00000000-0000-4000-8000-000000000004",
+     "team": "sun",
+     "role": "clue-giver",
+     "won": false,
+     "wordsFound": 6,
+     "cluesGiven": 5,
+     "trapHit": false,
+     "finishedAt": 1793567640000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000160",
+     "playerId": "00000000-0000-4000-8000-000000000010",
+     "team": "moon",
+     "role": "clue-giver",
+     "won": true,
+     "wordsFound": 2,
+     "cluesGiven": 7,
+     "trapHit": false,
+     "finishedAt": 1793567640000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000160",
+     "playerId": "00000000-0000-4000-8000-000000000013",
+     "team": "sun",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 6,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1793567640000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000161",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "team": "sun",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 8,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1793584080000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000161",
+     "playerId": "00000000-0000-4000-8000-000000000008",
+     "team": "moon",
+     "role": "clue-giver",
+     "won": true,
+     "wordsFound": 4,
+     "cluesGiven": 5,
+     "trapHit": false,
+     "finishedAt": 1793584080000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000161",
+     "playerId": "00000000-0000-4000-8000-000000000010",
+     "team": "sun",
+     "role": "clue-giver",
+     "won": false,
+     "wordsFound": 8,
+     "cluesGiven": 5,
+     "trapHit": false,
+     "finishedAt": 1793584080000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000161",
+     "playerId": "00000000-0000-4000-8000-000000000005",
+     "team": "moon",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 4,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1793584080000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000161",
+     "playerId": "00000000-0000-4000-8000-000000000006",
+     "team": "sun",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 8,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1793584080000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000162",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "team": "sun",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 4,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1793617140000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000162",
+     "playerId": "00000000-0000-4000-8000-000000000007",
+     "team": "moon",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 8,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1793617140000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000162",
+     "playerId": "00000000-0000-4000-8000-000000000008",
+     "team": "sun",
+     "role": "clue-giver",
+     "won": true,
+     "wordsFound": 4,
+     "cluesGiven": 3,
+     "trapHit": false,
+     "finishedAt": 1793617140000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000162",
+     "playerId": "00000000-0000-4000-8000-000000000009",
+     "team": "moon",
+     "role": "clue-giver",
+     "won": false,
+     "wordsFound": 8,
+     "cluesGiven": 5,
+     "trapHit": false,
+     "finishedAt": 1793617140000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000162",
+     "playerId": "00000000-0000-4000-8000-000000000010",
+     "team": "sun",
+     "role": "guesser",
+     "won": true,
+     "wordsFound": 4,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1793617140000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000162",
+     "playerId": "00000000-0000-4000-8000-000000000012",
+     "team": "moon",
+     "role": "guesser",
+     "won": false,
+     "wordsFound": 8,
+     "cluesGiven": 0,
+     "trapHit": false,
+     "finishedAt": 1793617140000
+    }
+   ],
+   "games": [
+    {
+     "gameId": "70000000-0000-4000-8000-000000000160",
+     "endedBy": "resign",
+     "startedAt": 1793566680000,
+     "finishedAt": 1793567640000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000161",
+     "endedBy": "resign",
+     "startedAt": 1793583000000,
+     "finishedAt": 1793584080000
+    },
+    {
+     "gameId": "70000000-0000-4000-8000-000000000162",
+     "endedBy": "all-found",
+     "startedAt": 1793615760000,
+     "finishedAt": 1793617140000
+    }
+   ],
+   "expect": [
+    {
+     "code": "day_star",
+     "playerId": "00000000-0000-4000-8000-000000000008",
+     "value": 2
+    },
+    {
+     "code": "day_star",
+     "playerId": "00000000-0000-4000-8000-000000000010",
+     "value": 2
+    },
+    {
+     "code": "day_giver",
+     "playerId": "00000000-0000-4000-8000-000000000009",
+     "value": 1.6
+    },
+    {
+     "code": "day_speed",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "value": 1380000
+    },
+    {
+     "code": "day_speed",
+     "playerId": "00000000-0000-4000-8000-000000000008",
+     "value": 1380000
+    },
+    {
+     "code": "day_speed",
+     "playerId": "00000000-0000-4000-8000-000000000010",
+     "value": 1380000
+    },
+    {
+     "code": "day_grinder",
+     "playerId": "00000000-0000-4000-8000-000000000001",
+     "value": 3
+    },
+    {
+     "code": "day_grinder",
+     "playerId": "00000000-0000-4000-8000-000000000010",
+     "value": 3
+    }
+   ]
+  },
+  {
+   "date": "2026-11-12",
+   "rows": [],
+   "games": [],
+   "expect": []
+  }
+ ]
+}

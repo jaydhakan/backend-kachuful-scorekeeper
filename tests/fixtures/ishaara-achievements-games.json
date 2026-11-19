@@ -1,0 +1,1698 @@
+{
+ "kind": "ishaara-achievements-games",
+ "tz": "Asia/Kolkata",
+ "cases": [
+  {
+   "name": "meld-and-overtime",
+   "facts": {
+    "gameId": "50000000-0000-4000-8000-000000000001",
+    "players": [
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000114",
+      "team": "sun",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-000000000097",
+      "team": "sun",
+      "role": "guesser"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000100",
+      "team": "moon",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000109",
+      "team": "moon",
+      "role": "guesser"
+     }
+    ],
+    "starting": "sun",
+    "log": [
+     {
+      "at": 1793539804000,
+      "team": "sun",
+      "type": "clue",
+      "number": 3,
+      "word": "stream"
+     },
+     {
+      "at": 1793539804000,
+      "team": "sun",
+      "type": "guess",
+      "card": 0,
+      "word": "river",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539804001,
+      "team": "sun",
+      "type": "guess",
+      "card": 1,
+      "word": "kite",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539804003,
+      "team": "sun",
+      "type": "guess",
+      "card": 2,
+      "word": "train",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539804006,
+      "team": "sun",
+      "type": "guess",
+      "card": 3,
+      "word": "cricket",
+      "identity": "sun"
+     }
+    ],
+    "winner": "sun",
+    "endedBy": "resign",
+    "finishedAt": 1793539805006,
+    "bestOf": 1,
+    "match": {
+     "game": 1,
+     "sunWins": 1,
+     "moonWins": 0
+    }
+   },
+   "expect": [
+    {
+     "code": "mind_meld",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 0,
+     "period": null,
+     "earnedAt": 1793539804003,
+     "data": {}
+    },
+    {
+     "code": "mind_meld",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 0,
+     "period": null,
+     "earnedAt": 1793539804003,
+     "data": {}
+    },
+    {
+     "code": "overtime",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 0,
+     "period": null,
+     "earnedAt": 1793539804006,
+     "data": {}
+    },
+    {
+     "code": "overtime",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 0,
+     "period": null,
+     "earnedAt": 1793539804006,
+     "data": {}
+    },
+    {
+     "code": "white_flag",
+     "playerId": "00000000-0000-4000-8000-0000000000100",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539805006,
+     "data": {}
+    },
+    {
+     "code": "white_flag",
+     "playerId": "00000000-0000-4000-8000-0000000000109",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539805006,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539805006,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539805006,
+     "data": {}
+    }
+   ]
+  },
+  {
+   "name": "masterclass",
+   "facts": {
+    "gameId": "50000000-0000-4000-8000-000000000001",
+    "players": [
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000114",
+      "team": "sun",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-000000000097",
+      "team": "sun",
+      "role": "guesser"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000100",
+      "team": "moon",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000109",
+      "team": "moon",
+      "role": "guesser"
+     }
+    ],
+    "starting": "sun",
+    "log": [
+     {
+      "at": 1793539804000,
+      "team": "sun",
+      "type": "clue",
+      "number": 3,
+      "word": "stream"
+     },
+     {
+      "at": 1793539804000,
+      "team": "sun",
+      "type": "guess",
+      "card": 0,
+      "word": "river",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539804001,
+      "team": "sun",
+      "type": "guess",
+      "card": 1,
+      "word": "kite",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539804003,
+      "team": "sun",
+      "type": "guess",
+      "card": 2,
+      "word": "train",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539804006,
+      "team": "sun",
+      "type": "guess",
+      "card": 3,
+      "word": "cricket",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539805006,
+      "team": "moon",
+      "type": "clue",
+      "number": 1,
+      "word": "night"
+     },
+     {
+      "at": 1793539806006,
+      "team": "moon",
+      "type": "guess",
+      "card": 17,
+      "word": "crown",
+      "identity": "blank"
+     },
+     {
+      "at": 1793539807006,
+      "team": "sun",
+      "type": "clue",
+      "number": 3,
+      "word": "sea"
+     },
+     {
+      "at": 1793539807006,
+      "team": "sun",
+      "type": "guess",
+      "card": 4,
+      "word": "mango",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539807007,
+      "team": "sun",
+      "type": "guess",
+      "card": 5,
+      "word": "bridge",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539807009,
+      "team": "sun",
+      "type": "guess",
+      "card": 6,
+      "word": "mirror",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539807012,
+      "team": "sun",
+      "type": "guess",
+      "card": 7,
+      "word": "ghost",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539808012,
+      "team": "moon",
+      "type": "clue",
+      "number": 1,
+      "word": "night"
+     },
+     {
+      "at": 1793539809012,
+      "team": "moon",
+      "type": "guess",
+      "card": 18,
+      "word": "shadow",
+      "identity": "blank"
+     },
+     {
+      "at": 1793539810012,
+      "team": "sun",
+      "type": "clue",
+      "number": 1,
+      "word": "tea"
+     },
+     {
+      "at": 1793539811012,
+      "team": "sun",
+      "type": "guess",
+      "card": 8,
+      "word": "wedding",
+      "identity": "sun"
+     }
+    ],
+    "winner": "sun",
+    "endedBy": "all-found",
+    "finishedAt": 1793539811012,
+    "bestOf": 1,
+    "match": {
+     "game": 1,
+     "sunWins": 1,
+     "moonWins": 0
+    }
+   },
+   "expect": [
+    {
+     "code": "mind_meld",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 0,
+     "period": null,
+     "earnedAt": 1793539804003,
+     "data": {}
+    },
+    {
+     "code": "mind_meld",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 0,
+     "period": null,
+     "earnedAt": 1793539804003,
+     "data": {}
+    },
+    {
+     "code": "overtime",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 0,
+     "period": null,
+     "earnedAt": 1793539804006,
+     "data": {}
+    },
+    {
+     "code": "overtime",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 0,
+     "period": null,
+     "earnedAt": 1793539804006,
+     "data": {}
+    },
+    {
+     "code": "mind_meld",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 2,
+     "period": null,
+     "earnedAt": 1793539807009,
+     "data": {}
+    },
+    {
+     "code": "mind_meld",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 2,
+     "period": null,
+     "earnedAt": 1793539807009,
+     "data": {}
+    },
+    {
+     "code": "overtime",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 2,
+     "period": null,
+     "earnedAt": 1793539807012,
+     "data": {}
+    },
+    {
+     "code": "overtime",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 2,
+     "period": null,
+     "earnedAt": 1793539807012,
+     "data": {}
+    },
+    {
+     "code": "flawless",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539811012,
+     "data": {}
+    },
+    {
+     "code": "flawless",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539811012,
+     "data": {}
+    },
+    {
+     "code": "mastermind",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539811012,
+     "data": {}
+    },
+    {
+     "code": "speedrun",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539811012,
+     "data": {}
+    },
+    {
+     "code": "speedrun",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539811012,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539811012,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539811012,
+     "data": {}
+    }
+   ]
+  },
+  {
+   "name": "big-clues",
+   "facts": {
+    "gameId": "50000000-0000-4000-8000-000000000001",
+    "players": [
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000114",
+      "team": "sun",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-000000000097",
+      "team": "sun",
+      "role": "guesser"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000100",
+      "team": "moon",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000109",
+      "team": "moon",
+      "role": "guesser"
+     }
+    ],
+    "starting": "sun",
+    "log": [
+     {
+      "at": 1793539804000,
+      "team": "sun",
+      "type": "clue",
+      "number": 4,
+      "word": "stream"
+     },
+     {
+      "at": 1793539804000,
+      "team": "sun",
+      "type": "guess",
+      "card": 0,
+      "word": "river",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539804001,
+      "team": "sun",
+      "type": "guess",
+      "card": 1,
+      "word": "kite",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539804003,
+      "team": "sun",
+      "type": "guess",
+      "card": 2,
+      "word": "train",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539804006,
+      "team": "sun",
+      "type": "guess",
+      "card": 3,
+      "word": "cricket",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539805006,
+      "team": "sun",
+      "type": "guess",
+      "card": 17,
+      "word": "crown",
+      "identity": "blank"
+     },
+     {
+      "at": 1793539806006,
+      "team": "moon",
+      "type": "clue",
+      "number": "inf",
+      "word": "night"
+     },
+     {
+      "at": 1793539806006,
+      "team": "moon",
+      "type": "guess",
+      "card": 9,
+      "word": "rocket",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539806007,
+      "team": "moon",
+      "type": "guess",
+      "card": 10,
+      "word": "temple",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539806009,
+      "team": "moon",
+      "type": "guess",
+      "card": 11,
+      "word": "pepper",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539807009,
+      "team": "moon",
+      "type": "end"
+     },
+     {
+      "at": 1793539808009,
+      "team": "sun",
+      "type": "clue",
+      "number": 0,
+      "word": "sun"
+     },
+     {
+      "at": 1793539808009,
+      "team": "sun",
+      "type": "guess",
+      "card": 4,
+      "word": "mango",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539808010,
+      "team": "sun",
+      "type": "guess",
+      "card": 5,
+      "word": "bridge",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539809010,
+      "team": "sun",
+      "type": "end"
+     }
+    ],
+    "winner": "sun",
+    "endedBy": "resign",
+    "finishedAt": 1793539810010,
+    "bestOf": 1,
+    "match": {
+     "game": 1,
+     "sunWins": 1,
+     "moonWins": 0
+    }
+   },
+   "expect": [
+    {
+     "code": "one_word_four",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 0,
+     "period": null,
+     "earnedAt": 1793539804006,
+     "data": {}
+    },
+    {
+     "code": "one_word_four",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 0,
+     "period": null,
+     "earnedAt": 1793539804006,
+     "data": {}
+    },
+    {
+     "code": "white_flag",
+     "playerId": "00000000-0000-4000-8000-0000000000100",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539810010,
+     "data": {}
+    },
+    {
+     "code": "white_flag",
+     "playerId": "00000000-0000-4000-8000-0000000000109",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539810010,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539810010,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539810010,
+     "data": {}
+    }
+   ]
+  },
+  {
+   "name": "undone",
+   "facts": {
+    "gameId": "50000000-0000-4000-8000-000000000001",
+    "players": [
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000114",
+      "team": "sun",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-000000000097",
+      "team": "sun",
+      "role": "guesser"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000100",
+      "team": "moon",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000109",
+      "team": "moon",
+      "role": "guesser"
+     }
+    ],
+    "starting": "sun",
+    "log": [
+     {
+      "at": 1793539804000,
+      "team": "sun",
+      "type": "clue",
+      "number": 3,
+      "word": "stream"
+     },
+     {
+      "at": 1793539804000,
+      "team": "sun",
+      "type": "guess",
+      "card": 0,
+      "word": "river",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539804001,
+      "team": "sun",
+      "type": "guess",
+      "card": 1,
+      "word": "kite",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539805003,
+      "team": "sun",
+      "type": "undo",
+      "card": 9,
+      "word": "rocket"
+     },
+     {
+      "at": 1793539806003,
+      "team": "sun",
+      "type": "guess",
+      "card": 2,
+      "word": "train",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539807003,
+      "team": "sun",
+      "type": "end"
+     }
+    ],
+    "winner": "sun",
+    "endedBy": "resign",
+    "finishedAt": 1793539808003,
+    "bestOf": 1,
+    "match": {
+     "game": 1,
+     "sunWins": 1,
+     "moonWins": 0
+    }
+   },
+   "expect": [
+    {
+     "code": "mind_meld",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 0,
+     "period": null,
+     "earnedAt": 1793539806003,
+     "data": {}
+    },
+    {
+     "code": "mind_meld",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 0,
+     "period": null,
+     "earnedAt": 1793539806003,
+     "data": {}
+    },
+    {
+     "code": "white_flag",
+     "playerId": "00000000-0000-4000-8000-0000000000100",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539808003,
+     "data": {}
+    },
+    {
+     "code": "white_flag",
+     "playerId": "00000000-0000-4000-8000-0000000000109",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539808003,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539808003,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539808003,
+     "data": {}
+    }
+   ]
+  },
+  {
+   "name": "trap-at-the-end",
+   "facts": {
+    "gameId": "50000000-0000-4000-8000-000000000001",
+    "players": [
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000114",
+      "team": "sun",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-000000000097",
+      "team": "sun",
+      "role": "guesser"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000100",
+      "team": "moon",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000109",
+      "team": "moon",
+      "role": "guesser"
+     }
+    ],
+    "starting": "sun",
+    "log": [
+     {
+      "at": 1793539804000,
+      "team": "sun",
+      "type": "clue",
+      "number": 1,
+      "word": "stream"
+     },
+     {
+      "at": 1793539805000,
+      "team": "sun",
+      "type": "guess",
+      "card": 17,
+      "word": "crown",
+      "identity": "blank"
+     },
+     {
+      "at": 1793539806000,
+      "team": "moon",
+      "type": "clue",
+      "number": "inf",
+      "word": "night"
+     },
+     {
+      "at": 1793539806000,
+      "team": "moon",
+      "type": "guess",
+      "card": 9,
+      "word": "rocket",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539806001,
+      "team": "moon",
+      "type": "guess",
+      "card": 10,
+      "word": "temple",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539806003,
+      "team": "moon",
+      "type": "guess",
+      "card": 11,
+      "word": "pepper",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539806006,
+      "team": "moon",
+      "type": "guess",
+      "card": 12,
+      "word": "lion",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539806010,
+      "team": "moon",
+      "type": "guess",
+      "card": 13,
+      "word": "ocean",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539806015,
+      "team": "moon",
+      "type": "guess",
+      "card": 14,
+      "word": "film",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539806021,
+      "team": "moon",
+      "type": "guess",
+      "card": 15,
+      "word": "market",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539807021,
+      "team": "moon",
+      "type": "guess",
+      "card": 24,
+      "word": "chai",
+      "identity": "trap"
+     }
+    ],
+    "winner": "sun",
+    "endedBy": "trap",
+    "finishedAt": 1793539807021,
+    "bestOf": 1,
+    "match": {
+     "game": 1,
+     "sunWins": 1,
+     "moonWins": 0
+    }
+   },
+   "expect": [
+    {
+     "code": "comeback",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539807021,
+     "data": {}
+    },
+    {
+     "code": "comeback",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539807021,
+     "data": {}
+    },
+    {
+     "code": "lucky_escape",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539807021,
+     "data": {}
+    },
+    {
+     "code": "lucky_escape",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539807021,
+     "data": {}
+    },
+    {
+     "code": "photo_finish",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539807021,
+     "data": {}
+    },
+    {
+     "code": "photo_finish",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539807021,
+     "data": {}
+    },
+    {
+     "code": "trapped",
+     "playerId": "00000000-0000-4000-8000-0000000000109",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 1,
+     "period": null,
+     "earnedAt": 1793539807021,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539807021,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539807021,
+     "data": {}
+    }
+   ]
+  },
+  {
+   "name": "own-goal",
+   "facts": {
+    "gameId": "50000000-0000-4000-8000-000000000001",
+    "players": [
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000114",
+      "team": "sun",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-000000000097",
+      "team": "sun",
+      "role": "guesser"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000100",
+      "team": "moon",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000109",
+      "team": "moon",
+      "role": "guesser"
+     }
+    ],
+    "starting": "sun",
+    "log": [
+     {
+      "at": 1793539804000,
+      "team": "sun",
+      "type": "clue",
+      "number": 1,
+      "word": "stream"
+     },
+     {
+      "at": 1793539804000,
+      "team": "sun",
+      "type": "guess",
+      "card": 0,
+      "word": "river",
+      "identity": "sun"
+     },
+     {
+      "at": 1793539804001,
+      "team": "sun",
+      "type": "guess",
+      "card": 9,
+      "word": "rocket",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539805001,
+      "team": "moon",
+      "type": "clue",
+      "number": 9,
+      "word": "night"
+     },
+     {
+      "at": 1793539805001,
+      "team": "moon",
+      "type": "guess",
+      "card": 10,
+      "word": "temple",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539805002,
+      "team": "moon",
+      "type": "guess",
+      "card": 11,
+      "word": "pepper",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539805004,
+      "team": "moon",
+      "type": "guess",
+      "card": 12,
+      "word": "lion",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539805007,
+      "team": "moon",
+      "type": "guess",
+      "card": 13,
+      "word": "ocean",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539805011,
+      "team": "moon",
+      "type": "guess",
+      "card": 14,
+      "word": "film",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539805016,
+      "team": "moon",
+      "type": "guess",
+      "card": 15,
+      "word": "market",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539806016,
+      "team": "moon",
+      "type": "end"
+     },
+     {
+      "at": 1793539807016,
+      "team": "sun",
+      "type": "clue",
+      "number": 1,
+      "word": "stream"
+     },
+     {
+      "at": 1793539808016,
+      "team": "sun",
+      "type": "guess",
+      "card": 16,
+      "word": "needle",
+      "identity": "moon"
+     }
+    ],
+    "winner": "moon",
+    "endedBy": "all-found",
+    "finishedAt": 1793539808016,
+    "bestOf": 1,
+    "match": {
+     "game": 1,
+     "sunWins": 0,
+     "moonWins": 1
+    }
+   },
+   "expect": [
+    {
+     "code": "flawless",
+     "playerId": "00000000-0000-4000-8000-0000000000100",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539808016,
+     "data": {}
+    },
+    {
+     "code": "flawless",
+     "playerId": "00000000-0000-4000-8000-0000000000109",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539808016,
+     "data": {}
+    },
+    {
+     "code": "own_goal",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 2,
+     "period": null,
+     "earnedAt": 1793539808016,
+     "data": {}
+    },
+    {
+     "code": "speedrun",
+     "playerId": "00000000-0000-4000-8000-0000000000100",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539808016,
+     "data": {}
+    },
+    {
+     "code": "speedrun",
+     "playerId": "00000000-0000-4000-8000-0000000000109",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539808016,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-0000000000100",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539808016,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-0000000000109",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539808016,
+     "data": {}
+    }
+   ]
+  },
+  {
+   "name": "penalty",
+   "facts": {
+    "gameId": "50000000-0000-4000-8000-000000000001",
+    "players": [
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000114",
+      "team": "sun",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-000000000097",
+      "team": "sun",
+      "role": "guesser"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000100",
+      "team": "moon",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000109",
+      "team": "moon",
+      "role": "guesser"
+     }
+    ],
+    "starting": "sun",
+    "log": [
+     {
+      "at": 1793539804000,
+      "team": "sun",
+      "type": "clue",
+      "number": 2,
+      "word": "stream"
+     },
+     {
+      "at": 1793539805000,
+      "team": "moon",
+      "type": "not-allowed"
+     },
+     {
+      "at": 1793539806000,
+      "team": "moon",
+      "type": "penalty",
+      "card": 9,
+      "word": "rocket",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539807000,
+      "team": "moon",
+      "type": "clue",
+      "number": 3,
+      "word": "night"
+     },
+     {
+      "at": 1793539807000,
+      "team": "moon",
+      "type": "guess",
+      "card": 10,
+      "word": "temple",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539807001,
+      "team": "moon",
+      "type": "guess",
+      "card": 11,
+      "word": "pepper",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539807003,
+      "team": "moon",
+      "type": "guess",
+      "card": 12,
+      "word": "lion",
+      "identity": "moon"
+     },
+     {
+      "at": 1793539808003,
+      "team": "moon",
+      "type": "end"
+     }
+    ],
+    "winner": "moon",
+    "endedBy": "resign",
+    "finishedAt": 1793539809003,
+    "bestOf": 1,
+    "match": {
+     "game": 1,
+     "sunWins": 0,
+     "moonWins": 1
+    }
+   },
+   "expect": [
+    {
+     "code": "mind_meld",
+     "playerId": "00000000-0000-4000-8000-0000000000100",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 1,
+     "period": null,
+     "earnedAt": 1793539807003,
+     "data": {}
+    },
+    {
+     "code": "mind_meld",
+     "playerId": "00000000-0000-4000-8000-0000000000109",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": 1,
+     "period": null,
+     "earnedAt": 1793539807003,
+     "data": {}
+    },
+    {
+     "code": "white_flag",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539809003,
+     "data": {}
+    },
+    {
+     "code": "white_flag",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539809003,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-0000000000100",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539809003,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-0000000000109",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539809003,
+     "data": {}
+    }
+   ]
+  },
+  {
+   "name": "series-2-0",
+   "facts": {
+    "gameId": "50000000-0000-4000-8000-000000000001",
+    "players": [
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000114",
+      "team": "sun",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-000000000097",
+      "team": "sun",
+      "role": "guesser"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000100",
+      "team": "moon",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000109",
+      "team": "moon",
+      "role": "guesser"
+     }
+    ],
+    "starting": "sun",
+    "log": [],
+    "winner": "sun",
+    "endedBy": "resign",
+    "finishedAt": 1793539804000,
+    "bestOf": 3,
+    "match": {
+     "game": 2,
+     "sunWins": 2,
+     "moonWins": 0
+    }
+   },
+   "expect": [
+    {
+     "code": "series",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539804000,
+     "data": {}
+    },
+    {
+     "code": "series",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539804000,
+     "data": {}
+    },
+    {
+     "code": "white_flag",
+     "playerId": "00000000-0000-4000-8000-0000000000100",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539804000,
+     "data": {}
+    },
+    {
+     "code": "white_flag",
+     "playerId": "00000000-0000-4000-8000-0000000000109",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539804000,
+     "data": {}
+    },
+    {
+     "code": "whitewash",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539804000,
+     "data": {}
+    },
+    {
+     "code": "whitewash",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539804000,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539804000,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539804000,
+     "data": {}
+    }
+   ]
+  },
+  {
+   "name": "series-2-1",
+   "facts": {
+    "gameId": "50000000-0000-4000-8000-000000000001",
+    "players": [
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000114",
+      "team": "sun",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-000000000097",
+      "team": "sun",
+      "role": "guesser"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000100",
+      "team": "moon",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000109",
+      "team": "moon",
+      "role": "guesser"
+     }
+    ],
+    "starting": "sun",
+    "log": [],
+    "winner": "sun",
+    "endedBy": "resign",
+    "finishedAt": 1793539804000,
+    "bestOf": 3,
+    "match": {
+     "game": 3,
+     "sunWins": 2,
+     "moonWins": 1
+    }
+   },
+   "expect": [
+    {
+     "code": "series",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539804000,
+     "data": {}
+    },
+    {
+     "code": "series",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539804000,
+     "data": {}
+    },
+    {
+     "code": "white_flag",
+     "playerId": "00000000-0000-4000-8000-0000000000100",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539804000,
+     "data": {}
+    },
+    {
+     "code": "white_flag",
+     "playerId": "00000000-0000-4000-8000-0000000000109",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539804000,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539804000,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793539804000,
+     "data": {}
+    }
+   ]
+  },
+  {
+   "name": "late-night",
+   "facts": {
+    "gameId": "50000000-0000-4000-8000-000000000001",
+    "players": [
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000114",
+      "team": "sun",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-000000000097",
+      "team": "sun",
+      "role": "guesser"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000100",
+      "team": "moon",
+      "role": "clue-giver"
+     },
+     {
+      "playerId": "00000000-0000-4000-8000-0000000000109",
+      "team": "moon",
+      "role": "guesser"
+     }
+    ],
+    "starting": "sun",
+    "log": [
+     {
+      "at": 1793539804000,
+      "team": "sun",
+      "type": "clue",
+      "number": 1,
+      "word": "stream"
+     }
+    ],
+    "winner": "moon",
+    "endedBy": "resign",
+    "finishedAt": 1793565004000,
+    "bestOf": 1,
+    "match": {
+     "game": 1,
+     "sunWins": 0,
+     "moonWins": 1
+    }
+   },
+   "expect": [
+    {
+     "code": "night_owl",
+     "playerId": "00000000-0000-4000-8000-0000000000100",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793565004000,
+     "data": {}
+    },
+    {
+     "code": "night_owl",
+     "playerId": "00000000-0000-4000-8000-0000000000109",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793565004000,
+     "data": {}
+    },
+    {
+     "code": "night_owl",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793565004000,
+     "data": {}
+    },
+    {
+     "code": "night_owl",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793565004000,
+     "data": {}
+    },
+    {
+     "code": "white_flag",
+     "playerId": "00000000-0000-4000-8000-0000000000114",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793565004000,
+     "data": {}
+    },
+    {
+     "code": "white_flag",
+     "playerId": "00000000-0000-4000-8000-000000000097",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793565004000,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-0000000000100",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793565004000,
+     "data": {}
+    },
+    {
+     "code": "winner",
+     "playerId": "00000000-0000-4000-8000-0000000000109",
+     "gameId": "50000000-0000-4000-8000-000000000001",
+     "roundIndex": null,
+     "period": null,
+     "earnedAt": 1793565004000,
+     "data": {}
+    }
+   ]
+  }
+ ]
+}

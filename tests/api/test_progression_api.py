@@ -91,7 +91,9 @@ async def test_the_feed_filters_by_game_and_shows_each_kinds_summary(
     assert finished["kaali-teeri"]["id"] == kt_id
     assert finished["spades"]["kind"] == "spades-online" and finished["spades"]["isHost"]
     assert finished["ishaara"]["id"] == str(ishaara_id) and "myTeam" in finished["ishaara"]
-    assert [i["gameKind"] for i in kt] == ["kaali-teeri"] and kt[0]["game"]["id"] == kt_id
+    # The game's own achievements are in its feed too.
+    assert {i["gameKind"] for i in kt} == {"kaali-teeri"}
+    assert [i["game"]["id"] for i in kt if i["kind"] == "game_finished"] == [kt_id]
     assert all(i["gameKind"] == "kachuful" for i in kachuful)
     _invalid_game(bad)
 

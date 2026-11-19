@@ -1,0 +1,572 @@
+{
+  "kind": "spades-achievements",
+  "name": "game finishes: every code, a draw, and night in Kolkata",
+  "tz": "Asia/Kolkata",
+  "games": [
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g11",
+        "syncId": "80000000-0000-4000-8000-000000000011",
+        "rev": 3,
+        "createdAt": 1795089600000,
+        "updatedAt": 1795090800000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[5,5,5,4],"blind":[false,false,false,false],"teamTricks":[0,13],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795090200000},
+          {"index":1,"dealer":1,"bids":[4,1,4,1],"blind":[false,false,false,false],"teamTricks":[13,0],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795090800000}
+        ],
+        "status": "finished",
+        "finishedAt": 1795090800000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g12",
+        "syncId": "80000000-0000-4000-8000-000000000012",
+        "rev": 5,
+        "createdAt": 1795111200000,
+        "updatedAt": 1795113600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[4,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795111800000},
+          {"index":1,"dealer":1,"bids":[4,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795112400000},
+          {"index":2,"dealer":2,"bids":[4,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795113000000},
+          {"index":3,"dealer":3,"bids":[4,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795113600000}
+        ],
+        "status": "finished",
+        "finishedAt": 1795113600000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g13",
+        "syncId": "80000000-0000-4000-8000-000000000013",
+        "rev": 4,
+        "createdAt": 1795132800000,
+        "updatedAt": 1795134600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[4,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795133400000},
+          {"index":1,"dealer":1,"bids":[4,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795134000000},
+          {"index":2,"dealer":2,"bids":[4,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795134600000}
+        ],
+        "status": "finished",
+        "finishedAt": 1795134600000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g14",
+        "syncId": "80000000-0000-4000-8000-000000000014",
+        "rev": 2,
+        "createdAt": 1795154400000,
+        "updatedAt": 1795155000000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795155000000}],
+        "status": "finished",
+        "finishedAt": 1795155000000,
+        "result": {"winner":"a","endedBy":"mercy"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g15",
+        "syncId": "80000000-0000-4000-8000-000000000015",
+        "rev": 4,
+        "createdAt": 1795176000000,
+        "updatedAt": 1795177800000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[10,3],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795176600000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[10,3],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795177200000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[10,3],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795177800000}
+        ],
+        "status": "finished",
+        "finishedAt": 1795177800000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g16",
+        "syncId": "80000000-0000-4000-8000-000000000016",
+        "rev": 6,
+        "createdAt": 1795197600000,
+        "updatedAt": 1795200600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795198200000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795198800000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795199400000},
+          {"index":3,"dealer":3,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795200000000},
+          {"index":4,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795200600000}
+        ],
+        "status": "finished",
+        "finishedAt": 1795200600000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g17",
+        "syncId": "80000000-0000-4000-8000-000000000017",
+        "rev": 7,
+        "createdAt": 1795219200000,
+        "updatedAt": 1795222800000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[6,7],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795219800000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795220400000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795221000000},
+          {"index":3,"dealer":3,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795221600000},
+          {"index":4,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795222200000},
+          {"index":5,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795222800000}
+        ],
+        "status": "finished",
+        "finishedAt": 1795222800000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g18",
+        "syncId": "80000000-0000-4000-8000-000000000018",
+        "rev": 3,
+        "createdAt": 1795240800000,
+        "updatedAt": 1795242000000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[5,1,5,1],"blind":[false,false,false,false],"teamTricks":[12,1],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795241400000},
+          {"index":1,"dealer":1,"bids":[5,1,5,1],"blind":[false,false,false,false],"teamTricks":[12,1],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795242000000}
+        ],
+        "status": "finished",
+        "finishedAt": 1795242000000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g19",
+        "syncId": "80000000-0000-4000-8000-000000000019",
+        "rev": 3,
+        "createdAt": 1795262400000,
+        "updatedAt": 1795263600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[1,1,1,1],"blind":[false,false,false,false],"teamTricks":[12,1],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795263000000},
+          {"index":1,"dealer":1,"bids":[1,1,1,1],"blind":[false,false,false,false],"teamTricks":[12,1],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795263600000}
+        ],
+        "status": "finished",
+        "finishedAt": 1795263600000,
+        "result": {"winner":"b","endedBy":"end"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g20",
+        "syncId": "80000000-0000-4000-8000-000000000020",
+        "rev": 16,
+        "createdAt": 1795284000000,
+        "updatedAt": 1795293000000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [
+          {"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795284600000},
+          {"index":1,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795285200000},
+          {"index":2,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795285800000},
+          {"index":3,"dealer":3,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795286400000},
+          {"index":4,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795287000000},
+          {"index":5,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795287600000},
+          {"index":6,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795288200000},
+          {"index":7,"dealer":3,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795288800000},
+          {"index":8,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795289400000},
+          {"index":9,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795290000000},
+          {"index":10,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795290600000},
+          {"index":11,"dealer":3,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795291200000},
+          {"index":12,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795291800000},
+          {"index":13,"dealer":1,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795292400000},
+          {"index":14,"dealer":2,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1795293000000}
+        ],
+        "status": "finished",
+        "finishedAt": 1795293000000,
+        "result": {"winner":"draw","endedBy":"draw"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g21",
+        "syncId": "80000000-0000-4000-8000-000000000021",
+        "rev": 2,
+        "createdAt": 1794861000000,
+        "updatedAt": 1794861600000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794861600000}],
+        "status": "finished",
+        "finishedAt": 1794861600000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    },
+    {
+      "kind": "spades",
+      "payload": {
+        "kind": "spades",
+        "schemaVersion": 1,
+        "id": "g22",
+        "syncId": "80000000-0000-4000-8000-000000000022",
+        "rev": 2,
+        "createdAt": 1794873600000,
+        "updatedAt": 1794874200000,
+        "players": [
+          {"id":"p0","name":"Riya","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000001"},
+          {"id":"p1","name":"Arjun","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000002"},
+          {"id":"p2","name":"Dev","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000003"},
+          {"id":"p3","name":"Meera","emoji":"🙂","color":"#f5a524","playerId":"00000000-0000-4000-8000-000000000004"}
+        ],
+        "firstDealerIndex": 0,
+        "direction": "cw",
+        "rules": {"target":200,"timerSec":30,"nil":true,"blindNil":false,"minTeamBid":null,"mercy":null},
+        "hands": [{"index":0,"dealer":0,"bids":[3,3,3,3],"blind":[false,false,false,false],"teamTricks":[7,6],"nilTricks":[null,null,null,null],"phase":"done","doneAt":1794874200000}],
+        "status": "finished",
+        "finishedAt": 1794874200000,
+        "result": {"winner":"a","endedBy":"target"}
+      }
+    }
+  ],
+  "expect": {
+    "games": [
+      {
+        "gameId": "80000000-0000-4000-8000-000000000011",
+        "earned": [
+          {"code":"boston","playerId":"00000000-0000-4000-8000-000000000002","gameId":"80000000-0000-4000-8000-000000000011","roundIndex":0,"period":null,"earnedAt":1795090200000,"data":{}},
+          {"code":"set_them","playerId":"00000000-0000-4000-8000-000000000002","gameId":"80000000-0000-4000-8000-000000000011","roundIndex":0,"period":null,"earnedAt":1795090200000,"data":{}},
+          {"code":"boston","playerId":"00000000-0000-4000-8000-000000000004","gameId":"80000000-0000-4000-8000-000000000011","roundIndex":0,"period":null,"earnedAt":1795090200000,"data":{}},
+          {"code":"set_them","playerId":"00000000-0000-4000-8000-000000000004","gameId":"80000000-0000-4000-8000-000000000011","roundIndex":0,"period":null,"earnedAt":1795090200000,"data":{}},
+          {"code":"boston","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000011","roundIndex":1,"period":null,"earnedAt":1795090800000,"data":{}},
+          {"code":"set_them","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000011","roundIndex":1,"period":null,"earnedAt":1795090800000,"data":{}},
+          {"code":"boston","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000011","roundIndex":1,"period":null,"earnedAt":1795090800000,"data":{}},
+          {"code":"set_them","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000011","roundIndex":1,"period":null,"earnedAt":1795090800000,"data":{}},
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000011","roundIndex":null,"period":null,"earnedAt":1795090800000,"data":{}},
+          {"code":"comeback","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000011","roundIndex":null,"period":null,"earnedAt":1795090800000,"data":{}},
+          {"code":"photo_finish","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000011","roundIndex":null,"period":null,"earnedAt":1795090800000,"data":{}},
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000011","roundIndex":null,"period":null,"earnedAt":1795090800000,"data":{}},
+          {"code":"comeback","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000011","roundIndex":null,"period":null,"earnedAt":1795090800000,"data":{}},
+          {"code":"photo_finish","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000011","roundIndex":null,"period":null,"earnedAt":1795090800000,"data":{}}
+        ]
+      },
+      {
+        "gameId": "80000000-0000-4000-8000-000000000012",
+        "earned": [
+          {"code":"bang_on","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000012","roundIndex":0,"period":null,"earnedAt":1795111800000,"data":{}},
+          {"code":"bang_on","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000012","roundIndex":0,"period":null,"earnedAt":1795111800000,"data":{}},
+          {"code":"bang_on","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000012","roundIndex":1,"period":null,"earnedAt":1795112400000,"data":{}},
+          {"code":"bang_on","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000012","roundIndex":1,"period":null,"earnedAt":1795112400000,"data":{}},
+          {"code":"bang_on","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000012","roundIndex":2,"period":null,"earnedAt":1795113000000,"data":{}},
+          {"code":"bang_on","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000012","roundIndex":2,"period":null,"earnedAt":1795113000000,"data":{}},
+          {"code":"bang_on","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000012","roundIndex":3,"period":null,"earnedAt":1795113600000,"data":{}},
+          {"code":"bang_on","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000012","roundIndex":3,"period":null,"earnedAt":1795113600000,"data":{}},
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000012","roundIndex":null,"period":null,"earnedAt":1795113600000,"data":{}},
+          {"code":"exact","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000012","roundIndex":null,"period":null,"earnedAt":1795113600000,"data":{}},
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000012","roundIndex":null,"period":null,"earnedAt":1795113600000,"data":{}},
+          {"code":"exact","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000012","roundIndex":null,"period":null,"earnedAt":1795113600000,"data":{}}
+        ]
+      },
+      {
+        "gameId": "80000000-0000-4000-8000-000000000013",
+        "earned": [
+          {"code":"bang_on","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000013","roundIndex":0,"period":null,"earnedAt":1795133400000,"data":{}},
+          {"code":"bang_on","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000013","roundIndex":0,"period":null,"earnedAt":1795133400000,"data":{}},
+          {"code":"bang_on","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000013","roundIndex":1,"period":null,"earnedAt":1795134000000,"data":{}},
+          {"code":"bang_on","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000013","roundIndex":1,"period":null,"earnedAt":1795134000000,"data":{}},
+          {"code":"bang_on","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000013","roundIndex":2,"period":null,"earnedAt":1795134600000,"data":{}},
+          {"code":"bang_on","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000013","roundIndex":2,"period":null,"earnedAt":1795134600000,"data":{}},
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000013","roundIndex":null,"period":null,"earnedAt":1795134600000,"data":{}},
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000013","roundIndex":null,"period":null,"earnedAt":1795134600000,"data":{}}
+        ]
+      },
+      {
+        "gameId": "80000000-0000-4000-8000-000000000014",
+        "earned": [
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000014","roundIndex":null,"period":null,"earnedAt":1795155000000,"data":{}},
+          {"code":"mercy","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000014","roundIndex":null,"period":null,"earnedAt":1795155000000,"data":{}},
+          {"code":"photo_finish","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000014","roundIndex":null,"period":null,"earnedAt":1795155000000,"data":{}},
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000014","roundIndex":null,"period":null,"earnedAt":1795155000000,"data":{}},
+          {"code":"mercy","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000014","roundIndex":null,"period":null,"earnedAt":1795155000000,"data":{}},
+          {"code":"photo_finish","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000014","roundIndex":null,"period":null,"earnedAt":1795155000000,"data":{}}
+        ]
+      },
+      {
+        "gameId": "80000000-0000-4000-8000-000000000015",
+        "earned": [
+          {"code":"set_them","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000015","roundIndex":0,"period":null,"earnedAt":1795176600000,"data":{}},
+          {"code":"set_them","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000015","roundIndex":0,"period":null,"earnedAt":1795176600000,"data":{}},
+          {"code":"set_them","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000015","roundIndex":1,"period":null,"earnedAt":1795177200000,"data":{}},
+          {"code":"set_them","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000015","roundIndex":1,"period":null,"earnedAt":1795177200000,"data":{}},
+          {"code":"set_them","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000015","roundIndex":2,"period":null,"earnedAt":1795177800000,"data":{}},
+          {"code":"sandbagged","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000015","roundIndex":2,"period":null,"earnedAt":1795177800000,"data":{}},
+          {"code":"set_them","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000015","roundIndex":2,"period":null,"earnedAt":1795177800000,"data":{}},
+          {"code":"sandbagged","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000015","roundIndex":2,"period":null,"earnedAt":1795177800000,"data":{}},
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000015","roundIndex":null,"period":null,"earnedAt":1795177800000,"data":{}},
+          {"code":"shutout","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000015","roundIndex":null,"period":null,"earnedAt":1795177800000,"data":{}},
+          {"code":"runaway","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000015","roundIndex":null,"period":null,"earnedAt":1795177800000,"data":{}},
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000015","roundIndex":null,"period":null,"earnedAt":1795177800000,"data":{}},
+          {"code":"shutout","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000015","roundIndex":null,"period":null,"earnedAt":1795177800000,"data":{}},
+          {"code":"runaway","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000015","roundIndex":null,"period":null,"earnedAt":1795177800000,"data":{}}
+        ]
+      },
+      {
+        "gameId": "80000000-0000-4000-8000-000000000016",
+        "earned": [
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000016","roundIndex":null,"period":null,"earnedAt":1795200600000,"data":{}},
+          {"code":"wire_to_wire","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000016","roundIndex":null,"period":null,"earnedAt":1795200600000,"data":{}},
+          {"code":"photo_finish","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000016","roundIndex":null,"period":null,"earnedAt":1795200600000,"data":{}},
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000016","roundIndex":null,"period":null,"earnedAt":1795200600000,"data":{}},
+          {"code":"wire_to_wire","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000016","roundIndex":null,"period":null,"earnedAt":1795200600000,"data":{}},
+          {"code":"photo_finish","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000016","roundIndex":null,"period":null,"earnedAt":1795200600000,"data":{}}
+        ]
+      },
+      {
+        "gameId": "80000000-0000-4000-8000-000000000017",
+        "earned": [
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000017","roundIndex":null,"period":null,"earnedAt":1795222800000,"data":{}},
+          {"code":"photo_finish","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000017","roundIndex":null,"period":null,"earnedAt":1795222800000,"data":{}},
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000017","roundIndex":null,"period":null,"earnedAt":1795222800000,"data":{}},
+          {"code":"photo_finish","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000017","roundIndex":null,"period":null,"earnedAt":1795222800000,"data":{}}
+        ]
+      },
+      {
+        "gameId": "80000000-0000-4000-8000-000000000018",
+        "earned": [
+          {"code":"set_them","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000018","roundIndex":0,"period":null,"earnedAt":1795241400000,"data":{}},
+          {"code":"high_roller","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000018","roundIndex":0,"period":null,"earnedAt":1795241400000,"data":{}},
+          {"code":"set_them","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000018","roundIndex":0,"period":null,"earnedAt":1795241400000,"data":{}},
+          {"code":"high_roller","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000018","roundIndex":0,"period":null,"earnedAt":1795241400000,"data":{}},
+          {"code":"set_them","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000018","roundIndex":1,"period":null,"earnedAt":1795242000000,"data":{}},
+          {"code":"high_roller","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000018","roundIndex":1,"period":null,"earnedAt":1795242000000,"data":{}},
+          {"code":"set_them","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000018","roundIndex":1,"period":null,"earnedAt":1795242000000,"data":{}},
+          {"code":"high_roller","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000018","roundIndex":1,"period":null,"earnedAt":1795242000000,"data":{}},
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000018","roundIndex":null,"period":null,"earnedAt":1795242000000,"data":{}},
+          {"code":"runaway","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000018","roundIndex":null,"period":null,"earnedAt":1795242000000,"data":{}},
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000018","roundIndex":null,"period":null,"earnedAt":1795242000000,"data":{}},
+          {"code":"runaway","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000018","roundIndex":null,"period":null,"earnedAt":1795242000000,"data":{}}
+        ]
+      },
+      {
+        "gameId": "80000000-0000-4000-8000-000000000019",
+        "earned": [
+          {"code":"set_them","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000019","roundIndex":0,"period":null,"earnedAt":1795263000000,"data":{}},
+          {"code":"sandbagged","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000019","roundIndex":0,"period":null,"earnedAt":1795263000000,"data":{}},
+          {"code":"set_them","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000019","roundIndex":0,"period":null,"earnedAt":1795263000000,"data":{}},
+          {"code":"sandbagged","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000019","roundIndex":0,"period":null,"earnedAt":1795263000000,"data":{}},
+          {"code":"set_them","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000019","roundIndex":1,"period":null,"earnedAt":1795263600000,"data":{}},
+          {"code":"sandbagged","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000019","roundIndex":1,"period":null,"earnedAt":1795263600000,"data":{}},
+          {"code":"set_them","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000019","roundIndex":1,"period":null,"earnedAt":1795263600000,"data":{}},
+          {"code":"sandbagged","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000019","roundIndex":1,"period":null,"earnedAt":1795263600000,"data":{}},
+          {"code":"bag_collector","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000019","roundIndex":null,"period":null,"earnedAt":1795263600000,"data":{}},
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000002","gameId":"80000000-0000-4000-8000-000000000019","roundIndex":null,"period":null,"earnedAt":1795263600000,"data":{}},
+          {"code":"bag_collector","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000019","roundIndex":null,"period":null,"earnedAt":1795263600000,"data":{}},
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000004","gameId":"80000000-0000-4000-8000-000000000019","roundIndex":null,"period":null,"earnedAt":1795263600000,"data":{}}
+        ]
+      },
+      {
+        "gameId": "80000000-0000-4000-8000-000000000020",
+        "earned": [
+          {"code":"sandbagged","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000020","roundIndex":9,"period":null,"earnedAt":1795290000000,"data":{}},
+          {"code":"sandbagged","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000020","roundIndex":9,"period":null,"earnedAt":1795290000000,"data":{}},
+          {"code":"marathon","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000020","roundIndex":null,"period":null,"earnedAt":1795293000000,"data":{}},
+          {"code":"night_owl","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000020","roundIndex":null,"period":null,"earnedAt":1795293000000,"data":{}},
+          {"code":"marathon","playerId":"00000000-0000-4000-8000-000000000002","gameId":"80000000-0000-4000-8000-000000000020","roundIndex":null,"period":null,"earnedAt":1795293000000,"data":{}},
+          {"code":"night_owl","playerId":"00000000-0000-4000-8000-000000000002","gameId":"80000000-0000-4000-8000-000000000020","roundIndex":null,"period":null,"earnedAt":1795293000000,"data":{}},
+          {"code":"marathon","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000020","roundIndex":null,"period":null,"earnedAt":1795293000000,"data":{}},
+          {"code":"night_owl","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000020","roundIndex":null,"period":null,"earnedAt":1795293000000,"data":{}},
+          {"code":"marathon","playerId":"00000000-0000-4000-8000-000000000004","gameId":"80000000-0000-4000-8000-000000000020","roundIndex":null,"period":null,"earnedAt":1795293000000,"data":{}},
+          {"code":"night_owl","playerId":"00000000-0000-4000-8000-000000000004","gameId":"80000000-0000-4000-8000-000000000020","roundIndex":null,"period":null,"earnedAt":1795293000000,"data":{}}
+        ]
+      },
+      {
+        "gameId": "80000000-0000-4000-8000-000000000021",
+        "earned": [
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000021","roundIndex":null,"period":null,"earnedAt":1794861600000,"data":{}},
+          {"code":"photo_finish","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000021","roundIndex":null,"period":null,"earnedAt":1794861600000,"data":{}},
+          {"code":"night_owl","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000021","roundIndex":null,"period":null,"earnedAt":1794861600000,"data":{}},
+          {"code":"night_owl","playerId":"00000000-0000-4000-8000-000000000002","gameId":"80000000-0000-4000-8000-000000000021","roundIndex":null,"period":null,"earnedAt":1794861600000,"data":{}},
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000021","roundIndex":null,"period":null,"earnedAt":1794861600000,"data":{}},
+          {"code":"photo_finish","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000021","roundIndex":null,"period":null,"earnedAt":1794861600000,"data":{}},
+          {"code":"night_owl","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000021","roundIndex":null,"period":null,"earnedAt":1794861600000,"data":{}},
+          {"code":"night_owl","playerId":"00000000-0000-4000-8000-000000000004","gameId":"80000000-0000-4000-8000-000000000021","roundIndex":null,"period":null,"earnedAt":1794861600000,"data":{}}
+        ]
+      },
+      {
+        "gameId": "80000000-0000-4000-8000-000000000022",
+        "earned": [
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000022","roundIndex":null,"period":null,"earnedAt":1794874200000,"data":{}},
+          {"code":"photo_finish","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000022","roundIndex":null,"period":null,"earnedAt":1794874200000,"data":{}},
+          {"code":"winner","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000022","roundIndex":null,"period":null,"earnedAt":1794874200000,"data":{}},
+          {"code":"photo_finish","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000022","roundIndex":null,"period":null,"earnedAt":1794874200000,"data":{}}
+        ]
+      }
+    ],
+    "career": [
+      {"code":"first_win","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000021","roundIndex":null,"period":null,"earnedAt":1794861600000,"data":{}},
+      {"code":"back_to_back","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000022","roundIndex":null,"period":null,"earnedAt":1794874200000,"data":{}},
+      {"code":"hat_trick","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000011","roundIndex":null,"period":null,"earnedAt":1795090800000,"data":{}},
+      {"code":"dynasty","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000013","roundIndex":null,"period":null,"earnedAt":1795134600000,"data":{}},
+      {"code":"first_win","playerId":"00000000-0000-4000-8000-000000000002","gameId":"80000000-0000-4000-8000-000000000019","roundIndex":null,"period":null,"earnedAt":1795263600000,"data":{}},
+      {"code":"first_win","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000021","roundIndex":null,"period":null,"earnedAt":1794861600000,"data":{}},
+      {"code":"back_to_back","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000022","roundIndex":null,"period":null,"earnedAt":1794874200000,"data":{}},
+      {"code":"hat_trick","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000011","roundIndex":null,"period":null,"earnedAt":1795090800000,"data":{}},
+      {"code":"dynasty","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000013","roundIndex":null,"period":null,"earnedAt":1795134600000,"data":{}},
+      {"code":"first_win","playerId":"00000000-0000-4000-8000-000000000004","gameId":"80000000-0000-4000-8000-000000000019","roundIndex":null,"period":null,"earnedAt":1795263600000,"data":{}},
+      {"code":"games_10","playerId":"00000000-0000-4000-8000-000000000001","gameId":"80000000-0000-4000-8000-000000000018","roundIndex":null,"period":null,"earnedAt":1795242000000,"data":{"n":10}},
+      {"code":"games_10","playerId":"00000000-0000-4000-8000-000000000002","gameId":"80000000-0000-4000-8000-000000000018","roundIndex":null,"period":null,"earnedAt":1795242000000,"data":{"n":10}},
+      {"code":"games_10","playerId":"00000000-0000-4000-8000-000000000003","gameId":"80000000-0000-4000-8000-000000000018","roundIndex":null,"period":null,"earnedAt":1795242000000,"data":{"n":10}},
+      {"code":"games_10","playerId":"00000000-0000-4000-8000-000000000004","gameId":"80000000-0000-4000-8000-000000000018","roundIndex":null,"period":null,"earnedAt":1795242000000,"data":{"n":10}},
+      {
+        "code": "perfect_pair",
+        "playerId": "00000000-0000-4000-8000-000000000001",
+        "gameId": "80000000-0000-4000-8000-000000000018",
+        "roundIndex": null,
+        "period": null,
+        "earnedAt": 1795242000000,
+        "data": {"partner":"00000000-0000-4000-8000-000000000003"}
+      },
+      {
+        "code": "perfect_pair",
+        "playerId": "00000000-0000-4000-8000-000000000003",
+        "gameId": "80000000-0000-4000-8000-000000000018",
+        "roundIndex": null,
+        "period": null,
+        "earnedAt": 1795242000000,
+        "data": {"partner":"00000000-0000-4000-8000-000000000001"}
+      }
+    ],
+    "ladders": {
+      "00000000-0000-4000-8000-000000000001": {"wins":10,"games":12,"hands":45,"made":44,"nils":0,"crew":3},
+      "00000000-0000-4000-8000-000000000002": {"wins":1,"games":12,"hands":45,"made":37,"nils":0,"crew":3},
+      "00000000-0000-4000-8000-000000000003": {"wins":10,"games":12,"hands":45,"made":44,"nils":0,"crew":3},
+      "00000000-0000-4000-8000-000000000004": {"wins":1,"games":12,"hands":45,"made":37,"nils":0,"crew":3}
+    }
+  }
+}
