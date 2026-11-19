@@ -37,7 +37,8 @@ from app.settings import settings
 logger = get_logger(__name__)
 
 CHANNEL = "kachuful_live"
-QUEUE_SIZE = 16
+# A phone that reads slowly can fall this far behind before its oldest updates are dropped.
+QUEUE_SIZE = 64
 
 # NOTIFY kinds. Share links use `game`, `presence`, `reaction` and `revoked`.
 ISHAARA = "ishaara"
@@ -392,11 +393,14 @@ def _offer_all(
 
 
 def _offer(queue: asyncio.Queue[LiveMessage], message: LiveMessage) -> None:
-    # A viewer that stopped reading skips states rather than holding memory; the next one catches up.
+    # `state` frames are full snapshots: a viewer that stopped reading loses its oldest messages,
+    # never the newest, so it always catches up to the latest table.
     try:
         queue.put_nowait(message)
     except asyncio.QueueFull:
-        logger.warning("live viewer queue full; skipping an update")
+        logger.warning("live viewer queue full; dropping the oldest update")
+        queue.get_nowait()
+        queue.put_nowait(message)
 
 
 hub = LiveHub()
