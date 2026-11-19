@@ -21,7 +21,9 @@ viewer are counted per seat across workers (`seats_present`), the way share-link
 """
 
 import asyncio
+import contextlib
 import json
+import time
 import uuid
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
@@ -39,12 +41,23 @@ logger = get_logger(__name__)
 CHANNEL = "kachuful_live"
 # A phone that reads slowly can fall this far behind before its oldest updates are dropped.
 QUEUE_SIZE = 64
+# The LISTEN connection is probed this often; a probe, a connect or a publish that takes longer than
+# its timeout drops the connection, which reconnects and resyncs every follower.
+PROBE_EVERY_S = 10.0
+PROBE_TIMEOUT_S = 5.0
+CONNECT_TIMEOUT_S = 10.0
+# Live loads running at once per worker, so they can never use every pooled DB connection.
+LOAD_CONCURRENCY = 8
+LOAD_TRIES = 3
+SLOW_LOAD_S = 0.5
 
 # NOTIFY kinds. Share links use `game`, `presence`, `reaction` and `revoked`.
 ISHAARA = "ishaara"
 SPADES = "spades"
 USER = "user"
 SEAT_PRESENCE = "seat-presence"
+# Ends a user's stream so the client reconnects and gets `hello` again (after a lost connection).
+RESYNC = "resync"
 RESERVED_KINDS = frozenset({"game", "presence", "reaction", "revoked", USER, SEAT_PRESENCE})
 # A game NOTIFY whose data carries this key skips the state reload (reactions).
 STATELESS = "stateless"
@@ -75,6 +88,48 @@ class GameKindHooks:
     frame_for: FrameFor | None = None
     events: tuple[str, ...] = ()
     presence_frame: PresenceFrame | None = None
+
+
+class _Serial[C]:
+    """Runs a game's work one at a time, in order; work asked for meanwhile runs once more after.
+
+    A NOTIFY storm for one game costs one extra load, never a load per NOTIFY, and loads never overlap,
+    so frames can't be delivered out of order. `batch` is what callers handed in since the last run.
+    """
+
+    def __init__(self, work: Callable[[uuid.UUID, C, list[LiveMessage]], Awaitable[None]]) -> None:
+        self._work = work
+        self._waiting: dict[uuid.UUID, tuple[C, list[LiveMessage]]] = {}
+        self._again: set[uuid.UUID] = set()
+
+    async def submit(self, key: uuid.UUID, context: C, batch: list[LiveMessage]) -> None:
+        waiting = self._waiting.get(key)
+        if waiting is not None:
+            self._waiting[key] = (context, waiting[1] + batch)
+            self._again.add(key)
+            return
+        self._waiting[key] = (context, list(batch))
+        try:
+            while True:
+                context, pending = self._waiting[key]
+                self._waiting[key] = (context, [])
+                self._again.discard(key)
+                try:
+                    await self._work(key, context, pending)
+                except Exception:
+                    logger.exception("live dispatch failed")
+                if key not in self._again:
+                    return
+        finally:
+            self._waiting.pop(key, None)
+            self._again.discard(key)
+
+    def clear(self) -> None:
+        self._waiting.clear()
+        self._again.clear()
+
+
+_FAILED: Any = object()
 
 
 async def notify(
@@ -125,6 +180,14 @@ class LiveHub:
         self._seats: dict[uuid.UUID, dict[str, dict[str, int]]] = {}
         self._users: dict[uuid.UUID, set[asyncio.Queue[LiveMessage]]] = {}
         self._tasks: set[asyncio.Task[None]] = set()
+        # One load at a time per game, in order; the newest rev sent per game (frames never go back).
+        self._game_runs = _Serial[GameKindHooks](self._run_game)
+        self._link_runs = _Serial[None](self._run_link)
+        self._last_rev: dict[uuid.UUID, int] = {}
+        self._load_slots = asyncio.Semaphore(LOAD_CONCURRENCY)
+        # Wakes the connection monitor when the LISTEN connection is lost.
+        self._wake = asyncio.Event()
+        self._monitor_task: asyncio.Task[None] | None = None
 
     def set_loader(self, loader: EventLoader) -> None:
         """How to load a game's live event (set by the public API)."""
@@ -157,6 +220,7 @@ class LiveHub:
         if not followers:
             del self._games[game_id]
             self._game_kinds.pop(game_id, None)
+            self._last_rev.pop(game_id, None)
         if viewer is not None:
             self._spawn(self._publish_seats(game_id))
 
@@ -224,14 +288,23 @@ class LiveHub:
         await self._publish({"gameId": str(game_id), "kind": SEAT_PRESENCE, "data": data})
 
     async def _publish(self, message: dict[str, Any]) -> None:
+        try:
+            await self._on_connection("SELECT pg_notify($1, $2)", CHANNEL, json.dumps(message))
+        except (asyncpg.PostgresError, asyncpg.InterfaceError, OSError, TimeoutError):
+            logger.warning("live presence not published")
+
+    async def _on_connection(self, query: str, *args: Any) -> None:
+        """Run a query on the LISTEN connection (one at a time); a hung one drops the connection."""
         connection = self._connection
         if connection is None or connection.is_closed():
-            return
-        try:
-            async with self._publish_lock:
-                await connection.execute("SELECT pg_notify($1, $2)", CHANNEL, json.dumps(message))
-        except (asyncpg.PostgresError, asyncpg.InterfaceError, OSError):
-            logger.warning("live presence not published")
+            raise ConnectionError("no live connection")
+        async with self._publish_lock:
+            try:
+                await asyncio.wait_for(connection.execute(query, *args), PROBE_TIMEOUT_S)
+            except TimeoutError:
+                logger.warning("live connection did not answer; dropping it")
+                connection.terminate()
+                raise
 
     def viewer_count(self) -> int:
         """Viewers connected to this worker."""
@@ -243,19 +316,87 @@ class LiveHub:
 
     async def _ensure_listening(self) -> None:
         async with self._lock:
+            self._start_monitor()
             if self._connection is not None and not self._connection.is_closed():
                 return
             dsn = settings.DATABASE_URL.replace("postgresql+asyncpg://", "postgresql://", 1)
-            self._connection = await asyncpg.connect(dsn)
-            await self._connection.add_listener(CHANNEL, self._on_notify)
-            self._connection.add_termination_listener(self._on_lost)
+            connection = await asyncpg.connect(
+                dsn,
+                timeout=CONNECT_TIMEOUT_S,
+                server_settings={
+                    "application_name": "kachuful-live",
+                    # The server notices a vanished peer too, instead of holding the socket for hours.
+                    "tcp_keepalives_idle": "15",
+                    "tcp_keepalives_interval": "5",
+                    "tcp_keepalives_count": "3",
+                },
+            )
+            await connection.add_listener(CHANNEL, self._on_notify)
+            connection.add_termination_listener(self._on_lost)
+            self._connection = connection
             logger.info("live listener connected")
+            # NOTIFYs sent while we were not listening are gone: bring every follower up to date.
+            self._spawn(self._resync())
 
     def _on_lost(self, _: Any) -> None:
-        # Postgres went away: reconnect if anyone is still watching.
+        # Postgres went away: the monitor reconnects if anyone is still watching.
         self._connection = None
-        if self._subscribers or self._games or self._users:
-            self._spawn(self._ensure_listening())
+        self._wake.set()
+
+    def _watching(self) -> bool:
+        return bool(self._subscribers or self._games or self._users)
+
+    def _start_monitor(self) -> None:
+        if self._monitor_task is None or self._monitor_task.done():
+            self._monitor_task = asyncio.ensure_future(self._monitor())
+
+    async def _monitor(self) -> None:
+        """Probe the LISTEN connection and rebuild it, with backoff, whenever it is gone or silent."""
+        failures = 0
+        while True:
+            delay = PROBE_EVERY_S if not failures else min(2.0**failures, PROBE_EVERY_S)
+            with contextlib.suppress(TimeoutError):
+                await asyncio.wait_for(self._wake.wait(), delay)
+            self._wake.clear()
+            if not self._watching():
+                failures = 0
+                continue
+            try:
+                await self._probe()
+                failures = 0
+            except Exception:
+                failures += 1
+                logger.exception("live connection not restored (try %d)", failures)
+
+    async def _probe(self) -> None:
+        connection = self._connection
+        if connection is not None and not connection.is_closed():
+            try:
+                await self._on_connection("SELECT 1")
+                return
+            except (asyncpg.PostgresError, asyncpg.InterfaceError, OSError, TimeoutError):
+                logger.warning("live connection failed its probe; reconnecting")
+                connection.terminate()
+                self._connection = None
+        await self._ensure_listening()
+
+    async def _resync(self) -> None:
+        """After (re)connecting: send each follower the current state, and end user streams.
+
+        A user's events are not state, so a stream that may have missed one ends and the client
+        reconnects (its `hello` carries what it needs).
+        """
+        for game_id, kind in list(self._game_kinds.items()):
+            hooks = self._kinds.get(kind)
+            if hooks is not None and self._games.get(game_id):
+                self._spawn(self._dispatch_game(game_id, hooks, {}))
+                self._spawn(self._publish_seats(game_id))
+        for game_id in list(self._subscribers):
+            self._spawn(self._dispatch_link(game_id, {"kind": "game"}))
+            self._spawn(self._publish_presence(game_id))
+        for queues in list(self._users.values()):
+            for queue in list(queues):
+                _offer(queue, LiveMessage(kind=RESYNC))
 
     def _on_notify(self, _conn: Any, _pid: int, _channel: str, payload: str) -> None:
         self._spawn(self._dispatch(json.loads(payload)))
@@ -326,19 +467,25 @@ class LiveHub:
                 if not tokens or token in tokens:
                     _offer(queue, LiveMessage(kind="revoked"))
             return
-        if self._loader is None:
+        if self._loader is not None:
+            await self._link_runs.submit(game_id, None, [])
+
+    async def _run_link(self, game_id: uuid.UUID, _: None, __: list[LiveMessage]) -> None:
+        """Load a link's game once and copy it to each watcher."""
+        loader = self._loader
+        if loader is None or game_id not in self._subscribers:
             return
-        loaded = await self._loader(game_id)
-        if loaded is None:
+        loaded = await self._load(loader, game_id)
+        if loaded is _FAILED or loaded is None:
             return
         rev, data = loaded
-        for queue in viewers:
+        for queue in dict(self._subscribers.get(game_id, {})):
             _offer(queue, LiveMessage(kind="game", rev=rev, data=data))
 
     async def _dispatch_game(
         self, game_id: uuid.UUID, hooks: GameKindHooks, data: dict[str, Any]
     ) -> None:
-        """Load the state once, then send each follower its own frame and any extra events."""
+        """Send each follower its own frame and any extra events, loading the state once."""
         followers = dict(self._games.get(game_id, {}))
         if not followers:
             return
@@ -350,26 +497,65 @@ class LiveHub:
         if data.get(STATELESS):
             _offer_all(followers, extras)
             return
-        loaded = await hooks.loader(game_id)
+        await self._game_runs.submit(game_id, hooks, extras)
+
+    async def _run_game(
+        self, game_id: uuid.UUID, hooks: GameKindHooks, extras: list[LiveMessage]
+    ) -> None:
+        if not self._games.get(game_id):
+            return
+        loaded = await self._load(hooks.loader, game_id)
+        if loaded is _FAILED:
+            return
+        followers = dict(self._games.get(game_id, {}))
         if loaded is None:
             _offer_all(followers, [LiveMessage(kind="closed")])
             return
         rev, state = loaded
+        # The loads never overlap, so a lower rev only means the row went back (never expected).
+        fresh = rev >= self._last_rev.get(game_id, rev)
+        if fresh:
+            self._last_rev[game_id] = rev
         frames: dict[Viewer, str] = {}
         for queue, viewer in followers.items():
-            if viewer not in frames:
-                frames[viewer] = _frame(hooks, state, viewer)
-            _offer(queue, LiveMessage(kind="state", rev=rev, data=frames[viewer]))
+            if fresh:
+                if viewer not in frames:
+                    frames[viewer] = _frame(hooks, state, viewer)
+                _offer(queue, LiveMessage(kind="state", rev=rev, data=frames[viewer]))
             for extra in extras:
                 _offer(queue, extra)
 
+    async def _load(self, loader: Callable[[uuid.UUID], Awaitable[Any]], game_id: uuid.UUID) -> Any:
+        """A game's state, at most LOAD_CONCURRENCY loads at once; retried; `_FAILED` after the tries."""
+        for attempt in range(LOAD_TRIES):
+            started = time.monotonic()
+            try:
+                async with self._load_slots:
+                    return await loader(game_id)
+            except Exception:
+                logger.exception("live load failed (try %d)", attempt + 1)
+                await asyncio.sleep(0.25 * (attempt + 1))
+            finally:
+                took = time.monotonic() - started
+                if took > SLOW_LOAD_S:
+                    logger.warning("live load took %.0f ms", took * 1000)
+        return _FAILED
+
     async def close(self) -> None:
         """Drop the LISTEN connection (shutdown, tests)."""
+        if self._monitor_task is not None:
+            self._monitor_task.cancel()
+            self._monitor_task = None
         if self._connection is not None and not self._connection.is_closed():
             await self._connection.close()
         self._connection = None
-        # A new connection (and event loop) gets a fresh lock.
+        # A new connection (and event loop) gets fresh locks.
         self._publish_lock = asyncio.Lock()
+        self._load_slots = asyncio.Semaphore(LOAD_CONCURRENCY)
+        self._wake = asyncio.Event()
+        self._game_runs.clear()
+        self._link_runs.clear()
+        self._last_rev.clear()
         self._subscribers.clear()
         self._watchers.clear()
         self._games.clear()
