@@ -188,6 +188,7 @@ class LiveHub:
         # Wakes the connection monitor when the LISTEN connection is lost.
         self._wake = asyncio.Event()
         self._monitor_task: asyncio.Task[None] | None = None
+        self._connected_before = False
 
     def set_loader(self, loader: EventLoader) -> None:
         """How to load a game's live event (set by the public API)."""
@@ -336,7 +337,10 @@ class LiveHub:
             self._connection = connection
             logger.info("live listener connected")
             # NOTIFYs sent while we were not listening are gone: bring every follower up to date.
-            self._spawn(self._resync())
+            # (The first connection has nothing to catch up on: followers subscribe after it.)
+            if self._connected_before:
+                self._spawn(self._resync())
+            self._connected_before = True
 
     def _on_lost(self, _: Any) -> None:
         # Postgres went away: the monitor reconnects if anyone is still watching.
@@ -553,6 +557,7 @@ class LiveHub:
         self._publish_lock = asyncio.Lock()
         self._load_slots = asyncio.Semaphore(LOAD_CONCURRENCY)
         self._wake = asyncio.Event()
+        self._connected_before = False
         self._game_runs.clear()
         self._link_runs.clear()
         self._last_rev.clear()
