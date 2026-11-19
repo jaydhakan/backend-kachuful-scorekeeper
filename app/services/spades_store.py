@@ -196,8 +196,13 @@ def now_ms() -> int:
     return to_ms(now_utc())
 
 
-async def stamp_table_seen(game_id: uuid.UUID, user_id: uuid.UUID) -> None:
-    """Mark the account's seat at this table seen now, in its own short session (stream pings)."""
+async def stamp_table_seen(game_id: uuid.UUID, user_id: uuid.UUID) -> int | None:
+    """Mark the account's seat at this table seen now and return the table's rev (stream pings).
+
+    Own short session; the rev lets a phone that missed a `state` see it is behind.
+    """
     async with get_session_factory()() as session:
         await spades_tables_repository.touch_seen(session, game_id, user_id, now_utc())
+        rev = await spades_tables_repository.rev(session, game_id)
         await session.commit()
+    return rev

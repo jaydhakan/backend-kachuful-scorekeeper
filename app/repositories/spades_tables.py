@@ -103,6 +103,13 @@ class SpadesTablesRepository:
             return None
         return row
 
+    async def rev(self, session: AsyncSession, game_id: uuid.UUID) -> int | None:
+        """A live table's current rev (a primary-key read; the stream's ping)."""
+        stmt = select(Game.rev).where(
+            Game.id == game_id, Game.kind == KIND, Game.deleted_at.is_(None)
+        )
+        return (await session.execute(stmt)).scalar_one_or_none()
+
     async def payload(self, session: AsyncSession, game_id: uuid.UUID) -> dict[str, Any] | None:
         """A live table's public state (the hub's read per change)."""
         stmt = select(Game.payload).where(

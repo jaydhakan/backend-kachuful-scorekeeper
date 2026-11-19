@@ -13,6 +13,11 @@ from typing import Any
 
 from app.live.hub import SEAT_PRESENCE, LiveMessage, hub
 from app.live.sse import PING_EVERY_S, sse
+from app.logger import get_logger
+
+logger = get_logger(__name__)
+# The ping goes out after this long even when the rev lookup has not answered.
+PING_LOOKUP_TIMEOUT_S = 5.0
 
 
 class _Seats:
@@ -59,13 +64,26 @@ def _render(message: LiveMessage, seats: _Seats) -> list[str]:
     return [sse(SEAT_PRESENCE, frame)] if frame else []
 
 
+async def _ping_data(on_ping: Callable[[], Awaitable[int | None]]) -> str:
+    """`{"rev": n}` (the table's current rev), or `{}` if the lookup fails or is slow.
+
+    A slow or failing database must not hold the ping back or end the stream.
+    """
+    try:
+        rev = await asyncio.wait_for(on_ping(), PING_LOOKUP_TIMEOUT_S)
+    except Exception:
+        logger.exception("table ping without a rev")
+        return "{}"
+    return "{}" if rev is None else json.dumps({"rev": rev})
+
+
 async def table_stream(
     game_id: uuid.UUID,
     queue: asyncio.Queue[LiveMessage],
     first: LiveMessage,
     *,
     send_first: bool,
-    on_ping: Callable[[], Awaitable[object]],
+    on_ping: Callable[[], Awaitable[int | None]],
     ping_every_s: float = PING_EVERY_S,
 ) -> AsyncIterator[str]:
     """Frames until the table is deleted or the follower leaves; `on_ping` runs before each ping."""
@@ -79,8 +97,7 @@ async def table_stream(
             try:
                 message = await asyncio.wait_for(queue.get(), ping_every_s)
             except TimeoutError:
-                await on_ping()
-                yield sse("ping", "{}")
+                yield sse("ping", await _ping_data(on_ping))
                 continue
             if message.kind == "closed":
                 return
