@@ -12,6 +12,7 @@ from app.domain.leaderboard import Metric
 from app.schemas.awards import (
     DailyAwardsOut,
     GameSeasonOut,
+    MedalsOut,
     SeasonListItemOut,
     SeasonOut,
     WrappedOut,
@@ -160,6 +161,22 @@ async def get_season(
     """
     cached, final = await AwardsService(session).season(season, if_none_match, game)
     return respond(cached, response, cache_control=IMMUTABLE if final else REVALIDATE)
+
+
+@boards_router.get("/medals", response_model=MedalsOut)
+async def get_medals(
+    _: CurrentAuth,
+    session: SessionDep,
+    exclude_game: Annotated[
+        uuid.UUID | None,
+        Query(
+            alias="excludeGame", description="A Kachuful game to leave out (the one at the table)"
+        ),
+    ] = None,
+) -> MedalsOut:
+    """Kachuful's medals: this month's board without the game in progress, and last month's top
+    three (who keep their medals until three players qualify this month)."""
+    return await AwardsService(session).medals(exclude_game)
 
 
 @boards_router.get("/wrapped/{year}/{player_id}", response_model=WrappedOut)

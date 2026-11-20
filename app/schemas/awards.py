@@ -37,6 +37,17 @@ class SeasonOut(CamelModel):
     awards: list[AwardOut]
 
 
+class MedalsOut(CamelModel):
+    """`GET /api/medals`: Kachuful's month without one game, and last month's top three (rewards §6.7)."""
+
+    season: str = Field(..., description="This month, YYYY-MM in APP_TZ")
+    min_rounds: int
+    standings: list[LeaderboardRowOut] = Field(
+        ..., description="This month's board without `excludeGame`'s rounds"
+    )
+    last_season: list[LeaderboardRowOut] = Field(..., description="Last month's ranks 1-3")
+
+
 class StandingOut(CamelModel):
     """One player in a month's win-rate standings."""
 

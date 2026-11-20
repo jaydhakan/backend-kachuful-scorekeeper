@@ -7,7 +7,7 @@ or month closes once per game.
 
 import uuid
 from collections.abc import Callable
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from datetime import date, timedelta
 from typing import Any
 
@@ -15,11 +15,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.awards import SEASON_MIN_ROUNDS, season_awards
 from app.domain.enums import ProgressionGame
-from app.domain.leaderboard import Board, BoardRow, Metric
+from app.domain.leaderboard import Board, BoardRow, Metric, leaderboard
 from app.domain.progression import Award, Earned, StandingRow, win_rate_standings
 from app.domain.time import (
     day_of,
     day_range_ms,
+    from_ms,
     month_of,
     month_range_ms,
     now_utc,
@@ -38,6 +39,7 @@ from app.schemas.awards import (
     DayPointsOut,
     DayRoundsOut,
     GameSeasonOut,
+    MedalsOut,
     MonthPointsOut,
     NemesisOut,
     PartnerOut,
@@ -181,6 +183,39 @@ class AwardsService:
             prev_start, prev_end, Metric.AVG_PER_ROUND, SEASON_MIN_ROUNDS
         )
         return board, season_awards(board, last)
+
+    async def medals(self, exclude_game: uuid.UUID | None) -> MedalsOut:
+        """`GET /api/medals`: this month's board without one game, and last month's top three."""
+        month = month_of(to_ms(now_utc()), settings.tz)
+        start, end = month_range_ms(month, settings.tz)
+        current = await boards_repository.tallies(self.session, make_window(start, end))
+        if exclude_game is not None:
+            gone = await boards_repository.game_tallies(
+                self.session, exclude_game, from_ms(start), from_ms(end)
+            )
+            for pid, (rounds, points) in gone.items():
+                if pid in current:
+                    t = current[pid]
+                    current[pid] = replace(t, rounds=t.rounds - rounds, points=t.points - points)
+        kept = [t for t in current.values() if t.rounds > 0]
+        board = leaderboard(kept, None, Metric.AVG_PER_ROUND, SEASON_MIN_ROUNDS)
+        last = await self._season_board(previous_month(month))
+        podium = [r for r in last.rows if r.qualified and r.rank is not None and r.rank <= 3]
+        return MedalsOut(
+            season=month,
+            min_rounds=SEASON_MIN_ROUNDS,
+            standings=(await self.boards.board_out(board)).rows,
+            last_season=(await self.boards.board_out(Board(podium, last.min_rounds))).rows,
+        )
+
+    async def _season_board(self, month: str) -> Board:
+        """A month's standings: frozen once closed, else live."""
+        closed = await achievements_repository.closed(self.session, KACHUFUL, month)
+        if closed is not None:
+            rows = [BoardRow(**r) for r in closed.data["standings"]]
+            return Board(rows=rows, min_rounds=SEASON_MIN_ROUNDS)
+        start, end = month_range_ms(month, settings.tz)
+        return await self.boards.board(start, end, Metric.AVG_PER_ROUND, SEASON_MIN_ROUNDS)
 
     async def _views(self, ids: set[str]) -> dict[str, PlayerView]:
         """Players by id, following merges to the player that remains."""

@@ -56,6 +56,15 @@ SELECT player_id, 0, 0, 0, NULL, NULL, 0, 0, 0, 0, games_ended, wins FROM ended
 _ALL_PLAYERS = text(_TALLY_SQL.format(filter=""))
 _ONE_PLAYER = text(_TALLY_SQL.format(filter="AND player_id = :player_id"))
 
+_GAME_TALLY = text(
+    """
+    SELECT player_id, count(*), coalesce(sum(points), 0)
+    FROM round_scores
+    WHERE game_id = :game_id AND done_at >= :range_from AND done_at < :range_to
+    GROUP BY player_id
+    """
+)
+
 _BREAKDOWN = text(
     """
     SELECT bid, cards, trump, is_dealer, count(*) AS total,
@@ -150,6 +159,15 @@ class BoardsRepository:
                 out.get(part.player_id, Tally(part.player_id)), part
             )
         return out
+
+    async def game_tallies(
+        self, session: AsyncSession, game_id: uuid.UUID, range_from: datetime, range_to: datetime
+    ) -> dict[str, tuple[int, int]]:
+        """One game's (rounds, points) per player in a range, to take that game out of a board."""
+        rows = await session.execute(
+            _GAME_TALLY, {"game_id": game_id, "range_from": range_from, "range_to": range_to}
+        )
+        return {str(pid): (int(n), int(points)) for pid, n, points in rows}
 
     async def breakdown(
         self, session: AsyncSession, player_id: uuid.UUID, window: Window
