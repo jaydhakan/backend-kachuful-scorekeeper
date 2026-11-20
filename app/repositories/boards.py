@@ -65,6 +65,14 @@ _GAME_TALLY = text(
     """
 )
 
+_GAMES_ON = text(
+    """
+    SELECT count(DISTINCT game_id) FROM round_scores
+    WHERE done_at >= :range_from AND done_at < :range_to
+      AND (CAST(:exclude AS uuid) IS NULL OR game_id <> :exclude)
+    """
+)
+
 _ENDED_PLACES = text(
     """
     SELECT gp.game_id, gp.ended_at, gp.player_id, gp.place, gp.seat
@@ -177,6 +185,19 @@ class BoardsRepository:
             _GAME_TALLY, {"game_id": game_id, "range_from": range_from, "range_to": range_to}
         )
         return {str(pid): (int(n), int(points)) for pid, n, points in rows}
+
+    async def games_on(
+        self,
+        session: AsyncSession,
+        range_from: datetime,
+        range_to: datetime,
+        exclude: uuid.UUID | None,
+    ) -> int:
+        """Kachuful games with a round done in a range, one left out."""
+        n = await session.scalar(
+            _GAMES_ON, {"range_from": range_from, "range_to": range_to, "exclude": exclude}
+        )
+        return int(n or 0)
 
     async def ended_places(
         self, session: AsyncSession, exclude: uuid.UUID | None

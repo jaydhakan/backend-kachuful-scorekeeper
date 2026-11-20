@@ -45,6 +45,12 @@ async def test_medals_leave_out_the_game_at_the_table(
     assert _rows(without) == _rows(before)
     assert _rows(unknown) == _rows(with_it)
     assert before["lastSeason"] == []
+    # Tonight without the game at the table: only the earlier game counts.
+    assert without["today"]["games"] == 1
+    assert with_it["today"]["games"] == 2
+    assert {r["player"]["id"]: r["rounds"] for r in without["today"]["rows"]} == {
+        i: 55 for i in ids
+    }
 
 
 async def test_medals_drop_a_player_whose_only_rounds_are_the_excluded_game(

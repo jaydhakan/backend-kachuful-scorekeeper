@@ -46,6 +46,23 @@ class MedalsOut(CamelModel):
         ..., description="This month's board without `excludeGame`'s rounds"
     )
     last_season: list[LeaderboardRowOut] = Field(..., description="Last month's ranks 1-3")
+    today: "TodayOut"
+
+
+class TodayPointsOut(CamelModel):
+    """One player's points tonight, for Aaj ka Sitara."""
+
+    player: PlayerSummaryOut
+    points: int
+    rounds: int
+
+
+class TodayOut(CamelModel):
+    """Today (APP_TZ) without `excludeGame`: the games played and each player's points (rewards §6.1)."""
+
+    day: str = Field(..., description="YYYY-MM-DD")
+    games: int = Field(..., description="Games with a round done today")
+    rows: list[TodayPointsOut]
 
 
 class KursiOut(CamelModel):

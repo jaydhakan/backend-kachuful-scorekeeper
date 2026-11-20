@@ -50,6 +50,8 @@ from app.schemas.awards import (
     SeasonListItemOut,
     SeasonOut,
     StandingOut,
+    TodayOut,
+    TodayPointsOut,
     TrumpOut,
     WrappedOut,
     WrappedRankOut,
@@ -203,6 +205,7 @@ class AwardsService:
                     current[pid] = replace(t, rounds=t.rounds - rounds, points=t.points - points)
         kept = [t for t in current.values() if t.rounds > 0]
         board = leaderboard(kept, None, Metric.AVG_PER_ROUND, SEASON_MIN_ROUNDS)
+        tonight = await self._today(exclude_game)
         last = await self._season_board(previous_month(month))
         podium = [r for r in last.rows if r.qualified and r.rank is not None and r.rank <= 3]
         return MedalsOut(
@@ -210,6 +213,36 @@ class AwardsService:
             min_rounds=SEASON_MIN_ROUNDS,
             standings=(await self.boards.board_out(board)).rows,
             last_season=(await self.boards.board_out(Board(podium, last.min_rounds))).rows,
+            today=tonight,
+        )
+
+    async def _today(self, exclude_game: uuid.UUID | None) -> TodayOut:
+        """Today's points per player and games played, one game left out (Aaj ka Sitara)."""
+        day = today()
+        start, end = day_range_ms(day, settings.tz)
+        tallies = await boards_repository.tallies(self.session, make_window(start, end))
+        if exclude_game is not None:
+            gone = await boards_repository.game_tallies(
+                self.session, exclude_game, from_ms(start), from_ms(end)
+            )
+            for pid, (rounds, points) in gone.items():
+                if pid in tallies:
+                    t = tallies[pid]
+                    tallies[pid] = replace(t, rounds=t.rounds - rounds, points=t.points - points)
+        live = [t for t in tallies.values() if t.rounds > 0]
+        views = await self._views({t.player_id for t in live}) if live else {}
+        games = await boards_repository.games_on(
+            self.session, from_ms(start), from_ms(end), exclude_game
+        )
+        return TodayOut(
+            day=day.isoformat(),
+            games=games,
+            rows=[
+                TodayPointsOut(
+                    player=player_summary_out(views[t.player_id]), points=t.points, rounds=t.rounds
+                )
+                for t in sorted(live, key=lambda t: (-t.points, t.player_id))
+            ],
         )
 
     async def kursi(self, exclude_game: uuid.UUID | None) -> KursiStateOut:
