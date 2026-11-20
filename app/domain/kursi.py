@@ -79,6 +79,17 @@ def step_kursi(k: Kursi | None, g: KursiGame) -> tuple[Kursi | None, KursiEvent]
     return Kursi(to, g.ended_at, g.game_id, 0), KursiEvent("taken", to=to, from_=k.holders)
 
 
+def kursi_games(rows: list[tuple[str, int, str, int, int]]) -> list[KursiGame]:
+    """Finished games from seat rows (game, ended ms, player, place, seat), seats in seat order."""
+    games: dict[str, tuple[int, list[KursiSeat]]] = {}
+    for game_id, ended_at, player_id, place, seat in rows:
+        games.setdefault(game_id, (ended_at, []))[1].append(KursiSeat(player_id, place, seat))
+    return [
+        KursiGame(game_id, ended_at, tuple(sorted(seats, key=lambda s: s.seat)))
+        for game_id, (ended_at, seats) in games.items()
+    ]
+
+
 def kursi_from(games: list[KursiGame]) -> tuple[Kursi | None, list[Reign]]:
     """The chair now and every reign, from finished games played oldest first."""
     kursi: Kursi | None = None
