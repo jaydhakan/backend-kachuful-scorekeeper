@@ -8,6 +8,7 @@ from app.db.session import get_session_factory
 from app.domain.enums import ProgressionGame
 from app.logger import get_logger
 from app.services.awards import AwardsService, parse_day, today
+from app.services.crowns import CrownsService
 
 logger = get_logger(__name__)
 
@@ -49,6 +50,15 @@ async def _close(day: date, game: ProgressionGame) -> None:
     sys.stdout.write(f"close-day: {game} {day} closed with {len(awards)} awards\n")
 
 
+async def recompute_crowns() -> None:
+    """Kachuful's titles after a close: the Sitara clears after midnight, a season moves the Legend."""
+    async with get_session_factory()() as session:
+        crowns = CrownsService(session)
+        changes = await crowns.recompute(await crowns.chain(), game_id=None)
+        await session.commit()
+    logger.info("crowns recomputed", extra={"changes": len(changes)})
+
+
 async def run(args: argparse.Namespace) -> int:
     """Idempotent: a closed day is left alone. Refuses today and the future."""
     days = _days(args)
@@ -58,4 +68,5 @@ async def run(args: argparse.Namespace) -> int:
     for game in games_of(args):
         for day in days:
             await _close(day, game)
+    await recompute_crowns()
     return 0

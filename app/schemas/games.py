@@ -7,6 +7,7 @@ from pydantic import ConfigDict, Field
 
 from app.domain.enums import ProgressionGame
 from app.schemas.common import CamelModel
+from app.schemas.crowns import StatusOut
 
 
 class _Open(CamelModel):
@@ -136,6 +137,15 @@ class UploadOut(CamelModel):
     earned: list[AchievementOut] = Field(..., description="Rows newly earned by this upload")
     remap: dict[str, str] | None = Field(
         default=None, description="Merged registry ids rewritten in the stored payload"
+    )
+
+
+class KachufulUploadOut(UploadOut):
+    """`PUT /api/games/{id}` (Kachuful): also the titles and bounties this write moved."""
+
+    status: StatusOut = Field(
+        default_factory=lambda: StatusOut(changes=[], bounties=[]),
+        description="Titles and bounties this write moved (empty lists when nothing did)",
     )
 
 

@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, Path, Query, Response
 
 from app.api.deps import CurrentAuth, SessionDep, get_boards_service
 from app.api.etag import IMMUTABLE, REVALIDATE, IfNoneMatch, respond
+from app.domain.crowns import CrownKind, ReignSort
 from app.domain.enums import ProgressionGame
 from app.domain.leaderboard import Metric
 from app.schemas.awards import (
@@ -21,11 +22,13 @@ from app.schemas.awards import (
 )
 from app.schemas.boards import ActivityItemOut, BootstrapOut, LaddersOut, LeaderboardOut
 from app.schemas.common import Page
+from app.schemas.crowns import CrownReignOut, CrownsOut
 from app.schemas.games import AchievementOut
 from app.services.achievements_read import achievements_page
 from app.services.activity import ActivityService
 from app.services.awards import AwardsService
 from app.services.boards import ALL_TIME_TO, BoardsService
+from app.services.crowns import CrownsService
 from app.services.pagination import DEFAULT_LIMIT, MAX_LIMIT
 from app.services.progression.ladders import ladders
 
@@ -194,6 +197,35 @@ async def get_kursi(
 ) -> KursiStateOut:
     """Kachuful's Kursi: who holds the chair before `excludeGame`, and the longest reign."""
     return await AwardsService(session).kursi(exclude_game)
+
+
+@boards_router.get("/crowns", response_model=CrownsOut)
+async def get_crowns(
+    _: CurrentAuth, session: SessionDep, game: _Game = ProgressionGame.KACHUFUL
+) -> CrownsOut:
+    """Every title of a game now: medal1-3, kursi, sitara, legend (holders empty when nobody).
+
+    Kachuful only so far; other games list all six titles with nobody holding them.
+    """
+    return await CrownsService(session).crowns(game)
+
+
+@boards_router.get("/crowns/reigns", response_model=Page[CrownReignOut])
+async def list_crown_reigns(
+    _: CurrentAuth,
+    session: SessionDep,
+    game: _Game = ProgressionGame.KACHUFUL,
+    kind: Annotated[CrownKind | None, Query(description="One title; default every title")] = None,
+    sort: Annotated[
+        ReignSort, Query(description="recent (newest end first) | defences (most first)")
+    ] = "recent",
+    cursor: Annotated[str | None, Query(max_length=200)] = None,
+    limit: Annotated[int, Query(ge=1, le=MAX_LIMIT)] = DEFAULT_LIMIT,
+) -> Page[CrownReignOut]:
+    """Closed reigns of a game's titles."""
+    return await CrownsService(session).reigns(
+        game, kind=kind, sort=sort, cursor=cursor, limit=limit
+    )
 
 
 @boards_router.get("/places", response_model=PlacesOut)

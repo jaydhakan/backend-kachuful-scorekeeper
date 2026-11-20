@@ -1,6 +1,7 @@
 """Users."""
 
 import uuid
+from collections.abc import Iterable
 from datetime import datetime
 from typing import Any
 
@@ -26,6 +27,13 @@ class UsersRepository:
         """The user linked to a player, if any."""
         stmt = select(User).where(User.player_id == player_id)
         return (await session.execute(stmt)).scalar_one_or_none()
+
+    async def ids_for_players(
+        self, session: AsyncSession, player_ids: Iterable[uuid.UUID]
+    ) -> list[uuid.UUID]:
+        """The accounts linked to some players."""
+        stmt = select(User.id).where(User.player_id.in_(set(player_ids))).order_by(User.id)
+        return list((await session.execute(stmt)).scalars())
 
     async def list_all(self, session: AsyncSession) -> list[User]:
         """Every user, oldest first."""

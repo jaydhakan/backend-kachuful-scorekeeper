@@ -145,7 +145,7 @@ class ActivityItemOut(CamelModel):
         ..., description="The game it belongs to: kachuful | spades | kaali-teeri | ishaara"
     )
     kind: str = Field(
-        ..., description="achievement | game_finished | season_closed | player_joined"
+        ..., description="achievement | game_finished | season_closed | player_joined | crown"
     )
     player: PlayerSummaryOut | None = Field(..., description="Who it is about, if anyone")
     game: (

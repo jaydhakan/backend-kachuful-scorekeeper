@@ -4,7 +4,7 @@ import copy
 import hashlib
 import json
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from typing import Any
 
@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Achievement, User
 from app.db.models import Game as GameRow
+from app.domain.crowns import CrownChange
 from app.domain.derive import (
     Ended,
     GameFact,
@@ -25,10 +26,11 @@ from app.domain.derive import (
 from app.domain.enums import GameKind
 from app.domain.game import Game, game_from_payload, sync_id
 from app.domain.rules import standings
+from app.domain.sikke import SikkeEarned
 from app.domain.time import day_of, from_ms, now_utc, to_ms
 from app.domain.validate import validate
 from app.exceptions import ApiError, ErrorCode
-from app.live.hub import notify
+from app.live.hub import notify, notify_user
 from app.logger import get_logger
 from app.repositories.achievements import achievements_repository
 from app.repositories.app_state import app_state_repository
@@ -36,16 +38,19 @@ from app.repositories.derived import derived_repository
 from app.repositories.games import SummaryRow, games_repository
 from app.repositories.players import players_repository
 from app.repositories.share_links import share_links_repository
+from app.repositories.users import users_repository
+from app.schemas.crowns import StatusOut
 from app.schemas.games import (
     GameDetailOut,
     GamePayloadIn,
     GamesPageOut,
     GameSummaryOut,
     GameTombstoneOut,
-    UploadOut,
+    KachufulUploadOut,
 )
 from app.services.achievements import AchievementsEngine
 from app.services.achievements_read import achievement_out, achievements_for_game
+from app.services.crowns import CrownsService
 from app.services.pagination import decode_cursor, encode_cursor
 from app.services.presenters import summary_out
 from app.services.sikke import SikkeService
@@ -187,11 +192,20 @@ def _round_score_rows(rounds: list[RoundFact]) -> list[dict[str, Any]]:
 
 
 @dataclass(frozen=True)
+class Rewards:
+    """Titles that changed hands and bounties newly paid by one write."""
+
+    changes: list[CrownChange] = field(default_factory=list)
+    bounties: list[SikkeEarned] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
 class Stored:
-    """What a store touched: the players involved and achievements newly earned."""
+    """What a store touched: the players involved, achievements newly earned, titles moved."""
 
     players: set[uuid.UUID]
     earned: list[Achievement]
+    rewards: Rewards = field(default_factory=Rewards)
 
 
 def game_info(derived: Derived) -> GameInfo:
@@ -287,7 +301,9 @@ class GamesService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def upload(self, game_id: uuid.UUID, payload: dict[str, Any], user: User) -> UploadOut:
+    async def upload(
+        self, game_id: uuid.UUID, payload: dict[str, Any], user: User
+    ) -> KachufulUploadOut:
         """Store a game from the app: stale and idempotency checks, validation, derive."""
         check_shape(payload, GamePayloadIn)
         if sync_id(payload) != str(game_id):
@@ -306,10 +322,10 @@ class GamesService:
             # A game with no round done leaves no trace: nothing stored, and an older copy goes.
             if row is not None:
                 await self.delete(game_id, user)
-            return UploadOut(rev=int(payload["rev"]), earned=[])
+            return KachufulUploadOut(rev=int(payload["rev"]), earned=[])
         digest = payload_hash(payload)
         if row is not None and row.payload_hash == digest:
-            return UploadOut(rev=row.rev, earned=[])
+            return KachufulUploadOut(rev=row.rev, earned=[])
         if row is not None and int(payload["rev"]) <= row.rev:
             raise ApiError(
                 409, ErrorCode.STALE, "The server has a newer version.", server=row.payload
@@ -327,13 +343,34 @@ class GamesService:
         was_ended = row.ended_at is not None
         _apply_to_row(row, stored, derived, digest)
         result = await self.store(row, derived, was_ended=was_ended)
+        status = await CrownsService(self.session).status(
+            result.rewards.changes, result.rewards.bounties
+        )
+        await self._tell_status(game_id, result.players, status)
         await self.session.commit()
         logger.info("game uploaded", extra={"game_id": str(game_id), "rev": game.rev})
-        return UploadOut(
+        return KachufulUploadOut(
             rev=game.rev,
             earned=[achievement_out(a) for a in result.earned],
             remap=remap or None,
+            status=status,
         )
+
+    async def _tell_status(
+        self, game_id: uuid.UUID, players: set[uuid.UUID], status: StatusOut
+    ) -> None:
+        """Send the write's status to every account seated in the game (when anything moved)."""
+        if not status.changes and not status.bounties:
+            return
+        frame = {
+            "type": "status",
+            "game": GameKind.KACHUFUL.value,
+            "gameId": str(game_id),
+            # Null fields left out, exactly as the PUT's response sends the same status.
+            **status.model_dump(mode="json", exclude_none=True),
+        }
+        for user_id in await users_repository.ids_for_players(self.session, players):
+            await notify_user(self.session, user_id, "status", frame)
 
     async def store(
         self, row: GameRow, derived: Derived, *, was_ended: bool, career: bool = True
@@ -369,24 +406,45 @@ class GamesService:
             )
         elif was_ended and not ended:
             await achievements_repository.delete_activity(self.session, row.id, "game_finished")
-        await self._sikke(players, earned=bool(earned), ended=ended or was_ended, career=career)
+        rewards = await self._rewards(
+            players,
+            row.id,
+            earned=bool(earned),
+            ended=ended or was_ended,
+            career=career,
+        )
         await app_state_repository.bump(self.session)
         await notify(self.session, row.id, "game")
-        return Stored(players=players, earned=earned)
+        return Stored(players=players, earned=earned, rewards=rewards)
 
-    async def _sikke(
-        self, players: set[uuid.UUID], *, earned: bool, ended: bool, career: bool
-    ) -> None:
-        """Sikke after a write. A running game only adds achievements (a lost one's entry cascades);
-        an ended one pays finishes and may move the Kursi chain. A merge (no `career`) runs its own.
+    async def _rewards(
+        self,
+        players: set[uuid.UUID],
+        game_id: uuid.UUID,
+        *,
+        earned: bool,
+        ended: bool,
+        career: bool,
+        void: bool = False,
+    ) -> Rewards:
+        """Sikke and crowns after a write. A running game only adds achievements (a lost one's
+        entry cascades); an ended one pays finishes, may move the Kursi chain and every title, and
+        pays bounties. A merge (no `career`) runs its own.
         """
         if not career:
-            return
+            return Rewards()
         sikke = SikkeService(self.session)
         if earned or ended:
             await sikke.recompute_players(players)
-        if ended:
-            await sikke.recompute_kursi()
+        if not ended:
+            return Rewards()
+        crowns = CrownsService(self.session)
+        chain = await crowns.chain()
+        # Crowns first: a bounty reads the Taj's reigns, which this write may have closed.
+        changes = await crowns.recompute(chain, game_id=None if void else game_id)
+        bounties = await sikke.recompute_kursi(chain)
+        mine = [b for b in bounties if b.game_id == str(game_id)]
+        return Rewards(changes=changes, bounties=mine)
 
     async def rederive(
         self, row: GameRow, payload: dict[str, Any], *, career: bool = True
@@ -493,7 +551,9 @@ class GamesService:
                 sequence_changed=row.ended_at is not None,
             )
         await achievements_repository.delete_activity(self.session, game_id, "game_finished")
-        await self._sikke(players, earned=False, ended=row.ended_at is not None, career=True)
+        await self._rewards(
+            players, game_id, earned=False, ended=row.ended_at is not None, career=True, void=True
+        )
         await share_links_repository.revoke(self.session, game_id, ("live", "recap"))
         await notify(self.session, game_id, "revoked")
         await app_state_repository.bump(self.session)

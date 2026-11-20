@@ -1,0 +1,200 @@
+"""`GET /api/crowns`, `GET /api/crowns/reigns`, and the Kachuful PUT's `status` and stream frame."""
+
+from typing import Any
+
+import httpx
+import pytest
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.domain.time import now_utc, to_ms
+from app.jobs.fake_games import MINUTE
+from app.services import games as games_service
+from tests.factories import make_player, make_user, sign_in
+from tests.placed_games import placed_payload
+
+HOUR = 60 * MINUTE
+KINDS = ["medal1", "medal2", "medal3", "kursi", "sitara", "legend"]
+
+
+async def _table(client: httpx.AsyncClient, session: AsyncSession) -> list[str]:
+    user = await make_user(session, email="k@example.com", player_name="Keeper")
+    await sign_in(client, user)
+    return [str((await make_player(session, name=f"K{k}")).id) for k in range(3)]
+
+
+async def _put(client: httpx.AsyncClient, payload: dict[str, Any]) -> dict[str, Any]:
+    response = await client.put(f"/api/games/{payload['syncId']}", json=payload)
+    assert response.status_code == 200, response.text
+    body: dict[str, Any] = response.json()
+    return body
+
+
+def _ids(players: list[dict[str, Any]]) -> list[str]:
+    return [p["id"] for p in players]
+
+
+async def test_crowns_need_a_session(client: httpx.AsyncClient) -> None:
+    assert (await client.get("/api/crowns")).status_code == 401
+    assert (await client.get("/api/crowns/reigns")).status_code == 401
+
+
+async def test_crowns_list_all_six_titles_with_nobody_at_first(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await _table(client, session)
+
+    body = (await client.get("/api/crowns")).json()
+
+    assert body == {
+        "items": [
+            {"kind": k, "holders": [], "since": None, "sinceGame": None, "defences": 0}
+            for k in KINDS
+        ]
+    }
+
+
+async def test_the_put_reports_a_take_and_its_bounty(
+    client: httpx.AsyncClient, session: AsyncSession, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    a, b, c = await _table(client, session)
+    sent: list[tuple[object, str, dict[str, Any]]] = []
+
+    async def record(_: AsyncSession, user_id: object, event: str, data: dict[str, Any]) -> None:
+        sent.append((user_id, event, data))
+
+    monkeypatch.setattr(games_service, "notify_user", record)
+    now = to_ms(now_utc())
+    first = await _put(client, placed_payload([a, b, c], start_ms=now - 3 * HOUR))
+    assert [
+        (ch["kind"], _ids(ch["from"]), _ids(ch["to"])) for ch in first["status"]["changes"]
+    ] == [("kursi", [], [a])]
+    sent.clear()
+    second = placed_payload([b, a, c], start_ms=now - 2 * HOUR)
+
+    body = await _put(client, second)
+
+    kursi = [ch for ch in body["status"]["changes"] if ch["kind"] == "kursi"]
+    assert [(_ids(ch["from"]), _ids(ch["to"]), ch["defences"]) for ch in kursi] == [([a], [b], 0)]
+    assert [
+        (s["holder"]["id"], s["winner"]["id"], s["amount"]) for s in body["status"]["bounties"]
+    ] == [(a, b, 40)]
+    # None of the seats has an account, so nobody is told on the stream.
+    assert sent == []
+
+
+async def test_the_status_frame_goes_to_seated_accounts(
+    client: httpx.AsyncClient, session: AsyncSession, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    scorer = await make_user(session, email="s@example.com", player_name="Seated")
+    await sign_in(client, scorer)
+    assert scorer.player_id is not None
+    others = [str((await make_player(session, name=f"O{k}")).id) for k in range(2)]
+    sent: list[tuple[object, str, dict[str, Any]]] = []
+
+    async def record(_: AsyncSession, user_id: object, event: str, data: dict[str, Any]) -> None:
+        sent.append((user_id, event, data))
+
+    monkeypatch.setattr(games_service, "notify_user", record)
+    game = placed_payload([str(scorer.player_id), *others], start_ms=to_ms(now_utc()) - 2 * HOUR)
+
+    body = await _put(client, game)
+
+    assert [(u, e) for u, e, _ in sent] == [(scorer.id, "status")]
+    frame = sent[0][2]
+    assert frame["type"] == "status" and frame["game"] == "kachuful"
+    assert frame["gameId"] == game["syncId"]
+    assert frame["changes"] == body["status"]["changes"]
+    assert frame["bounties"] == body["status"]["bounties"] == []
+
+
+async def test_an_unchanged_put_has_an_empty_status(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    ids = await _table(client, session)
+    game = placed_payload(ids, start_ms=to_ms(now_utc()) - 2 * HOUR)
+    await _put(client, game)
+
+    again = await _put(client, game)
+
+    assert again["status"] == {"changes": [], "bounties": []}
+
+
+async def test_crowns_show_the_holder_since_the_game(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    a, b, c = await _table(client, session)
+    game = placed_payload([a, b, c], start_ms=to_ms(now_utc()) - 2 * HOUR)
+    await _put(client, game)
+
+    items = {i["kind"]: i for i in (await client.get("/api/crowns")).json()["items"]}
+
+    kursi = items["kursi"]
+    assert _ids(kursi["holders"]) == [a]
+    assert kursi["since"] == game["finishedAt"] and kursi["sinceGame"] == game["syncId"]
+
+
+async def test_other_games_have_no_holders_yet(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await _table(client, session)
+
+    body = (await client.get("/api/crowns", params={"game": "spades"})).json()
+
+    assert [i["holders"] for i in body["items"]] == [[]] * 6
+    assert (await client.get("/api/crowns", params={"game": "chess"})).status_code == 422
+
+
+async def _three_reigns(client: httpx.AsyncClient, session: AsyncSession) -> list[str]:
+    """a, then b (after two defences), then a again, then c: three closed Kursi reigns."""
+    a, b, c = await _table(client, session)
+    now = to_ms(now_utc())
+    orders = [[a, b, c], [b, a, c], [b, c, a], [b, a, c], [a, b, c], [c, a, b]]
+    for k, order in enumerate(orders):
+        await _put(client, placed_payload(order, start_ms=now - (10 - k) * HOUR))
+    return [a, b, c]
+
+
+async def test_reigns_list_closed_reigns_newest_first_and_by_defences(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    a, b, _ = await _three_reigns(client, session)
+
+    recent = (await client.get("/api/crowns/reigns")).json()
+    longest = (await client.get("/api/crowns/reigns", params={"sort": "defences"})).json()
+    medals = (await client.get("/api/crowns/reigns", params={"kind": "medal1"})).json()
+
+    assert [(_ids(r["holders"]), r["defences"]) for r in recent["items"]] == [
+        ([a], 0),
+        ([b], 2),
+        ([a], 0),
+    ]
+    assert all(r["kind"] == "kursi" and r["since"] < r["until"] for r in recent["items"])
+    assert _ids(longest["items"][0]["holders"]) == [b]
+    assert recent["nextCursor"] is None
+    assert medals == {"items": [], "nextCursor": None}
+
+
+async def test_reigns_page_with_a_cursor(client: httpx.AsyncClient, session: AsyncSession) -> None:
+    await _three_reigns(client, session)
+    for sort in ("recent", "defences"):
+        everything = (await client.get("/api/crowns/reigns", params={"sort": sort})).json()
+        first = (await client.get("/api/crowns/reigns", params={"sort": sort, "limit": 2})).json()
+        rest = (
+            await client.get(
+                "/api/crowns/reigns",
+                params={"sort": sort, "limit": 2, "cursor": first["nextCursor"]},
+            )
+        ).json()
+
+        assert first["items"] + rest["items"] == everything["items"]
+        assert rest["nextCursor"] is None
+
+
+async def test_reigns_reject_a_bad_cursor_sort_or_kind(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await _table(client, session)
+    for params in ({"cursor": "nope"}, {"sort": "oldest"}, {"kind": "crown"}):
+        response = await client.get("/api/crowns/reigns", params=params)
+        assert response.status_code == 422, params
+        assert response.json()["code"] == "invalid"

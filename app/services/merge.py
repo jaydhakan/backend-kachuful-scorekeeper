@@ -18,6 +18,7 @@ from app.repositories.players import players_repository
 from app.repositories.users import users_repository
 from app.schemas.admin import MergeKeepIn, PlayerEnvelopeOut
 from app.services.achievements import AchievementsEngine
+from app.services.crowns import CrownsService
 from app.services.games import GamesService
 from app.services.ishaara_games import IshaaraGamesService
 from app.services.kt_games import KtGamesService
@@ -122,10 +123,14 @@ class MergeService:
         for game, rules in REGISTRY.items():
             if game != ProgressionGame.KACHUFUL:
                 await engine.recompute_careers(rules, {target.id})
-        # Reseats ran without careers, so Sikke wasn't recomputed: both players, and the chain.
+        # Reseats ran without careers, so Sikke wasn't recomputed: both players, and the chain
+        # (titles first: bounties read the Taj's reigns).
         sikke = SikkeService(self.session)
         await sikke.recompute_players({source.id, target.id})
-        await sikke.recompute_kursi()
+        crowns = CrownsService(self.session)
+        chain = await crowns.chain()
+        await crowns.recompute(chain, game_id=None)
+        await sikke.recompute_kursi(chain)
         if source_user is not None:
             await users_repository.move_player_link(self.session, source.id, target.id)
         await players_repository.redirect_merged(self.session, source.id, target.id)

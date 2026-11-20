@@ -13,6 +13,7 @@ from tests.factories import make_player, make_user, sign_in
 from tests.game_builder import MINUTE, make_payload
 
 HOUR = 60 * MINUTE
+NO_STATUS = {"changes": [], "bounties": []}
 
 
 async def _table(session: AsyncSession, n: int = 3) -> list[Player]:
@@ -98,7 +99,7 @@ async def test_same_payload_again_is_an_idempotent_retry(
     again = await _put(client, payload)
 
     assert again.status_code == 200
-    assert again.json() == {"rev": 1, "earned": []}
+    assert again.json() == {"rev": 1, "earned": [], "status": NO_STATUS}
 
 
 @pytest.mark.parametrize("rev", [0, 1])
@@ -582,7 +583,7 @@ async def test_upload_of_a_game_with_no_round_done_stores_nothing(
     response = await _put(client, payload)
 
     assert response.status_code == 200
-    assert response.json() == {"rev": 1, "earned": []}
+    assert response.json() == {"rev": 1, "earned": [], "status": NO_STATUS}
     assert await session.get(Game, uuid.UUID(payload["syncId"])) is None
 
 

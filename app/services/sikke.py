@@ -14,13 +14,19 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import SikkeEntry
-from app.domain.kursi import kursi_games
+from app.domain.crowns import CrownKind
+from app.domain.enums import ProgressionGame
+from app.domain.kursi import KursiGame, kursi_games
 from app.domain.sikke import (
+    BOUNTY_KINDS,
     KURSI_KINDS,
     PLAYER_KINDS,
     Level,
     SikkeEarned,
+    SikkeKind,
+    TajReign,
     achievement_entries,
+    bounty_entries,
     kursi_entries,
     level_of,
     play_entries,
@@ -28,6 +34,7 @@ from app.domain.sikke import (
 from app.domain.time import from_ms, to_ms
 from app.exceptions import ApiError, ErrorCode
 from app.repositories.boards import boards_repository
+from app.repositories.crowns import crowns_repository
 from app.repositories.games import games_repository
 from app.repositories.players import players_repository
 from app.repositories.sikke import EntryRow, sikke_repository
@@ -66,10 +73,14 @@ def _changed(row: SikkeEntry, e: SikkeEarned) -> bool:
         row.kind != e.kind.value
         or row.amount != e.amount
         or row.game != (None if e.game is None else e.game.value)
-        or (None if row.game_id is None else str(row.game_id)) != e.game_id
+        or _game_id(row) != e.game_id
         or (None if row.achievement_id is None else str(row.achievement_id)) != e.achievement_id
         or row.data != e.data
     )
+
+
+def _game_id(row: SikkeEntry) -> str | None:
+    return None if row.game_id is None else str(row.game_id)
 
 
 def level_out(level: Level) -> LevelOut:
@@ -135,10 +146,28 @@ class SikkeService:
             desired += achievement_entries(pid, rows.get(pid, []))
         return desired
 
-    async def desired_kursi(self) -> list[SikkeEarned]:
-        """Every Kursi take and defence along Kachuful's chain."""
-        rows = await boards_repository.ended_places(self.session, None)
-        return kursi_entries(kursi_games(rows))
+    async def desired_kursi(self, games: list[KursiGame] | None = None) -> list[SikkeEarned]:
+        """Every Kursi take and defence along Kachuful's chain, and every bounty."""
+        if games is None:
+            games = kursi_games(await boards_repository.ended_places(self.session, None))
+        created = await crowns_repository.ended_created_at(self.session)
+        bounties = bounty_entries(games, created, await self._taj_reigns(), settings.tz)
+        return kursi_entries(games) + bounties
+
+    async def _taj_reigns(self) -> list[TajReign]:
+        """Every reign of the Taj (`medal1`), the current one included."""
+        game = ProgressionGame.KACHUFUL.value
+        reigns = [
+            TajReign(tuple(map(str, r.holders)), to_ms(r.since), to_ms(r.until))
+            for r in await crowns_repository.reigns_of(self.session, game, CrownKind.MEDAL1)
+        ]
+        now = next(
+            (c for c in await crowns_repository.all(self.session, game) if c.kind == "medal1"),
+            None,
+        )
+        if now is not None and now.holders:
+            reigns.append(TajReign(tuple(map(str, now.holders)), to_ms(now.since), None))
+        return reigns
 
     async def recompute_players(self, player_ids: Iterable[uuid.UUID]) -> None:
         """Reconcile some players' finishes, wins, streaks and achievement entries."""
@@ -149,13 +178,18 @@ class SikkeService:
         existing = await sikke_repository.for_players(self.session, ids, PLAYER_KINDS)
         await self._apply(desired, existing)
 
-    async def recompute_kursi(self) -> None:
-        """Reconcile everyone's Kursi entries: one game's end can move the whole chain after it."""
-        desired = await self.desired_kursi()
-        existing = await sikke_repository.of_kinds(self.session, KURSI_KINDS)
-        await self._apply(desired, existing)
+    async def recompute_kursi(self, games: list[KursiGame] | None = None) -> list[SikkeEarned]:
+        """Reconcile everyone's Kursi and bounty entries: one game's end can move the whole chain
+        after it. Returns the bounties this call newly paid (or moved to another game)."""
+        desired = await self.desired_kursi(games)
+        existing = await sikke_repository.of_kinds(self.session, KURSI_KINDS | BOUNTY_KINDS)
+        added = await self._apply(desired, existing)
+        return [e for e in added if e.kind == SikkeKind.BOUNTY]
 
-    async def _apply(self, desired: Iterable[SikkeEarned], existing: Iterable[SikkeEntry]) -> None:
+    async def _apply(
+        self, desired: Iterable[SikkeEarned], existing: Iterable[SikkeEntry]
+    ) -> list[SikkeEarned]:
+        """Write the difference; returns entries whose key is new or now points at another game."""
         wanted: dict[Key, SikkeEarned] = {(e.player_id, e.key): e for e in desired}
         stored: dict[Key, SikkeEntry] = {(str(r.player_id), r.key): r for r in existing}
         await sikke_repository.delete_ids(
@@ -169,6 +203,11 @@ class SikkeService:
                 if key not in stored or _changed(stored[key], e)
             ],
         )
+        return [
+            e
+            for key, e in wanted.items()
+            if key not in stored or _game_id(stored[key]) != e.game_id
+        ]
 
     async def _kept_id(self, player_id: uuid.UUID) -> uuid.UUID:
         """The player, or the one a merged-away id was folded into; 404 when unknown."""

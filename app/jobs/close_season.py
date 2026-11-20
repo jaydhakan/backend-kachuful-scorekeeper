@@ -6,7 +6,7 @@ import sys
 from app.db.session import get_session_factory
 from app.domain.enums import ProgressionGame
 from app.domain.time import month_of, now_utc, previous_month, to_ms
-from app.jobs.close_day import games_of
+from app.jobs.close_day import games_of, recompute_crowns
 from app.logger import get_logger
 from app.services.awards import AwardsService, last_month, parse_month
 from app.settings import settings
@@ -58,4 +58,5 @@ async def run(args: argparse.Namespace) -> int:
     for game in games_of(args):
         for month in months:
             await _close(month, game)
+    await recompute_crowns()
     return 0

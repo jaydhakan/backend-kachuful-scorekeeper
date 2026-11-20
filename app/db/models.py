@@ -901,7 +901,7 @@ class Activity(Base):
     __tablename__ = "activity"
     __table_args__ = (
         CheckConstraint(
-            "kind IN ('achievement', 'game_finished', 'season_closed', 'player_joined')",
+            "kind IN ('achievement', 'game_finished', 'season_closed', 'player_joined', 'crown')",
             name="kind",
         ),
         CheckConstraint(_GAMES, name="game"),
@@ -928,7 +928,8 @@ class SikkeEntry(Base):
     __tablename__ = "sikke_entries"
     __table_args__ = (
         CheckConstraint(
-            "kind IN ('finish', 'win', 'achievement', 'kursi_take', 'kursi_defence', 'streak')",
+            "kind IN ('finish', 'win', 'achievement', 'kursi_take', 'kursi_defence', 'streak', "
+            "'bounty')",
             name="kind",
         ),
         CheckConstraint("amount > 0", name="amount"),
@@ -959,6 +960,48 @@ class SikkeEntry(Base):
     # The source's time: the game's end or the achievement's earning.
     earned_at: Mapped[datetime]
     data: Mapped[dict[str, Any]] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
+
+
+_CROWN_KINDS = "kind IN ('medal1', 'medal2', 'medal3', 'kursi', 'sitara', 'legend')"
+
+
+class Crown(Base):
+    """Who holds each title of a game now (rewards plan §6); empty `holders` when nobody does."""
+
+    __tablename__ = "crowns"
+    __table_args__ = (
+        CheckConstraint(_CROWN_KINDS, name="kind"),
+        CheckConstraint(_GAMES, name="game"),
+    )
+
+    game: Mapped[str] = mapped_column(Text, primary_key=True)
+    kind: Mapped[str] = mapped_column(Text, primary_key=True)
+    # Sorted registry ids; no FK on an array, so reads follow merges.
+    holders: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
+    since: Mapped[datetime]
+    since_game: Mapped[uuid.UUID | None]
+    defences: Mapped[int] = mapped_column(Integer, server_default=text("0"))
+
+
+class CrownReign(Base):
+    """A closed reign: who held a title from `since` until `until`."""
+
+    __tablename__ = "crown_reigns"
+    __table_args__ = (
+        CheckConstraint(_CROWN_KINDS, name="kind"),
+        CheckConstraint(_GAMES, name="game"),
+        Index("ix_crown_reigns_game_kind_until", "game", "kind", text("until DESC")),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, server_default=func.gen_random_uuid())
+    game: Mapped[str] = mapped_column(Text)
+    kind: Mapped[str] = mapped_column(Text)
+    holders: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
+    since: Mapped[datetime]
+    until: Mapped[datetime]
+    since_game: Mapped[uuid.UUID | None]
+    until_game: Mapped[uuid.UUID | None]
+    defences: Mapped[int] = mapped_column(Integer, server_default=text("0"))
 
 
 class ClosedPeriod(Base):

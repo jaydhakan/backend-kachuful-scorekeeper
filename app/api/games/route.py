@@ -13,7 +13,7 @@ from app.api.deps import (
     get_my_data_service,
     get_sikke_service,
 )
-from app.schemas.games import DeletedOut, GameDetailOut, GamesPageOut, UploadOut
+from app.schemas.games import DeletedOut, GameDetailOut, GamesPageOut, KachufulUploadOut
 from app.schemas.public import CreateLinkIn, LinkOut, LinkSettingsIn
 from app.schemas.sikke import GameSikkeOut
 from app.security import rate_limit
@@ -33,13 +33,13 @@ games_router = APIRouter(prefix="/games", tags=["Games"])
 me_data_router = APIRouter(prefix="/me/data", tags=["Games"])
 
 
-@games_router.put("/{game_id}", response_model=UploadOut, response_model_exclude_none=True)
+@games_router.put("/{game_id}", response_model=KachufulUploadOut, response_model_exclude_none=True)
 async def upload_game(
     game_id: _GameId,
     payload: Annotated[dict[str, Any], Body(description="The app's Game (plan §5.2)")],
     ctx: CurrentAuth,
     service: _GamesServiceDep,
-) -> UploadOut:
+) -> KachufulUploadOut:
     """Store a game. Same payload again is a no-op; an older or equal rev with changes is `stale`."""
     await rate_limit.enforce(rate_limit.UPLOAD, f"user:{ctx.user.id}")
     return await service.upload(game_id, payload, ctx.user)
