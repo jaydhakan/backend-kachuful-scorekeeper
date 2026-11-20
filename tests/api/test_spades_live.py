@@ -3,6 +3,7 @@ actions racing on one table."""
 
 import asyncio
 import json
+import time
 import uuid
 from contextlib import AsyncExitStack
 from typing import Any
@@ -13,7 +14,9 @@ from sqlalchemy import update
 
 from app.db.models import Player, User
 from app.db.session import get_session_factory
+from app.live.hub import hub
 from app.security import rate_limit
+from app.services.spades_store import stamp_table_seen
 from tests.api.test_ishaara_live import _client, _frames
 from tests.api.test_live_events import _next_event
 from tests.factories import make_user
@@ -228,3 +231,68 @@ async def test_timeouts_racing_settle_the_turn_once(
 
     assert [r.status_code for r in results] == [200, 200, 200]
     assert after["rev"] == rev + 1 and after["bids"][0] == 1 and after["turn"] == 1
+
+
+async def test_every_follower_sees_an_action_within_a_second(
+    live_server: str, clock: Clock
+) -> None:
+    async with AsyncExitStack() as stack:
+        seats, watchers = await _seats(stack, live_server, extra=3)
+        await seated(seats)
+        await ok(seats, 0, "drawForDeal")
+        streams = [await _stream(stack, c, seats.path) for c in [*seats.clients, *watchers]]
+        for events in streams:
+            await _next_event(events, "state")
+
+        started = time.monotonic()
+        await ok(seats, 3, "deal")
+        await asyncio.wait_for(
+            asyncio.gather(
+                *(_state_where(e, lambda f: f["table"]["phase"] == "bidding") for e in streams)
+            ),
+            1.0,
+        )
+
+    assert time.monotonic() - started < 1.0
+
+
+async def test_followers_catch_up_when_the_listen_connection_dies(
+    live_server: str, clock: Clock, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    reconnect = hub._ensure_listening
+
+    async def slow_reconnect() -> None:
+        await asyncio.sleep(0.5)  # the deal below commits while nobody is listening
+        await reconnect()
+
+    async with AsyncExitStack() as stack:
+        seats, _ = await _seats(stack, live_server)
+        await seated(seats)
+        await ok(seats, 0, "drawForDeal")
+        streams = [await _stream(stack, c, seats.path) for c in seats.clients]
+        for events in streams:
+            await _next_event(events, "state")
+
+        assert hub._connection is not None
+        monkeypatch.setattr(hub, "_ensure_listening", slow_reconnect)
+        hub._connection.terminate()
+        # Whatever is committed while the hub is deaf is delivered by the resync after reconnecting.
+        await ok(seats, 3, "deal")
+        frames = [
+            await _state_where(e, lambda f: f["table"]["phase"] == "bidding") for e in streams
+        ]
+
+    assert all(f["table"]["phase"] == "bidding" for f in frames)
+
+
+async def test_the_ping_rev_is_the_tables_current_rev(live_server: str, clock: Clock) -> None:
+    async with AsyncExitStack() as stack:
+        seats, _ = await _seats(stack, live_server)
+        await seated(seats)
+        user_id = seats.users[0].id
+        game_id = uuid.UUID(seats.path.rsplit("/", 1)[1])
+
+        rev = await stamp_table_seen(game_id, user_id)
+        table = (await seats.clients[0].get(seats.path)).json()["table"]
+
+    assert rev == table["rev"]

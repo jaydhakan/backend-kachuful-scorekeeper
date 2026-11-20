@@ -31,7 +31,11 @@ class Settings(BaseModel):
     HOST: str = "127.0.0.1"
     PORT: int = 8000
     WEB_CONCURRENCY: int = Field(default=2, ge=1)
-    DB_POOL_SIZE: int = Field(default=10, ge=1)
+    # Per worker; Postgres' max_connections must cover (DB_POOL_SIZE + DB_MAX_OVERFLOW) x WEB_CONCURRENCY + 2.
+    DB_POOL_SIZE: int = Field(default=20, ge=1)
+    DB_MAX_OVERFLOW: int = Field(default=20, ge=0)
+    # A request waits this long for a free connection, then fails fast instead of hanging.
+    DB_POOL_TIMEOUT_S: float = Field(default=10, gt=0)
     API_STATEMENT_TIMEOUT_MS: int = 2000
     JOB_STATEMENT_TIMEOUT_MS: int = 60000
     OG_CACHE_DIR: str = "var/og-cache"

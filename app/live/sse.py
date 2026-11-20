@@ -5,7 +5,7 @@ import asyncio
 import uuid
 from collections.abc import AsyncIterator, Awaitable, Callable
 
-from app.live.hub import LiveMessage, hub
+from app.live.hub import RESYNC, LiveMessage, hub
 
 PING_EVERY_S = 25.0
 
@@ -86,6 +86,8 @@ async def user_stream(
                 await on_ping()
                 yield sse("ping", "{}")
                 continue
+            if message.kind == RESYNC:
+                return
             if message.data is not None:
                 yield sse(message.kind, message.data)
     finally:

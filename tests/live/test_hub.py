@@ -15,6 +15,7 @@ from app.live.hub import (
     LiveHub,
     LiveMessage,
     Viewer,
+    _offer,
 )
 
 FAKE = "fake"
@@ -191,3 +192,23 @@ async def test_presence_publishes_take_turns_on_the_listen_connection(hub: LiveH
     await asyncio.gather(*(hub._publish_seats(game_id) for _ in range(3)))
 
     assert len(connection.sent) == 3
+
+
+def test_a_full_queue_drops_the_oldest_message_and_keeps_the_newest() -> None:
+    queue: asyncio.Queue[LiveMessage] = asyncio.Queue(maxsize=2)
+    for rev in (1, 2, 3):
+        _offer(queue, LiveMessage(kind="state", rev=rev, data=str(rev)))
+    assert [m.rev for m in _drain(queue)] == [2, 3]
+
+
+def test_a_full_queue_keeps_other_kinds_in_order_and_the_newest_state() -> None:
+    queue: asyncio.Queue[LiveMessage] = asyncio.Queue(maxsize=3)
+    _offer(queue, LiveMessage(kind="state", rev=1, data="a"))
+    _offer(queue, LiveMessage(kind="watchers", data="2"))
+    _offer(queue, LiveMessage(kind="reaction", data="x"))
+    _offer(queue, LiveMessage(kind="state", rev=2, data="b"))
+    assert [(m.kind, m.rev) for m in _drain(queue)] == [
+        ("watchers", None),
+        ("reaction", None),
+        ("state", 2),
+    ]

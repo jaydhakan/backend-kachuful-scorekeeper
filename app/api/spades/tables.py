@@ -144,7 +144,8 @@ async def spades_table_events(
 ) -> StreamingResponse:
     """SSE: `state` (my SpView, id = rev) first and on every change, `seat-presence`
     `{seats: boolean[4]}`, `reaction` `{seat, emoji}`, `ended` `{status, result}`, and `ping`
-    every 25 s (which marks my seat seen)."""
+    `{rev}` every 25 s (which marks my seat seen; `rev` is the table's current rev, `{}` if it
+    could not be read): a phone whose own rev is lower missed a `state` and should GET the table."""
     queue = await hub.subscribe_game(SPADES, game_id, viewer=str(ctx.user.id))
     try:
         # Own short session: a stream can last an hour and must not hold a pooled connection.
