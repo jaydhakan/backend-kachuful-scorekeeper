@@ -48,6 +48,28 @@ class MedalsOut(CamelModel):
     last_season: list[LeaderboardRowOut] = Field(..., description="Last month's ranks 1-3")
 
 
+class KursiOut(CamelModel):
+    """The chair: who holds it, since when, and how many games they have defended it."""
+
+    holders: list[PlayerSummaryOut]
+    since: int = Field(..., description="Epoch ms the reign began")
+    since_game: uuid.UUID
+    defences: int
+
+
+class ReignOut(KursiOut):
+    """A reign; `until` is null while it lasts."""
+
+    until: int | None
+
+
+class KursiStateOut(CamelModel):
+    """`GET /api/kursi`: Kachuful's chair without the excluded game, and the longest reign (rewards §6.3)."""
+
+    kursi: KursiOut | None
+    longest: ReignOut | None
+
+
 class StandingOut(CamelModel):
     """One player in a month's win-rate standings."""
 

@@ -65,6 +65,15 @@ _GAME_TALLY = text(
     """
 )
 
+_ENDED_PLACES = text(
+    """
+    SELECT gp.game_id, gp.ended_at, gp.player_id, gp.place, gp.seat
+    FROM game_players gp JOIN games g ON g.id = gp.game_id
+    WHERE gp.ended_at IS NOT NULL AND gp.place IS NOT NULL AND g.deleted_at IS NULL
+      AND g.kind = 'kachuful' AND (CAST(:exclude AS uuid) IS NULL OR gp.game_id <> :exclude)
+    """
+)
+
 _BREAKDOWN = text(
     """
     SELECT bid, cards, trump, is_dealer, count(*) AS total,
@@ -168,6 +177,13 @@ class BoardsRepository:
             _GAME_TALLY, {"game_id": game_id, "range_from": range_from, "range_to": range_to}
         )
         return {str(pid): (int(n), int(points)) for pid, n, points in rows}
+
+    async def ended_places(
+        self, session: AsyncSession, exclude: uuid.UUID | None
+    ) -> list[tuple[str, int, str, int, int]]:
+        """Every ended Kachuful game's seats: (game, ended ms, player, place, seat), for the Kursi."""
+        rows = await session.execute(_ENDED_PLACES, {"exclude": exclude})
+        return [(str(g), to_ms(at), str(p), place, seat) for g, at, p, place, seat in rows]
 
     async def breakdown(
         self, session: AsyncSession, player_id: uuid.UUID, window: Window
