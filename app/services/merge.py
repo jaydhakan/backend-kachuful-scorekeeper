@@ -23,6 +23,7 @@ from app.services.ishaara_games import IshaaraGamesService
 from app.services.kt_games import KtGamesService
 from app.services.presenters import player_out
 from app.services.progression.registry import REGISTRY
+from app.services.sikke import SikkeService
 from app.services.spades_games import SpadesGamesService
 from app.services.spades_tables import SpadesTablesService
 
@@ -121,6 +122,10 @@ class MergeService:
         for game, rules in REGISTRY.items():
             if game != ProgressionGame.KACHUFUL:
                 await engine.recompute_careers(rules, {target.id})
+        # Reseats ran without careers, so Sikke wasn't recomputed: both players, and the chain.
+        sikke = SikkeService(self.session)
+        await sikke.recompute_players({source.id, target.id})
+        await sikke.recompute_kursi()
         if source_user is not None:
             await users_repository.move_player_link(self.session, source.id, target.id)
         await players_repository.redirect_merged(self.session, source.id, target.id)

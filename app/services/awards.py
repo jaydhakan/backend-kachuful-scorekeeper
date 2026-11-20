@@ -66,6 +66,7 @@ from app.services.cache import Cached, etag_for, etag_matches
 from app.services.presenters import player_summary_out
 from app.services.progression.base import WinRateSeasons
 from app.services.progression.registry import progression_of, seasons_of
+from app.services.sikke import SikkeService
 from app.settings import settings
 
 KACHUFUL = ProgressionGame.KACHUFUL
@@ -590,6 +591,7 @@ class AwardsService:
             self.session, [award_earned(a, period, earned_at) for a in awards], game=game
         )
         await achievements_repository.add_activity(self.session, activity_rows(rows))
+        await SikkeService(self.session).recompute_players({row.player_id for row in rows})
 
     async def wrapped(
         self, year: int, player_id: uuid.UUID, if_none_match: str | None

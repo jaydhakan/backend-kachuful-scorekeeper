@@ -13,6 +13,7 @@ from app.domain.enums import GameKind
 from app.repositories.achievements import achievements_repository
 from app.services.achievements import AchievementsEngine
 from app.services.progression.registry import progression_of_kind
+from app.services.sikke import SikkeService
 
 
 async def progress_game(
@@ -29,6 +30,7 @@ async def progress_game(
 
     `finished`: the game ended with a result, so it has a `game_finished` feed item; otherwise any
     such item goes. `void` (deleted, abandoned): the game earns nothing. Returns the rows added.
+    With `career` on, the players' Sikke follows (a merge, which turns it off, runs its own).
     """
     rules = progression_of_kind(kind)
     engine = AchievementsEngine(session)
@@ -39,4 +41,6 @@ async def progress_game(
         await achievements_repository.ensure_game_finished(session, game_id, game=rules.game)
     else:
         await achievements_repository.delete_activity(session, game_id, "game_finished")
+    if career:
+        await SikkeService(session).recompute_players(players)
     return earned

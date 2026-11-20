@@ -1,0 +1,232 @@
+"""Sikke (rewards plan §9): reconciling the ledger after a write, and reading wallets and ledgers.
+
+The reconcile mirrors `AchievementsEngine`: compute what a player should hold now, insert new keys,
+update changed ones and delete keys that no longer hold; a kept row's `earned_at` never changes.
+Callers run it inside their own write's transaction.
+"""
+
+import uuid
+from collections import defaultdict
+from collections.abc import Iterable, Sequence
+from datetime import datetime
+from typing import Any
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.db.models import SikkeEntry
+from app.domain.kursi import kursi_games
+from app.domain.sikke import (
+    KURSI_KINDS,
+    PLAYER_KINDS,
+    Level,
+    SikkeEarned,
+    achievement_entries,
+    kursi_entries,
+    level_of,
+    play_entries,
+)
+from app.domain.time import from_ms, to_ms
+from app.exceptions import ApiError, ErrorCode
+from app.repositories.boards import boards_repository
+from app.repositories.games import games_repository
+from app.repositories.players import players_repository
+from app.repositories.sikke import EntryRow, sikke_repository
+from app.schemas.common import Page
+from app.schemas.sikke import (
+    GameSikkeEntryOut,
+    GameSikkeOut,
+    GameSikkePlayerOut,
+    LevelOut,
+    LevelUpOut,
+    SikkeEntryOut,
+    SikkeOut,
+)
+from app.services.pagination import decode_cursor, encode_cursor
+from app.settings import settings
+
+Key = tuple[str, str]
+
+
+def _values(e: SikkeEarned) -> dict[str, Any]:
+    return {
+        "player_id": uuid.UUID(e.player_id),
+        "key": e.key,
+        "kind": e.kind.value,
+        "amount": e.amount,
+        "game": None if e.game is None else e.game.value,
+        "game_id": None if e.game_id is None else uuid.UUID(e.game_id),
+        "achievement_id": None if e.achievement_id is None else uuid.UUID(e.achievement_id),
+        "earned_at": from_ms(e.earned_at),
+        "data": e.data,
+    }
+
+
+def _changed(row: SikkeEntry, e: SikkeEarned) -> bool:
+    return (
+        row.kind != e.kind.value
+        or row.amount != e.amount
+        or row.game != (None if e.game is None else e.game.value)
+        or (None if row.game_id is None else str(row.game_id)) != e.game_id
+        or (None if row.achievement_id is None else str(row.achievement_id)) != e.achievement_id
+        or row.data != e.data
+    )
+
+
+def level_out(level: Level) -> LevelOut:
+    """A domain level on the wire."""
+    return LevelOut(n=level.n, from_=level.from_, next=level.next)
+
+
+def _entry_out(row: EntryRow) -> SikkeEntryOut:
+    e = row.entry
+    return SikkeEntryOut(
+        id=e.id,
+        kind=e.kind,
+        amount=e.amount,
+        game=e.game,
+        game_id=e.game_id,
+        code=row.code,
+        period=row.period,
+        earned_at=to_ms(e.earned_at),
+    )
+
+
+def _seat_order(summary: dict[str, Any]) -> list[uuid.UUID]:
+    """A game's seated players from its stored summary (online Spades keeps `seats`)."""
+    seats = summary.get("players") or summary.get("seats") or []
+    ids = [s.get("playerId") for s in seats if s is not None]
+    return [uuid.UUID(pid) for pid in ids if pid]
+
+
+def _game_player_out(
+    player_id: uuid.UUID, rows: list[EntryRow], lifetime: int
+) -> GameSikkePlayerOut:
+    amount = sum(r.entry.amount for r in rows)
+    now, before = level_of(lifetime), level_of(lifetime - amount)
+    return GameSikkePlayerOut(
+        player_id=player_id,
+        amount=amount,
+        entries=[
+            GameSikkeEntryOut(kind=r.entry.kind, amount=r.entry.amount, code=r.code) for r in rows
+        ],
+        level=level_out(now),
+        level_up=LevelUpOut(from_=before.n, to=now.n) if before.n < now.n else None,
+    )
+
+
+def _not_found(what: str) -> ApiError:
+    return ApiError(404, ErrorCode.NOT_FOUND, f"No such {what}.")
+
+
+class SikkeService:
+    """Keeps `sikke_entries` equal to the rules, and serves wallets, ledgers and game payouts."""
+
+    def __init__(self, session: AsyncSession) -> None:
+        self.session = session
+
+    async def desired_for(self, player_ids: Iterable[uuid.UUID]) -> list[SikkeEarned]:
+        """Finishes, wins, streaks and achievements these players should hold now."""
+        ids = set(player_ids)
+        games = await sikke_repository.finished_games(self.session, ids)
+        rows = await sikke_repository.achievements(self.session, ids)
+        desired: list[SikkeEarned] = []
+        for pid in map(str, sorted(ids)):
+            desired += play_entries(pid, games.get(pid, []), settings.tz)
+            desired += achievement_entries(pid, rows.get(pid, []))
+        return desired
+
+    async def desired_kursi(self) -> list[SikkeEarned]:
+        """Every Kursi take and defence along Kachuful's chain."""
+        rows = await boards_repository.ended_places(self.session, None)
+        return kursi_entries(kursi_games(rows))
+
+    async def recompute_players(self, player_ids: Iterable[uuid.UUID]) -> None:
+        """Reconcile some players' finishes, wins, streaks and achievement entries."""
+        ids = set(player_ids)
+        if not ids:
+            return
+        desired = await self.desired_for(ids)
+        existing = await sikke_repository.for_players(self.session, ids, PLAYER_KINDS)
+        await self._apply(desired, existing)
+
+    async def recompute_kursi(self) -> None:
+        """Reconcile everyone's Kursi entries: one game's end can move the whole chain after it."""
+        desired = await self.desired_kursi()
+        existing = await sikke_repository.of_kinds(self.session, KURSI_KINDS)
+        await self._apply(desired, existing)
+
+    async def _apply(self, desired: Iterable[SikkeEarned], existing: Iterable[SikkeEntry]) -> None:
+        wanted: dict[Key, SikkeEarned] = {(e.player_id, e.key): e for e in desired}
+        stored: dict[Key, SikkeEntry] = {(str(r.player_id), r.key): r for r in existing}
+        await sikke_repository.delete_ids(
+            self.session, [r.id for key, r in stored.items() if key not in wanted]
+        )
+        await sikke_repository.upsert(
+            self.session,
+            [
+                _values(e)
+                for key, e in wanted.items()
+                if key not in stored or _changed(stored[key], e)
+            ],
+        )
+
+    async def _kept_id(self, player_id: uuid.UUID) -> uuid.UUID:
+        """The player, or the one a merged-away id was folded into; 404 when unknown."""
+        player = await players_repository.get(self.session, player_id)
+        if player is None:
+            raise _not_found("player")
+        return player.merged_into or player.id
+
+    async def wallet(self, player_id: uuid.UUID) -> SikkeOut:
+        """`GET /api/players/{id}/sikke`: balance, lifetime and level."""
+        kept = await self._kept_id(player_id)
+        lifetime = (await sikke_repository.lifetimes(self.session, [kept])).get(kept, 0)
+        return SikkeOut(
+            player_id=kept,
+            balance=lifetime,
+            lifetime=lifetime,
+            level=level_out(level_of(lifetime)),
+        )
+
+    async def entries(
+        self, player_id: uuid.UUID, *, cursor: str | None, limit: int
+    ) -> Page[SikkeEntryOut]:
+        """`GET /api/players/{id}/sikke/entries`: the ledger, newest first."""
+        kept = await self._kept_id(player_id)
+        before = None if cursor is None else _parse_cursor(cursor)
+        rows = await sikke_repository.page(self.session, kept, before=before, limit=limit + 1)
+        next_cursor = None
+        if len(rows) > limit:
+            last = rows[limit - 1].entry
+            next_cursor = encode_cursor(last.earned_at, str(last.id))
+        return Page(items=[_entry_out(r) for r in rows[:limit]], next_cursor=next_cursor)
+
+    async def for_game(self, game_id: uuid.UUID) -> GameSikkeOut:
+        """`GET /api/games/{id}/sikke`: what a game of any kind paid each player, seat order."""
+        row = await games_repository.get(self.session, game_id, kind=None)
+        if row is None or row.deleted_at is not None:
+            raise _not_found("game")
+        by_player: dict[uuid.UUID, list[EntryRow]] = defaultdict(list)
+        for entry in await sikke_repository.for_game(self.session, game_id):
+            by_player[entry.entry.player_id].append(entry)
+        order = _ordered(_seat_order(row.summary), by_player)
+        lifetimes = await sikke_repository.lifetimes(self.session, order)
+        return GameSikkeOut(
+            items=[_game_player_out(p, by_player.get(p, []), lifetimes.get(p, 0)) for p in order]
+        )
+
+
+def _ordered(seats: Sequence[uuid.UUID], paid: dict[uuid.UUID, list[EntryRow]]) -> list[uuid.UUID]:
+    """Seat order, then anyone paid who no longer sits there (a replaced online seat)."""
+    order = list(dict.fromkeys(seats))
+    return order + sorted(p for p in paid if p not in order)
+
+
+def _parse_cursor(cursor: str) -> tuple[datetime, uuid.UUID]:
+    at, key = decode_cursor(cursor)
+    try:
+        return at, uuid.UUID(key)
+    except ValueError as exc:
+        raise ApiError(
+            422, ErrorCode.INVALID, "Bad cursor.", fields={"cursor": "not a valid cursor"}
+        ) from exc

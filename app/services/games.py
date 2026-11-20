@@ -48,6 +48,7 @@ from app.services.achievements import AchievementsEngine
 from app.services.achievements_read import achievement_out, achievements_for_game
 from app.services.pagination import decode_cursor, encode_cursor
 from app.services.presenters import summary_out
+from app.services.sikke import SikkeService
 from app.settings import settings
 
 logger = get_logger(__name__)
@@ -368,9 +369,24 @@ class GamesService:
             )
         elif was_ended and not ended:
             await achievements_repository.delete_activity(self.session, row.id, "game_finished")
+        await self._sikke(players, earned=bool(earned), ended=ended or was_ended, career=career)
         await app_state_repository.bump(self.session)
         await notify(self.session, row.id, "game")
         return Stored(players=players, earned=earned)
+
+    async def _sikke(
+        self, players: set[uuid.UUID], *, earned: bool, ended: bool, career: bool
+    ) -> None:
+        """Sikke after a write. A running game only adds achievements (a lost one's entry cascades);
+        an ended one pays finishes and may move the Kursi chain. A merge (no `career`) runs its own.
+        """
+        if not career:
+            return
+        sikke = SikkeService(self.session)
+        if earned or ended:
+            await sikke.recompute_players(players)
+        if ended:
+            await sikke.recompute_kursi()
 
     async def rederive(
         self, row: GameRow, payload: dict[str, Any], *, career: bool = True
@@ -477,6 +493,7 @@ class GamesService:
                 sequence_changed=row.ended_at is not None,
             )
         await achievements_repository.delete_activity(self.session, game_id, "game_finished")
+        await self._sikke(players, earned=False, ended=row.ended_at is not None, career=True)
         await share_links_repository.revoke(self.session, game_id, ("live", "recap"))
         await notify(self.session, game_id, "revoked")
         await app_state_repository.bump(self.session)

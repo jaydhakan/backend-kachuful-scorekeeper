@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.enums import ProgressionGame
 from app.domain.progression import Award, Earned
+from app.domain.sikke import ACHIEVEMENT_SIKKE
 from app.services.progression import registry
 
 AT = 1_790_000_000_000  # 2026-09-21: when the fake's rows are earned
@@ -48,4 +49,7 @@ def swap_in(monkeypatch: pytest.MonkeyPatch, game: ProgressionGame) -> FakeRules
     """Replace one game's registry entry with a fake for the test."""
     fake = FakeRules(game=game)
     monkeypatch.setitem(registry.REGISTRY, game, fake)
+    # The fake's codes pay nothing, so Sikke runs over them without a table entry for each.
+    fakes = dict.fromkeys(("t_moment", "t_career", "t_day"), 0)
+    monkeypatch.setitem(ACHIEVEMENT_SIKKE, game, {**ACHIEVEMENT_SIKKE[game], **fakes})
     return fake
