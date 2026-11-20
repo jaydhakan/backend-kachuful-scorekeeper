@@ -51,6 +51,7 @@ from app.schemas.games import (
 from app.services.achievements import AchievementsEngine
 from app.services.achievements_read import achievement_out, achievements_for_game
 from app.services.crowns import CrownsService
+from app.services.nights import NightsService
 from app.services.pagination import decode_cursor, encode_cursor
 from app.services.presenters import summary_out
 from app.services.sikke import SikkeService
@@ -444,6 +445,7 @@ class GamesService:
         changes = await crowns.recompute(chain, game_id=None if void else game_id)
         bounties = await sikke.recompute_kursi(chain)
         mine = [b for b in bounties if b.game_id == str(game_id)]
+        await NightsService(self.session).after_write({game_id})
         return Rewards(changes=changes, bounties=mine)
 
     async def rederive(

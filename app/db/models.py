@@ -901,7 +901,8 @@ class Activity(Base):
     __tablename__ = "activity"
     __table_args__ = (
         CheckConstraint(
-            "kind IN ('achievement', 'game_finished', 'season_closed', 'player_joined', 'crown')",
+            "kind IN ('achievement', 'game_finished', 'season_closed', 'player_joined', 'crown', "
+            "'night')",
             name="kind",
         ),
         CheckConstraint(_GAMES, name="game"),
@@ -929,7 +930,7 @@ class SikkeEntry(Base):
     __table_args__ = (
         CheckConstraint(
             "kind IN ('finish', 'win', 'achievement', 'kursi_take', 'kursi_defence', 'streak', "
-            "'bounty')",
+            "'bounty', 'sitara')",
             name="kind",
         ),
         CheckConstraint("amount > 0", name="amount"),
@@ -1002,6 +1003,28 @@ class CrownReign(Base):
     since_game: Mapped[uuid.UUID | None]
     until_game: Mapped[uuid.UUID | None]
     defences: Mapped[int] = mapped_column(Integer, server_default=text("0"))
+
+
+class Night(Base):
+    """A closed night (rewards plan §7.2): its games, players and Wrapped story.
+
+    The id is uuid5 of the night's earliest game, so a recompute keeps it while that game stands.
+    """
+
+    __tablename__ = "nights"
+    __table_args__ = (
+        Index("ix_nights_players", "players", postgresql_using="gin"),
+        Index("ix_nights_games", "games", postgresql_using="gin"),
+        Index("ix_nights_ended_at_id", text("ended_at DESC"), text("id DESC")),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    started_at: Mapped[datetime]
+    ended_at: Mapped[datetime]
+    players: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
+    games: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
+    data: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    closed_at: Mapped[datetime | None]
 
 
 class ClosedPeriod(Base):

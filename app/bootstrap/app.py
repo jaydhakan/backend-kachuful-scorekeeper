@@ -11,6 +11,7 @@ from app.api.core import core_router
 from app.api.games import games_router, me_data_router
 from app.api.ishaara import ishaara_router
 from app.api.kaali_teeri import kaali_teeri_router
+from app.api.nights import nights_router
 from app.api.pages import pages_router
 from app.api.players import players_router
 from app.api.public import public_router
@@ -55,6 +56,7 @@ def create_app() -> FastAPI:
         seat_invites_router,
         me_circle_router,
         boards_router,
+        nights_router,
         public_router,
     ):
         app.include_router(router, prefix="/api")

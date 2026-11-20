@@ -21,6 +21,7 @@ from app.domain.sikke import (
     BOUNTY_KINDS,
     KURSI_KINDS,
     PLAYER_KINDS,
+    SITARA_KINDS,
     Level,
     SikkeEarned,
     SikkeKind,
@@ -30,12 +31,14 @@ from app.domain.sikke import (
     kursi_entries,
     level_of,
     play_entries,
+    sitara_entries,
 )
 from app.domain.time import from_ms, to_ms
 from app.exceptions import ApiError, ErrorCode
 from app.repositories.boards import boards_repository
 from app.repositories.crowns import crowns_repository
 from app.repositories.games import games_repository
+from app.repositories.nights import nights_repository
 from app.repositories.players import players_repository
 from app.repositories.sikke import EntryRow, sikke_repository
 from app.schemas.common import Page
@@ -185,6 +188,29 @@ class SikkeService:
         existing = await sikke_repository.of_kinds(self.session, KURSI_KINDS | BOUNTY_KINDS)
         added = await self._apply(desired, existing)
         return [e for e in added if e.kind == SikkeKind.BOUNTY]
+
+    async def recompute_sitara(
+        self, nights: Sequence[tuple[str, int, list[str]]], touched: Iterable[str]
+    ) -> None:
+        """Reconcile the Sitara pay of some nights (id, end ms, Sitara); `touched` night ids
+        lose theirs unless listed in `nights` (a night that went or changed id)."""
+        desired = [e for n in nights for e in sitara_entries(*n)]
+        keys = {f"sitara:{i}" for i in touched} | {f"sitara:{n[0]}" for n in nights}
+        existing = await sikke_repository.by_keys(self.session, keys)
+        await self._apply(desired, existing)
+
+    async def desired_sitara(self) -> list[SikkeEarned]:
+        """Every closed night's Sitara pay."""
+        return [
+            e
+            for night_id, at, holders in await nights_repository.all_sitaras(self.session)
+            for e in sitara_entries(night_id, to_ms(at), holders)
+        ]
+
+    async def recompute_all_sitara(self) -> None:
+        """Reconcile everyone's Sitara pay with the stored nights (recompute-sikke)."""
+        existing = await sikke_repository.of_kinds(self.session, SITARA_KINDS)
+        await self._apply(await self.desired_sitara(), existing)
 
     async def _apply(
         self, desired: Iterable[SikkeEarned], existing: Iterable[SikkeEntry]

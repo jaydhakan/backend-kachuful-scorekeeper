@@ -11,6 +11,7 @@ from app.jobs import (
     auto_end,
     backup,
     close_day,
+    close_nights,
     close_season,
     prune,
     prune_empty,
@@ -27,6 +28,7 @@ from app.settings import settings
 JOBS: dict[str, ModuleType] = {
     "auto-end": auto_end,
     "close-day": close_day,
+    "close-nights": close_nights,
     "close-season": close_season,
     "prune": prune,
     "prune-empty": prune_empty,

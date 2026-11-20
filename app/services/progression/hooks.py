@@ -12,6 +12,7 @@ from app.db.models import Achievement
 from app.domain.enums import GameKind
 from app.repositories.achievements import achievements_repository
 from app.services.achievements import AchievementsEngine
+from app.services.nights import NightsService
 from app.services.progression.registry import progression_of_kind
 from app.services.sikke import SikkeService
 
@@ -30,7 +31,8 @@ async def progress_game(
 
     `finished`: the game ended with a result, so it has a `game_finished` feed item; otherwise any
     such item goes. `void` (deleted, abandoned): the game earns nothing. Returns the rows added.
-    With `career` on, the players' Sikke follows (a merge, which turns it off, runs its own).
+    With `career` on, the players' Sikke and any closed night of the game follow (a merge, which
+    turns it off, runs its own Sikke).
     """
     rules = progression_of_kind(kind)
     engine = AchievementsEngine(session)
@@ -43,4 +45,5 @@ async def progress_game(
         await achievements_repository.delete_activity(session, game_id, "game_finished")
     if career:
         await SikkeService(session).recompute_players(players)
+        await NightsService(session).after_write({game_id})
     return earned

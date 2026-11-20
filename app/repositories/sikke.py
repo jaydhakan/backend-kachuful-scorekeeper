@@ -112,6 +112,14 @@ class SikkeRepository:
         stmt = select(SikkeEntry).where(SikkeEntry.kind.in_(set(kinds)))
         return list((await session.execute(stmt)).scalars())
 
+    async def by_keys(self, session: AsyncSession, keys: Iterable[str]) -> list[SikkeEntry]:
+        """Everyone's entries with some keys (a night's Sitara pay)."""
+        wanted = list(keys)
+        if not wanted:
+            return []
+        stmt = select(SikkeEntry).where(SikkeEntry.key.in_(wanted))
+        return list((await session.execute(stmt)).scalars())
+
     async def upsert(self, session: AsyncSession, values: Sequence[dict[str, Any]]) -> None:
         """Insert new keys and update changed ones; a kept row's `earned_at` never changes."""
         for k in range(0, len(values), UPSERT_CHUNK_ROWS):

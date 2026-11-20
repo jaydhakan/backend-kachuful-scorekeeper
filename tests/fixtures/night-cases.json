@@ -1,0 +1,2061 @@
+{
+  "gapMs": 10800000,
+  "freshMs": 43200000,
+  "cases": {
+    "two": {
+      "games": [
+        {
+          "id": "g-n0",
+          "syncId": "n0",
+          "rev": 1,
+          "schemaVersion": 4,
+          "createdAt": 1795015800000,
+          "updatedAt": 1795015980000,
+          "players": [
+            {
+              "id": "p0",
+              "playerId": "riya",
+              "name": "riya",
+              "emoji": "🙂",
+              "color": "#f87171"
+            },
+            {
+              "id": "p1",
+              "playerId": "dev",
+              "name": "dev",
+              "emoji": "🙂",
+              "color": "#60a5fa"
+            },
+            {
+              "id": "p2",
+              "playerId": "asha",
+              "name": "asha",
+              "emoji": "🙂",
+              "color": "#34d399"
+            }
+          ],
+          "direction": "cw",
+          "firstDealerIndex": 0,
+          "decks": 1,
+          "maxCards": 10,
+          "order": "up",
+          "lengthMode": "endless",
+          "rounds": [
+            {
+              "index": 0,
+              "cards": 3,
+              "trump": "spades",
+              "dealerIndex": 0,
+              "firstPlayerIndex": 1,
+              "bids": {
+                "p0": 3,
+                "p1": 1,
+                "p2": 1
+              },
+              "results": {
+                "p0": "made",
+                "p1": "missed",
+                "p2": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795015860000
+            },
+            {
+              "index": 1,
+              "cards": 4,
+              "trump": "diamonds",
+              "dealerIndex": 1,
+              "firstPlayerIndex": 2,
+              "bids": {
+                "p0": 4,
+                "p1": 0,
+                "p2": 1
+              },
+              "results": {
+                "p0": "made",
+                "p1": "made",
+                "p2": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795015920000
+            }
+          ],
+          "status": "finished",
+          "ui": {
+            "view": "round",
+            "bidIdx": 0
+          },
+          "finishedAt": 1795015980000
+        },
+        {
+          "id": "g-n1",
+          "syncId": "n1",
+          "rev": 1,
+          "schemaVersion": 4,
+          "createdAt": 1795188600000,
+          "updatedAt": 1795188840000,
+          "players": [
+            {
+              "id": "p0",
+              "playerId": "riya",
+              "name": "riya",
+              "emoji": "🙂",
+              "color": "#f87171"
+            },
+            {
+              "id": "p1",
+              "playerId": "dev",
+              "name": "dev",
+              "emoji": "🙂",
+              "color": "#60a5fa"
+            },
+            {
+              "id": "p2",
+              "playerId": "asha",
+              "name": "asha",
+              "emoji": "🙂",
+              "color": "#34d399"
+            }
+          ],
+          "direction": "cw",
+          "firstDealerIndex": 0,
+          "decks": 1,
+          "maxCards": 10,
+          "order": "up",
+          "lengthMode": "endless",
+          "rounds": [
+            {
+              "index": 0,
+              "cards": 3,
+              "trump": "spades",
+              "dealerIndex": 0,
+              "firstPlayerIndex": 1,
+              "bids": {
+                "p0": 3,
+                "p1": 0,
+                "p2": 1
+              },
+              "results": {
+                "p0": "made",
+                "p1": "made",
+                "p2": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795188660000
+            },
+            {
+              "index": 1,
+              "cards": 4,
+              "trump": "diamonds",
+              "dealerIndex": 1,
+              "firstPlayerIndex": 2,
+              "bids": {
+                "p0": 4,
+                "p1": 1,
+                "p2": 0
+              },
+              "results": {
+                "p0": "made",
+                "p1": "missed",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795188720000
+            },
+            {
+              "index": 2,
+              "cards": 5,
+              "trump": "clubs",
+              "dealerIndex": 2,
+              "firstPlayerIndex": 0,
+              "bids": {
+                "p0": 4,
+                "p1": 0,
+                "p2": 0
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795188780000
+            }
+          ],
+          "status": "finished",
+          "ui": {
+            "view": "round",
+            "bidIdx": 0
+          },
+          "finishedAt": 1795188840000
+        },
+        {
+          "id": "g-n2",
+          "syncId": "n2",
+          "rev": 1,
+          "schemaVersion": 4,
+          "createdAt": 1795192200000,
+          "updatedAt": 1795192440000,
+          "players": [
+            {
+              "id": "p0",
+              "playerId": "riya",
+              "name": "riya",
+              "emoji": "🙂",
+              "color": "#f87171"
+            },
+            {
+              "id": "p1",
+              "playerId": "dev",
+              "name": "dev",
+              "emoji": "🙂",
+              "color": "#60a5fa"
+            },
+            {
+              "id": "p2",
+              "playerId": "asha",
+              "name": "asha",
+              "emoji": "🙂",
+              "color": "#34d399"
+            }
+          ],
+          "direction": "cw",
+          "firstDealerIndex": 0,
+          "decks": 1,
+          "maxCards": 10,
+          "order": "up",
+          "lengthMode": "endless",
+          "rounds": [
+            {
+              "index": 0,
+              "cards": 3,
+              "trump": "spades",
+              "dealerIndex": 0,
+              "firstPlayerIndex": 1,
+              "bids": {
+                "p0": 2,
+                "p1": 0,
+                "p2": 0
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795192260000
+            },
+            {
+              "index": 1,
+              "cards": 4,
+              "trump": "diamonds",
+              "dealerIndex": 1,
+              "firstPlayerIndex": 2,
+              "bids": {
+                "p0": 2,
+                "p1": 0,
+                "p2": 1
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795192320000
+            },
+            {
+              "index": 2,
+              "cards": 5,
+              "trump": "clubs",
+              "dealerIndex": 2,
+              "firstPlayerIndex": 0,
+              "bids": {
+                "p0": 5,
+                "p1": 1,
+                "p2": 0
+              },
+              "results": {
+                "p0": "made",
+                "p1": "missed",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795192380000
+            }
+          ],
+          "status": "finished",
+          "ui": {
+            "view": "round",
+            "bidIdx": 0
+          },
+          "finishedAt": 1795192440000
+        }
+      ],
+      "now": 1795196040000,
+      "night": {
+        "from": 1795188600000,
+        "to": 1795192440000,
+        "gameIds": [
+          "n1",
+          "n2"
+        ],
+        "players": [
+          {
+            "playerId": "riya",
+            "wins": 2,
+            "games": 2,
+            "edge": 13.333333333333332
+          },
+          {
+            "playerId": "asha",
+            "wins": 1,
+            "games": 2,
+            "edge": -6.666666666666668
+          },
+          {
+            "playerId": "dev",
+            "wins": 1,
+            "games": 2,
+            "edge": -6.666666666666668
+          }
+        ],
+        "winner": "riya",
+        "swing": {
+          "playerId": "riya",
+          "points": 50
+        },
+        "bestBid": {
+          "playerId": "riya",
+          "bid": 5,
+          "cards": 5
+        },
+        "braveCall": {
+          "playerId": "riya",
+          "bid": 4,
+          "cards": 5
+        },
+        "gameWinners": [
+          [
+            "riya"
+          ],
+          [
+            "riya",
+            "dev",
+            "asha"
+          ]
+        ],
+        "kursi": []
+      }
+    },
+    "midnight": {
+      "games": [
+        {
+          "id": "g-n0",
+          "syncId": "n0",
+          "rev": 1,
+          "schemaVersion": 4,
+          "createdAt": 1795015800000,
+          "updatedAt": 1795015980000,
+          "players": [
+            {
+              "id": "p0",
+              "playerId": "riya",
+              "name": "riya",
+              "emoji": "🙂",
+              "color": "#f87171"
+            },
+            {
+              "id": "p1",
+              "playerId": "dev",
+              "name": "dev",
+              "emoji": "🙂",
+              "color": "#60a5fa"
+            },
+            {
+              "id": "p2",
+              "playerId": "asha",
+              "name": "asha",
+              "emoji": "🙂",
+              "color": "#34d399"
+            }
+          ],
+          "direction": "cw",
+          "firstDealerIndex": 0,
+          "decks": 1,
+          "maxCards": 10,
+          "order": "up",
+          "lengthMode": "endless",
+          "rounds": [
+            {
+              "index": 0,
+              "cards": 3,
+              "trump": "spades",
+              "dealerIndex": 0,
+              "firstPlayerIndex": 1,
+              "bids": {
+                "p0": 3,
+                "p1": 1,
+                "p2": 1
+              },
+              "results": {
+                "p0": "made",
+                "p1": "missed",
+                "p2": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795015860000
+            },
+            {
+              "index": 1,
+              "cards": 4,
+              "trump": "diamonds",
+              "dealerIndex": 1,
+              "firstPlayerIndex": 2,
+              "bids": {
+                "p0": 4,
+                "p1": 0,
+                "p2": 1
+              },
+              "results": {
+                "p0": "made",
+                "p1": "made",
+                "p2": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795015920000
+            }
+          ],
+          "status": "finished",
+          "ui": {
+            "view": "round",
+            "bidIdx": 0
+          },
+          "finishedAt": 1795015980000
+        },
+        {
+          "id": "g-n1",
+          "syncId": "n1",
+          "rev": 1,
+          "schemaVersion": 4,
+          "createdAt": 1795188600000,
+          "updatedAt": 1795188840000,
+          "players": [
+            {
+              "id": "p0",
+              "playerId": "riya",
+              "name": "riya",
+              "emoji": "🙂",
+              "color": "#f87171"
+            },
+            {
+              "id": "p1",
+              "playerId": "dev",
+              "name": "dev",
+              "emoji": "🙂",
+              "color": "#60a5fa"
+            },
+            {
+              "id": "p2",
+              "playerId": "asha",
+              "name": "asha",
+              "emoji": "🙂",
+              "color": "#34d399"
+            }
+          ],
+          "direction": "cw",
+          "firstDealerIndex": 0,
+          "decks": 1,
+          "maxCards": 10,
+          "order": "up",
+          "lengthMode": "endless",
+          "rounds": [
+            {
+              "index": 0,
+              "cards": 3,
+              "trump": "spades",
+              "dealerIndex": 0,
+              "firstPlayerIndex": 1,
+              "bids": {
+                "p0": 3,
+                "p1": 0,
+                "p2": 1
+              },
+              "results": {
+                "p0": "made",
+                "p1": "made",
+                "p2": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795188660000
+            },
+            {
+              "index": 1,
+              "cards": 4,
+              "trump": "diamonds",
+              "dealerIndex": 1,
+              "firstPlayerIndex": 2,
+              "bids": {
+                "p0": 4,
+                "p1": 1,
+                "p2": 0
+              },
+              "results": {
+                "p0": "made",
+                "p1": "missed",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795188720000
+            },
+            {
+              "index": 2,
+              "cards": 5,
+              "trump": "clubs",
+              "dealerIndex": 2,
+              "firstPlayerIndex": 0,
+              "bids": {
+                "p0": 4,
+                "p1": 0,
+                "p2": 0
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795188780000
+            }
+          ],
+          "status": "finished",
+          "ui": {
+            "view": "round",
+            "bidIdx": 0
+          },
+          "finishedAt": 1795188840000
+        },
+        {
+          "id": "g-n2",
+          "syncId": "n2",
+          "rev": 1,
+          "schemaVersion": 4,
+          "createdAt": 1795192200000,
+          "updatedAt": 1795192440000,
+          "players": [
+            {
+              "id": "p0",
+              "playerId": "riya",
+              "name": "riya",
+              "emoji": "🙂",
+              "color": "#f87171"
+            },
+            {
+              "id": "p1",
+              "playerId": "dev",
+              "name": "dev",
+              "emoji": "🙂",
+              "color": "#60a5fa"
+            },
+            {
+              "id": "p2",
+              "playerId": "asha",
+              "name": "asha",
+              "emoji": "🙂",
+              "color": "#34d399"
+            }
+          ],
+          "direction": "cw",
+          "firstDealerIndex": 0,
+          "decks": 1,
+          "maxCards": 10,
+          "order": "up",
+          "lengthMode": "endless",
+          "rounds": [
+            {
+              "index": 0,
+              "cards": 3,
+              "trump": "spades",
+              "dealerIndex": 0,
+              "firstPlayerIndex": 1,
+              "bids": {
+                "p0": 2,
+                "p1": 0,
+                "p2": 0
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795192260000
+            },
+            {
+              "index": 1,
+              "cards": 4,
+              "trump": "diamonds",
+              "dealerIndex": 1,
+              "firstPlayerIndex": 2,
+              "bids": {
+                "p0": 2,
+                "p1": 0,
+                "p2": 1
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795192320000
+            },
+            {
+              "index": 2,
+              "cards": 5,
+              "trump": "clubs",
+              "dealerIndex": 2,
+              "firstPlayerIndex": 0,
+              "bids": {
+                "p0": 5,
+                "p1": 1,
+                "p2": 0
+              },
+              "results": {
+                "p0": "made",
+                "p1": "missed",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795192380000
+            }
+          ],
+          "status": "finished",
+          "ui": {
+            "view": "round",
+            "bidIdx": 0
+          },
+          "finishedAt": 1795192440000
+        },
+        {
+          "id": "g-n3",
+          "syncId": "n3",
+          "rev": 1,
+          "schemaVersion": 4,
+          "createdAt": 1795199400000,
+          "updatedAt": 1795199580000,
+          "players": [
+            {
+              "id": "p0",
+              "playerId": "riya",
+              "name": "riya",
+              "emoji": "🙂",
+              "color": "#f87171"
+            },
+            {
+              "id": "p1",
+              "playerId": "dev",
+              "name": "dev",
+              "emoji": "🙂",
+              "color": "#60a5fa"
+            },
+            {
+              "id": "p2",
+              "playerId": "asha",
+              "name": "asha",
+              "emoji": "🙂",
+              "color": "#34d399"
+            }
+          ],
+          "direction": "cw",
+          "firstDealerIndex": 0,
+          "decks": 1,
+          "maxCards": 10,
+          "order": "up",
+          "lengthMode": "endless",
+          "rounds": [
+            {
+              "index": 0,
+              "cards": 3,
+              "trump": "spades",
+              "dealerIndex": 0,
+              "firstPlayerIndex": 1,
+              "bids": {
+                "p0": 1,
+                "p1": 1,
+                "p2": 0
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "missed",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795199460000
+            },
+            {
+              "index": 1,
+              "cards": 4,
+              "trump": "diamonds",
+              "dealerIndex": 1,
+              "firstPlayerIndex": 2,
+              "bids": {
+                "p0": 3,
+                "p1": 0,
+                "p2": 0
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795199520000
+            }
+          ],
+          "status": "finished",
+          "ui": {
+            "view": "round",
+            "bidIdx": 0
+          },
+          "finishedAt": 1795199580000
+        },
+        {
+          "id": "g-n4",
+          "syncId": "n4",
+          "rev": 1,
+          "schemaVersion": 4,
+          "createdAt": 1795203000000,
+          "updatedAt": 1795203180000,
+          "players": [
+            {
+              "id": "p0",
+              "playerId": "riya",
+              "name": "riya",
+              "emoji": "🙂",
+              "color": "#f87171"
+            },
+            {
+              "id": "p1",
+              "playerId": "dev",
+              "name": "dev",
+              "emoji": "🙂",
+              "color": "#60a5fa"
+            }
+          ],
+          "direction": "cw",
+          "firstDealerIndex": 0,
+          "decks": 1,
+          "maxCards": 10,
+          "order": "up",
+          "lengthMode": "endless",
+          "rounds": [
+            {
+              "index": 0,
+              "cards": 3,
+              "trump": "spades",
+              "dealerIndex": 0,
+              "firstPlayerIndex": 1,
+              "bids": {
+                "p0": 3,
+                "p1": 1
+              },
+              "results": {
+                "p0": "made",
+                "p1": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795203060000
+            },
+            {
+              "index": 1,
+              "cards": 4,
+              "trump": "diamonds",
+              "dealerIndex": 1,
+              "firstPlayerIndex": 0,
+              "bids": {
+                "p0": 3,
+                "p1": 0
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795203120000
+            }
+          ],
+          "status": "finished",
+          "ui": {
+            "view": "round",
+            "bidIdx": 0
+          },
+          "finishedAt": 1795203180000
+        },
+        {
+          "id": "g-n5",
+          "syncId": "n5",
+          "rev": 1,
+          "schemaVersion": 4,
+          "createdAt": 1795195800000,
+          "updatedAt": 1795195860000,
+          "players": [
+            {
+              "id": "p0",
+              "playerId": "riya",
+              "name": "riya",
+              "emoji": "🙂",
+              "color": "#f87171"
+            },
+            {
+              "id": "p1",
+              "playerId": "dev",
+              "name": "dev",
+              "emoji": "🙂",
+              "color": "#60a5fa"
+            },
+            {
+              "id": "p2",
+              "playerId": "asha",
+              "name": "asha",
+              "emoji": "🙂",
+              "color": "#34d399"
+            }
+          ],
+          "direction": "cw",
+          "firstDealerIndex": 0,
+          "decks": 1,
+          "maxCards": 10,
+          "order": "up",
+          "lengthMode": "endless",
+          "rounds": [
+            {
+              "index": 0,
+              "cards": 3,
+              "trump": "spades",
+              "dealerIndex": 0,
+              "firstPlayerIndex": 1,
+              "bids": {
+                "p0": 3,
+                "p1": 1,
+                "p2": 1
+              },
+              "results": {
+                "p0": "made",
+                "p1": "missed",
+                "p2": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795195860000
+            },
+            {
+              "index": 1,
+              "cards": 4,
+              "trump": "diamonds",
+              "dealerIndex": 1,
+              "firstPlayerIndex": 2,
+              "bids": {},
+              "results": {},
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "bidding"
+            }
+          ],
+          "status": "active",
+          "ui": {
+            "view": "round",
+            "bidIdx": 0
+          }
+        }
+      ],
+      "now": 1795206780000,
+      "night": {
+        "from": 1795188600000,
+        "to": 1795203180000,
+        "gameIds": [
+          "n1",
+          "n2",
+          "n3",
+          "n4"
+        ],
+        "players": [
+          {
+            "playerId": "riya",
+            "wins": 3,
+            "games": 4,
+            "edge": -20.000000000000004
+          },
+          {
+            "playerId": "asha",
+            "wins": 2,
+            "games": 3,
+            "edge": 20
+          },
+          {
+            "playerId": "dev",
+            "wins": 2,
+            "games": 4,
+            "edge": -8.881784197001252e-16
+          }
+        ],
+        "winner": "riya",
+        "swing": {
+          "playerId": "riya",
+          "points": 50
+        },
+        "bestBid": {
+          "playerId": "riya",
+          "bid": 5,
+          "cards": 5
+        },
+        "braveCall": {
+          "playerId": "riya",
+          "bid": 4,
+          "cards": 5
+        },
+        "gameWinners": [
+          [
+            "riya"
+          ],
+          [
+            "riya",
+            "dev",
+            "asha"
+          ],
+          [
+            "asha"
+          ],
+          [
+            "riya",
+            "dev"
+          ]
+        ],
+        "kursi": [
+          {
+            "to": [
+              "asha"
+            ],
+            "from": [
+              "riya"
+            ]
+          }
+        ]
+      }
+    },
+    "late": {
+      "games": [
+        {
+          "id": "g-n1",
+          "syncId": "n1",
+          "rev": 1,
+          "schemaVersion": 4,
+          "createdAt": 1795188600000,
+          "updatedAt": 1795188840000,
+          "players": [
+            {
+              "id": "p0",
+              "playerId": "riya",
+              "name": "riya",
+              "emoji": "🙂",
+              "color": "#f87171"
+            },
+            {
+              "id": "p1",
+              "playerId": "dev",
+              "name": "dev",
+              "emoji": "🙂",
+              "color": "#60a5fa"
+            },
+            {
+              "id": "p2",
+              "playerId": "asha",
+              "name": "asha",
+              "emoji": "🙂",
+              "color": "#34d399"
+            }
+          ],
+          "direction": "cw",
+          "firstDealerIndex": 0,
+          "decks": 1,
+          "maxCards": 10,
+          "order": "up",
+          "lengthMode": "endless",
+          "rounds": [
+            {
+              "index": 0,
+              "cards": 3,
+              "trump": "spades",
+              "dealerIndex": 0,
+              "firstPlayerIndex": 1,
+              "bids": {
+                "p0": 3,
+                "p1": 0,
+                "p2": 1
+              },
+              "results": {
+                "p0": "made",
+                "p1": "made",
+                "p2": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795188660000
+            },
+            {
+              "index": 1,
+              "cards": 4,
+              "trump": "diamonds",
+              "dealerIndex": 1,
+              "firstPlayerIndex": 2,
+              "bids": {
+                "p0": 4,
+                "p1": 1,
+                "p2": 0
+              },
+              "results": {
+                "p0": "made",
+                "p1": "missed",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795188720000
+            },
+            {
+              "index": 2,
+              "cards": 5,
+              "trump": "clubs",
+              "dealerIndex": 2,
+              "firstPlayerIndex": 0,
+              "bids": {
+                "p0": 4,
+                "p1": 0,
+                "p2": 0
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795188780000
+            }
+          ],
+          "status": "finished",
+          "ui": {
+            "view": "round",
+            "bidIdx": 0
+          },
+          "finishedAt": 1795188840000
+        },
+        {
+          "id": "g-n2",
+          "syncId": "n2",
+          "rev": 1,
+          "schemaVersion": 4,
+          "createdAt": 1795192200000,
+          "updatedAt": 1795192440000,
+          "players": [
+            {
+              "id": "p0",
+              "playerId": "riya",
+              "name": "riya",
+              "emoji": "🙂",
+              "color": "#f87171"
+            },
+            {
+              "id": "p1",
+              "playerId": "dev",
+              "name": "dev",
+              "emoji": "🙂",
+              "color": "#60a5fa"
+            },
+            {
+              "id": "p2",
+              "playerId": "asha",
+              "name": "asha",
+              "emoji": "🙂",
+              "color": "#34d399"
+            }
+          ],
+          "direction": "cw",
+          "firstDealerIndex": 0,
+          "decks": 1,
+          "maxCards": 10,
+          "order": "up",
+          "lengthMode": "endless",
+          "rounds": [
+            {
+              "index": 0,
+              "cards": 3,
+              "trump": "spades",
+              "dealerIndex": 0,
+              "firstPlayerIndex": 1,
+              "bids": {
+                "p0": 2,
+                "p1": 0,
+                "p2": 0
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795192260000
+            },
+            {
+              "index": 1,
+              "cards": 4,
+              "trump": "diamonds",
+              "dealerIndex": 1,
+              "firstPlayerIndex": 2,
+              "bids": {
+                "p0": 2,
+                "p1": 0,
+                "p2": 1
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795192320000
+            },
+            {
+              "index": 2,
+              "cards": 5,
+              "trump": "clubs",
+              "dealerIndex": 2,
+              "firstPlayerIndex": 0,
+              "bids": {
+                "p0": 5,
+                "p1": 1,
+                "p2": 0
+              },
+              "results": {
+                "p0": "made",
+                "p1": "missed",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795192380000
+            }
+          ],
+          "status": "finished",
+          "ui": {
+            "view": "round",
+            "bidIdx": 0
+          },
+          "finishedAt": 1795192440000
+        },
+        {
+          "id": "g-n3",
+          "syncId": "n3",
+          "rev": 1,
+          "schemaVersion": 4,
+          "createdAt": 1795199400000,
+          "updatedAt": 1795199580000,
+          "players": [
+            {
+              "id": "p0",
+              "playerId": "riya",
+              "name": "riya",
+              "emoji": "🙂",
+              "color": "#f87171"
+            },
+            {
+              "id": "p1",
+              "playerId": "dev",
+              "name": "dev",
+              "emoji": "🙂",
+              "color": "#60a5fa"
+            },
+            {
+              "id": "p2",
+              "playerId": "asha",
+              "name": "asha",
+              "emoji": "🙂",
+              "color": "#34d399"
+            }
+          ],
+          "direction": "cw",
+          "firstDealerIndex": 0,
+          "decks": 1,
+          "maxCards": 10,
+          "order": "up",
+          "lengthMode": "endless",
+          "rounds": [
+            {
+              "index": 0,
+              "cards": 3,
+              "trump": "spades",
+              "dealerIndex": 0,
+              "firstPlayerIndex": 1,
+              "bids": {
+                "p0": 1,
+                "p1": 1,
+                "p2": 0
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "missed",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795199460000
+            },
+            {
+              "index": 1,
+              "cards": 4,
+              "trump": "diamonds",
+              "dealerIndex": 1,
+              "firstPlayerIndex": 2,
+              "bids": {
+                "p0": 3,
+                "p1": 0,
+                "p2": 0
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795199520000
+            }
+          ],
+          "status": "finished",
+          "ui": {
+            "view": "round",
+            "bidIdx": 0
+          },
+          "finishedAt": 1795199580000
+        },
+        {
+          "id": "g-n6",
+          "syncId": "n6",
+          "rev": 1,
+          "schemaVersion": 4,
+          "createdAt": 1795206600000,
+          "updatedAt": 1795206840000,
+          "players": [
+            {
+              "id": "p0",
+              "playerId": "riya",
+              "name": "riya",
+              "emoji": "🙂",
+              "color": "#f87171"
+            },
+            {
+              "id": "p1",
+              "playerId": "dev",
+              "name": "dev",
+              "emoji": "🙂",
+              "color": "#60a5fa"
+            },
+            {
+              "id": "p2",
+              "playerId": "asha",
+              "name": "asha",
+              "emoji": "🙂",
+              "color": "#34d399"
+            },
+            {
+              "id": "p3",
+              "playerId": "kabir",
+              "name": "kabir",
+              "emoji": "🙂",
+              "color": "#fbbf24"
+            }
+          ],
+          "direction": "cw",
+          "firstDealerIndex": 0,
+          "decks": 1,
+          "maxCards": 10,
+          "order": "up",
+          "lengthMode": "endless",
+          "rounds": [
+            {
+              "index": 0,
+              "cards": 3,
+              "trump": "spades",
+              "dealerIndex": 0,
+              "firstPlayerIndex": 1,
+              "bids": {
+                "p0": 1,
+                "p1": 0,
+                "p2": 0,
+                "p3": 1
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "made",
+                "p3": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795206660000
+            },
+            {
+              "index": 1,
+              "cards": 4,
+              "trump": "diamonds",
+              "dealerIndex": 1,
+              "firstPlayerIndex": 2,
+              "bids": {
+                "p0": 4,
+                "p1": 0,
+                "p2": 1,
+                "p3": 1
+              },
+              "results": {
+                "p0": "made",
+                "p1": "made",
+                "p2": "missed",
+                "p3": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795206720000
+            },
+            {
+              "index": 2,
+              "cards": 5,
+              "trump": "clubs",
+              "dealerIndex": 2,
+              "firstPlayerIndex": 3,
+              "bids": {
+                "p0": 3,
+                "p1": 1,
+                "p2": 0,
+                "p3": 0
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "missed",
+                "p2": "made",
+                "p3": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795206780000
+            }
+          ],
+          "status": "finished",
+          "ui": {
+            "view": "round",
+            "bidIdx": 0
+          },
+          "finishedAt": 1795206840000
+        }
+      ],
+      "now": 1795214040000,
+      "night": {
+        "from": 1795188600000,
+        "to": 1795206840000,
+        "gameIds": [
+          "n1",
+          "n2",
+          "n3",
+          "n6"
+        ],
+        "players": [
+          {
+            "playerId": "asha",
+            "wins": 3,
+            "games": 4,
+            "edge": 27.5
+          },
+          {
+            "playerId": "dev",
+            "wins": 2,
+            "games": 4,
+            "edge": 7.499999999999999
+          },
+          {
+            "playerId": "riya",
+            "wins": 2,
+            "games": 4,
+            "edge": -22.500000000000004
+          },
+          {
+            "playerId": "kabir",
+            "wins": 0,
+            "games": 1,
+            "edge": -12.5
+          }
+        ],
+        "winner": "asha",
+        "swing": {
+          "playerId": "riya",
+          "points": 50
+        },
+        "bestBid": {
+          "playerId": "riya",
+          "bid": 5,
+          "cards": 5
+        },
+        "braveCall": {
+          "playerId": "riya",
+          "bid": 4,
+          "cards": 5
+        },
+        "gameWinners": [
+          [
+            "riya"
+          ],
+          [
+            "riya",
+            "dev",
+            "asha"
+          ],
+          [
+            "asha"
+          ],
+          [
+            "dev",
+            "asha"
+          ]
+        ],
+        "kursi": [
+          {
+            "to": [
+              "asha"
+            ],
+            "from": [
+              "riya"
+            ]
+          }
+        ]
+      }
+    },
+    "gap": {
+      "games": [
+        {
+          "id": "g-n1",
+          "syncId": "n1",
+          "rev": 1,
+          "schemaVersion": 4,
+          "createdAt": 1795188600000,
+          "updatedAt": 1795188840000,
+          "players": [
+            {
+              "id": "p0",
+              "playerId": "riya",
+              "name": "riya",
+              "emoji": "🙂",
+              "color": "#f87171"
+            },
+            {
+              "id": "p1",
+              "playerId": "dev",
+              "name": "dev",
+              "emoji": "🙂",
+              "color": "#60a5fa"
+            },
+            {
+              "id": "p2",
+              "playerId": "asha",
+              "name": "asha",
+              "emoji": "🙂",
+              "color": "#34d399"
+            }
+          ],
+          "direction": "cw",
+          "firstDealerIndex": 0,
+          "decks": 1,
+          "maxCards": 10,
+          "order": "up",
+          "lengthMode": "endless",
+          "rounds": [
+            {
+              "index": 0,
+              "cards": 3,
+              "trump": "spades",
+              "dealerIndex": 0,
+              "firstPlayerIndex": 1,
+              "bids": {
+                "p0": 3,
+                "p1": 0,
+                "p2": 1
+              },
+              "results": {
+                "p0": "made",
+                "p1": "made",
+                "p2": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795188660000
+            },
+            {
+              "index": 1,
+              "cards": 4,
+              "trump": "diamonds",
+              "dealerIndex": 1,
+              "firstPlayerIndex": 2,
+              "bids": {
+                "p0": 4,
+                "p1": 1,
+                "p2": 0
+              },
+              "results": {
+                "p0": "made",
+                "p1": "missed",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795188720000
+            },
+            {
+              "index": 2,
+              "cards": 5,
+              "trump": "clubs",
+              "dealerIndex": 2,
+              "firstPlayerIndex": 0,
+              "bids": {
+                "p0": 4,
+                "p1": 0,
+                "p2": 0
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795188780000
+            }
+          ],
+          "status": "finished",
+          "ui": {
+            "view": "round",
+            "bidIdx": 0
+          },
+          "finishedAt": 1795188840000
+        },
+        {
+          "id": "g-n2",
+          "syncId": "n2",
+          "rev": 1,
+          "schemaVersion": 4,
+          "createdAt": 1795192200000,
+          "updatedAt": 1795192440000,
+          "players": [
+            {
+              "id": "p0",
+              "playerId": "riya",
+              "name": "riya",
+              "emoji": "🙂",
+              "color": "#f87171"
+            },
+            {
+              "id": "p1",
+              "playerId": "dev",
+              "name": "dev",
+              "emoji": "🙂",
+              "color": "#60a5fa"
+            },
+            {
+              "id": "p2",
+              "playerId": "asha",
+              "name": "asha",
+              "emoji": "🙂",
+              "color": "#34d399"
+            }
+          ],
+          "direction": "cw",
+          "firstDealerIndex": 0,
+          "decks": 1,
+          "maxCards": 10,
+          "order": "up",
+          "lengthMode": "endless",
+          "rounds": [
+            {
+              "index": 0,
+              "cards": 3,
+              "trump": "spades",
+              "dealerIndex": 0,
+              "firstPlayerIndex": 1,
+              "bids": {
+                "p0": 2,
+                "p1": 0,
+                "p2": 0
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795192260000
+            },
+            {
+              "index": 1,
+              "cards": 4,
+              "trump": "diamonds",
+              "dealerIndex": 1,
+              "firstPlayerIndex": 2,
+              "bids": {
+                "p0": 2,
+                "p1": 0,
+                "p2": 1
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795192320000
+            },
+            {
+              "index": 2,
+              "cards": 5,
+              "trump": "clubs",
+              "dealerIndex": 2,
+              "firstPlayerIndex": 0,
+              "bids": {
+                "p0": 5,
+                "p1": 1,
+                "p2": 0
+              },
+              "results": {
+                "p0": "made",
+                "p1": "missed",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795192380000
+            }
+          ],
+          "status": "finished",
+          "ui": {
+            "view": "round",
+            "bidIdx": 0
+          },
+          "finishedAt": 1795192440000
+        },
+        {
+          "id": "g-n7",
+          "syncId": "n7",
+          "rev": 1,
+          "schemaVersion": 4,
+          "createdAt": 1795203300000,
+          "updatedAt": 1795203420000,
+          "players": [
+            {
+              "id": "p0",
+              "playerId": "riya",
+              "name": "riya",
+              "emoji": "🙂",
+              "color": "#f87171"
+            },
+            {
+              "id": "p1",
+              "playerId": "dev",
+              "name": "dev",
+              "emoji": "🙂",
+              "color": "#60a5fa"
+            },
+            {
+              "id": "p2",
+              "playerId": "asha",
+              "name": "asha",
+              "emoji": "🙂",
+              "color": "#34d399"
+            }
+          ],
+          "direction": "cw",
+          "firstDealerIndex": 0,
+          "decks": 1,
+          "maxCards": 10,
+          "order": "up",
+          "lengthMode": "endless",
+          "rounds": [
+            {
+              "index": 0,
+              "cards": 3,
+              "trump": "spades",
+              "dealerIndex": 0,
+              "firstPlayerIndex": 1,
+              "bids": {
+                "p0": 1,
+                "p1": 0,
+                "p2": 1
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795203360000
+            }
+          ],
+          "status": "finished",
+          "ui": {
+            "view": "round",
+            "bidIdx": 0
+          },
+          "finishedAt": 1795203420000
+        }
+      ],
+      "now": 1795207020000,
+      "night": {
+        "from": 1795203300000,
+        "to": 1795203420000,
+        "gameIds": [
+          "n7"
+        ],
+        "players": [
+          {
+            "playerId": "dev",
+            "wins": 1,
+            "games": 1,
+            "edge": 13.333333333333334
+          },
+          {
+            "playerId": "asha",
+            "wins": 0,
+            "games": 1,
+            "edge": -6.666666666666666
+          },
+          {
+            "playerId": "riya",
+            "wins": 0,
+            "games": 1,
+            "edge": -6.666666666666666
+          }
+        ],
+        "winner": "dev",
+        "swing": {
+          "playerId": "riya",
+          "points": -10
+        },
+        "bestBid": {
+          "playerId": "dev",
+          "bid": 0,
+          "cards": 3
+        },
+        "braveCall": {
+          "playerId": "riya",
+          "bid": 1,
+          "cards": 3
+        },
+        "gameWinners": [
+          [
+            "dev"
+          ]
+        ],
+        "kursi": [
+          {
+            "to": [
+              "dev"
+            ],
+            "from": [
+              "riya"
+            ]
+          }
+        ]
+      }
+    },
+    "stale": {
+      "games": [
+        {
+          "id": "g-n1",
+          "syncId": "n1",
+          "rev": 1,
+          "schemaVersion": 4,
+          "createdAt": 1795188600000,
+          "updatedAt": 1795188840000,
+          "players": [
+            {
+              "id": "p0",
+              "playerId": "riya",
+              "name": "riya",
+              "emoji": "🙂",
+              "color": "#f87171"
+            },
+            {
+              "id": "p1",
+              "playerId": "dev",
+              "name": "dev",
+              "emoji": "🙂",
+              "color": "#60a5fa"
+            },
+            {
+              "id": "p2",
+              "playerId": "asha",
+              "name": "asha",
+              "emoji": "🙂",
+              "color": "#34d399"
+            }
+          ],
+          "direction": "cw",
+          "firstDealerIndex": 0,
+          "decks": 1,
+          "maxCards": 10,
+          "order": "up",
+          "lengthMode": "endless",
+          "rounds": [
+            {
+              "index": 0,
+              "cards": 3,
+              "trump": "spades",
+              "dealerIndex": 0,
+              "firstPlayerIndex": 1,
+              "bids": {
+                "p0": 3,
+                "p1": 0,
+                "p2": 1
+              },
+              "results": {
+                "p0": "made",
+                "p1": "made",
+                "p2": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795188660000
+            },
+            {
+              "index": 1,
+              "cards": 4,
+              "trump": "diamonds",
+              "dealerIndex": 1,
+              "firstPlayerIndex": 2,
+              "bids": {
+                "p0": 4,
+                "p1": 1,
+                "p2": 0
+              },
+              "results": {
+                "p0": "made",
+                "p1": "missed",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795188720000
+            },
+            {
+              "index": 2,
+              "cards": 5,
+              "trump": "clubs",
+              "dealerIndex": 2,
+              "firstPlayerIndex": 0,
+              "bids": {
+                "p0": 4,
+                "p1": 0,
+                "p2": 0
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795188780000
+            }
+          ],
+          "status": "finished",
+          "ui": {
+            "view": "round",
+            "bidIdx": 0
+          },
+          "finishedAt": 1795188840000
+        },
+        {
+          "id": "g-n2",
+          "syncId": "n2",
+          "rev": 1,
+          "schemaVersion": 4,
+          "createdAt": 1795192200000,
+          "updatedAt": 1795192440000,
+          "players": [
+            {
+              "id": "p0",
+              "playerId": "riya",
+              "name": "riya",
+              "emoji": "🙂",
+              "color": "#f87171"
+            },
+            {
+              "id": "p1",
+              "playerId": "dev",
+              "name": "dev",
+              "emoji": "🙂",
+              "color": "#60a5fa"
+            },
+            {
+              "id": "p2",
+              "playerId": "asha",
+              "name": "asha",
+              "emoji": "🙂",
+              "color": "#34d399"
+            }
+          ],
+          "direction": "cw",
+          "firstDealerIndex": 0,
+          "decks": 1,
+          "maxCards": 10,
+          "order": "up",
+          "lengthMode": "endless",
+          "rounds": [
+            {
+              "index": 0,
+              "cards": 3,
+              "trump": "spades",
+              "dealerIndex": 0,
+              "firstPlayerIndex": 1,
+              "bids": {
+                "p0": 2,
+                "p1": 0,
+                "p2": 0
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795192260000
+            },
+            {
+              "index": 1,
+              "cards": 4,
+              "trump": "diamonds",
+              "dealerIndex": 1,
+              "firstPlayerIndex": 2,
+              "bids": {
+                "p0": 2,
+                "p1": 0,
+                "p2": 1
+              },
+              "results": {
+                "p0": "missed",
+                "p1": "made",
+                "p2": "missed"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795192320000
+            },
+            {
+              "index": 2,
+              "cards": 5,
+              "trump": "clubs",
+              "dealerIndex": 2,
+              "firstPlayerIndex": 0,
+              "bids": {
+                "p0": 5,
+                "p1": 1,
+                "p2": 0
+              },
+              "results": {
+                "p0": "made",
+                "p1": "missed",
+                "p2": "made"
+              },
+              "tricks": null,
+              "hookHits": 0,
+              "phase": "done",
+              "doneAt": 1795192380000
+            }
+          ],
+          "status": "finished",
+          "ui": {
+            "view": "round",
+            "bidIdx": 0
+          },
+          "finishedAt": 1795192440000
+        }
+      ],
+      "now": 1795235640001,
+      "night": null
+    }
+  }
+}

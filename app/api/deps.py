@@ -23,6 +23,7 @@ from app.services.kt_boards import KtBoardsService
 from app.services.kt_games import KtGamesService
 from app.services.links import LinksService
 from app.services.merge import MergeService
+from app.services.nights import NightsService
 from app.services.owned_games import MyDataService
 from app.services.players import PlayersService
 from app.services.seat_invites import SeatInvitesService
@@ -130,6 +131,11 @@ def get_games_service(session: SessionDep) -> GamesService:
 def get_boards_service(session: SessionDep) -> BoardsService:
     """BoardsService for a request."""
     return BoardsService(session)
+
+
+def get_nights_service(session: SessionDep) -> NightsService:
+    """NightsService for a request."""
+    return NightsService(session)
 
 
 def get_claims_service(session: SessionDep) -> ClaimsService:

@@ -55,6 +55,8 @@ KURSI_KINDS = frozenset({SikkeKind.KURSI_TAKE, SikkeKind.KURSI_DEFENCE})
 """Recomputed from Kachuful's whole Kursi chain at once."""
 BOUNTY_KINDS = frozenset({SikkeKind.BOUNTY})
 """Recomputed from the Kursi chain and the Taj's reigns at once."""
+SITARA_KINDS = frozenset({SikkeKind.SITARA})
+"""Recomputed from the stored nights."""
 
 # What each achievement or award code pays, per game: the fixture's numbers, never re-derived.
 ACHIEVEMENT_SIKKE: dict[ProgressionGame, dict[str, int]] = {
@@ -539,3 +541,19 @@ def bounty_entries(
                 out.setdefault((e.player_id, e.key), e)
         kursi, _ = step_kursi(kursi, g)
     return list(out.values())
+
+
+def sitara_entries(night_id: str, ended_at: int, holders: list[str]) -> list[SikkeEarned]:
+    """A closed night's Sitara pay: each of its Sitara, dated at the night's end."""
+    return [
+        SikkeEarned(
+            player_id=pid,
+            key=f"sitara:{night_id}",
+            kind=SikkeKind.SITARA,
+            amount=SITARA,
+            earned_at=ended_at,
+            game=ProgressionGame.KACHUFUL,
+            data={"nightId": night_id},
+        )
+        for pid in holders
+    ]
