@@ -87,6 +87,24 @@ class KursiStateOut(CamelModel):
     longest: ReignOut | None
 
 
+class PlaceOut(CamelModel):
+    player_id: uuid.UUID
+    place: int
+    seat: int
+
+
+class PlacedGameOut(CamelModel):
+    game_id: uuid.UUID
+    ended_at: int = Field(..., description="Epoch ms")
+    seats: list[PlaceOut]
+
+
+class PlacesOut(CamelModel):
+    """`GET /api/places`: ended Kachuful games' places, newest first, for the table intel line (rewards §6.5)."""
+
+    games: list[PlacedGameOut]
+
+
 class StandingOut(CamelModel):
     """One player in a month's win-rate standings."""
 

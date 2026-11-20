@@ -290,6 +290,27 @@ class AwardsService:
             else None,
         )
 
+    async def places(self, exclude_game: uuid.UUID | None, limit: int) -> PlacesOut:
+        """`GET /api/places`: the newest ended Kachuful games' places, one game left out."""
+        games: dict[str, tuple[int, list[PlaceOut]]] = {}
+        for gid, ended, pid, place, seat in await boards_repository.ended_places(
+            self.session, exclude_game
+        ):
+            games.setdefault(gid, (ended, []))[1].append(
+                PlaceOut(player_id=uuid.UUID(pid), place=place, seat=seat)
+            )
+        newest = sorted(games.items(), key=lambda kv: (-kv[1][0], kv[0]))[:limit]
+        return PlacesOut(
+            games=[
+                PlacedGameOut(
+                    game_id=uuid.UUID(gid),
+                    ended_at=ended,
+                    seats=sorted(seats, key=lambda s: s.seat),
+                )
+                for gid, (ended, seats) in newest
+            ]
+        )
+
     async def _season_board(self, month: str) -> Board:
         """A month's standings: frozen once closed, else live."""
         closed = await achievements_repository.closed(self.session, KACHUFUL, month)

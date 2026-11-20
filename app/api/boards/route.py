@@ -14,6 +14,7 @@ from app.schemas.awards import (
     GameSeasonOut,
     KursiStateOut,
     MedalsOut,
+    PlacesOut,
     SeasonListItemOut,
     SeasonOut,
     WrappedOut,
@@ -193,6 +194,22 @@ async def get_kursi(
 ) -> KursiStateOut:
     """Kachuful's Kursi: who holds the chair before `excludeGame`, and the longest reign."""
     return await AwardsService(session).kursi(exclude_game)
+
+
+@boards_router.get("/places", response_model=PlacesOut)
+async def get_places(
+    _: CurrentAuth,
+    session: SessionDep,
+    exclude_game: Annotated[
+        uuid.UUID | None,
+        Query(
+            alias="excludeGame", description="A Kachuful game to leave out (the one at the table)"
+        ),
+    ] = None,
+    limit: Annotated[int, Query(ge=1, le=1000)] = 500,
+) -> PlacesOut:
+    """Ended Kachuful games' places, newest first: the app finds rivalries and milestones in them."""
+    return await AwardsService(session).places(exclude_game, limit)
 
 
 @boards_router.get("/wrapped/{year}/{player_id}", response_model=WrappedOut)

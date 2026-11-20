@@ -93,3 +93,23 @@ async def test_kursi_goes_to_the_first_winner_and_to_whoever_beats_them(
     # Either the winner defended it or someone above them took it; the longest reign is the one with more games.
     assert after["kursi"]["defences"] == (0 if took else 1)
     assert after["longest"] is not None
+
+
+async def test_places_list_ended_games_newest_first_without_the_excluded_one(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    user = await make_user(session, player_name="Scorer")
+    await sign_in(client, user)
+    ids = [str((await make_player(session, name=f"P{k}")).id) for k in range(3)]
+    now = to_ms(now_utc())
+    older = make_payload(ids, start_ms=now - 3 * HOUR, rounds=4, seed=2)
+    newer = make_payload(ids, start_ms=now - HOUR, rounds=4, seed=3)
+    for p in (older, newer):
+        assert (await client.put(f"/api/games/{p['syncId']}", json=p)).status_code == 200
+
+    body = (await client.get("/api/places")).json()
+    without = (await client.get("/api/places", params={"excludeGame": newer["syncId"]})).json()
+
+    assert [g["gameId"] for g in body["games"]] == [newer["syncId"], older["syncId"]]
+    assert sorted(s["playerId"] for s in body["games"][0]["seats"]) == sorted(ids)
+    assert [g["gameId"] for g in without["games"]] == [older["syncId"]]
