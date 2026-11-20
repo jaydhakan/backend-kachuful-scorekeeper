@@ -5,7 +5,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, Query, Request, Response
 
-from app.api.deps import CurrentAuth, get_boards_service, get_players_service
+from app.api.deps import CurrentAuth, get_boards_service, get_players_service, get_sikke_service
 from app.api.etag import IfNoneMatch, respond
 from app.schemas.boards import CalendarOut, HeadToHeadOut, PlayerPageOut, PlayerStatsOut
 from app.schemas.common import Page
@@ -18,14 +18,17 @@ from app.schemas.players import (
     PlayerOut,
     PlayerPatchIn,
 )
+from app.schemas.sikke import SikkeEntryOut, SikkeOut
 from app.security import rate_limit
 from app.services.boards import ALL_TIME_TO, BoardsService
 from app.services.pagination import DEFAULT_LIMIT, MAX_LIMIT
 from app.services.players import PlayersService
+from app.services.sikke import SikkeService
 
 _PlayersServiceDep = Annotated[PlayersService, Depends(get_players_service)]
 _PlayerId = Annotated[uuid.UUID, Path(description="Registry player id")]
 _BoardsServiceDep = Annotated[BoardsService, Depends(get_boards_service)]
+_SikkeServiceDep = Annotated[SikkeService, Depends(get_sikke_service)]
 _From = Annotated[int | None, Query(alias="from", ge=0, le=ALL_TIME_TO, description="Epoch ms")]
 _To = Annotated[int | None, Query(alias="to", ge=0, le=ALL_TIME_TO, description="Epoch ms")]
 
@@ -190,3 +193,23 @@ async def get_player_photo(player_id: _PlayerId, service: _PlayersServiceDep) ->
         media_type="image/webp",
         headers={"Cache-Control": "public, max-age=31536000, immutable"},
     )
+
+
+@players_router.get("/{player_id}/sikke", response_model=SikkeOut)
+async def get_player_sikke(
+    player_id: _PlayerId, _: CurrentAuth, service: _SikkeServiceDep
+) -> SikkeOut:
+    """A player's Sikke: balance, lifetime and level (a merged-away id answers for its target)."""
+    return await service.wallet(player_id)
+
+
+@players_router.get("/{player_id}/sikke/entries", response_model=Page[SikkeEntryOut])
+async def list_player_sikke_entries(
+    player_id: _PlayerId,
+    _: CurrentAuth,
+    service: _SikkeServiceDep,
+    cursor: Annotated[str | None, Query(max_length=200)] = None,
+    limit: Annotated[int, Query(ge=1, le=MAX_LIMIT)] = DEFAULT_LIMIT,
+) -> Page[SikkeEntryOut]:
+    """A player's Sikke ledger, newest first."""
+    return await service.entries(player_id, cursor=cursor, limit=limit)

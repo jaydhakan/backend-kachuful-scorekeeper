@@ -6,18 +6,27 @@ from typing import Annotated, Any, Literal
 from fastapi import APIRouter, Body, Depends, Path, Query
 from fastapi.responses import Response
 
-from app.api.deps import CurrentAuth, get_games_service, get_links_service, get_my_data_service
+from app.api.deps import (
+    CurrentAuth,
+    get_games_service,
+    get_links_service,
+    get_my_data_service,
+    get_sikke_service,
+)
 from app.schemas.games import DeletedOut, GameDetailOut, GamesPageOut, UploadOut
 from app.schemas.public import CreateLinkIn, LinkOut, LinkSettingsIn
+from app.schemas.sikke import GameSikkeOut
 from app.security import rate_limit
 from app.services.games import GamesService
 from app.services.links import LinksService
 from app.services.owned_games import MyDataService
 from app.services.pagination import DEFAULT_LIMIT, MAX_LIMIT
+from app.services.sikke import SikkeService
 
 _GamesServiceDep = Annotated[GamesService, Depends(get_games_service)]
 _GameId = Annotated[uuid.UUID, Path(description="The game's sync id")]
 _LinksServiceDep = Annotated[LinksService, Depends(get_links_service)]
+_SikkeServiceDep = Annotated[SikkeService, Depends(get_sikke_service)]
 _Kind = Annotated[Literal["live", "recap"], Path(description="live or recap")]
 
 games_router = APIRouter(prefix="/games", tags=["Games"])
@@ -76,6 +85,14 @@ async def delete_my_data(
 ) -> DeletedOut:
     """Start fresh: delete every game the caller scored and the players they added, if unused."""
     return await service.start_fresh(ctx.user)
+
+
+@games_router.get("/{game_id}/sikke", response_model=GameSikkeOut)
+async def get_game_sikke(
+    game_id: _GameId, _: CurrentAuth, service: _SikkeServiceDep
+) -> GameSikkeOut:
+    """What a game of any kind paid each of its players, in seat order (zeros until it ends)."""
+    return await service.for_game(game_id)
 
 
 @games_router.delete("/{game_id}", status_code=204)

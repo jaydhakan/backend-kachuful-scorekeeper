@@ -26,6 +26,7 @@ from app.services.merge import MergeService
 from app.services.owned_games import MyDataService
 from app.services.players import PlayersService
 from app.services.seat_invites import SeatInvitesService
+from app.services.sikke import SikkeService
 from app.services.spades_boards import SpadesBoardsService
 from app.services.spades_games import SpadesGamesService
 from app.services.spades_tables import SpadesTablesService
@@ -114,6 +115,11 @@ def get_players_service(session: SessionDep) -> PlayersService:
 def get_merge_service(session: SessionDep) -> MergeService:
     """MergeService for a request."""
     return MergeService(session)
+
+
+def get_sikke_service(session: SessionDep) -> SikkeService:
+    """SikkeService for a request."""
+    return SikkeService(session)
 
 
 def get_games_service(session: SessionDep) -> GamesService:
