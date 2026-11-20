@@ -260,6 +260,20 @@ CASES = [
         "ix_spades_table_seats_user_id",
         f"SELECT game_id FROM spades_table_seats WHERE user_id = '{ID}'",
     ),
+    (
+        "ix_sikke_entries_player_id_earned_at",
+        f"SELECT id FROM sikke_entries WHERE player_id = '{ID}' "
+        "ORDER BY earned_at DESC, id DESC LIMIT 50",
+    ),
+    (
+        "uq_sikke_entries_player_id_key",
+        f"SELECT id FROM sikke_entries WHERE player_id IN ('{ID}') AND key = 'streak:2026-W47'",
+    ),
+    ("ix_sikke_entries_game_id", f"SELECT player_id FROM sikke_entries WHERE game_id = '{ID}'"),
+    (
+        "ix_sikke_entries_achievement_id",
+        f"SELECT id FROM sikke_entries WHERE achievement_id = '{ID}'",
+    ),
 ]
 
 

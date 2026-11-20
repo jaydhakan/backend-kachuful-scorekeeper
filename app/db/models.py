@@ -922,6 +922,45 @@ class Activity(Base):
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
 
+class SikkeEntry(Base):
+    """One Sikke credit of a registry player (rewards plan §9). Recomputed, so unique per key."""
+
+    __tablename__ = "sikke_entries"
+    __table_args__ = (
+        CheckConstraint(
+            "kind IN ('finish', 'win', 'achievement', 'kursi_take', 'kursi_defence', 'streak')",
+            name="kind",
+        ),
+        CheckConstraint("amount > 0", name="amount"),
+        CheckConstraint(f"game IS NULL OR {_GAMES}", name="game"),
+        Index("uq_sikke_entries_player_id_key", "player_id", "key", unique=True),
+        Index(
+            "ix_sikke_entries_player_id_earned_at",
+            "player_id",
+            text("earned_at DESC"),
+            text("id DESC"),
+        ),
+        # `GET /api/games/{id}/sikke`, and the cascades from games and achievements.
+        Index("ix_sikke_entries_game_id", "game_id"),
+        Index("ix_sikke_entries_achievement_id", "achievement_id"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, server_default=func.gen_random_uuid())
+    player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id"))
+    key: Mapped[str] = mapped_column(Text)
+    kind: Mapped[str] = mapped_column(Text)
+    amount: Mapped[int] = mapped_column(Integer)
+    # The progression game (both Spades kinds are `spades`).
+    game: Mapped[str | None] = mapped_column(Text)
+    game_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("games.id", ondelete="CASCADE"))
+    achievement_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("achievements.id", ondelete="CASCADE")
+    )
+    # The source's time: the game's end or the achievement's earning.
+    earned_at: Mapped[datetime]
+    data: Mapped[dict[str, Any]] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
+
+
 class ClosedPeriod(Base):
     """A finalised day or season of one game: its awards (and season standings), frozen."""
 

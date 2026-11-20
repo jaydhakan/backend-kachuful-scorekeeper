@@ -104,3 +104,14 @@ def test_the_game_migration_adds_and_drops_the_game_columns() -> None:
 
     assert not set(GAME_TABLES) & after_down
     assert anyio.run(_read_game_columns) >= set(GAME_TABLES)
+
+
+def test_the_sikke_migration_adds_and_drops_its_table() -> None:
+    config = alembic_config()
+
+    command.downgrade(config, "0022")
+    after_down = _tables()
+    command.upgrade(config, "head")
+
+    assert "sikke_entries" not in after_down
+    assert "sikke_entries" in _tables()
