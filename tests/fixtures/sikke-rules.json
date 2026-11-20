@@ -12,6 +12,8 @@
     "champion": 300,
     "kursiTake": 30,
     "kursiDefence": 10,
+    "bounty": 40,
+    "sitara": 30,
     "streakStep": 10,
     "streakMax": 50,
     "dailyGameCap": 8

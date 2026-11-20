@@ -14,12 +14,14 @@ from app.domain.kaali_teeri import awards as kt_awards
 from app.domain.kursi import KursiGame, KursiSeat
 from app.domain.sikke import (
     ACHIEVEMENT_SIKKE,
+    BOUNTY,
     DAILY_GAME_CAP,
     FINISH,
     KURSI_DEFENCE,
     KURSI_TAKE,
     LEVEL_STARTS,
     ONLINE_BONUS,
+    SITARA,
     STREAK_MAX,
     STREAK_STEP,
     WIN,
@@ -27,8 +29,10 @@ from app.domain.sikke import (
     FinishedGame,
     SikkeEarned,
     SikkeKind,
+    TajReign,
     achievement_entries,
     achievement_sikke,
+    bounty_entries,
     kursi_entries,
     level_of,
     play_entries,
@@ -86,6 +90,8 @@ def test_rates_match_the_app() -> None:
         "streakStep": STREAK_STEP,
         "streakMax": STREAK_MAX,
         "dailyGameCap": DAILY_GAME_CAP,
+        "bounty": BOUNTY,
+        "sitara": SITARA,
     }
     assert ours == {k: rates[k] for k in ours}
 
@@ -231,3 +237,55 @@ def test_kursi_pays_each_take_and_each_defence() -> None:
         ("c", SikkeKind.KURSI_TAKE, 30, "kursi:k4"),
     ]
     assert all(e.game == ProgressionGame.KACHUFUL for e in out)
+
+
+DAY = 24 * 3600 * 1000
+MONDAY = to_ms(datetime(2026, 11, 16, 12, tzinfo=UTC))
+
+
+def _at(k: int, at: int, places: list[tuple[str, int]]) -> KursiGame:
+    seats = tuple(KursiSeat(p, place, seat) for seat, (p, place) in enumerate(places))
+    return KursiGame(f"b{k}", at, seats)
+
+
+def _bounty_rows(out: list[SikkeEarned]) -> list[tuple[str, str, str | None]]:
+    return sorted((e.player_id, e.key, e.game_id) for e in out)
+
+
+def test_a_bounty_pays_whoever_finishes_above_the_kursi_holder_once_a_week() -> None:
+    games = [
+        _at(1, MONDAY, [("a", 1), ("b", 2), ("c", 3)]),  # a takes the Kursi: no holder before
+        _at(2, MONDAY + 1000, [("b", 1), ("a", 2), ("c", 3)]),  # b beats a: bounty, takes it
+        _at(3, MONDAY + 2000, [("a", 1), ("b", 2), ("c", 3)]),  # a beats b: bounty on b
+        _at(4, MONDAY + 3000, [("b", 1), ("a", 2), ("c", 3)]),  # b beats a again: same week
+        _at(5, MONDAY + 7 * DAY, [("a", 1), ("b", 2), ("c", 3)]),  # a beats b again, new week
+    ]
+    created = {g.game_id: g.ended_at - 60_000 for g in games}
+    out = bounty_entries(games, created, [], TZ)
+    assert _bounty_rows(out) == [
+        ("a", "bounty:b:2026-W47", "b3"),
+        ("a", "bounty:b:2026-W48", "b5"),
+        ("b", "bounty:a:2026-W47", "b2"),
+    ]
+    assert {(e.amount, e.kind, e.game) for e in out} == {
+        (BOUNTY, SikkeKind.BOUNTY, ProgressionGame.KACHUFUL)
+    }
+
+
+def test_a_bounty_needs_three_seats_and_a_seated_holder() -> None:
+    games = [
+        _at(1, MONDAY, [("a", 1), ("b", 2), ("c", 3)]),
+        _at(2, MONDAY + 1000, [("b", 1), ("a", 2)]),  # two at the table
+        _at(3, MONDAY + 2000, [("b", 1), ("c", 2), ("d", 3)]),  # holder not seated
+    ]
+    created = {g.game_id: g.ended_at - 60_000 for g in games}
+    assert bounty_entries(games, created, [], TZ) == []
+
+
+def test_the_taj_at_the_games_start_has_a_bounty_too() -> None:
+    games = [_at(1, MONDAY + 5000, [("c", 1), ("t", 2), ("d", 3)])]
+    taj = [TajReign(("t",), MONDAY - DAY, MONDAY), TajReign(("t",), MONDAY + 1000, None)]
+    early = bounty_entries(games, {"b1": MONDAY + 500}, taj, TZ)
+    late = bounty_entries(games, {"b1": MONDAY + 2000}, taj, TZ)
+    assert early == []
+    assert _bounty_rows(late) == [("c", "bounty:t:2026-W47", "b1")]
