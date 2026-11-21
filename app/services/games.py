@@ -545,16 +545,17 @@ class GamesService:
         await derived_repository.rebuild_player_days(self.session, pairs, settings.APP_TZ)
         await derived_repository.refresh_player_counters(self.session, players)
         engine = AchievementsEngine(self.session)
-        await engine.game(game_id, [], [], None)
+        # A delete can move a career row onto a later game (games_10, a streak): the new row is paid like any write's.
+        earned = await engine.game(game_id, [], [], None)
         if old:
-            await engine.career(
+            earned += await engine.career(
                 players,
                 changed_from_ms=min(to_ms(at) for _, at in old),
                 sequence_changed=row.ended_at is not None,
             )
         await achievements_repository.delete_activity(self.session, game_id, "game_finished")
         await self._rewards(
-            players, game_id, earned=[], ended=row.ended_at is not None, career=True, void=True
+            players, game_id, earned=earned, ended=row.ended_at is not None, career=True, void=True
         )
         await share_links_repository.revoke(self.session, game_id, ("live", "recap"))
         await notify(self.session, game_id, "revoked")

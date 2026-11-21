@@ -159,6 +159,40 @@ async def test_every_write_leaves_the_ledger_a_full_recompute_would(
     await matches_a_rebuild()
 
 
+async def test_deleting_an_early_game_pays_the_milestone_it_moves(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    """With eleven ended games, deleting the third moves `games_10` onto the eleventh: the new row is paid, as a full
+    rebuild would pay it."""
+    ids = await _table(client, session)
+    start = to_ms(now_utc()) - 30 * HOUR
+    games = [
+        await _put(client, ids, start + k * 2 * HOUR, rounds=3, seed=20 + k) for k in range(11)
+    ]
+    before = {pid: await _keys(session, pid, "achievement") for pid in ids}
+
+    assert (await client.delete(f"/api/games/{games[2]}")).status_code == 204
+
+    moved = (
+        (
+            await session.execute(
+                select(Achievement.id).where(
+                    Achievement.code == "games_10", Achievement.game_id == uuid.UUID(games[10])
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    assert moved, "games_10 should now sit on the eleventh game"
+    paid = {k for pid in ids for k in await _keys(session, pid, "achievement")}
+    assert {f"ach:{a}" for a in moved} <= paid
+    assert before  # the table had achievements before the delete
+    snapshot = await _snapshot(session)
+    await SikkeService(session).recompute_players({uuid.UUID(p) for p in ids})
+    assert await _snapshot(session) == snapshot
+
+
 async def test_an_unfinished_game_pays_no_finish_until_it_ends(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
