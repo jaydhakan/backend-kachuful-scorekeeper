@@ -51,6 +51,8 @@ class SikkeKind(StrEnum):
 
 PLAYER_KINDS = frozenset({SikkeKind.FINISH, SikkeKind.WIN, SikkeKind.ACHIEVEMENT, SikkeKind.STREAK})
 """Recomputed per player from their own games and achievements."""
+PLAY_KINDS = PLAYER_KINDS - {SikkeKind.ACHIEVEMENT}
+"""The player kinds that replay a player's finished games (finishes, wins, streaks)."""
 KURSI_KINDS = frozenset({SikkeKind.KURSI_TAKE, SikkeKind.KURSI_DEFENCE})
 """Recomputed from Kachuful's whole Kursi chain at once."""
 BOUNTY_KINDS = frozenset({SikkeKind.BOUNTY})

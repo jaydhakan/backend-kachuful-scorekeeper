@@ -128,6 +128,37 @@ async def test_recomputing_twice_changes_nothing_and_keeps_earned_at(
     assert {row[4] for row in before} == {marked}
 
 
+async def test_every_write_leaves_the_ledger_a_full_recompute_would(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    """A write pays only its new achievement rows and replays finishes when a game ends or goes:
+    at every step of a game's life that equals rebuilding each player from scratch."""
+    ids = await _table(client, session)
+    players = {uuid.UUID(p) for p in ids}
+    start = to_ms(now_utc()) - 3 * HOUR
+    await _put(client, ids, start - 3 * HOUR, rounds=6, seed=5)
+    service = SikkeService(session)
+    game: str | None = None
+    paid: set[str] = set()
+
+    async def matches_a_rebuild() -> None:
+        before = await _snapshot(session)
+        await service.recompute_players(players)
+        assert await _snapshot(session) == before
+
+    # Running writes that earn achievements, the end, then an edit after it ended (rev 4).
+    for rev, rounds, finished in [(1, 3, False), (2, 6, False), (3, 6, True), (4, 4, True)]:
+        game = await _put(
+            client, ids, start, rounds=rounds, seed=8, finished=finished, game_id=game, rev=rev
+        )
+        await matches_a_rebuild()
+        paid |= {e.kind for pid in ids for e in await _entries(session, pid)}
+    assert {"achievement", "finish", "win", "streak"} <= paid
+
+    assert (await client.delete(f"/api/games/{game}")).status_code == 204
+    await matches_a_rebuild()
+
+
 async def test_an_unfinished_game_pays_no_finish_until_it_ends(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:

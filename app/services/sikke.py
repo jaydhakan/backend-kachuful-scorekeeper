@@ -13,15 +13,17 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import SikkeEntry
+from app.db.models import Achievement
 from app.domain.crowns import CrownKind
 from app.domain.enums import ProgressionGame
 from app.domain.kursi import KursiGame, kursi_games
 from app.domain.sikke import (
     BOUNTY_KINDS,
     KURSI_KINDS,
+    PLAY_KINDS,
     PLAYER_KINDS,
     SITARA_KINDS,
+    AchievementFact,
     Level,
     SikkeEarned,
     SikkeKind,
@@ -40,7 +42,7 @@ from app.repositories.crowns import crowns_repository
 from app.repositories.games import games_repository
 from app.repositories.nights import nights_repository
 from app.repositories.players import players_repository
-from app.repositories.sikke import EntryRow, sikke_repository
+from app.repositories.sikke import EntryRow, StoredEntry, sikke_repository
 from app.schemas.common import Page
 from app.schemas.sikke import (
     GameSikkeEntryOut,
@@ -71,7 +73,7 @@ def _values(e: SikkeEarned) -> dict[str, Any]:
     }
 
 
-def _changed(row: SikkeEntry, e: SikkeEarned) -> bool:
+def _changed(row: StoredEntry, e: SikkeEarned) -> bool:
     return (
         row.kind != e.kind.value
         or row.amount != e.amount
@@ -82,8 +84,28 @@ def _changed(row: SikkeEntry, e: SikkeEarned) -> bool:
     )
 
 
-def _game_id(row: SikkeEntry) -> str | None:
+def _game_id(row: StoredEntry) -> str | None:
     return None if row.game_id is None else str(row.game_id)
+
+
+def _achievement_entries(rows: Sequence[Achievement]) -> list[SikkeEarned]:
+    """What some newly earned achievement rows pay, as `desired_for` would compute them."""
+    return [
+        e
+        for row in rows
+        for e in achievement_entries(
+            str(row.player_id),
+            [
+                AchievementFact(
+                    id=str(row.id),
+                    game=ProgressionGame(row.game),
+                    code=row.code,
+                    game_id=None if row.game_id is None else str(row.game_id),
+                    earned_at=to_ms(row.earned_at),
+                )
+            ],
+        )
+    ]
 
 
 def level_out(level: Level) -> LevelOut:
@@ -181,6 +203,25 @@ class SikkeService:
         existing = await sikke_repository.for_players(self.session, ids, PLAYER_KINDS)
         await self._apply(desired, existing)
 
+    async def after_write(
+        self, player_ids: Iterable[uuid.UUID], earned: Sequence[Achievement], *, finished: bool
+    ) -> None:
+        """A game write's player entries, without replaying every achievement: the engine never
+        touches a kept row and a deleted one's entry cascades, so only the new rows pay. Finishes,
+        wins and streaks replay the finished games when one ended, un-ended or went (`finished`)."""
+        await self._apply(_achievement_entries(earned), [])
+        ids = set(player_ids)
+        if not finished or not ids:
+            return
+        games = await sikke_repository.finished_games(self.session, ids)
+        desired = [
+            e
+            for pid in map(str, sorted(ids))
+            for e in play_entries(pid, games.get(pid, []), settings.tz)
+        ]
+        existing = await sikke_repository.for_players(self.session, ids, PLAY_KINDS)
+        await self._apply(desired, existing)
+
     async def recompute_kursi(self, games: list[KursiGame] | None = None) -> list[SikkeEarned]:
         """Reconcile everyone's Kursi and bounty entries: one game's end can move the whole chain
         after it. Returns the bounties this call newly paid (or moved to another game)."""
@@ -213,11 +254,11 @@ class SikkeService:
         await self._apply(await self.desired_sitara(), existing)
 
     async def _apply(
-        self, desired: Iterable[SikkeEarned], existing: Iterable[SikkeEntry]
+        self, desired: Iterable[SikkeEarned], existing: Iterable[StoredEntry]
     ) -> list[SikkeEarned]:
         """Write the difference; returns entries whose key is new or now points at another game."""
         wanted: dict[Key, SikkeEarned] = {(e.player_id, e.key): e for e in desired}
-        stored: dict[Key, SikkeEntry] = {(str(r.player_id), r.key): r for r in existing}
+        stored: dict[Key, StoredEntry] = {(str(r.player_id), r.key): r for r in existing}
         await sikke_repository.delete_ids(
             self.session, [r.id for key, r in stored.items() if key not in wanted]
         )

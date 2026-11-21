@@ -4,6 +4,7 @@ import copy
 import hashlib
 import json
 import uuid
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import date
 from typing import Any
@@ -410,7 +411,7 @@ class GamesService:
         rewards = await self._rewards(
             players,
             row.id,
-            earned=bool(earned),
+            earned=earned,
             ended=ended or was_ended,
             career=career,
         )
@@ -423,7 +424,7 @@ class GamesService:
         players: set[uuid.UUID],
         game_id: uuid.UUID,
         *,
-        earned: bool,
+        earned: Sequence[Achievement],
         ended: bool,
         career: bool,
         void: bool = False,
@@ -435,8 +436,7 @@ class GamesService:
         if not career:
             return Rewards()
         sikke = SikkeService(self.session)
-        if earned or ended:
-            await sikke.recompute_players(players)
+        await sikke.after_write(players, earned, finished=ended)
         if not ended:
             return Rewards()
         crowns = CrownsService(self.session)
@@ -554,7 +554,7 @@ class GamesService:
             )
         await achievements_repository.delete_activity(self.session, game_id, "game_finished")
         await self._rewards(
-            players, game_id, earned=False, ended=row.ended_at is not None, career=True, void=True
+            players, game_id, earned=[], ended=row.ended_at is not None, career=True, void=True
         )
         await share_links_repository.revoke(self.session, game_id, ("live", "recap"))
         await notify(self.session, game_id, "revoked")

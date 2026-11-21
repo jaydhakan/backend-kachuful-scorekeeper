@@ -4,7 +4,7 @@ import uuid
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
+from typing import Any, NamedTuple
 
 from sqlalchemy import delete, func, select, text, tuple_
 from sqlalchemy.dialects.postgresql import insert
@@ -41,6 +41,37 @@ _FINISHED_GAMES = text(
     WHERE g.deleted_at IS NULL
     """
 )
+
+
+class StoredEntry(NamedTuple):
+    """The columns a reconcile compares: thousands are read per write, so no ORM entities."""
+
+    id: uuid.UUID
+    player_id: uuid.UUID
+    key: str
+    kind: str
+    amount: int
+    game: str | None
+    game_id: uuid.UUID | None
+    achievement_id: uuid.UUID | None
+    data: dict[str, Any] | None
+
+
+_STORED = select(
+    SikkeEntry.id,
+    SikkeEntry.player_id,
+    SikkeEntry.key,
+    SikkeEntry.kind,
+    SikkeEntry.amount,
+    SikkeEntry.game,
+    SikkeEntry.game_id,
+    SikkeEntry.achievement_id,
+    SikkeEntry.data,
+)
+
+
+async def _stored(session: AsyncSession, stmt: Any) -> list[StoredEntry]:
+    return [StoredEntry(*r) for r in await session.execute(stmt)]
 
 
 @dataclass(frozen=True)
@@ -100,25 +131,25 @@ class SikkeRepository:
 
     async def for_players(
         self, session: AsyncSession, player_ids: Iterable[uuid.UUID], kinds: Iterable[str]
-    ) -> list[SikkeEntry]:
+    ) -> list[StoredEntry]:
         """Some players' entries of some kinds."""
-        stmt = select(SikkeEntry).where(
-            SikkeEntry.player_id.in_(set(player_ids)), SikkeEntry.kind.in_(set(kinds))
+        return await _stored(
+            session,
+            _STORED.where(
+                SikkeEntry.player_id.in_(set(player_ids)), SikkeEntry.kind.in_(set(kinds))
+            ),
         )
-        return list((await session.execute(stmt)).scalars())
 
-    async def of_kinds(self, session: AsyncSession, kinds: Iterable[str]) -> list[SikkeEntry]:
+    async def of_kinds(self, session: AsyncSession, kinds: Iterable[str]) -> list[StoredEntry]:
         """Everyone's entries of some kinds (the Kursi chain's)."""
-        stmt = select(SikkeEntry).where(SikkeEntry.kind.in_(set(kinds)))
-        return list((await session.execute(stmt)).scalars())
+        return await _stored(session, _STORED.where(SikkeEntry.kind.in_(set(kinds))))
 
-    async def by_keys(self, session: AsyncSession, keys: Iterable[str]) -> list[SikkeEntry]:
+    async def by_keys(self, session: AsyncSession, keys: Iterable[str]) -> list[StoredEntry]:
         """Everyone's entries with some keys (a night's Sitara pay)."""
         wanted = list(keys)
         if not wanted:
             return []
-        stmt = select(SikkeEntry).where(SikkeEntry.key.in_(wanted))
-        return list((await session.execute(stmt)).scalars())
+        return await _stored(session, _STORED.where(SikkeEntry.key.in_(wanted)))
 
     async def upsert(self, session: AsyncSession, values: Sequence[dict[str, Any]]) -> None:
         """Insert new keys and update changed ones; a kept row's `earned_at` never changes."""
