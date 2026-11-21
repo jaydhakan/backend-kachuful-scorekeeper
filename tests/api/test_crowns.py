@@ -159,8 +159,10 @@ async def test_reigns_list_closed_reigns_newest_first_and_by_defences(
 ) -> None:
     a, b, _ = await _three_reigns(client, session)
 
-    recent = (await client.get("/api/crowns/reigns")).json()
-    longest = (await client.get("/api/crowns/reigns", params={"sort": "defences"})).json()
+    # Kursi only: run in the morning, these games fall on today's date and the Sitara changes too.
+    kursi = {"kind": "kursi"}
+    recent = (await client.get("/api/crowns/reigns", params=kursi)).json()
+    longest = (await client.get("/api/crowns/reigns", params={**kursi, "sort": "defences"})).json()
     medals = (await client.get("/api/crowns/reigns", params={"kind": "medal1"})).json()
 
     assert [(_ids(r["holders"]), r["defences"]) for r in recent["items"]] == [
