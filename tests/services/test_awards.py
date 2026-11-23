@@ -10,13 +10,18 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Achievement, Activity
+from app.domain.time import month_of, now_utc, to_ms
 from app.jobs import close_day, close_season
+from app.jobs.fake_games import MINUTE
 from app.services.awards import AwardsService
+from app.settings import settings
 from tests.domain.golden import camel, load
-from tests.factories import make_user, sign_in
+from tests.factories import make_player, make_user, sign_in
+from tests.placed_games import split_payload
 from tests.services.test_boards_parity import load_set
 
 EXPECT = load("set-month")["expect"]
+HOUR = 60 * MINUTE
 
 
 def _app_awards(awards: list[Any], letter_of: dict[str, str]) -> list[dict[str, Any]]:
@@ -50,6 +55,23 @@ async def test_sql_seasons_match_the_app(
     rows = [{**r, "playerId": letter_of[r["playerId"]]} for r in camel(board.rows)]
     assert rows == case["standings"]
     assert _app_awards(awards, letter_of) == case["awards"]
+
+
+async def test_the_seasons_champion_has_the_best_accuracy(
+    session: AsyncSession, client: httpx.AsyncClient
+) -> None:
+    user = await make_user(session, email="s@example.com", player_name="Scorer")
+    await sign_in(client, user)
+    ids = [str((await make_player(session, name=f"S{k}")).id) for k in range(3)]
+    now = to_ms(now_utc())
+    game, sharpest, _ = split_payload(ids, start_ms=now - 2 * HOUR)
+    assert (await client.put(f"/api/games/{game['syncId']}", json=game)).status_code == 200
+
+    board, awards = await AwardsService(session).compute_season(month_of(now, settings.tz))
+
+    assert [r.player_id for r in board.rows if r.rank == 1] == [sharpest]
+    champions = [a.player_id for a in awards if a.code == "season_champion"]
+    assert champions == [sharpest]
 
 
 async def test_close_day_freezes_awards_once_and_serves_them_forever(

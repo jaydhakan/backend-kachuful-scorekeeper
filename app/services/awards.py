@@ -195,11 +195,9 @@ class AwardsService:
     async def compute_season(self, month: str) -> tuple[Board, list[Award]]:
         """A month's standings (more than 50 rounds) and its awards."""
         start, end = month_range_ms(month, settings.tz)
-        board = await self.boards.board(start, end, Metric.AVG_PER_ROUND, SEASON_MIN_ROUNDS)
+        board = await self.boards.board(start, end, SEASON_METRIC, SEASON_MIN_ROUNDS)
         prev_start, prev_end = month_range_ms(previous_month(month), settings.tz)
-        last = await self.boards.board(
-            prev_start, prev_end, Metric.AVG_PER_ROUND, SEASON_MIN_ROUNDS
-        )
+        last = await self.boards.board(prev_start, prev_end, SEASON_METRIC, SEASON_MIN_ROUNDS)
         return board, season_awards(board, last)
 
     async def medals(self, exclude_game: uuid.UUID | None) -> MedalsOut:

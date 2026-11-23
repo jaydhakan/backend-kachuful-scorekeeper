@@ -7243,7 +7243,7 @@
             "rank": 1,
             "qualified": true,
             "playerId": "ana",
-            "value": 34.74226804123711,
+            "value": 0.7319587628865979,
             "points": 3370,
             "games": 10,
             "rounds": 97,
@@ -7256,7 +7256,7 @@
             "rank": 2,
             "qualified": true,
             "playerId": "ben",
-            "value": 8.295454545454545,
+            "value": 0.5,
             "points": 730,
             "games": 9,
             "rounds": 88,
@@ -7269,7 +7269,7 @@
             "rank": 3,
             "qualified": true,
             "playerId": "cy",
-            "value": -2.5274725274725274,
+            "value": 0.37362637362637363,
             "points": -230,
             "games": 9,
             "rounds": 91,
@@ -7282,7 +7282,7 @@
             "rank": 4,
             "qualified": true,
             "playerId": "dee",
-            "value": -2.6315789473684212,
+            "value": 0.3684210526315789,
             "points": -250,
             "games": 9,
             "rounds": 95,
@@ -7295,7 +7295,7 @@
             "rank": 5,
             "qualified": true,
             "playerId": "eli",
-            "value": -10,
+            "value": 0,
             "points": -530,
             "games": 5,
             "rounds": 53,
@@ -7309,17 +7309,17 @@
           {
             "code": "season_champion",
             "playerId": "ana",
-            "value": 34.74226804123711
+            "value": 0.7319587628865979
           },
           {
             "code": "season_runner_up",
             "playerId": "ben",
-            "value": 8.295454545454545
+            "value": 0.5
           },
           {
             "code": "season_third",
             "playerId": "cy",
-            "value": -2.5274725274725274
+            "value": 0.37362637362637363
           },
           {
             "code": "season_sharpest",
@@ -7340,7 +7340,7 @@
             "rank": null,
             "qualified": false,
             "playerId": "ana",
-            "value": 31.764705882352942,
+            "value": 0.7058823529411765,
             "points": 540,
             "games": 2,
             "rounds": 17,
@@ -7353,7 +7353,7 @@
             "rank": null,
             "qualified": false,
             "playerId": "ben",
-            "value": -1.7647058823529411,
+            "value": 0.4117647058823529,
             "points": -30,
             "games": 2,
             "rounds": 17,
@@ -7366,7 +7366,7 @@
             "rank": null,
             "qualified": false,
             "playerId": "cy",
-            "value": -1.7647058823529411,
+            "value": 0.4117647058823529,
             "points": -30,
             "games": 2,
             "rounds": 17,
@@ -7379,7 +7379,7 @@
             "rank": null,
             "qualified": false,
             "playerId": "eli",
-            "value": -10,
+            "value": 0,
             "points": -90,
             "games": 1,
             "rounds": 9,

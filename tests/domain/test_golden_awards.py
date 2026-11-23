@@ -6,9 +6,8 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
-from app.domain.awards import SEASON_MIN_ROUNDS, daily_awards, season_awards
+from app.domain.awards import SEASON_METRIC, SEASON_MIN_ROUNDS, daily_awards, season_awards
 from app.domain.leaderboard import (
-    Metric,
     leaderboard,
     previous_window,
     tallies_from_facts,
@@ -46,7 +45,7 @@ def _month_board(month: str) -> Any:
     return leaderboard(
         tallies_from_facts(facts.rounds, facts.players, start, end).values(),
         tallies_from_facts(facts.rounds, facts.players, prev_start, prev_end).values(),
-        Metric.AVG_PER_ROUND,
+        SEASON_METRIC,
         SEASON_MIN_ROUNDS,
     )
 
