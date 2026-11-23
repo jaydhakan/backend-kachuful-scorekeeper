@@ -69,4 +69,5 @@ ledger kinds"): `rates` gains `bounty` (40) and `sitara` (30).
 `EXPORT_FIXTURES=1 npx vitest run src/games/kachuful/domain/night.export.test.ts`.
 
 2026-11-23: the Kursi is removed (the app's `backend-requests.md`, 2026-11-23). `sikke-rules.json` loses the
-`kursiTake` and `kursiDefence` rates; stripped here by hand to the app's shape while the app re-exports it.
+`kursiTake` and `kursiDefence` rates and `night-cases.json` each night's `kursi` list; both stripped here by
+hand to the app's shape while the app re-exports them.

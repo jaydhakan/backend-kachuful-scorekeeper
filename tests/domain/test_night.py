@@ -132,7 +132,7 @@ def test_night_story_counts_other_kinds_without_edge() -> None:
         "t1", "kaali-teeri", 2 * H, 3 * H, (NightSeat("dev", True), NightSeat("asha", True))
     )
     rounds = [_round("riya", 30, 2, "made"), _round("dev", -10, 1, "missed")]
-    night = night_story([kachuful, teeri], rounds, None, [])
+    night = night_story([kachuful, teeri], rounds)
     by_id = {p.player_id: p for p in night.players}
     assert (by_id["dev"].games, by_id["dev"].wins, by_id["dev"].edge) == (2, 1, -10)
     assert (by_id["riya"].games, by_id["riya"].wins, by_id["riya"].edge) == (1, 1, 20)

@@ -10,8 +10,6 @@ from dataclasses import dataclass
 from typing import Any
 
 from app.domain.derive import Facts, GameFact, GameInfo, RoundFact
-from app.domain.kursi import Kursi, kursi_from, step_kursi
-from app.domain.placed import PlacedGame, placed_games
 
 NIGHT_GAP_MS = 3 * 3600 * 1000
 """Games further apart than this are different nights; a night across midnight stays one."""
@@ -62,12 +60,6 @@ class NightBid:
 
 
 @dataclass(frozen=True)
-class NightKursi:
-    to: tuple[str, ...]
-    from_: tuple[str, ...]
-
-
-@dataclass(frozen=True)
 class Night:
     from_: int
     to: int
@@ -78,7 +70,6 @@ class Night:
     best_bid: NightBid | None
     brave_call: NightBid | None
     game_winners: tuple[tuple[str, ...], ...]
-    kursi: tuple[NightKursi, ...]
 
 
 @dataclass(frozen=True)
@@ -133,25 +124,10 @@ def _top_bid(rounds: Sequence[RoundFact], made: bool) -> NightBid | None:
     return best
 
 
-def _kursi_taken(chair: Kursi | None, games: Sequence[PlacedGame]) -> tuple[NightKursi, ...]:
-    out: list[NightKursi] = []
-    for g in sorted(games, key=lambda x: x.ended_at):
-        chair, event = step_kursi(chair, g)
-        if event.kind == "taken":
-            out.append(NightKursi(event.to, event.from_))
-    return tuple(out)
-
-
-def night_story(
-    games: Sequence[NightGame],
-    rounds: Sequence[RoundFact],
-    chair: Kursi | None,
-    kursi_night: Sequence[PlacedGame],
-) -> Night:
+def night_story(games: Sequence[NightGame], rounds: Sequence[RoundFact]) -> Night:
     """The story of a night's games, given in night order (oldest end first).
 
-    `rounds` are the Kachuful round facts of those games in fact order; `chair` is the Kursi
-    before the night and `kursi_night` the night's Kachuful games as the Kursi sees them.
+    `rounds` are the Kachuful round facts of those games in fact order.
     """
     ranked = _ranked(games)
     return Night(
@@ -164,7 +140,6 @@ def night_story(
         best_bid=_top_bid(rounds, made=True),
         brave_call=_top_bid(rounds, made=False),
         game_winners=tuple(tuple(s.player_id for s in g.seats if s.won) for g in games),
-        kursi=_kursi_taken(chair, kursi_night),
     )
 
 
@@ -196,16 +171,6 @@ def _night_game(info: GameInfo, seats: Sequence[GameFact]) -> NightGame:
     )
 
 
-def _facts_placed_games(facts: Facts) -> list[PlacedGame]:
-    return placed_games(
-        [
-            (p.game_id, p.ended_at, p.player_id, p.place, p.seat)
-            for p in facts.players
-            if p.ended_at is not None and p.place is not None
-        ]
-    )
-
-
 def night_of(facts: Facts, now: int) -> Night | None:
     """The app's nightOf: the night of the latest ended game, if it is still tonight."""
     infos = _night_infos(facts, now)
@@ -214,12 +179,8 @@ def night_of(facts: Facts, now: int) -> Night | None:
     ids = {g.game_id for g in infos}
     seats = [p for p in facts.players if p.game_id in ids]
     rounds = [r for r in facts.rounds if r.game_id in ids]
-    kursi = _facts_placed_games(facts)
-    start = infos[0].created_at
-    before = [g for g in kursi if g.game_id not in ids and g.ended_at < start]
-    chair, _ = kursi_from(before)
     games = [_night_game(info, seats) for info in infos]
-    return night_story(games, rounds, chair, [g for g in kursi if g.game_id in ids])
+    return night_story(games, rounds)
 
 
 def _bid_dict(bid: NightBid | None) -> dict[str, Any] | None:
@@ -244,7 +205,6 @@ def night_dict(night: Night) -> dict[str, Any]:
         "bestBid": _bid_dict(night.best_bid),
         "braveCall": _bid_dict(night.brave_call),
         "gameWinners": [list(w) for w in night.game_winners],
-        "kursi": [{"to": list(k.to), "from": list(k.from_)} for k in night.kursi],
     }
 
 
