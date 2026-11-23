@@ -929,8 +929,7 @@ class SikkeEntry(Base):
     __tablename__ = "sikke_entries"
     __table_args__ = (
         CheckConstraint(
-            "kind IN ('finish', 'win', 'achievement', 'kursi_take', 'kursi_defence', 'streak', "
-            "'bounty', 'sitara')",
+            "kind IN ('finish', 'win', 'achievement', 'streak', 'bounty', 'sitara')",
             name="kind",
         ),
         CheckConstraint("amount > 0", name="amount"),
@@ -963,7 +962,7 @@ class SikkeEntry(Base):
     data: Mapped[dict[str, Any]] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
 
 
-_CROWN_KINDS = "kind IN ('medal1', 'medal2', 'medal3', 'kursi', 'sitara', 'legend')"
+_CROWN_KINDS = "kind IN ('medal1', 'medal2', 'medal3', 'sitara', 'legend')"
 
 
 class Crown(Base):
