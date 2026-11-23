@@ -14,10 +14,11 @@ from app.domain.leaderboard import (
 )
 from app.domain.time import day_range_ms, month_range_ms, previous_month
 from tests.domain.golden import camel, load
-from tests.domain.test_golden_boards import set_facts
+from tests.domain.test_golden_boards import SETS, set_facts
 
 TZ = ZoneInfo("Asia/Kolkata")
 EXPECT = load("set-month")["expect"]
+SEASONS = [(name, s) for name in SETS for s in load(name)["expect"]["season"]]
 
 
 def _award_json(award: Any) -> dict[str, Any]:
@@ -38,8 +39,8 @@ def test_daily_awards_match_the_app(case: dict[str, Any]) -> None:
     assert [_award_json(a) for a in awards] == case["awards"]
 
 
-def _month_board(month: str) -> Any:
-    facts = set_facts()
+def _month_board(month: str, name: str = "set-month") -> Any:
+    facts = set_facts(name)
     start, end = month_range_ms(month, TZ)
     prev_start, prev_end = previous_window(start, end)
     return leaderboard(
@@ -50,11 +51,11 @@ def _month_board(month: str) -> Any:
     )
 
 
-@pytest.mark.parametrize("case", EXPECT["season"], ids=[s["season"] for s in EXPECT["season"]])
-def test_seasons_match_the_app(case: dict[str, Any]) -> None:
-    standings = _month_board(case["season"])
+@pytest.mark.parametrize(("name", "case"), SEASONS, ids=[f"{n}-{s['season']}" for n, s in SEASONS])
+def test_seasons_match_the_app(name: str, case: dict[str, Any]) -> None:
+    standings = _month_board(case["season"], name)
 
-    awards = season_awards(standings, _month_board(previous_month(case["season"])))
+    awards = season_awards(standings, _month_board(previous_month(case["season"]), name))
 
     assert camel(standings.rows) == case["standings"]
     assert [_award_json(a) for a in awards] == case["awards"]

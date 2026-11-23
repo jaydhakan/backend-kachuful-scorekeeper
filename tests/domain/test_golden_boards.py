@@ -15,22 +15,26 @@ from app.domain.leaderboard import (
 )
 from tests.domain.golden import camel, load
 
-SET = load("set-month")
+# `set-accuracy` pins the accuracy tie-break (a tie on accuracy splits on average per round).
+SETS = ("set-month", "set-accuracy")
 
 
-def set_facts() -> Facts:
-    """Facts for the set fixture's games, as the app built them."""
-    return build_facts([game_from_payload(g) for g in SET["games"]], SET["now"])
+def set_facts(name: str = "set-month") -> Facts:
+    """Facts for a set fixture's games, as the app built them."""
+    fixture = load(name)
+    return build_facts([game_from_payload(g) for g in fixture["games"]], fixture["now"])
 
 
-QUERIES = SET["expect"]["leaderboard"]
+QUERIES = [(name, q) for name in SETS for q in load(name)["expect"]["leaderboard"]]
 
 
 @pytest.mark.parametrize(
-    "case", QUERIES, ids=[f"{q['query']['range']}-{q['query']['metric']}" for q in QUERIES]
+    ("name", "case"),
+    QUERIES,
+    ids=[f"{n}-{q['query']['range']}-{q['query']['metric']}" for n, q in QUERIES],
 )
-def test_leaderboard_matches_the_app(case: dict[str, Any]) -> None:
-    facts = set_facts()
+def test_leaderboard_matches_the_app(name: str, case: dict[str, Any]) -> None:
+    facts = set_facts(name)
     query = case["query"]
     start, end = query["from"], query["to"]
     prev_start, prev_end = previous_window(start, end)

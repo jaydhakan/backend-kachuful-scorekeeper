@@ -75,3 +75,7 @@ hand to the app's shape while the app re-exports them. `kursi-cases.json` is del
 2026-11-23: Kachuful's month ranks by bid accuracy (ties on the average; the app's `backend-requests.md`,
 2026-11-23). `set-month.json` refreshed from the app's working tree (after its commit `2ba4818`): only
 `expect.season` changes (standings, places and awards); the leaderboard cases are unchanged.
+
+2026-11-23: added `set-accuracy.json` from the app (`contract/fixtures`, commit `b54bdb4`), the same shape as
+`set-month`: the best average isn't the champion, a tie on accuracy and average shares 1st, a tie on accuracy alone
+splits on average. The golden board and season tests run it beside `set-month`.
