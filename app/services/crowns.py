@@ -13,7 +13,7 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Crown as CrownRow
-from app.domain.awards import SEASON_MIN_ROUNDS
+from app.domain.awards import SEASON_METRIC, SEASON_MIN_ROUNDS
 from app.domain.crowns import (
     Crown,
     CrownChange,
@@ -25,7 +25,7 @@ from app.domain.crowns import (
     sitara_of,
 )
 from app.domain.enums import ProgressionGame
-from app.domain.leaderboard import Metric, leaderboard
+from app.domain.leaderboard import leaderboard
 from app.domain.sikke import SikkeEarned
 from app.domain.time import (
     day_of,
@@ -141,7 +141,7 @@ class CrownsService:
         now = to_ms(now_utc())
         start, end = month_range_ms(month_of(now, settings.tz), settings.tz)
         month = await boards_repository.tallies(self.session, make_window(start, end))
-        board = leaderboard(month.values(), None, Metric.AVG_PER_ROUND, SEASON_MIN_ROUNDS)
+        board = leaderboard(month.values(), None, SEASON_METRIC, SEASON_MIN_ROUNDS)
         holders = medal_holders(board)
         holders[CrownKind.SITARA] = await self._sitara(now)
         holders[CrownKind.LEGEND] = legend_of(

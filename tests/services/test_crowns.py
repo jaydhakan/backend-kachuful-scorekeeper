@@ -16,7 +16,7 @@ from app.services.crowns import CrownsService
 from app.services.sikke import SikkeService
 from app.settings import settings
 from tests.factories import make_player, make_user, sign_in
-from tests.placed_games import backdate_taj, placed_payload, taj_payload
+from tests.placed_games import backdate_taj, placed_payload, split_payload, taj_payload
 
 HOUR = 60 * MINUTE
 
@@ -158,6 +158,19 @@ async def test_a_voided_bounty_goes_to_the_next_qualifying_game_that_week(
 
     week = _week(third["finishedAt"])
     assert await _bounties(session) == [(b, f"bounty:{a}:{week}", third["syncId"])]
+
+
+async def test_the_medals_rank_by_accuracy_not_by_average(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    ids = await _table(client, session)
+    game, sharpest, top_scorer = split_payload(ids, start_ms=to_ms(now_utc()) - 2 * HOUR)
+
+    await _put(client, game)
+
+    crowns = await _crowns(session)
+    assert crowns["medal1"] == [sharpest]
+    assert top_scorer not in crowns["medal1"]
 
 
 async def test_the_legend_needs_two_season_titles(

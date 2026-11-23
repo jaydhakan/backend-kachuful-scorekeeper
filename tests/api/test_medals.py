@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.domain.time import now_utc, to_ms
 from tests.factories import make_player, make_user, sign_in
 from tests.game_builder import MINUTE, make_payload
+from tests.placed_games import split_payload
 
 HOUR = 60 * MINUTE
 
@@ -51,6 +52,29 @@ async def test_medals_leave_out_the_game_at_the_table(
     assert {r["player"]["id"]: r["rounds"] for r in without["today"]["rows"]} == dict.fromkeys(
         ids, 55
     )
+
+
+async def test_medals_rank_by_accuracy_without_the_tables_bids(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    user = await make_user(session, player_name="Scorer")
+    await sign_in(client, user)
+    ids = [str((await make_player(session, name=f"A{k}")).id) for k in range(3)]
+    now = to_ms(now_utc())
+    earlier, sharpest, _ = split_payload(ids, start_ms=now - 3 * HOUR)
+    assert (await client.put(f"/api/games/{earlier['syncId']}", json=earlier)).status_code == 200
+    before = (await client.get("/api/medals")).json()
+
+    table = make_payload(ids, start_ms=now - 40 * MINUTE, rounds=10, seed=4, finished=False)
+    assert (await client.put(f"/api/games/{table['syncId']}", json=table)).status_code == 200
+    without = (await client.get("/api/medals", params={"excludeGame": table["syncId"]})).json()
+
+    assert before["standings"][0]["player"]["id"] == sharpest
+    assert [r["value"] for r in before["standings"]] == [r["accuracy"] for r in before["standings"]]
+    # The table's made bids leave with its rounds and points.
+    assert [(r["rank"], r["value"], r["accuracy"]) for r in without["standings"]] == [
+        (r["rank"], r["value"], r["accuracy"]) for r in before["standings"]
+    ]
 
 
 async def test_medals_drop_a_player_whose_only_rounds_are_the_excluded_game(

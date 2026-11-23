@@ -4,10 +4,12 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from typing import Protocol
 
-from app.domain.leaderboard import Board, Tally, accuracy_of
+from app.domain.leaderboard import Board, Metric, Tally, accuracy_of
 from app.domain.progression import Award, best_of
 
 SEASON_MIN_ROUNDS = 50
+# Kachuful's month (medals, the season title) ranks by bid accuracy, ties on the average.
+SEASON_METRIC = Metric.ACCURACY
 
 
 class ScoredRound(Protocol):

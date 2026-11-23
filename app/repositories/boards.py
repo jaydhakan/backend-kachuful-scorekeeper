@@ -58,7 +58,7 @@ _ONE_PLAYER = text(_TALLY_SQL.format(filter="AND player_id = :player_id"))
 
 _GAME_TALLY = text(
     """
-    SELECT player_id, count(*), coalesce(sum(points), 0)
+    SELECT player_id, count(*), coalesce(sum(points), 0), count(*) FILTER (WHERE outcome = 'made')
     FROM round_scores
     WHERE game_id = :game_id AND done_at >= :range_from AND done_at < :range_to
     GROUP BY player_id
@@ -179,12 +179,12 @@ class BoardsRepository:
 
     async def game_tallies(
         self, session: AsyncSession, game_id: uuid.UUID, range_from: datetime, range_to: datetime
-    ) -> dict[str, tuple[int, int]]:
-        """One game's (rounds, points) per player in a range, to take that game out of a board."""
+    ) -> dict[str, tuple[int, int, int]]:
+        """One game's (rounds, points, made) per player in a range, to take it out of a board."""
         rows = await session.execute(
             _GAME_TALLY, {"game_id": game_id, "range_from": range_from, "range_to": range_to}
         )
-        return {str(pid): (int(n), int(points)) for pid, n, points in rows}
+        return {str(pid): (int(n), int(points), int(made)) for pid, n, points, made in rows}
 
     async def games_on(
         self,

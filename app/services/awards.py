@@ -13,9 +13,9 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domain.awards import SEASON_MIN_ROUNDS, season_awards
+from app.domain.awards import SEASON_METRIC, SEASON_MIN_ROUNDS, season_awards
 from app.domain.enums import ProgressionGame
-from app.domain.leaderboard import Board, BoardRow, Metric, leaderboard
+from app.domain.leaderboard import Board, BoardRow, Metric, Tally, leaderboard
 from app.domain.progression import Award, Earned, StandingRow, win_rate_standings
 from app.domain.time import (
     day_of,
@@ -169,6 +169,18 @@ def award_earned(award: Award, period: str, earned_at: int) -> Earned:
     )
 
 
+def _without(tallies: dict[str, Tally], gone: dict[str, tuple[int, int, int]]) -> dict[str, Tally]:
+    """Tallies with one game's (rounds, points, made) taken out."""
+    out = dict(tallies)
+    for pid, (rounds, points, made) in gone.items():
+        if pid in out:
+            t = out[pid]
+            out[pid] = replace(
+                t, rounds=t.rounds - rounds, points=t.points - points, made=t.made - made
+            )
+    return out
+
+
 class AwardsService:
     """Daily awards, seasons and Wrapped."""
 
@@ -199,12 +211,9 @@ class AwardsService:
             gone = await boards_repository.game_tallies(
                 self.session, exclude_game, from_ms(start), from_ms(end)
             )
-            for pid, (rounds, points) in gone.items():
-                if pid in current:
-                    t = current[pid]
-                    current[pid] = replace(t, rounds=t.rounds - rounds, points=t.points - points)
+            current = _without(current, gone)
         kept = [t for t in current.values() if t.rounds > 0]
-        board = leaderboard(kept, None, Metric.AVG_PER_ROUND, SEASON_MIN_ROUNDS)
+        board = leaderboard(kept, None, SEASON_METRIC, SEASON_MIN_ROUNDS)
         tonight = await self._today(exclude_game)
         last = await self._season_board(previous_month(month))
         podium = [r for r in last.rows if r.qualified and r.rank is not None and r.rank <= 3]
@@ -225,10 +234,7 @@ class AwardsService:
             gone = await boards_repository.game_tallies(
                 self.session, exclude_game, from_ms(start), from_ms(end)
             )
-            for pid, (rounds, points) in gone.items():
-                if pid in tallies:
-                    t = tallies[pid]
-                    tallies[pid] = replace(t, rounds=t.rounds - rounds, points=t.points - points)
+            tallies = _without(tallies, gone)
         live = [t for t in tallies.values() if t.rounds > 0]
         views = await self._views({t.player_id for t in live}) if live else {}
         games = await boards_repository.games_on(
@@ -273,7 +279,7 @@ class AwardsService:
             rows = [BoardRow(**r) for r in closed.data["standings"]]
             return Board(rows=rows, min_rounds=SEASON_MIN_ROUNDS)
         start, end = month_range_ms(month, settings.tz)
-        return await self.boards.board(start, end, Metric.AVG_PER_ROUND, SEASON_MIN_ROUNDS)
+        return await self.boards.board(start, end, SEASON_METRIC, SEASON_MIN_ROUNDS)
 
     async def _views(self, ids: set[str]) -> dict[str, PlayerView]:
         """Players by id, following merges to the player that remains."""
