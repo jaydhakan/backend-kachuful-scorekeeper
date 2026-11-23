@@ -11,6 +11,7 @@ from app.db.models import Achievement, Activity, Player, User
 from app.domain.time import now_utc, to_ms
 from tests.factories import make_player, make_user, sign_in
 from tests.game_builder import MINUTE, make_payload
+from tests.placed_games import split_payload
 
 HOUR = 60 * MINUTE
 
@@ -175,6 +176,22 @@ async def test_player_page_has_totals_achievements_and_rank(
     assert sum(body["totals"]["places"].values()) == 1
     assert body["rank"] == {"global": None, "outOf": 0}
     assert isinstance(body["achievements"], list)
+
+
+async def test_player_page_ranks_on_accuracy_not_the_average(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await sign_in(client, await make_user(session, player_name="Scorer"))
+    ids = [str((await make_player(session, name=f"A{k}")).id) for k in range(3)]
+    game, sharpest, best_average = split_payload(ids, start_ms=to_ms(now_utc()) - 2 * HOUR)
+    assert (await client.put(f"/api/games/{game['syncId']}", json=game)).status_code == 200
+
+    ranks = [
+        (await client.get(f"/api/players/{p}")).json()["rank"] for p in (sharpest, best_average)
+    ]
+
+    assert ranks[0] == {"global": 1, "outOf": 3}
+    assert ranks[1]["global"] != 1
 
 
 async def test_player_stats_cover_histograms_and_best_game(

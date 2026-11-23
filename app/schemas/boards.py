@@ -82,7 +82,7 @@ class PlayerStatsOut(CamelModel):
 
 
 class RankOut(CamelModel):
-    """All-time rank on the default board."""
+    """All-time rank on bid accuracy (ties on the average; more than 50 rounds)."""
 
     global_rank: int | None = Field(..., alias="global", description="Null when unranked")
     out_of: int = Field(..., description="Players ranked")

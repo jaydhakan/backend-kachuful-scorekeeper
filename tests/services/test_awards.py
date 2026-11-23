@@ -186,3 +186,21 @@ async def test_wrapped_summarises_a_players_year(
     assert (
         await client.get(f"/api/wrapped/2026/{'0' * 8}-0000-4000-8000-{'9' * 12}")
     ).status_code == 404
+
+
+async def test_wrapped_ranks_the_year_on_accuracy_not_the_average(
+    session: AsyncSession, client: httpx.AsyncClient
+) -> None:
+    await sign_in(client, await make_user(session, email="w@example.com", player_name="Scorer"))
+    ids = [str((await make_player(session, name=f"W{k}")).id) for k in range(3)]
+    now = now_utc()
+    game, sharpest, best_average = split_payload(ids, start_ms=to_ms(now) - 2 * HOUR)
+    assert (await client.put(f"/api/games/{game['syncId']}", json=game)).status_code == 200
+
+    ranks = [
+        (await client.get(f"/api/wrapped/{now.year}/{p}")).json()["rank"]
+        for p in (sharpest, best_average)
+    ]
+
+    assert ranks[0] == {"rank": 1, "outOf": 3}
+    assert ranks[1]["rank"] != 1

@@ -251,9 +251,7 @@ class BoardsService:
 
     async def _page_body(self, view: PlayerView) -> PlayerPageOut:
         player_id = view.player.id
-        board = await self.board(
-            ALL_TIME_FROM, ALL_TIME_TO, Metric.AVG_PER_ROUND, SEASON_MIN_ROUNDS
-        )
+        board = await self.board(ALL_TIME_FROM, ALL_TIME_TO, Metric.ACCURACY, SEASON_MIN_ROUNDS)
         mine = next((r for r in board.rows if r.player_id == str(player_id)), None)
         return PlayerPageOut(
             player=player_summary_out(view),

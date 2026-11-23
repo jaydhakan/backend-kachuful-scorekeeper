@@ -168,7 +168,7 @@ class DayRoundsOut(CamelModel):
 
 
 class WrappedRankOut(CamelModel):
-    """Rank on the year's board (average per round, more than 50 rounds)."""
+    """Rank on the year's board (bid accuracy, ties on the average; more than 50 rounds)."""
 
     rank: int | None
     out_of: int

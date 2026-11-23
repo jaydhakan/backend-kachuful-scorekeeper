@@ -588,7 +588,7 @@ class AwardsService:
         nemesis = _first_max([o for o in opponents if o[2] > 0], lambda o: o[2])
         partner = _first_max(opponents, lambda o: o[1])
         biggest = await boards_repository.biggest_round(self.session, player_id, window)
-        board = await self.boards.board(start, end, Metric.AVG_PER_ROUND, SEASON_MIN_ROUNDS)
+        board = await self.boards.board(start, end, Metric.ACCURACY, SEASON_MIN_ROUNDS)
         mine = next((r for r in board.rows if r.player_id == str(player_id)), None)
         others = await self._views({str(o[0]) for o in (nemesis, partner) if o is not None})
         top_days = sorted(days, key=lambda d: (-d[2], d[0]))[:3]
