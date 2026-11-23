@@ -54,7 +54,7 @@ async def recompute_crowns() -> None:
     """Kachuful's titles after a close: the Sitara clears after midnight, a season moves the Legend."""
     async with get_session_factory()() as session:
         crowns = CrownsService(session)
-        changes = await crowns.recompute(await crowns.chain(), game_id=None)
+        changes = await crowns.recompute(game_id=None)
         await session.commit()
     logger.info("crowns recomputed", extra={"changes": len(changes)})
 

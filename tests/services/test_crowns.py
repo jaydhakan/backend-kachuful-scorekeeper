@@ -1,4 +1,4 @@
-"""Crowns after Kachuful writes: the Kursi's reigns and feed items, bounties, and no-op recomputes."""
+"""Crowns after Kachuful writes: reigns and feed items, bounties, and no-op recomputes."""
 
 import argparse
 import uuid
@@ -67,18 +67,21 @@ def _week(ended_at: int) -> str:
     return f"{year}-W{week:02d}"
 
 
-async def test_the_first_game_crowns_its_winner_with_a_feed_item_and_no_reign(
+async def test_a_first_holder_gets_a_feed_item_and_no_reign(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     a, b, c = await _table(client, session)
-    game = placed_payload([a, b, c], start_ms=to_ms(now_utc()) - 2 * HOUR)
+    now = to_ms(now_utc())
+    await _put(client, placed_payload([a, b, c], start_ms=now - 30 * MINUTE))
+    game = placed_payload([a, b, c], start_ms=now - 20 * MINUTE)
     await _put(client, game)
 
-    assert (await _crowns(session))["kursi"] == [a]
     feed = (await session.execute(select(Activity).where(Activity.kind == "crown"))).scalars()
-    kursi = [f for f in feed if f.data["crown"] == "kursi"]
-    assert [(f.data["from"], f.data["to"], f.player_id) for f in kursi] == [([], [a], uuid.UUID(a))]
-    assert kursi[0].game_id == uuid.UUID(game["syncId"])
+    sitara = [f for f in feed if f.data["crown"] == "sitara"]
+    assert [(f.data["from"], f.data["to"], f.player_id) for f in sitara] == [
+        ([], [a], uuid.UUID(a))
+    ]
+    assert sitara[0].game_id == uuid.UUID(game["syncId"])
     assert (await session.execute(select(CrownReign))).scalars().first() is None
 
 
@@ -94,11 +97,6 @@ async def test_a_take_closes_the_reign_and_pays_a_bounty_once_a_week(
     await _put(client, second)
     await _put(client, third)
 
-    assert (await _crowns(session))["kursi"] == [b]
-    reigns = list((await session.execute(select(CrownReign))).scalars())
-    assert [(r.kind, list(map(str, r.holders)), r.until_game) for r in reigns] == [
-        ("kursi", [a], uuid.UUID(second["syncId"]))
-    ]
     # b beat the holder a in the second game; a third win over a that week pays nothing more.
     week = _week(second["finishedAt"])
     assert await _bounties(session) == [(b, f"bounty:{a}:{week}", second["syncId"])]
@@ -115,14 +113,13 @@ async def test_recomputing_without_a_change_writes_nothing(
     crowns = CrownsService(session)
 
     for _ in range(2):
-        chain = await crowns.chain()
-        assert await crowns.recompute(chain, game_id=None) == []
-        assert await SikkeService(session).recompute_kursi(chain) == []
+        assert await crowns.recompute(game_id=None) == []
+        assert await SikkeService(session).recompute_kursi() == []
 
     assert await _snapshot(session) == before
 
 
-async def test_deleting_the_game_takes_the_bounty_and_the_reign_back(
+async def test_deleting_the_game_takes_the_bounty_back(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     a, b, c = await _table(client, session)
@@ -136,8 +133,6 @@ async def test_deleting_the_game_takes_the_bounty_and_the_reign_back(
 
     assert response.status_code == 204
     assert await _bounties(session) == []
-    assert (await _crowns(session))["kursi"] == [a]
-    assert (await session.execute(select(CrownReign))).scalars().first() is None
 
 
 async def test_a_voided_bounty_goes_to_the_next_qualifying_game_that_week(
@@ -175,7 +170,7 @@ async def test_the_legend_needs_two_season_titles(
     await session.flush()
     crowns = CrownsService(session)
 
-    changes = await crowns.recompute(await crowns.chain(), game_id=None)
+    changes = await crowns.recompute(game_id=None)
 
     assert [(c.kind.value, c.to) for c in changes] == [("legend", (a,))]
     assert (await _crowns(session))["legend"] == [a]
@@ -194,20 +189,18 @@ async def test_the_sitara_needs_two_games_today(
     assert (await _crowns(session))["sitara"] == [a]
 
 
-async def test_recompute_crowns_rebuilds_the_kursi_reigns_without_feed_items(
+async def test_recompute_crowns_rebuilds_the_titles_without_feed_items(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     a, b, c = await _table(client, session)
     now = to_ms(now_utc())
-    await _put(client, placed_payload([a, b, c], start_ms=now - 3 * HOUR))
-    await _put(client, placed_payload([b, a, c], start_ms=now - 2 * HOUR))
+    await _put(client, placed_payload([a, b, c], start_ms=now - 30 * MINUTE))
+    await _put(client, placed_payload([b, a, c], start_ms=now - 20 * MINUTE))
     before = await _snapshot(session)
     await session.execute(Crown.__table__.delete())
-    await session.execute(CrownReign.__table__.delete())
 
     assert await recompute_crowns.run(argparse.Namespace(dry_run=False)) == 0
 
-    crowns, reigns, feed, _ = await _snapshot(session)
+    crowns, _, feed, _ = await _snapshot(session)
     assert [(k, h, d) for k, h, _, _, d in crowns] == [(k, h, d) for k, h, _, _, d in before[0]]
-    assert [(s, u, d) for _, s, u, d in reigns] == [(s, u, d) for _, s, u, d in before[1]]
     assert feed == before[2]

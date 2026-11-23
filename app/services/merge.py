@@ -123,14 +123,13 @@ class MergeService:
         for game, rules in REGISTRY.items():
             if game != ProgressionGame.KACHUFUL:
                 await engine.recompute_careers(rules, {target.id})
-        # Reseats ran without careers, so Sikke wasn't recomputed: both players, and the chain
+        # Reseats ran without careers, so Sikke wasn't recomputed: both players, and bounties
         # (titles first: bounties read the Taj's reigns).
         sikke = SikkeService(self.session)
         await sikke.recompute_players({source.id, target.id})
         crowns = CrownsService(self.session)
-        chain = await crowns.chain()
-        await crowns.recompute(chain, game_id=None)
-        await sikke.recompute_kursi(chain)
+        await crowns.recompute(game_id=None)
+        await sikke.recompute_kursi()
         if source_user is not None:
             await users_repository.move_player_link(self.session, source.id, target.id)
         await players_repository.redirect_merged(self.session, source.id, target.id)

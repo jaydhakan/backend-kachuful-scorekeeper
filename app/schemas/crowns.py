@@ -8,25 +8,23 @@ from pydantic import Field
 from app.schemas.common import CamelModel
 from app.schemas.players import PlayerSummaryOut
 
-CrownKindOut = Literal["medal1", "medal2", "medal3", "kursi", "sitara", "legend"]
+CrownKindOut = Literal["medal1", "medal2", "medal3", "sitara", "legend"]
 
 
 class CrownOut(CamelModel):
     """One title now; `holders` is empty when nobody holds it."""
 
-    kind: CrownKindOut = Field(
-        ..., description="medal1 | medal2 | medal3 | kursi | sitara | legend"
-    )
+    kind: CrownKindOut = Field(..., description="medal1 | medal2 | medal3 | sitara | legend")
     holders: list[PlayerSummaryOut] = Field(..., description="Who holds it (ties share)")
     since: int | None = Field(..., description="Epoch ms the holders took it; null if never held")
     since_game: uuid.UUID | None = Field(..., description="The game that changed it, if any")
-    defences: int = Field(..., description="Kursi defences in this reign; 0 for other titles")
+    defences: int = Field(..., description="Always 0: no title counts defences")
 
 
 class CrownsOut(CamelModel):
     """`GET /api/crowns`: every title of a game, in a fixed order."""
 
-    items: list[CrownOut] = Field(..., description="All six titles")
+    items: list[CrownOut] = Field(..., description="All five titles")
 
 
 class CrownReignOut(CamelModel):
@@ -36,7 +34,7 @@ class CrownReignOut(CamelModel):
     holders: list[PlayerSummaryOut] = Field(..., description="Who held it")
     since: int = Field(..., description="Epoch ms the reign began")
     until: int = Field(..., description="Epoch ms it ended")
-    defences: int = Field(..., description="Kursi defences in this reign; 0 for other titles")
+    defences: int = Field(..., description="Always 0: no title counts defences")
 
 
 class StatusChangeOut(CamelModel):
@@ -45,13 +43,13 @@ class StatusChangeOut(CamelModel):
     kind: CrownKindOut = Field(..., description="The title")
     from_: list[PlayerSummaryOut] = Field(..., alias="from", description="Who held it before")
     to: list[PlayerSummaryOut] = Field(..., description="Who holds it now")
-    defences: int = Field(..., description="The outgoing reign's defences (Kursi; else 0)")
+    defences: int = Field(..., description="Always 0: no title counts defences")
 
 
 class BountyOut(CamelModel):
     """A bounty this write paid: `winner` finished above `holder`."""
 
-    holder: PlayerSummaryOut = Field(..., description="The Kursi or Taj holder beaten")
+    holder: PlayerSummaryOut = Field(..., description="The Taj holder beaten")
     winner: PlayerSummaryOut = Field(..., description="Who beat them")
     amount: int = Field(..., description="Sikke paid")
 

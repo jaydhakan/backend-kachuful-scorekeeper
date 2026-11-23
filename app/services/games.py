@@ -430,8 +430,8 @@ class GamesService:
         void: bool = False,
     ) -> Rewards:
         """Sikke and crowns after a write. A running game only adds achievements (a lost one's
-        entry cascades); an ended one pays finishes, may move the Kursi chain and every title, and
-        pays bounties. A merge (no `career`) runs its own.
+        entry cascades); an ended one pays finishes, may move every title, and pays
+        bounties. A merge (no `career`) runs its own.
         """
         if not career:
             return Rewards()
@@ -440,10 +440,9 @@ class GamesService:
         if not ended:
             return Rewards()
         crowns = CrownsService(self.session)
-        chain = await crowns.chain()
         # Crowns first: a bounty reads the Taj's reigns, which this write may have closed.
-        changes = await crowns.recompute(chain, game_id=None if void else game_id)
-        bounties = await sikke.recompute_kursi(chain)
+        changes = await crowns.recompute(game_id=None if void else game_id)
+        bounties = await sikke.recompute_kursi()
         mine = [b for b in bounties if b.game_id == str(game_id)]
         await NightsService(self.session).after_write({game_id})
         return Rewards(changes=changes, bounties=mine)

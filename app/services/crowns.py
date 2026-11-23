@@ -1,12 +1,11 @@
 """Crowns (rewards plan §6): recompute who holds each Kachuful title after a write, and read them.
 
 A recompute diffs the rules' holders with `crowns`: a change closes the old reign, writes the new
-row and posts a `crown` feed item (not for a clear). The Kursi's reigns follow its domain chain
-exactly; the other titles' reigns start when a recompute first sees them. Callers commit.
+row and posts a `crown` feed item (not for a clear). A reign starts when a recompute first sees
+its holders. Callers commit.
 """
 
 import uuid
-from collections import Counter
 from collections.abc import Iterable, Sequence
 from datetime import datetime
 from typing import Any
@@ -14,7 +13,6 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Crown as CrownRow
-from app.db.models import CrownReign
 from app.domain.awards import SEASON_MIN_ROUNDS
 from app.domain.crowns import (
     Crown,
@@ -27,9 +25,7 @@ from app.domain.crowns import (
     sitara_of,
 )
 from app.domain.enums import ProgressionGame
-from app.domain.kursi import Reign, kursi_from
 from app.domain.leaderboard import Metric, leaderboard
-from app.domain.placed import PlacedGame, placed_games
 from app.domain.sikke import SikkeEarned
 from app.domain.time import (
     day_of,
@@ -61,8 +57,6 @@ from app.services.presenters import player_summary_out
 from app.settings import settings
 
 GAME = ProgressionGame.KACHUFUL.value
-# A reign as stored: holders, since, until, since game, until game, defences.
-ReignKey = tuple[tuple[str, ...], datetime, datetime, str | None, str | None, int]
 
 
 def _ids(raw: Iterable[uuid.UUID]) -> tuple[str, ...]:
@@ -84,14 +78,13 @@ def _uuid(raw: str | None) -> uuid.UUID | None:
 
 
 def _row(crown: Crown, now: int, game_id: uuid.UUID | None) -> dict[str, Any]:
-    """A title as a `crowns` row; only the Kursi carries its own since (the chain's)."""
-    kursi = crown.kind == CrownKind.KURSI and crown.since is not None
+    """A title as a `crowns` row, held since this write."""
     return {
         "game": GAME,
         "kind": crown.kind.value,
         "holders": [uuid.UUID(h) for h in crown.holders],
-        "since": from_ms(crown.since if kursi and crown.since is not None else now),
-        "since_game": _uuid(crown.since_game) if kursi else game_id,
+        "since": from_ms(now),
+        "since_game": game_id,
         "defences": crown.defences,
     }
 
@@ -124,59 +117,6 @@ def _activity(change: CrownChange, game_id: uuid.UUID | None) -> dict[str, Any]:
     }
 
 
-def _chain_reigns(reigns: Sequence[Reign]) -> list[dict[str, Any]]:
-    """The Kursi chain's closed reigns as `crown_reigns` rows (the last one is still running)."""
-    out = []
-    for k, r in enumerate(reigns[:-1]):
-        assert r.until is not None
-        out.append(
-            {
-                "game": GAME,
-                "kind": CrownKind.KURSI.value,
-                "holders": [uuid.UUID(h) for h in sorted(r.holders)],
-                "since": from_ms(r.since),
-                "until": from_ms(r.until),
-                "since_game": uuid.UUID(r.since_game),
-                "until_game": uuid.UUID(reigns[k + 1].since_game),
-                "defences": r.defences,
-            }
-        )
-    return out
-
-
-def _reign_key(values: dict[str, Any]) -> ReignKey:
-    return (
-        _ids(values["holders"]),
-        values["since"],
-        values["until"],
-        None if values["since_game"] is None else str(values["since_game"]),
-        None if values["until_game"] is None else str(values["until_game"]),
-        values["defences"],
-    )
-
-
-def _stored_reign_key(r: CrownReign) -> ReignKey:
-    return _reign_key(
-        {
-            "holders": r.holders,
-            "since": r.since,
-            "until": r.until,
-            "since_game": r.since_game,
-            "until_game": r.until_game,
-            "defences": r.defences,
-        }
-    )
-
-
-def _kursi_moved(have: Crown | None, want: Crown) -> bool:
-    """The same Kursi holders with another since or defence count (a defence, or an edit)."""
-    return have is not None and (have.since, have.since_game, have.defences) != (
-        want.since,
-        want.since_game,
-        want.defences,
-    )
-
-
 def _bad_cursor() -> ApiError:
     return ApiError(422, ErrorCode.INVALID, "Bad cursor.", fields={"cursor": "not a valid cursor"})
 
@@ -196,12 +136,8 @@ class CrownsService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def chain(self) -> list[PlacedGame]:
-        """Kachuful's ended games as the Kursi sees them (read once per write, shared)."""
-        return placed_games(await boards_repository.ended_places(self.session, None))
-
-    async def desired(self, chain: list[PlacedGame]) -> dict[CrownKind, Crown]:
-        """Who should hold each title now (since and game are the write's, except the Kursi's)."""
+    async def desired(self) -> dict[CrownKind, Crown]:
+        """Who should hold each title now (since and game are the write's)."""
         now = to_ms(now_utc())
         start, end = month_range_ms(month_of(now, settings.tz), settings.tz)
         month = await boards_repository.tallies(self.session, make_window(start, end))
@@ -211,20 +147,7 @@ class CrownsService:
         holders[CrownKind.LEGEND] = legend_of(
             await crowns_repository.season_champions(self.session)
         )
-        out = {kind: Crown(kind, ids) for kind, ids in holders.items()}
-        kursi, _ = kursi_from(chain)
-        out[CrownKind.KURSI] = (
-            Crown(CrownKind.KURSI, ())
-            if kursi is None
-            else Crown(
-                CrownKind.KURSI,
-                tuple(sorted(kursi.holders)),
-                kursi.since,
-                kursi.since_game,
-                kursi.defences,
-            )
-        )
-        return out
+        return {kind: Crown(kind, ids) for kind, ids in holders.items()}
 
     async def _sitara(self, now: int) -> tuple[str, ...]:
         """Today's points leaders, as `GET /api/medals` `today` counts them."""
@@ -234,7 +157,7 @@ class CrownsService:
         return sitara_of({t.player_id: t.points for t in day.values() if t.rounds > 0}, games)
 
     async def recompute(
-        self, chain: list[PlacedGame], *, game_id: uuid.UUID | None, announce: bool = True
+        self, *, game_id: uuid.UUID | None, announce: bool = True
     ) -> list[CrownChange]:
         """Diff every title with the stored row and write what changed (nothing when nothing did).
 
@@ -243,49 +166,21 @@ class CrownsService:
         stored = {
             CrownKind(r.kind): _stored(r) for r in await crowns_repository.all(self.session, GAME)
         }
-        desired = await self.desired(chain)
+        desired = await self.desired()
         changes = crown_changes(stored, desired)
         now = to_ms(now_utc())
         rows, reigns, feed = [], [], []
         for change in changes:
             have = stored.get(change.kind)
-            if change.kind != CrownKind.KURSI and have is not None and have.holders:
+            if have is not None and have.holders:
                 reigns.append(_reign_row(have, now, game_id))
             rows.append(_row(desired[change.kind], now, game_id))
             if change.to and announce:
                 feed.append(_activity(change, game_id))
-        kursi = desired[CrownKind.KURSI]
-        if CrownKind.KURSI not in {c.kind for c in changes} and _kursi_moved(
-            stored.get(CrownKind.KURSI), kursi
-        ):
-            rows.append(_row(kursi, now, game_id))
         await crowns_repository.upsert(self.session, rows)
         await crowns_repository.add_reigns(self.session, reigns)
         await achievements_repository.add_activity(self.session, feed)
-        await self._sync_kursi_reigns(chain)
         return changes
-
-    async def _sync_kursi_reigns(self, chain: list[PlacedGame]) -> None:
-        """Make the Kursi's closed reigns equal to its chain (an edit can rewrite history)."""
-        _, reigns = kursi_from(chain)
-        wanted = _chain_reigns(reigns)
-        stored = await crowns_repository.reigns_of(self.session, GAME, CrownKind.KURSI)
-        left = Counter(_reign_key(v) for v in wanted)
-        gone = []
-        for r in stored:
-            key = _stored_reign_key(r)
-            if left[key] > 0:
-                left[key] -= 1
-            else:
-                gone.append(r.id)
-        await crowns_repository.delete_reigns(self.session, gone)
-        missing = []
-        for values in wanted:
-            key = _reign_key(values)
-            if left[key] > 0:
-                left[key] -= 1
-                missing.append(values)
-        await crowns_repository.add_reigns(self.session, missing)
 
     async def status(
         self, changes: Sequence[CrownChange], bounties: Sequence[SikkeEarned]

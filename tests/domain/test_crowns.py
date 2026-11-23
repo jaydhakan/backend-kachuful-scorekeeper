@@ -44,11 +44,11 @@ def test_the_legend_needs_two_titles_and_ties_share() -> None:
 
 def test_only_changed_holders_are_changes() -> None:
     stored = {
-        CrownKind.KURSI: Crown(CrownKind.KURSI, ("a",), 1, "g1", 4),
+        CrownKind.MEDAL1: Crown(CrownKind.MEDAL1, ("a",), 1, "g1"),
         CrownKind.SITARA: Crown(CrownKind.SITARA, ("b",)),
     }
     desired = {
-        CrownKind.KURSI: Crown(CrownKind.KURSI, ("a",), 1, "g1", 5),
+        CrownKind.MEDAL1: Crown(CrownKind.MEDAL1, ("a",), 2, "g2"),
         CrownKind.SITARA: Crown(CrownKind.SITARA, ()),
         CrownKind.LEGEND: Crown(CrownKind.LEGEND, ("c",)),
     }

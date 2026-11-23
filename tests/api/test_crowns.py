@@ -1,11 +1,14 @@
 """`GET /api/crowns`, `GET /api/crowns/reigns`, and the Kachuful PUT's `status` and stream frame."""
 
+import uuid
+from datetime import timedelta
 from typing import Any
 
 import httpx
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.db.models import CrownReign
 from app.domain.time import now_utc, to_ms
 from app.jobs.fake_games import MINUTE
 from app.services import games as games_service
@@ -13,7 +16,7 @@ from tests.factories import make_player, make_user, sign_in
 from tests.placed_games import placed_payload
 
 HOUR = 60 * MINUTE
-KINDS = ["medal1", "medal2", "medal3", "kursi", "sitara", "legend"]
+KINDS = ["medal1", "medal2", "medal3", "sitara", "legend"]
 
 
 async def _table(client: httpx.AsyncClient, session: AsyncSession) -> list[str]:
@@ -38,7 +41,7 @@ async def test_crowns_need_a_session(client: httpx.AsyncClient) -> None:
     assert (await client.get("/api/crowns/reigns")).status_code == 401
 
 
-async def test_crowns_list_all_six_titles_with_nobody_at_first(
+async def test_crowns_list_all_five_titles_with_nobody_at_first(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     await _table(client, session)
@@ -53,7 +56,7 @@ async def test_crowns_list_all_six_titles_with_nobody_at_first(
     }
 
 
-async def test_the_put_reports_a_take_and_its_bounty(
+async def test_the_put_reports_its_bounty(
     client: httpx.AsyncClient, session: AsyncSession, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     a, b, c = await _table(client, session)
@@ -64,17 +67,12 @@ async def test_the_put_reports_a_take_and_its_bounty(
 
     monkeypatch.setattr(games_service, "notify_user", record)
     now = to_ms(now_utc())
-    first = await _put(client, placed_payload([a, b, c], start_ms=now - 3 * HOUR))
-    assert [
-        (ch["kind"], _ids(ch["from"]), _ids(ch["to"])) for ch in first["status"]["changes"]
-    ] == [("kursi", [], [a])]
+    await _put(client, placed_payload([a, b, c], start_ms=now - 3 * HOUR))
     sent.clear()
     second = placed_payload([b, a, c], start_ms=now - 2 * HOUR)
 
     body = await _put(client, second)
 
-    kursi = [ch for ch in body["status"]["changes"] if ch["kind"] == "kursi"]
-    assert [(_ids(ch["from"]), _ids(ch["to"]), ch["defences"]) for ch in kursi] == [([a], [b], 0)]
     assert [
         (s["holder"]["id"], s["winner"]["id"], s["amount"]) for s in body["status"]["bounties"]
     ] == [(a, b, 40)]
@@ -95,7 +93,12 @@ async def test_the_status_frame_goes_to_seated_accounts(
         sent.append((user_id, event, data))
 
     monkeypatch.setattr(games_service, "notify_user", record)
-    game = placed_payload([str(scorer.player_id), *others], start_ms=to_ms(now_utc()) - 2 * HOUR)
+    order = [str(scorer.player_id), *others]
+    now = to_ms(now_utc())
+    await _put(client, placed_payload(order, start_ms=now - 30 * MINUTE))
+    assert sent == []
+    # The second game of the day crowns the Sitara, so this write has a change to tell.
+    game = placed_payload(order, start_ms=now - 20 * MINUTE)
 
     body = await _put(client, game)
 
@@ -123,14 +126,16 @@ async def test_crowns_show_the_holder_since_the_game(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     a, b, c = await _table(client, session)
-    game = placed_payload([a, b, c], start_ms=to_ms(now_utc()) - 2 * HOUR)
+    now = to_ms(now_utc())
+    await _put(client, placed_payload([a, b, c], start_ms=now - 30 * MINUTE))
+    game = placed_payload([a, b, c], start_ms=now - 20 * MINUTE)
     await _put(client, game)
 
     items = {i["kind"]: i for i in (await client.get("/api/crowns")).json()["items"]}
 
-    kursi = items["kursi"]
-    assert _ids(kursi["holders"]) == [a]
-    assert kursi["since"] == game["finishedAt"] and kursi["sinceGame"] == game["syncId"]
+    sitara = items["sitara"]
+    assert _ids(sitara["holders"]) == [a]
+    assert sitara["since"] >= now and sitara["sinceGame"] == game["syncId"]
 
 
 async def test_other_games_have_no_holders_yet(
@@ -140,40 +145,51 @@ async def test_other_games_have_no_holders_yet(
 
     body = (await client.get("/api/crowns", params={"game": "spades"})).json()
 
-    assert [i["holders"] for i in body["items"]] == [[]] * 6
+    assert [i["holders"] for i in body["items"]] == [[]] * 5
     assert (await client.get("/api/crowns", params={"game": "chess"})).status_code == 422
 
 
 async def _three_reigns(client: httpx.AsyncClient, session: AsyncSession) -> list[str]:
-    """a, then b (after two defences), then a again, then c: three closed Kursi reigns."""
+    """Closed reigns of a, then b, then a again (medal1), and one of c (sitara), oldest first."""
     a, b, c = await _table(client, session)
-    now = to_ms(now_utc())
-    orders = [[a, b, c], [b, a, c], [b, c, a], [b, a, c], [a, b, c], [c, a, b]]
-    for k, order in enumerate(orders):
-        await _put(client, placed_payload(order, start_ms=now - (10 - k) * HOUR))
+    now = now_utc()
+    held = [("medal1", a), ("medal1", b), ("sitara", c), ("medal1", a)]
+    for k, (kind, pid) in enumerate(held):
+        session.add(
+            CrownReign(
+                game="kachuful",
+                kind=kind,
+                holders=[uuid.UUID(pid)],
+                since=now - timedelta(hours=10 - k),
+                until=now - timedelta(hours=9 - k),
+            )
+        )
+    await session.flush()
     return [a, b, c]
 
 
-async def test_reigns_list_closed_reigns_newest_first_and_by_defences(
+async def test_reigns_list_closed_reigns_newest_first(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     a, b, _ = await _three_reigns(client, session)
 
-    # Kursi only: run in the morning, these games fall on today's date and the Sitara changes too.
-    kursi = {"kind": "kursi"}
-    recent = (await client.get("/api/crowns/reigns", params=kursi)).json()
-    longest = (await client.get("/api/crowns/reigns", params={**kursi, "sort": "defences"})).json()
-    medals = (await client.get("/api/crowns/reigns", params={"kind": "medal1"})).json()
+    taj = {"kind": "medal1"}
+    recent = (await client.get("/api/crowns/reigns", params=taj)).json()
+    by_defences = (
+        await client.get("/api/crowns/reigns", params={**taj, "sort": "defences"})
+    ).json()
+    everything = (await client.get("/api/crowns/reigns")).json()
 
     assert [(_ids(r["holders"]), r["defences"]) for r in recent["items"]] == [
         ([a], 0),
-        ([b], 2),
+        ([b], 0),
         ([a], 0),
     ]
-    assert all(r["kind"] == "kursi" and r["since"] < r["until"] for r in recent["items"])
-    assert _ids(longest["items"][0]["holders"]) == [b]
+    assert all(r["kind"] == "medal1" and r["since"] < r["until"] for r in recent["items"])
+    # No title counts defences, so that sort falls back to the newest end.
+    assert by_defences["items"] == recent["items"]
     assert recent["nextCursor"] is None
-    assert medals == {"items": [], "nextCursor": None}
+    assert [r["kind"] for r in everything["items"]] == ["medal1", "sitara", "medal1", "medal1"]
 
 
 async def test_reigns_page_with_a_cursor(client: httpx.AsyncClient, session: AsyncSession) -> None:
@@ -196,7 +212,7 @@ async def test_reigns_reject_a_bad_cursor_sort_or_kind(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     await _table(client, session)
-    for params in ({"cursor": "nope"}, {"sort": "oldest"}, {"kind": "crown"}):
+    for params in ({"cursor": "nope"}, {"sort": "oldest"}, {"kind": "crown"}, {"kind": "kursi"}):
         response = await client.get("/api/crowns/reigns", params=params)
         assert response.status_code == 422, params
         assert response.json()["code"] == "invalid"

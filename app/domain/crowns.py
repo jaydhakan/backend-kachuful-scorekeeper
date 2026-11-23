@@ -1,7 +1,7 @@
 """Crowns (rewards plan §6): who holds each title now, and what changed since the stored holders.
 
-Medals are this month's podium, the Kursi its chain, the Sitara tonight's points leader, the
-Legend the most season titles. Pure: the service stores the rows, reigns and feed items.
+Medals are this month's podium, the Sitara tonight's points leader, the Legend the most season
+titles. Pure: the service stores the rows, reigns and feed items.
 """
 
 from collections import Counter
@@ -24,7 +24,6 @@ class CrownKind(StrEnum):
     MEDAL1 = "medal1"
     MEDAL2 = "medal2"
     MEDAL3 = "medal3"
-    KURSI = "kursi"
     SITARA = "sitara"
     LEGEND = "legend"
 

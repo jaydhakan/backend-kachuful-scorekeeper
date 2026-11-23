@@ -1,11 +1,11 @@
 """Crowns and their closed reigns, and the facts the Legend and the bounties read."""
 
 import uuid
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import delete, select, text, tuple_
+from sqlalchemy import select, text, tuple_
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -44,12 +44,6 @@ class CrownsRepository:
         """Insert closed reigns (one statement)."""
         if values:
             await session.execute(insert(CrownReign), list(values))
-
-    async def delete_reigns(self, session: AsyncSession, ids: Iterable[uuid.UUID]) -> None:
-        """Delete reigns that no longer hold (a Kursi chain rewritten by an edit)."""
-        wanted = list(ids)
-        if wanted:
-            await session.execute(delete(CrownReign).where(CrownReign.id.in_(wanted)))
 
     async def reigns_of(self, session: AsyncSession, game: str, kind: str) -> list[CrownReign]:
         """Every closed reign of one title, oldest first."""
