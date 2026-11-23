@@ -135,8 +135,23 @@ def value_of(t: Tally, metric: Metric) -> float:
     return values[metric]
 
 
+def _row_avg(row: BoardRow) -> float:
+    return row.points / row.rounds if row.rounds else 0
+
+
+def _order(row: BoardRow, metric: Metric) -> tuple[float, ...]:
+    """What a row ranks on, best first: accuracy breaks its ties on the average."""
+    if metric is Metric.ACCURACY:
+        return (-row.value, -_row_avg(row))
+    return (-row.value,)
+
+
 def ranked(tallies: Iterable[Tally], metric: Metric, min_rounds: int) -> list[BoardRow]:
-    """Qualified first; by value, points, rounds, id; equal values share a rank (1, 1, 3)."""
+    """Qualified first; by value, points, rounds, id; equal values share a rank (1, 1, 3).
+
+    On accuracy, equal values break on average points per round, and share a rank only when
+    both are equal.
+    """
     rate = metric in RATE_METRICS
     rows = [
         BoardRow(
@@ -155,13 +170,17 @@ def ranked(tallies: Iterable[Tally], metric: Metric, min_rounds: int) -> list[Bo
         # A rate needs something to be a rate of; nobody is listed without a round or an ended game.
         if t.rounds > 0 or t.games_ended > 0
     ]
-    rows.sort(key=lambda r: (not r.qualified, -r.value, -r.points, -r.rounds, r.player_id))
+    rows.sort(
+        key=lambda r: (not r.qualified, *_order(r, metric), -r.points, -r.rounds, r.player_id)
+    )
     out: list[BoardRow] = []
     rank = 0
     for i, row in enumerate(rows):
         if row.qualified:
             prev = out[i - 1] if i else None
-            same = prev is not None and prev.qualified and prev.value == row.value
+            same = (
+                prev is not None and prev.qualified and _order(prev, metric) == _order(row, metric)
+            )
             rank = rank if same else i + 1
             row = replace(row, rank=rank)
         out.append(row)
