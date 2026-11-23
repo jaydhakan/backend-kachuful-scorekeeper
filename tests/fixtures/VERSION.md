@@ -70,4 +70,4 @@ ledger kinds"): `rates` gains `bounty` (40) and `sitara` (30).
 
 2026-11-23: the Kursi is removed (the app's `backend-requests.md`, 2026-11-23). `sikke-rules.json` loses the
 `kursiTake` and `kursiDefence` rates and `night-cases.json` each night's `kursi` list; both stripped here by
-hand to the app's shape while the app re-exports them.
+hand to the app's shape while the app re-exports them. `kursi-cases.json` is deleted with the rule.
