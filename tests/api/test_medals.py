@@ -67,32 +67,10 @@ async def test_medals_drop_a_player_whose_only_rounds_are_the_excluded_game(
     assert body["standings"] == []
 
 
-async def test_kursi_goes_to_the_first_winner_and_to_whoever_beats_them(
-    client: httpx.AsyncClient, session: AsyncSession
-) -> None:
-    user = await make_user(session, player_name="Scorer")
-    await sign_in(client, user)
-    ids = [str((await make_player(session, name=f"K{k}")).id) for k in range(3)]
-    now = to_ms(now_utc())
-    assert (await client.get("/api/kursi")).json() == {"kursi": None, "longest": None}
+async def test_the_kursi_route_is_gone(client: httpx.AsyncClient, session: AsyncSession) -> None:
+    await sign_in(client, await make_user(session, player_name="Scorer"))
 
-    first = make_payload(ids, start_ms=now - 3 * HOUR, rounds=6, seed=7)
-    assert (await client.put(f"/api/games/{first['syncId']}", json=first)).status_code == 200
-    body = (await client.get("/api/kursi")).json()
-    winner = body["kursi"]["holders"][0]["id"]
-    assert body["kursi"]["sinceGame"] == first["syncId"]
-    assert body["kursi"]["defences"] == 0
-
-    second = make_payload(ids, start_ms=now - HOUR, rounds=6, seed=11)
-    assert (await client.put(f"/api/games/{second['syncId']}", json=second)).status_code == 200
-    after = (await client.get("/api/kursi")).json()
-    excluded = (await client.get("/api/kursi", params={"excludeGame": second["syncId"]})).json()
-
-    assert excluded["kursi"]["holders"][0]["id"] == winner
-    took = after["kursi"]["sinceGame"] == second["syncId"]
-    # Either the winner defended it or someone above them took it; the longest reign is the one with more games.
-    assert after["kursi"]["defences"] == (0 if took else 1)
-    assert after["longest"] is not None
+    assert (await client.get("/api/kursi")).status_code == 404
 
 
 async def test_places_list_ended_games_newest_first_without_the_excluded_one(

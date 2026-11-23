@@ -65,28 +65,6 @@ class TodayOut(CamelModel):
     rows: list[TodayPointsOut]
 
 
-class KursiOut(CamelModel):
-    """The chair: who holds it, since when, and how many games they have defended it."""
-
-    holders: list[PlayerSummaryOut]
-    since: int = Field(..., description="Epoch ms the reign began")
-    since_game: uuid.UUID
-    defences: int
-
-
-class ReignOut(KursiOut):
-    """A reign; `until` is null while it lasts."""
-
-    until: int | None
-
-
-class KursiStateOut(CamelModel):
-    """`GET /api/kursi`: Kachuful's chair without the excluded game, and the longest reign (rewards §6.3)."""
-
-    kursi: KursiOut | None
-    longest: ReignOut | None
-
-
 class PlaceOut(CamelModel):
     player_id: uuid.UUID
     place: int

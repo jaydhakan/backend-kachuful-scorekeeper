@@ -15,9 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.awards import SEASON_MIN_ROUNDS, season_awards
 from app.domain.enums import ProgressionGame
-from app.domain.kursi import kursi_from
 from app.domain.leaderboard import Board, BoardRow, Metric, leaderboard
-from app.domain.placed import placed_games
 from app.domain.progression import Award, Earned, StandingRow, win_rate_standings
 from app.domain.time import (
     day_of,
@@ -41,8 +39,6 @@ from app.schemas.awards import (
     DayPointsOut,
     DayRoundsOut,
     GameSeasonOut,
-    KursiOut,
-    KursiStateOut,
     MedalsOut,
     MonthPointsOut,
     NemesisOut,
@@ -50,7 +46,6 @@ from app.schemas.awards import (
     PlacedGameOut,
     PlaceOut,
     PlacesOut,
-    ReignOut,
     SeasonListItemOut,
     SeasonOut,
     StandingOut,
@@ -248,42 +243,6 @@ class AwardsService:
                 )
                 for t in sorted(live, key=lambda t: (-t.points, t.player_id))
             ],
-        )
-
-    async def kursi(self, exclude_game: uuid.UUID | None) -> KursiStateOut:
-        """`GET /api/kursi`: the chair from every ended Kachuful game but one, and the longest reign."""
-        rows = await boards_repository.ended_places(self.session, exclude_game)
-        kursi, reigns = kursi_from(placed_games(rows))
-        now = to_ms(now_utc())
-        longest = max(
-            reigns,
-            key=lambda r: (r.defences, (r.until or now) - r.since),
-            default=None,
-        )
-        ids = {h for r in reigns for h in r.holders}
-        views = await self._views(ids) if ids else {}
-
-        def holders(hs: tuple[str, ...]) -> list[PlayerSummaryOut]:
-            return [player_summary_out(views[h]) for h in hs]
-
-        return KursiStateOut(
-            kursi=KursiOut(
-                holders=holders(kursi.holders),
-                since=kursi.since,
-                since_game=uuid.UUID(kursi.since_game),
-                defences=kursi.defences,
-            )
-            if kursi
-            else None,
-            longest=ReignOut(
-                holders=holders(longest.holders),
-                since=longest.since,
-                since_game=uuid.UUID(longest.since_game),
-                defences=longest.defences,
-                until=longest.until,
-            )
-            if longest
-            else None,
         )
 
     async def places(self, exclude_game: uuid.UUID | None, limit: int) -> PlacesOut:

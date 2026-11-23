@@ -13,7 +13,6 @@ from app.domain.leaderboard import Metric
 from app.schemas.awards import (
     DailyAwardsOut,
     GameSeasonOut,
-    KursiStateOut,
     MedalsOut,
     PlacesOut,
     SeasonListItemOut,
@@ -184,28 +183,13 @@ async def get_medals(
     return await AwardsService(session).medals(exclude_game)
 
 
-@boards_router.get("/kursi", response_model=KursiStateOut)
-async def get_kursi(
-    _: CurrentAuth,
-    session: SessionDep,
-    exclude_game: Annotated[
-        uuid.UUID | None,
-        Query(
-            alias="excludeGame", description="A Kachuful game to leave out (the one at the table)"
-        ),
-    ] = None,
-) -> KursiStateOut:
-    """Kachuful's Kursi: who holds the chair before `excludeGame`, and the longest reign."""
-    return await AwardsService(session).kursi(exclude_game)
-
-
 @boards_router.get("/crowns", response_model=CrownsOut)
 async def get_crowns(
     _: CurrentAuth, session: SessionDep, game: _Game = ProgressionGame.KACHUFUL
 ) -> CrownsOut:
-    """Every title of a game now: medal1-3, kursi, sitara, legend (holders empty when nobody).
+    """Every title of a game now: medal1-3, sitara, legend (holders empty when nobody).
 
-    Kachuful only so far; other games list all six titles with nobody holding them.
+    Kachuful only so far; other games list all five titles with nobody holding them.
     """
     return await CrownsService(session).crowns(game)
 
