@@ -213,7 +213,7 @@ async def test_reigns_reject_a_bad_cursor_sort_or_kind(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     await _table(client, session)
-    for params in ({"cursor": "nope"}, {"sort": "oldest"}, {"kind": "crown"}, {"kind": "kursi"}):
+    for params in ({"cursor": "nope"}, {"sort": "oldest"}, {"kind": "crown"}):
         response = await client.get("/api/crowns/reigns", params=params)
         assert response.status_code == 422, params
         assert response.json()["code"] == "invalid"

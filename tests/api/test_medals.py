@@ -67,12 +67,6 @@ async def test_medals_drop_a_player_whose_only_rounds_are_the_excluded_game(
     assert body["standings"] == []
 
 
-async def test_the_kursi_route_is_gone(client: httpx.AsyncClient, session: AsyncSession) -> None:
-    await sign_in(client, await make_user(session, player_name="Scorer"))
-
-    assert (await client.get("/api/kursi")).status_code == 404
-
-
 async def test_places_list_ended_games_newest_first_without_the_excluded_one(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:

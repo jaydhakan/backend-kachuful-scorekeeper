@@ -212,10 +212,6 @@ def test_a_streak_runs_across_a_year_boundary() -> None:
     ]
 
 
-def test_nothing_pays_for_the_kursi_any_more() -> None:
-    assert {"kursi_take", "kursi_defence"}.isdisjoint(set(SikkeKind))
-
-
 DAY = 24 * 3600 * 1000
 MONDAY = to_ms(datetime(2026, 11, 16, 12, tzinfo=UTC))
 

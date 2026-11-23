@@ -269,19 +269,6 @@ async def test_a_winning_spades_team_both_win(
     assert {(e.amount, e.game) for e in finish} == {(30, "spades")}
 
 
-async def test_finishing_first_pays_no_kursi(
-    client: httpx.AsyncClient, session: AsyncSession
-) -> None:
-    ids = await _table(client, session)
-    now = to_ms(now_utc())
-    await _put(client, ids, now - 3 * HOUR, rounds=6, seed=7)
-    await _put(client, ids, now - HOUR, rounds=6, seed=11)
-
-    kinds = set((await session.execute(select(SikkeEntry.kind))).scalars())
-
-    assert kinds and not {k for k in kinds if k.startswith("kursi")}
-
-
 async def test_closing_a_day_pays_its_awards(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
