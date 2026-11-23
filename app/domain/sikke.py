@@ -1,4 +1,4 @@
-"""Sikke, the app's coins (rewards plan §9): what each finished game, achievement and Kursi pays.
+"""Sikke, the app's coins (rewards plan §9): what each finished game, achievement and title pays.
 
 Mirrors the app's `src/progression/sikke.ts`; parity is the `sikke-rules` golden fixture. Pure:
 the service reconciles these entries with `sikke_entries` (insert new keys, update, delete gone).
@@ -12,7 +12,6 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from app.domain.enums import GAME_OF_KIND, GameKind, ProgressionGame
-from app.domain.kursi import Kursi, step_kursi
 from app.domain.placed import PlacedGame
 from app.domain.time import day_of
 
@@ -20,10 +19,8 @@ FINISH = 30
 ONLINE_BONUS = 10
 """On top of `FINISH`, for a game every player played on their own phone."""
 WIN = 25
-KURSI_TAKE = 30
-KURSI_DEFENCE = 10
 BOUNTY = 40
-"""For finishing above a holder of the Kursi or the Taj, once per holder per ISO week."""
+"""For finishing above a holder of the Taj, once per holder per ISO week."""
 SITARA = 30
 """For each of a closed night's Aaj ka Sitara."""
 BOUNTY_MIN_TABLE = 3
@@ -43,8 +40,6 @@ class SikkeKind(StrEnum):
     FINISH = "finish"
     WIN = "win"
     ACHIEVEMENT = "achievement"
-    KURSI_TAKE = "kursi_take"
-    KURSI_DEFENCE = "kursi_defence"
     STREAK = "streak"
     BOUNTY = "bounty"
     SITARA = "sitara"
@@ -54,10 +49,8 @@ PLAYER_KINDS = frozenset({SikkeKind.FINISH, SikkeKind.WIN, SikkeKind.ACHIEVEMENT
 """Recomputed per player from their own games and achievements."""
 PLAY_KINDS = PLAYER_KINDS - {SikkeKind.ACHIEVEMENT}
 """The player kinds that replay a player's finished games (finishes, wins, streaks)."""
-KURSI_KINDS = frozenset({SikkeKind.KURSI_TAKE, SikkeKind.KURSI_DEFENCE})
-"""Recomputed from Kachuful's whole Kursi chain at once."""
 BOUNTY_KINDS = frozenset({SikkeKind.BOUNTY})
-"""Recomputed from the Kursi chain and the Taj's reigns at once."""
+"""Recomputed from Kachuful's ended games and the Taj's reigns at once."""
 SITARA_KINDS = frozenset({SikkeKind.SITARA})
 """Recomputed from the stored nights."""
 
@@ -457,39 +450,6 @@ def play_entries(player_id: str, games: list[FinishedGame], tz: ZoneInfo) -> lis
     return _finish_and_win(player_id, ordered, tz) + _streaks(player_id, ordered, tz)
 
 
-def _kursi_entry(player_id: str, g: PlacedGame, kind: SikkeKind) -> SikkeEarned:
-    amount = KURSI_TAKE if kind == SikkeKind.KURSI_TAKE else KURSI_DEFENCE
-    return SikkeEarned(
-        player_id=player_id,
-        key=f"kursi:{g.game_id}",
-        kind=kind,
-        amount=amount,
-        earned_at=g.ended_at,
-        game=ProgressionGame.KACHUFUL,
-        game_id=g.game_id,
-    )
-
-
-def _kursi_step(k: Kursi | None, g: PlacedGame) -> tuple[Kursi | None, list[SikkeEarned]]:
-    after, event = step_kursi(k, g)
-    if event.kind in ("first", "taken"):
-        return after, [_kursi_entry(p, g, SikkeKind.KURSI_TAKE) for p in event.to]
-    if event.kind == "defended" and k is not None:
-        seated = [s.player_id for s in g.seats if s.player_id in k.holders]
-        return after, [_kursi_entry(p, g, SikkeKind.KURSI_DEFENCE) for p in seated]
-    return after, []
-
-
-def kursi_entries(games: list[PlacedGame]) -> list[SikkeEarned]:
-    """Every take and every defence along Kachuful's Kursi chain, oldest game first."""
-    kursi: Kursi | None = None
-    out: list[SikkeEarned] = []
-    for g in sorted(games, key=lambda x: (x.ended_at, x.game_id)):
-        kursi, entries = _kursi_step(kursi, g)
-        out += entries
-    return out
-
-
 @dataclass(frozen=True)
 class TajReign:
     """Who held `medal1` from `since` until `until` (None: still holds it)."""
@@ -532,17 +492,14 @@ def _bounties(g: PlacedGame, holders: set[str], week: str) -> list[SikkeEarned]:
 def bounty_entries(
     games: list[PlacedGame], created_at: dict[str, int], taj: list[TajReign], tz: ZoneInfo
 ) -> list[SikkeEarned]:
-    """Bounties along Kachuful's chain: the holders are the Kursi's before each game and the Taj's
-    at its start; the first qualifying game of an ISO week (APP_TZ) pays each key."""
-    kursi: Kursi | None = None
+    """Bounties from Kachuful's ended games: the holders are the Taj's at each game's start; the
+    first qualifying game of an ISO week (APP_TZ) pays each key."""
     out: dict[tuple[str, str], SikkeEarned] = {}
     for g in sorted(games, key=lambda x: (x.ended_at, x.game_id)):
         if len(g.seats) >= BOUNTY_MIN_TABLE:
-            holders = set(kursi.holders if kursi else ()) | _taj_at(taj, created_at[g.game_id])
             week = _week_label(day_of(g.ended_at, tz))
-            for e in _bounties(g, holders, week):
+            for e in _bounties(g, _taj_at(taj, created_at[g.game_id]), week):
                 out.setdefault((e.player_id, e.key), e)
-        kursi, _ = step_kursi(kursi, g)
     return list(out.values())
 
 

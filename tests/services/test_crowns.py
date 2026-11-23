@@ -16,7 +16,7 @@ from app.services.crowns import CrownsService
 from app.services.sikke import SikkeService
 from app.settings import settings
 from tests.factories import make_player, make_user, sign_in
-from tests.placed_games import placed_payload
+from tests.placed_games import backdate_taj, placed_payload, taj_payload
 
 HOUR = 60 * MINUTE
 
@@ -85,19 +85,26 @@ async def test_a_first_holder_gets_a_feed_item_and_no_reign(
     assert (await session.execute(select(CrownReign))).scalars().first() is None
 
 
-async def test_a_take_closes_the_reign_and_pays_a_bounty_once_a_week(
+async def _taj(
+    client: httpx.AsyncClient, session: AsyncSession, order: list[str], start_ms: int
+) -> None:
+    await _put(client, taj_payload(order, start_ms=start_ms))
+    assert (await _crowns(session))["medal1"] == [order[0]]
+    await backdate_taj(session, start_ms)
+
+
+async def test_beating_the_taj_pays_a_bounty_once_a_week(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     a, b, c = await _table(client, session)
     now = to_ms(now_utc())
-    first = placed_payload([a, b, c], start_ms=now - 3 * HOUR)
+    await _taj(client, session, [a, b, c], now - 5 * HOUR)
     second = placed_payload([b, a, c], start_ms=now - 2 * HOUR)
     third = placed_payload([b, a, c], start_ms=now - HOUR)
-    await _put(client, first)
     await _put(client, second)
     await _put(client, third)
 
-    # b beat the holder a in the second game; a third win over a that week pays nothing more.
+    # b beat the Taj a in the second game; a third win over a that week pays nothing more.
     week = _week(second["finishedAt"])
     assert await _bounties(session) == [(b, f"bounty:{a}:{week}", second["syncId"])]
 
@@ -114,7 +121,7 @@ async def test_recomputing_without_a_change_writes_nothing(
 
     for _ in range(2):
         assert await crowns.recompute(game_id=None) == []
-        assert await SikkeService(session).recompute_kursi() == []
+        assert await SikkeService(session).recompute_bounties() == []
 
     assert await _snapshot(session) == before
 
@@ -124,7 +131,7 @@ async def test_deleting_the_game_takes_the_bounty_back(
 ) -> None:
     a, b, c = await _table(client, session)
     now = to_ms(now_utc())
-    await _put(client, placed_payload([a, b, c], start_ms=now - 3 * HOUR))
+    await _taj(client, session, [a, b, c], now - 5 * HOUR)
     second = placed_payload([b, a, c], start_ms=now - 2 * HOUR)
     await _put(client, second)
     assert await _bounties(session) != []
@@ -140,10 +147,10 @@ async def test_a_voided_bounty_goes_to_the_next_qualifying_game_that_week(
 ) -> None:
     a, b, c = await _table(client, session)
     now = to_ms(now_utc())
-    await _put(client, placed_payload([a, b, c], start_ms=now - 4 * HOUR))
+    await _taj(client, session, [a, b, c], now - 5 * HOUR)
     second = placed_payload([b, a, c], start_ms=now - 3 * HOUR)
     await _put(client, second)
-    # b takes the Kursi in `second`; with it gone, b's win over a in `third` pays instead.
+    # b beats the Taj in `second`; with it gone, b's win over a in `third` pays instead.
     third = placed_payload([b, a, c], start_ms=now - 2 * HOUR)
     await _put(client, third)
 

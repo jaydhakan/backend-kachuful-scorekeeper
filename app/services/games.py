@@ -442,7 +442,7 @@ class GamesService:
         crowns = CrownsService(self.session)
         # Crowns first: a bounty reads the Taj's reigns, which this write may have closed.
         changes = await crowns.recompute(game_id=None if void else game_id)
-        bounties = await sikke.recompute_kursi()
+        bounties = await sikke.recompute_bounties()
         mine = [b for b in bounties if b.game_id == str(game_id)]
         await NightsService(self.session).after_write({game_id})
         return Rewards(changes=changes, bounties=mine)

@@ -129,7 +129,7 @@ class MergeService:
         await sikke.recompute_players({source.id, target.id})
         crowns = CrownsService(self.session)
         await crowns.recompute(game_id=None)
-        await sikke.recompute_kursi()
+        await sikke.recompute_bounties()
         if source_user is not None:
             await users_repository.move_player_link(self.session, source.id, target.id)
         await players_repository.redirect_merged(self.session, source.id, target.id)

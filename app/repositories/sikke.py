@@ -141,7 +141,7 @@ class SikkeRepository:
         )
 
     async def of_kinds(self, session: AsyncSession, kinds: Iterable[str]) -> list[StoredEntry]:
-        """Everyone's entries of some kinds (the Kursi chain's)."""
+        """Everyone's entries of some kinds (bounties, the Sitara's)."""
         return await _stored(session, _STORED.where(SikkeEntry.kind.in_(set(kinds))))
 
     async def by_keys(self, session: AsyncSession, keys: Iterable[str]) -> list[StoredEntry]:

@@ -1,9 +1,15 @@
-"""Kachuful payloads that finish in a chosen order: the Kursi, crowns and nights depend on places."""
+"""Kachuful payloads that finish in a chosen order: crowns, bounties and nights depend on places."""
 
 from typing import Any
 
+from sqlalchemy import update
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.db.models import Crown
+from app.domain.awards import SEASON_MIN_ROUNDS
 from app.domain.game import game_from_payload
 from app.domain.rules import standings
+from app.domain.time import from_ms
 from app.jobs.fake_games import make_payload
 
 MAX_SEED = 500
@@ -28,3 +34,15 @@ def placed_payload(
             seats = [order[rank - 1] for rank in ranks]
             return make_payload(seats, start_ms=start_ms, rounds=rounds, seed=seed, **kw)
     raise AssertionError("no seed gives distinct places")
+
+
+def taj_payload(order: list[str], *, start_ms: int) -> dict[str, Any]:
+    """A game long enough to qualify for the month's board: `order[0]` takes the Taj (medal1)."""
+    return placed_payload(order, start_ms=start_ms, rounds=SEASON_MIN_ROUNDS + 1)
+
+
+async def backdate_taj(session: AsyncSession, since_ms: int) -> None:
+    """The Taj starts when a write sees it: move that back so earlier-started games face it."""
+    await session.execute(
+        update(Crown).where(Crown.kind == "medal1").values(since=from_ms(since_ms))
+    )

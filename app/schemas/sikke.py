@@ -28,9 +28,7 @@ class SikkeEntryOut(CamelModel):
     """One credit in a player's ledger."""
 
     id: uuid.UUID = Field(..., description="Entry id")
-    kind: str = Field(
-        ..., description="finish, win, achievement, kursi_take, kursi_defence or streak"
-    )
+    kind: str = Field(..., description="finish, win, achievement, streak, bounty or sitara")
     amount: int = Field(..., description="Sikke credited")
     game: str | None = Field(..., description="The progression game (both Spades kinds: spades)")
     game_id: uuid.UUID | None = Field(..., description="The game that paid it, if any")

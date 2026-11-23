@@ -1,4 +1,4 @@
-"""Sikke's reconcile after every write: finishes, wins, streaks, achievements and the Kursi chain.
+"""Sikke's reconcile after every write: finishes, wins, streaks, achievements and bounties.
 
 Recomputing is idempotent and keeps `earned_at`; deletes and void games take their entries back.
 """
@@ -122,7 +122,7 @@ async def test_recomputing_twice_changes_nothing_and_keeps_earned_at(
 
     for _ in range(2):
         await service.recompute_players({uuid.UUID(p) for p in ids})
-        await service.recompute_kursi()
+        await service.recompute_bounties()
 
     assert await _snapshot(session) == before
     assert {row[4] for row in before} == {marked}
@@ -269,26 +269,17 @@ async def test_a_winning_spades_team_both_win(
     assert {(e.amount, e.game) for e in finish} == {(30, "spades")}
 
 
-async def test_the_kursi_pays_takes_and_defences_and_follows_a_deleted_game(
+async def test_finishing_first_pays_no_kursi(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     ids = await _table(client, session)
     now = to_ms(now_utc())
-    first = await _put(client, ids, now - 3 * HOUR, rounds=6, seed=7)
-    second = await _put(client, ids, now - HOUR, rounds=6, seed=11)
+    await _put(client, ids, now - 3 * HOUR, rounds=6, seed=7)
+    await _put(client, ids, now - HOUR, rounds=6, seed=11)
 
-    kursi = (
-        select(SikkeEntry.key, SikkeEntry.kind)
-        .where(SikkeEntry.kind.like("kursi%"))
-        .order_by(SikkeEntry.earned_at)
-    )
-    chain = [tuple(r) for r in await session.execute(kursi)]
-    assert chain[0] == (f"kursi:{first}", "kursi_take")
-    assert chain[1][0] == f"kursi:{second}" and len(chain) == 2
+    kinds = set((await session.execute(select(SikkeEntry.kind))).scalars())
 
-    await client.delete(f"/api/games/{first}")
-
-    assert [tuple(r) for r in await session.execute(kursi)] == [(f"kursi:{second}", "kursi_take")]
+    assert kinds and not {k for k in kinds if k.startswith("kursi")}
 
 
 async def test_closing_a_day_pays_its_awards(

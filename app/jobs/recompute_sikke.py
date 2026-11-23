@@ -1,7 +1,7 @@
 """`recompute-sikke [--dry-run]`: rebuild every player's Sikke from what is stored (run at deploy).
 
-Players go in batches, each its own transaction, then Kachuful's Kursi chain and bounties, and
-the closed nights' Sitara pay. Idempotent: a kept
+Players go in batches, each its own transaction, then Kachuful's bounties, and the closed
+nights' Sitara pay. Idempotent: a kept
 entry keeps its `earned_at`. `--dry-run` writes nothing and prints each player's lifetime total,
 level and weekly average over their active weeks, to check the prices against real history.
 """
@@ -56,7 +56,7 @@ async def _write(player_ids: Sequence[uuid.UUID]) -> None:
             await app_state_repository.bump(session)
             await session.commit()
     async with get_session_factory()() as session:
-        await SikkeService(session).recompute_kursi()
+        await SikkeService(session).recompute_bounties()
         await SikkeService(session).recompute_all_sitara()
         await session.commit()
 
@@ -71,7 +71,7 @@ async def _totals(player_ids: Sequence[uuid.UUID]) -> list[_Total]:
     async with get_session_factory()() as session:
         service = SikkeService(session)
         by_player: dict[str, list[SikkeEarned]] = {}
-        for e in await service.desired_kursi() + await service.desired_sitara():
+        for e in await service.desired_bounties() + await service.desired_sitara():
             by_player.setdefault(e.player_id, []).append(e)
         for batch in _batches(player_ids):
             players = await players_repository.get_many(session, batch)

@@ -16,21 +16,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models import Achievement
 from app.domain.crowns import CrownKind
 from app.domain.enums import ProgressionGame
-from app.domain.placed import PlacedGame, placed_games
+from app.domain.placed import placed_games
 from app.domain.sikke import (
     BOUNTY_KINDS,
-    KURSI_KINDS,
     PLAY_KINDS,
     PLAYER_KINDS,
     SITARA_KINDS,
     AchievementFact,
     Level,
     SikkeEarned,
-    SikkeKind,
     TajReign,
     achievement_entries,
     bounty_entries,
-    kursi_entries,
     level_of,
     play_entries,
     sitara_entries,
@@ -171,13 +168,11 @@ class SikkeService:
             desired += achievement_entries(pid, rows.get(pid, []))
         return desired
 
-    async def desired_kursi(self, games: list[PlacedGame] | None = None) -> list[SikkeEarned]:
-        """Every Kursi take and defence along Kachuful's chain, and every bounty."""
-        if games is None:
-            games = placed_games(await boards_repository.ended_places(self.session, None))
+    async def desired_bounties(self) -> list[SikkeEarned]:
+        """Every bounty along Kachuful's ended games."""
+        games = placed_games(await boards_repository.ended_places(self.session, None))
         created = await crowns_repository.ended_created_at(self.session)
-        bounties = bounty_entries(games, created, await self._taj_reigns(), settings.tz)
-        return kursi_entries(games) + bounties
+        return bounty_entries(games, created, await self._taj_reigns(), settings.tz)
 
     async def _taj_reigns(self) -> list[TajReign]:
         """Every reign of the Taj (`medal1`), the current one included."""
@@ -222,13 +217,12 @@ class SikkeService:
         existing = await sikke_repository.for_players(self.session, ids, PLAY_KINDS)
         await self._apply(desired, existing)
 
-    async def recompute_kursi(self, games: list[PlacedGame] | None = None) -> list[SikkeEarned]:
-        """Reconcile everyone's Kursi and bounty entries: one game's end can move the whole chain
-        after it. Returns the bounties this call newly paid (or moved to another game)."""
-        desired = await self.desired_kursi(games)
-        existing = await sikke_repository.of_kinds(self.session, KURSI_KINDS | BOUNTY_KINDS)
-        added = await self._apply(desired, existing)
-        return [e for e in added if e.kind == SikkeKind.BOUNTY]
+    async def recompute_bounties(self) -> list[SikkeEarned]:
+        """Reconcile everyone's bounties: one game's end can move a week's bounty to a later game.
+        Returns the bounties this call newly paid (or moved to another game)."""
+        desired = await self.desired_bounties()
+        existing = await sikke_repository.of_kinds(self.session, BOUNTY_KINDS)
+        return await self._apply(desired, existing)
 
     async def recompute_sitara(
         self, nights: Sequence[tuple[str, int, list[str]]], touched: Iterable[str]

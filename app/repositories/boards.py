@@ -202,7 +202,7 @@ class BoardsRepository:
     async def ended_places(
         self, session: AsyncSession, exclude: uuid.UUID | None
     ) -> list[tuple[str, int, str, int, int]]:
-        """Every ended Kachuful game's seats: (game, ended ms, player, place, seat), for the Kursi."""
+        """Every ended Kachuful game's seats: (game, ended ms, player, place, seat), for bounties."""
         rows = await session.execute(_ENDED_PLACES, {"exclude": exclude})
         return [(str(g), to_ms(at), str(p), place, seat) for g, at, p, place, seat in rows]
 

@@ -13,7 +13,7 @@ from app.domain.time import now_utc, to_ms
 from app.jobs.fake_games import MINUTE
 from app.services import games as games_service
 from tests.factories import make_player, make_user, sign_in
-from tests.placed_games import placed_payload
+from tests.placed_games import backdate_taj, placed_payload, taj_payload
 
 HOUR = 60 * MINUTE
 KINDS = ["medal1", "medal2", "medal3", "sitara", "legend"]
@@ -67,7 +67,8 @@ async def test_the_put_reports_its_bounty(
 
     monkeypatch.setattr(games_service, "notify_user", record)
     now = to_ms(now_utc())
-    await _put(client, placed_payload([a, b, c], start_ms=now - 3 * HOUR))
+    await _put(client, taj_payload([a, b, c], start_ms=now - 5 * HOUR))
+    await backdate_taj(session, now - 5 * HOUR)
     sent.clear()
     second = placed_payload([b, a, c], start_ms=now - 2 * HOUR)
 
