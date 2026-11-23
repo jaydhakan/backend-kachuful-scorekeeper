@@ -67,14 +67,15 @@ def daily_awards(rounds: Sequence[ScoredRound], tallies: Iterable[Tally]) -> lis
 
 
 def season_awards(standings: Board, last_month: Board) -> list[Award]:
-    """§8.5 from a month's standings (more than 50 rounds) and last month's."""
+    """§8.5 from a month's standings (more than 50 rounds) and last month's.
+
+    No `season_sharpest` since 2026-11-23: on accuracy it always went to the champion. Its
+    definition and Sikke rate stay so the ones already given still read and pay.
+    """
     qualified = [r for r in standings.rows if r.qualified]
     awards: list[Award] = []
     for rank, code in ((1, "season_champion"), (2, "season_runner_up"), (3, "season_third")):
         awards += [Award(code, r.player_id, r.value) for r in qualified if r.rank == rank]
-    awards += best_of(
-        ((r.player_id, r.accuracy) for r in qualified if r.rounds >= 30), "season_sharpest"
-    )
     awards += best_of(((r.player_id, r.games) for r in qualified), "season_iron")
     before = {r.player_id: r.rank for r in last_month.rows if r.qualified and r.rank is not None}
     awards += best_of(

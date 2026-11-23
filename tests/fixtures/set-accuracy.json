@@ -6256,16 +6256,6 @@
             "value": 0.6666666666666666
           },
           {
-            "code": "season_sharpest",
-            "playerId": "cy",
-            "value": 1
-          },
-          {
-            "code": "season_sharpest",
-            "playerId": "fay",
-            "value": 1
-          },
-          {
             "code": "season_iron",
             "playerId": "ana",
             "value": 2

@@ -79,3 +79,7 @@ hand to the app's shape while the app re-exports them. `kursi-cases.json` is del
 2026-11-23: added `set-accuracy.json` from the app (`contract/fixtures`, commit `b54bdb4`), the same shape as
 `set-month`: the best average isn't the champion, a tie on accuracy and average shares 1st, a tie on accuracy alone
 splits on average. The golden board and season tests run it beside `set-month`.
+
+2026-11-23: Kachuful's seasons no longer give `season_sharpest` (the app's `backend-requests.md`, accuracy
+follow-ups). `set-month.json` and `set-accuracy.json` lose their `season_sharpest` awards from `expect.season`,
+stripped here by hand to the app's shape while the app re-exports them; nothing else changes.
