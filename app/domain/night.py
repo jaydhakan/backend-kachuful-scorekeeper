@@ -10,7 +10,8 @@ from dataclasses import dataclass
 from typing import Any
 
 from app.domain.derive import Facts, GameFact, GameInfo, RoundFact
-from app.domain.kursi import Kursi, KursiGame, kursi_from, kursi_games, step_kursi
+from app.domain.kursi import Kursi, kursi_from, step_kursi
+from app.domain.placed import PlacedGame, placed_games
 
 NIGHT_GAP_MS = 3 * 3600 * 1000
 """Games further apart than this are different nights; a night across midnight stays one."""
@@ -132,7 +133,7 @@ def _top_bid(rounds: Sequence[RoundFact], made: bool) -> NightBid | None:
     return best
 
 
-def _kursi_taken(chair: Kursi | None, games: Sequence[KursiGame]) -> tuple[NightKursi, ...]:
+def _kursi_taken(chair: Kursi | None, games: Sequence[PlacedGame]) -> tuple[NightKursi, ...]:
     out: list[NightKursi] = []
     for g in sorted(games, key=lambda x: x.ended_at):
         chair, event = step_kursi(chair, g)
@@ -145,7 +146,7 @@ def night_story(
     games: Sequence[NightGame],
     rounds: Sequence[RoundFact],
     chair: Kursi | None,
-    kursi_night: Sequence[KursiGame],
+    kursi_night: Sequence[PlacedGame],
 ) -> Night:
     """The story of a night's games, given in night order (oldest end first).
 
@@ -195,8 +196,8 @@ def _night_game(info: GameInfo, seats: Sequence[GameFact]) -> NightGame:
     )
 
 
-def _facts_kursi_games(facts: Facts) -> list[KursiGame]:
-    return kursi_games(
+def _facts_placed_games(facts: Facts) -> list[PlacedGame]:
+    return placed_games(
         [
             (p.game_id, p.ended_at, p.player_id, p.place, p.seat)
             for p in facts.players
@@ -213,7 +214,7 @@ def night_of(facts: Facts, now: int) -> Night | None:
     ids = {g.game_id for g in infos}
     seats = [p for p in facts.players if p.game_id in ids]
     rounds = [r for r in facts.rounds if r.game_id in ids]
-    kursi = _facts_kursi_games(facts)
+    kursi = _facts_placed_games(facts)
     start = infos[0].created_at
     before = [g for g in kursi if g.game_id not in ids and g.ended_at < start]
     chair, _ = kursi_from(before)

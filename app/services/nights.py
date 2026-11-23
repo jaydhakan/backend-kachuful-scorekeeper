@@ -21,7 +21,7 @@ from app.domain.crowns import sitara_of
 from app.domain.derive import Facts, build_facts
 from app.domain.enums import GameKind
 from app.domain.game import game_from_payload
-from app.domain.kursi import KursiGame, kursi_from, kursi_games
+from app.domain.kursi import kursi_from
 from app.domain.night import (
     NIGHT_FRESH_MS,
     NIGHT_GAP_MS,
@@ -34,6 +34,7 @@ from app.domain.night import (
     night_id_seed,
     night_story,
 )
+from app.domain.placed import PlacedGame, placed_games
 from app.domain.time import from_ms, now_utc, to_ms
 from app.exceptions import ApiError, ErrorCode
 from app.live.hub import notify_user
@@ -154,7 +155,7 @@ def _night_game(game: LinkGame, seats: list[SeatRow], facts: Facts) -> NightGame
     return NightGame(game.game_id, kind, game.created_at, game.ended_at, tuple(out))
 
 
-def _built(group: Group, facts: Facts, chain: list[KursiGame]) -> Built:
+def _built(group: Group, facts: Facts, chain: list[PlacedGame]) -> Built:
     """A group's story, with the Kursi as it stood before the night's first game."""
     ids = set(group.ids)
     games = [_night_game(g, group.seats, facts) for g in group.games]
@@ -202,7 +203,7 @@ class NightsService:
         payloads = await nights_repository.kachuful_payloads(self.session, ids)
         games = [game_from_payload(p) for p in payloads]
         facts = build_facts(games, to_ms(now_utc()))
-        chain = kursi_games(await boards_repository.ended_places(self.session, None))
+        chain = placed_games(await boards_repository.ended_places(self.session, None))
         return [_built(g, facts, chain) for g in groups]
 
     async def after_write(self, game_ids: set[uuid.UUID]) -> None:

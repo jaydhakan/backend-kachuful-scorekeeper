@@ -15,8 +15,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.awards import SEASON_MIN_ROUNDS, season_awards
 from app.domain.enums import ProgressionGame
-from app.domain.kursi import kursi_from, kursi_games
+from app.domain.kursi import kursi_from
 from app.domain.leaderboard import Board, BoardRow, Metric, leaderboard
+from app.domain.placed import placed_games
 from app.domain.progression import Award, Earned, StandingRow, win_rate_standings
 from app.domain.time import (
     day_of,
@@ -252,7 +253,7 @@ class AwardsService:
     async def kursi(self, exclude_game: uuid.UUID | None) -> KursiStateOut:
         """`GET /api/kursi`: the chair from every ended Kachuful game but one, and the longest reign."""
         rows = await boards_repository.ended_places(self.session, exclude_game)
-        kursi, reigns = kursi_from(kursi_games(rows))
+        kursi, reigns = kursi_from(placed_games(rows))
         now = to_ms(now_utc())
         longest = max(
             reigns,

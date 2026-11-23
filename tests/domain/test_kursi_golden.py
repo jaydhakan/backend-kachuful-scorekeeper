@@ -2,13 +2,14 @@
 
 from typing import Any
 
-from app.domain.kursi import KursiGame, KursiSeat, kursi_from
+from app.domain.kursi import kursi_from
+from app.domain.placed import PlacedGame, PlacedSeat
 from tests.domain.golden import camel, load
 
 
-def _game(raw: dict[str, Any]) -> KursiGame:
-    seats = tuple(KursiSeat(s["playerId"], s["place"], s["seat"]) for s in raw["seats"])
-    return KursiGame(raw["gameId"], raw["endedAt"], seats, raw.get("teams", False))
+def _game(raw: dict[str, Any]) -> PlacedGame:
+    seats = tuple(PlacedSeat(s["playerId"], s["place"], s["seat"]) for s in raw["seats"])
+    return PlacedGame(raw["gameId"], raw["endedAt"], seats, raw.get("teams", False))
 
 
 def test_kursi_matches_the_app() -> None:

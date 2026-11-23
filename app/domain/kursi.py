@@ -6,25 +6,10 @@ Mirrors the app's `src/progression/kursi.ts`; parity is the `kursi-*` golden fix
 from dataclasses import dataclass, replace
 from typing import Literal
 
+from app.domain.placed import PlacedGame, PlacedSeat
+
 KURSI_MIN_TABLE = 3
 """A game counts with three or more at the table: two friends can't trade it between them."""
-
-
-@dataclass(frozen=True)
-class KursiSeat:
-    player_id: str
-    place: int
-    seat: int
-
-
-@dataclass(frozen=True)
-class KursiGame:
-    """One finished game: every seat's place (a team game gives a side the same place)."""
-
-    game_id: str
-    ended_at: int
-    seats: tuple[KursiSeat, ...]
-    teams: bool = False
 
 
 @dataclass(frozen=True)
@@ -53,7 +38,7 @@ class KursiEvent:
     from_: tuple[str, ...] = ()
 
 
-def _takers(seats: list[KursiSeat], teams: bool) -> tuple[str, ...]:
+def _takers(seats: list[PlacedSeat], teams: bool) -> tuple[str, ...]:
     if not seats:
         return ()
     best = min(s.place for s in seats)
@@ -61,7 +46,7 @@ def _takers(seats: list[KursiSeat], teams: bool) -> tuple[str, ...]:
     return tuple(s.player_id for s in (top if teams else top[:1]))
 
 
-def step_kursi(k: Kursi | None, g: KursiGame) -> tuple[Kursi | None, KursiEvent]:
+def step_kursi(k: Kursi | None, g: PlacedGame) -> tuple[Kursi | None, KursiEvent]:
     """The chair after one finished game, and what happened to it."""
     if len(g.seats) < KURSI_MIN_TABLE:
         return k, KursiEvent("kept")
@@ -79,18 +64,7 @@ def step_kursi(k: Kursi | None, g: KursiGame) -> tuple[Kursi | None, KursiEvent]
     return Kursi(to, g.ended_at, g.game_id, 0), KursiEvent("taken", to=to, from_=k.holders)
 
 
-def kursi_games(rows: list[tuple[str, int, str, int, int]]) -> list[KursiGame]:
-    """Finished games from seat rows (game, ended ms, player, place, seat), seats in seat order."""
-    games: dict[str, tuple[int, list[KursiSeat]]] = {}
-    for game_id, ended_at, player_id, place, seat in rows:
-        games.setdefault(game_id, (ended_at, []))[1].append(KursiSeat(player_id, place, seat))
-    return [
-        KursiGame(game_id, ended_at, tuple(sorted(seats, key=lambda s: s.seat)))
-        for game_id, (ended_at, seats) in games.items()
-    ]
-
-
-def kursi_from(games: list[KursiGame]) -> tuple[Kursi | None, list[Reign]]:
+def kursi_from(games: list[PlacedGame]) -> tuple[Kursi | None, list[Reign]]:
     """The chair now and every reign, from finished games played oldest first."""
     kursi: Kursi | None = None
     reigns: list[Reign] = []

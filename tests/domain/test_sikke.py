@@ -11,7 +11,7 @@ from app.domain.ishaara import achievements as ishaara
 from app.domain.ishaara import awards as ishaara_awards
 from app.domain.kaali_teeri import achievements as kaali_teeri
 from app.domain.kaali_teeri import awards as kt_awards
-from app.domain.kursi import KursiGame, KursiSeat
+from app.domain.placed import PlacedGame, PlacedSeat
 from app.domain.sikke import (
     ACHIEVEMENT_SIKKE,
     BOUNTY,
@@ -217,9 +217,9 @@ def test_a_streak_runs_across_a_year_boundary() -> None:
     ]
 
 
-def _kursi(k: int, places: list[tuple[str, int]]) -> KursiGame:
-    seats = tuple(KursiSeat(p, place, seat) for seat, (p, place) in enumerate(places))
-    return KursiGame(f"k{k}", 1000 + k, seats)
+def _kursi(k: int, places: list[tuple[str, int]]) -> PlacedGame:
+    seats = tuple(PlacedSeat(p, place, seat) for seat, (p, place) in enumerate(places))
+    return PlacedGame(f"k{k}", 1000 + k, seats)
 
 
 def test_kursi_pays_each_take_and_each_defence() -> None:
@@ -243,9 +243,9 @@ DAY = 24 * 3600 * 1000
 MONDAY = to_ms(datetime(2026, 11, 16, 12, tzinfo=UTC))
 
 
-def _at(k: int, at: int, places: list[tuple[str, int]]) -> KursiGame:
-    seats = tuple(KursiSeat(p, place, seat) for seat, (p, place) in enumerate(places))
-    return KursiGame(f"b{k}", at, seats)
+def _at(k: int, at: int, places: list[tuple[str, int]]) -> PlacedGame:
+    seats = tuple(PlacedSeat(p, place, seat) for seat, (p, place) in enumerate(places))
+    return PlacedGame(f"b{k}", at, seats)
 
 
 def _bounty_rows(out: list[SikkeEarned]) -> list[tuple[str, str, str | None]]:

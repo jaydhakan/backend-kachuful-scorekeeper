@@ -12,7 +12,8 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from app.domain.enums import GAME_OF_KIND, GameKind, ProgressionGame
-from app.domain.kursi import Kursi, KursiGame, step_kursi
+from app.domain.kursi import Kursi, step_kursi
+from app.domain.placed import PlacedGame
 from app.domain.time import day_of
 
 FINISH = 30
@@ -456,7 +457,7 @@ def play_entries(player_id: str, games: list[FinishedGame], tz: ZoneInfo) -> lis
     return _finish_and_win(player_id, ordered, tz) + _streaks(player_id, ordered, tz)
 
 
-def _kursi_entry(player_id: str, g: KursiGame, kind: SikkeKind) -> SikkeEarned:
+def _kursi_entry(player_id: str, g: PlacedGame, kind: SikkeKind) -> SikkeEarned:
     amount = KURSI_TAKE if kind == SikkeKind.KURSI_TAKE else KURSI_DEFENCE
     return SikkeEarned(
         player_id=player_id,
@@ -469,7 +470,7 @@ def _kursi_entry(player_id: str, g: KursiGame, kind: SikkeKind) -> SikkeEarned:
     )
 
 
-def _kursi_step(k: Kursi | None, g: KursiGame) -> tuple[Kursi | None, list[SikkeEarned]]:
+def _kursi_step(k: Kursi | None, g: PlacedGame) -> tuple[Kursi | None, list[SikkeEarned]]:
     after, event = step_kursi(k, g)
     if event.kind in ("first", "taken"):
         return after, [_kursi_entry(p, g, SikkeKind.KURSI_TAKE) for p in event.to]
@@ -479,7 +480,7 @@ def _kursi_step(k: Kursi | None, g: KursiGame) -> tuple[Kursi | None, list[Sikke
     return after, []
 
 
-def kursi_entries(games: list[KursiGame]) -> list[SikkeEarned]:
+def kursi_entries(games: list[PlacedGame]) -> list[SikkeEarned]:
     """Every take and every defence along Kachuful's Kursi chain, oldest game first."""
     kursi: Kursi | None = None
     out: list[SikkeEarned] = []
@@ -504,7 +505,7 @@ def _taj_at(reigns: list[TajReign], at: int) -> set[str]:
     }
 
 
-def _bounties(g: KursiGame, holders: set[str], week: str) -> list[SikkeEarned]:
+def _bounties(g: PlacedGame, holders: set[str], week: str) -> list[SikkeEarned]:
     """Everyone strictly above a seated holder earns that holder's bounty for the week."""
     out = []
     for holder in sorted(holders):
@@ -529,7 +530,7 @@ def _bounties(g: KursiGame, holders: set[str], week: str) -> list[SikkeEarned]:
 
 
 def bounty_entries(
-    games: list[KursiGame], created_at: dict[str, int], taj: list[TajReign], tz: ZoneInfo
+    games: list[PlacedGame], created_at: dict[str, int], taj: list[TajReign], tz: ZoneInfo
 ) -> list[SikkeEarned]:
     """Bounties along Kachuful's chain: the holders are the Kursi's before each game and the Taj's
     at its start; the first qualifying game of an ISO week (APP_TZ) pays each key."""

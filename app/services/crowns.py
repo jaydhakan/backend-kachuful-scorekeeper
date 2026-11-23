@@ -27,8 +27,9 @@ from app.domain.crowns import (
     sitara_of,
 )
 from app.domain.enums import ProgressionGame
-from app.domain.kursi import KursiGame, Reign, kursi_from, kursi_games
+from app.domain.kursi import Reign, kursi_from
 from app.domain.leaderboard import Metric, leaderboard
+from app.domain.placed import PlacedGame, placed_games
 from app.domain.sikke import SikkeEarned
 from app.domain.time import (
     day_of,
@@ -195,11 +196,11 @@ class CrownsService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def chain(self) -> list[KursiGame]:
+    async def chain(self) -> list[PlacedGame]:
         """Kachuful's ended games as the Kursi sees them (read once per write, shared)."""
-        return kursi_games(await boards_repository.ended_places(self.session, None))
+        return placed_games(await boards_repository.ended_places(self.session, None))
 
-    async def desired(self, chain: list[KursiGame]) -> dict[CrownKind, Crown]:
+    async def desired(self, chain: list[PlacedGame]) -> dict[CrownKind, Crown]:
         """Who should hold each title now (since and game are the write's, except the Kursi's)."""
         now = to_ms(now_utc())
         start, end = month_range_ms(month_of(now, settings.tz), settings.tz)
@@ -233,7 +234,7 @@ class CrownsService:
         return sitara_of({t.player_id: t.points for t in day.values() if t.rounds > 0}, games)
 
     async def recompute(
-        self, chain: list[KursiGame], *, game_id: uuid.UUID | None, announce: bool = True
+        self, chain: list[PlacedGame], *, game_id: uuid.UUID | None, announce: bool = True
     ) -> list[CrownChange]:
         """Diff every title with the stored row and write what changed (nothing when nothing did).
 
@@ -264,7 +265,7 @@ class CrownsService:
         await self._sync_kursi_reigns(chain)
         return changes
 
-    async def _sync_kursi_reigns(self, chain: list[KursiGame]) -> None:
+    async def _sync_kursi_reigns(self, chain: list[PlacedGame]) -> None:
         """Make the Kursi's closed reigns equal to its chain (an edit can rewrite history)."""
         _, reigns = kursi_from(chain)
         wanted = _chain_reigns(reigns)
