@@ -18,6 +18,7 @@ from app.domain.achievements import (
     ROUND_MILESTONE_CODES,
     career_from_games,
     game_finishes,
+    giant_killers,
     milestones_reached,
     round_milestones,
     round_moments,
@@ -25,8 +26,9 @@ from app.domain.achievements import (
 from app.domain.derive import Facts, GameFact, GameInfo, RoundFact
 from app.domain.enums import ProgressionGame
 from app.domain.progression import Earned
-from app.domain.time import to_ms
+from app.domain.time import from_ms, to_ms
 from app.repositories.achievements import achievements_repository, key_of
+from app.repositories.crowns import crowns_repository
 from app.services.progression.base import GameProgression
 from app.settings import settings
 
@@ -55,6 +57,19 @@ def _check_codes(desired: Iterable[Earned], codes: frozenset[str], game: str) ->
     stray = {e.code for e in desired} - codes
     if stray:
         raise ValueError(f"{game} earned codes outside their scope: {sorted(stray)}")
+
+
+async def kachuful_game_earned(
+    session: AsyncSession, rounds: list[RoundFact], players: list[GameFact], info: GameInfo
+) -> list[Earned]:
+    """A Kachuful game's moments and finishes, and its Giant Killers against the medals held as
+    it ended (crown reigns: one or two queries when it ended)."""
+    facts = Facts(rounds=rounds, players=players, games=[info])
+    earned = round_moments(rounds) + game_finishes(facts, settings.tz)
+    if info.ended_at is not None:
+        held = await crowns_repository.medals_at(session, KACHUFUL, from_ms(info.ended_at))
+        earned += giant_killers(players, held)
+    return earned
 
 
 class AchievementsEngine:
@@ -92,11 +107,11 @@ class AchievementsEngine:
         players: list[GameFact],
         info: GameInfo | None,
     ) -> list[Achievement]:
-        """Round moments and game finishes for one game (none when `info` is None: deleted)."""
+        """Round moments and game finishes for one game (none when `info` is None: deleted),
+        Giant Killer included."""
         desired: list[Earned] = []
         if info is not None:
-            facts = Facts(rounds=rounds, players=players, games=[info])
-            desired = round_moments(rounds) + game_finishes(facts, settings.tz)
+            desired = await kachuful_game_earned(self.session, rounds, players, info)
         existing = await achievements_repository.for_game(
             self.session, game_id, GAME_SCOPED_CODES, game=KACHUFUL
         )

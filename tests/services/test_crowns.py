@@ -227,3 +227,23 @@ async def test_recompute_crowns_rebuilds_the_titles_without_feed_items(
     assert [(k, h, d) for k, h, _, _, d in crowns] == [(k, h, d) for k, h, _, _, d in before[0]]
     assert feed == before[2]
 
+
+async def test_beating_the_badshah_without_a_medal_earns_giant_killer(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    a, b, c, d = await _table(client, session, n=4)
+    now = to_ms(now_utc())
+    await _put(client, taj_payload([a, b, c], start_ms=now - 5 * HOUR))
+    await backdate_taj(session, now - 5 * HOUR)
+    game = placed_payload([d, a, b, c], start_ms=now - 2 * HOUR)
+
+    body = await _put(client, game)
+
+    stmt = select(Achievement).where(Achievement.code == "giant_killer")
+    rows = (await session.execute(stmt)).scalars().all()
+    assert [(str(r.player_id), str(r.game_id), r.data) for r in rows] == [
+        (d, game["syncId"], {"badshah": a})
+    ]
+    assert [e["code"] for e in body["earned"] if e["code"] == "giant_killer"] == ["giant_killer"]
+    paid = select(SikkeEntry).where(SikkeEntry.achievement_id == rows[0].id)
+    assert [e.amount for e in (await session.execute(paid)).scalars()] == [10]

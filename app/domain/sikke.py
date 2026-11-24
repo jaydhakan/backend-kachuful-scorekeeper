@@ -80,6 +80,7 @@ ACHIEVEMENT_SIKKE: dict[ProgressionGame, dict[str, int]] = {
         "runaway": 10,
         "sharpshooter": 10,
         "perfect_game": 20,
+        "giant_killer": 10,
         "wooden_spoon": 10,
         "zero_hero": 10,
         "marathon": 10,

@@ -14,12 +14,9 @@ from app.domain.achievements import (
     GAME_SCOPED_CODES,
     CareerGame,
     career_from_games,
-    game_finishes,
     round_milestones,
-    round_moments,
 )
 from app.domain.awards import daily_awards
-from app.domain.derive import Facts
 from app.domain.enums import GameKind, ProgressionGame
 from app.domain.game import game_from_payload
 from app.domain.progression import Award, Earned, PlayedGame, shared_ladders
@@ -27,6 +24,7 @@ from app.domain.time import day_range_ms, now_utc, to_ms
 from app.repositories.achievements import achievements_repository
 from app.repositories.boards import boards_repository
 from app.repositories.games import games_repository
+from app.services.achievements import kachuful_game_earned
 from app.services.boards import make_window
 from app.services.games import derive, game_info
 from app.settings import settings
@@ -52,8 +50,9 @@ class KachufulProgression:
         if row is None or row.deleted_at is not None:
             return []
         derived = derive(game_from_payload(row.payload), to_ms(now_utc()))
-        facts = Facts(rounds=derived.rounds, players=derived.players, games=[game_info(derived)])
-        return round_moments(derived.rounds) + game_finishes(facts, settings.tz)
+        return await kachuful_game_earned(
+            session, derived.rounds, derived.players, game_info(derived)
+        )
 
     async def career_earned(
         self, session: AsyncSession, player_ids: set[uuid.UUID]

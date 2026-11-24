@@ -120,6 +120,28 @@ class CrownsRepository:
         stmt = stmt.order_by(CrownReign.id.desc()).limit(limit)
         return list((await session.execute(stmt)).scalars())
 
+    async def medals_at(
+        self, session: AsyncSession, game: ProgressionGame, at: datetime
+    ) -> dict[str, int]:
+        """Who held a medal (1-3) of one game at a moment, from the reigns and the current titles
+        (two queries); a write's own recompute starts its reigns later, so it isn't counted."""
+        kinds = {"medal1": 1, "medal2": 2, "medal3": 3}
+        closed = select(CrownReign.kind, CrownReign.holders).where(
+            CrownReign.game == game.value,
+            CrownReign.kind.in_(kinds),
+            CrownReign.since <= at,
+            CrownReign.until > at,
+        )
+        current = select(Crown.kind, Crown.holders).where(
+            Crown.game == game.value, Crown.kind.in_(kinds), Crown.since <= at
+        )
+        held: dict[str, int] = {}
+        for stmt in (closed, current):
+            for kind, holders in await session.execute(stmt):
+                for h in holders:
+                    held[str(h)] = min(kinds[kind], held.get(str(h), kinds[kind]))
+        return held
+
     async def season_champions(self, session: AsyncSession, game: ProgressionGame) -> list[str]:
         """One id per closed season title of one game (the Legend counts them)."""
         stmt = select(Achievement.player_id).where(

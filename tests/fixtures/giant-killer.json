@@ -1,0 +1,1137 @@
+{
+  "kind": "giant-killer",
+  "name": "finish strictly above every seated Badshah with no medal, at a table where 3+ played",
+  "cases": [
+    {
+      "name": "earned: b beats the Badshah c",
+      "game": {
+        "id": "g-50000000-0000-4000-8000-000000000001",
+        "syncId": "50000000-0000-4000-8000-000000000001",
+        "rev": 1,
+        "schemaVersion": 4,
+        "createdAt": 1791613800000,
+        "updatedAt": 1791614100000,
+        "players": [
+          {
+            "id": "p0",
+            "playerId": "a",
+            "name": "a",
+            "emoji": "🙂",
+            "color": "#f87171"
+          },
+          {
+            "id": "p1",
+            "playerId": "b",
+            "name": "b",
+            "emoji": "🙂",
+            "color": "#60a5fa"
+          },
+          {
+            "id": "p2",
+            "playerId": "c",
+            "name": "c",
+            "emoji": "🙂",
+            "color": "#34d399"
+          },
+          {
+            "id": "p3",
+            "playerId": "d",
+            "name": "d",
+            "emoji": "🙂",
+            "color": "#fbbf24"
+          }
+        ],
+        "direction": "cw",
+        "firstDealerIndex": 0,
+        "decks": 1,
+        "maxCards": 10,
+        "order": "up",
+        "lengthMode": "endless",
+        "rounds": [
+          {
+            "index": 0,
+            "cards": 3,
+            "trump": "spades",
+            "dealerIndex": 0,
+            "firstPlayerIndex": 1,
+            "bids": {
+              "p0": 1,
+              "p1": 0,
+              "p2": 0,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "made",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613860000
+          },
+          {
+            "index": 1,
+            "cards": 4,
+            "trump": "diamonds",
+            "dealerIndex": 1,
+            "firstPlayerIndex": 2,
+            "bids": {
+              "p0": 2,
+              "p1": 0,
+              "p2": 0,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "made",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613920000
+          },
+          {
+            "index": 2,
+            "cards": 5,
+            "trump": "clubs",
+            "dealerIndex": 2,
+            "firstPlayerIndex": 3,
+            "bids": {
+              "p0": 4,
+              "p1": 0,
+              "p2": 1,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "missed",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613980000
+          },
+          {
+            "index": 3,
+            "cards": 6,
+            "trump": "hearts",
+            "dealerIndex": 3,
+            "firstPlayerIndex": 0,
+            "bids": {
+              "p0": 5,
+              "p1": 0,
+              "p2": 1,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "missed",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791614040000
+          }
+        ],
+        "status": "finished",
+        "ui": {
+          "view": "round",
+          "bidIdx": 0
+        },
+        "finishedAt": 1791614100000
+      },
+      "held": {
+        "c": {
+          "medal": 1,
+          "defending": false
+        }
+      },
+      "places": {
+        "b": 1,
+        "c": 2,
+        "d": 3,
+        "a": 4
+      },
+      "expect": [
+        {
+          "code": "giant_killer",
+          "playerId": "b",
+          "gameId": "50000000-0000-4000-8000-000000000001",
+          "roundIndex": null,
+          "period": null,
+          "earnedAt": 1791614100000,
+          "data": {
+            "badshah": "c"
+          }
+        }
+      ]
+    },
+    {
+      "name": "not earned: b holds a medal",
+      "game": {
+        "id": "g-50000000-0000-4000-8000-000000000001",
+        "syncId": "50000000-0000-4000-8000-000000000001",
+        "rev": 1,
+        "schemaVersion": 4,
+        "createdAt": 1791613800000,
+        "updatedAt": 1791614100000,
+        "players": [
+          {
+            "id": "p0",
+            "playerId": "a",
+            "name": "a",
+            "emoji": "🙂",
+            "color": "#f87171"
+          },
+          {
+            "id": "p1",
+            "playerId": "b",
+            "name": "b",
+            "emoji": "🙂",
+            "color": "#60a5fa"
+          },
+          {
+            "id": "p2",
+            "playerId": "c",
+            "name": "c",
+            "emoji": "🙂",
+            "color": "#34d399"
+          },
+          {
+            "id": "p3",
+            "playerId": "d",
+            "name": "d",
+            "emoji": "🙂",
+            "color": "#fbbf24"
+          }
+        ],
+        "direction": "cw",
+        "firstDealerIndex": 0,
+        "decks": 1,
+        "maxCards": 10,
+        "order": "up",
+        "lengthMode": "endless",
+        "rounds": [
+          {
+            "index": 0,
+            "cards": 3,
+            "trump": "spades",
+            "dealerIndex": 0,
+            "firstPlayerIndex": 1,
+            "bids": {
+              "p0": 1,
+              "p1": 0,
+              "p2": 0,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "made",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613860000
+          },
+          {
+            "index": 1,
+            "cards": 4,
+            "trump": "diamonds",
+            "dealerIndex": 1,
+            "firstPlayerIndex": 2,
+            "bids": {
+              "p0": 2,
+              "p1": 0,
+              "p2": 0,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "made",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613920000
+          },
+          {
+            "index": 2,
+            "cards": 5,
+            "trump": "clubs",
+            "dealerIndex": 2,
+            "firstPlayerIndex": 3,
+            "bids": {
+              "p0": 4,
+              "p1": 0,
+              "p2": 1,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "missed",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613980000
+          },
+          {
+            "index": 3,
+            "cards": 6,
+            "trump": "hearts",
+            "dealerIndex": 3,
+            "firstPlayerIndex": 0,
+            "bids": {
+              "p0": 5,
+              "p1": 0,
+              "p2": 1,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "missed",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791614040000
+          }
+        ],
+        "status": "finished",
+        "ui": {
+          "view": "round",
+          "bidIdx": 0
+        },
+        "finishedAt": 1791614100000
+      },
+      "held": {
+        "c": {
+          "medal": 1,
+          "defending": false
+        },
+        "b": {
+          "medal": 3,
+          "defending": false
+        }
+      },
+      "places": {
+        "b": 1,
+        "c": 2,
+        "d": 3,
+        "a": 4
+      },
+      "expect": []
+    },
+    {
+      "name": "not with 2 players",
+      "game": {
+        "id": "g-50000000-0000-4000-8000-000000000003",
+        "syncId": "50000000-0000-4000-8000-000000000003",
+        "rev": 1,
+        "schemaVersion": 4,
+        "createdAt": 1791613800000,
+        "updatedAt": 1791614040000,
+        "players": [
+          {
+            "id": "p0",
+            "playerId": "a",
+            "name": "a",
+            "emoji": "🙂",
+            "color": "#f87171"
+          },
+          {
+            "id": "p1",
+            "playerId": "b",
+            "name": "b",
+            "emoji": "🙂",
+            "color": "#60a5fa"
+          }
+        ],
+        "direction": "cw",
+        "firstDealerIndex": 0,
+        "decks": 1,
+        "maxCards": 10,
+        "order": "up",
+        "lengthMode": "endless",
+        "rounds": [
+          {
+            "index": 0,
+            "cards": 3,
+            "trump": "spades",
+            "dealerIndex": 0,
+            "firstPlayerIndex": 1,
+            "bids": {
+              "p0": 2,
+              "p1": 0
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613860000
+          },
+          {
+            "index": 1,
+            "cards": 4,
+            "trump": "diamonds",
+            "dealerIndex": 1,
+            "firstPlayerIndex": 0,
+            "bids": {
+              "p0": 3,
+              "p1": 0
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613920000
+          },
+          {
+            "index": 2,
+            "cards": 5,
+            "trump": "clubs",
+            "dealerIndex": 0,
+            "firstPlayerIndex": 1,
+            "bids": {
+              "p0": 4,
+              "p1": 0
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613980000
+          }
+        ],
+        "status": "finished",
+        "ui": {
+          "view": "round",
+          "bidIdx": 0
+        },
+        "finishedAt": 1791614040000
+      },
+      "held": {
+        "a": {
+          "medal": 1,
+          "defending": false
+        }
+      },
+      "places": {
+        "b": 1,
+        "a": 2
+      },
+      "expect": []
+    },
+    {
+      "name": "no Badshah seated",
+      "game": {
+        "id": "g-50000000-0000-4000-8000-000000000001",
+        "syncId": "50000000-0000-4000-8000-000000000001",
+        "rev": 1,
+        "schemaVersion": 4,
+        "createdAt": 1791613800000,
+        "updatedAt": 1791614100000,
+        "players": [
+          {
+            "id": "p0",
+            "playerId": "a",
+            "name": "a",
+            "emoji": "🙂",
+            "color": "#f87171"
+          },
+          {
+            "id": "p1",
+            "playerId": "b",
+            "name": "b",
+            "emoji": "🙂",
+            "color": "#60a5fa"
+          },
+          {
+            "id": "p2",
+            "playerId": "c",
+            "name": "c",
+            "emoji": "🙂",
+            "color": "#34d399"
+          },
+          {
+            "id": "p3",
+            "playerId": "d",
+            "name": "d",
+            "emoji": "🙂",
+            "color": "#fbbf24"
+          }
+        ],
+        "direction": "cw",
+        "firstDealerIndex": 0,
+        "decks": 1,
+        "maxCards": 10,
+        "order": "up",
+        "lengthMode": "endless",
+        "rounds": [
+          {
+            "index": 0,
+            "cards": 3,
+            "trump": "spades",
+            "dealerIndex": 0,
+            "firstPlayerIndex": 1,
+            "bids": {
+              "p0": 1,
+              "p1": 0,
+              "p2": 0,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "made",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613860000
+          },
+          {
+            "index": 1,
+            "cards": 4,
+            "trump": "diamonds",
+            "dealerIndex": 1,
+            "firstPlayerIndex": 2,
+            "bids": {
+              "p0": 2,
+              "p1": 0,
+              "p2": 0,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "made",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613920000
+          },
+          {
+            "index": 2,
+            "cards": 5,
+            "trump": "clubs",
+            "dealerIndex": 2,
+            "firstPlayerIndex": 3,
+            "bids": {
+              "p0": 4,
+              "p1": 0,
+              "p2": 1,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "missed",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613980000
+          },
+          {
+            "index": 3,
+            "cards": 6,
+            "trump": "hearts",
+            "dealerIndex": 3,
+            "firstPlayerIndex": 0,
+            "bids": {
+              "p0": 5,
+              "p1": 0,
+              "p2": 1,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "missed",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791614040000
+          }
+        ],
+        "status": "finished",
+        "ui": {
+          "view": "round",
+          "bidIdx": 0
+        },
+        "finishedAt": 1791614100000
+      },
+      "held": {
+        "zed": {
+          "medal": 1,
+          "defending": false
+        }
+      },
+      "places": {
+        "b": 1,
+        "c": 2,
+        "d": 3,
+        "a": 4
+      },
+      "expect": []
+    },
+    {
+      "name": "a defending Badshah counts",
+      "game": {
+        "id": "g-50000000-0000-4000-8000-000000000001",
+        "syncId": "50000000-0000-4000-8000-000000000001",
+        "rev": 1,
+        "schemaVersion": 4,
+        "createdAt": 1791613800000,
+        "updatedAt": 1791614100000,
+        "players": [
+          {
+            "id": "p0",
+            "playerId": "a",
+            "name": "a",
+            "emoji": "🙂",
+            "color": "#f87171"
+          },
+          {
+            "id": "p1",
+            "playerId": "b",
+            "name": "b",
+            "emoji": "🙂",
+            "color": "#60a5fa"
+          },
+          {
+            "id": "p2",
+            "playerId": "c",
+            "name": "c",
+            "emoji": "🙂",
+            "color": "#34d399"
+          },
+          {
+            "id": "p3",
+            "playerId": "d",
+            "name": "d",
+            "emoji": "🙂",
+            "color": "#fbbf24"
+          }
+        ],
+        "direction": "cw",
+        "firstDealerIndex": 0,
+        "decks": 1,
+        "maxCards": 10,
+        "order": "up",
+        "lengthMode": "endless",
+        "rounds": [
+          {
+            "index": 0,
+            "cards": 3,
+            "trump": "spades",
+            "dealerIndex": 0,
+            "firstPlayerIndex": 1,
+            "bids": {
+              "p0": 1,
+              "p1": 0,
+              "p2": 0,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "made",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613860000
+          },
+          {
+            "index": 1,
+            "cards": 4,
+            "trump": "diamonds",
+            "dealerIndex": 1,
+            "firstPlayerIndex": 2,
+            "bids": {
+              "p0": 2,
+              "p1": 0,
+              "p2": 0,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "made",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613920000
+          },
+          {
+            "index": 2,
+            "cards": 5,
+            "trump": "clubs",
+            "dealerIndex": 2,
+            "firstPlayerIndex": 3,
+            "bids": {
+              "p0": 4,
+              "p1": 0,
+              "p2": 1,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "missed",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613980000
+          },
+          {
+            "index": 3,
+            "cards": 6,
+            "trump": "hearts",
+            "dealerIndex": 3,
+            "firstPlayerIndex": 0,
+            "bids": {
+              "p0": 5,
+              "p1": 0,
+              "p2": 1,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "missed",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791614040000
+          }
+        ],
+        "status": "finished",
+        "ui": {
+          "view": "round",
+          "bidIdx": 0
+        },
+        "finishedAt": 1791614100000
+      },
+      "held": {
+        "d": {
+          "medal": 1,
+          "defending": true
+        }
+      },
+      "places": {
+        "b": 1,
+        "c": 2,
+        "d": 3,
+        "a": 4
+      },
+      "expect": [
+        {
+          "code": "giant_killer",
+          "playerId": "b",
+          "gameId": "50000000-0000-4000-8000-000000000001",
+          "roundIndex": null,
+          "period": null,
+          "earnedAt": 1791614100000,
+          "data": {
+            "badshah": "d"
+          }
+        },
+        {
+          "code": "giant_killer",
+          "playerId": "c",
+          "gameId": "50000000-0000-4000-8000-000000000001",
+          "roundIndex": null,
+          "period": null,
+          "earnedAt": 1791614100000,
+          "data": {
+            "badshah": "d"
+          }
+        }
+      ]
+    },
+    {
+      "name": "tied with the Badshah is not above",
+      "game": {
+        "id": "g-50000000-0000-4000-8000-000000000002",
+        "syncId": "50000000-0000-4000-8000-000000000002",
+        "rev": 1,
+        "schemaVersion": 4,
+        "createdAt": 1791613800000,
+        "updatedAt": 1791614100000,
+        "players": [
+          {
+            "id": "p0",
+            "playerId": "a",
+            "name": "a",
+            "emoji": "🙂",
+            "color": "#f87171"
+          },
+          {
+            "id": "p1",
+            "playerId": "b",
+            "name": "b",
+            "emoji": "🙂",
+            "color": "#60a5fa"
+          },
+          {
+            "id": "p2",
+            "playerId": "c",
+            "name": "c",
+            "emoji": "🙂",
+            "color": "#34d399"
+          },
+          {
+            "id": "p3",
+            "playerId": "d",
+            "name": "d",
+            "emoji": "🙂",
+            "color": "#fbbf24"
+          }
+        ],
+        "direction": "cw",
+        "firstDealerIndex": 0,
+        "decks": 1,
+        "maxCards": 10,
+        "order": "up",
+        "lengthMode": "endless",
+        "rounds": [
+          {
+            "index": 0,
+            "cards": 3,
+            "trump": "spades",
+            "dealerIndex": 0,
+            "firstPlayerIndex": 1,
+            "bids": {
+              "p0": 1,
+              "p1": 0,
+              "p2": 0,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "made",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613860000
+          },
+          {
+            "index": 1,
+            "cards": 4,
+            "trump": "diamonds",
+            "dealerIndex": 1,
+            "firstPlayerIndex": 2,
+            "bids": {
+              "p0": 2,
+              "p1": 0,
+              "p2": 0,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "made",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613920000
+          },
+          {
+            "index": 2,
+            "cards": 5,
+            "trump": "clubs",
+            "dealerIndex": 2,
+            "firstPlayerIndex": 3,
+            "bids": {
+              "p0": 3,
+              "p1": 0,
+              "p2": 0,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "made",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613980000
+          },
+          {
+            "index": 3,
+            "cards": 6,
+            "trump": "hearts",
+            "dealerIndex": 3,
+            "firstPlayerIndex": 0,
+            "bids": {
+              "p0": 4,
+              "p1": 0,
+              "p2": 0,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "made",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791614040000
+          }
+        ],
+        "status": "finished",
+        "ui": {
+          "view": "round",
+          "bidIdx": 0
+        },
+        "finishedAt": 1791614100000
+      },
+      "held": {
+        "c": {
+          "medal": 1,
+          "defending": false
+        }
+      },
+      "places": {
+        "b": 1,
+        "c": 1,
+        "d": 3,
+        "a": 4
+      },
+      "expect": []
+    },
+    {
+      "name": "tied above the Badshah: both earn",
+      "game": {
+        "id": "g-50000000-0000-4000-8000-000000000002",
+        "syncId": "50000000-0000-4000-8000-000000000002",
+        "rev": 1,
+        "schemaVersion": 4,
+        "createdAt": 1791613800000,
+        "updatedAt": 1791614100000,
+        "players": [
+          {
+            "id": "p0",
+            "playerId": "a",
+            "name": "a",
+            "emoji": "🙂",
+            "color": "#f87171"
+          },
+          {
+            "id": "p1",
+            "playerId": "b",
+            "name": "b",
+            "emoji": "🙂",
+            "color": "#60a5fa"
+          },
+          {
+            "id": "p2",
+            "playerId": "c",
+            "name": "c",
+            "emoji": "🙂",
+            "color": "#34d399"
+          },
+          {
+            "id": "p3",
+            "playerId": "d",
+            "name": "d",
+            "emoji": "🙂",
+            "color": "#fbbf24"
+          }
+        ],
+        "direction": "cw",
+        "firstDealerIndex": 0,
+        "decks": 1,
+        "maxCards": 10,
+        "order": "up",
+        "lengthMode": "endless",
+        "rounds": [
+          {
+            "index": 0,
+            "cards": 3,
+            "trump": "spades",
+            "dealerIndex": 0,
+            "firstPlayerIndex": 1,
+            "bids": {
+              "p0": 1,
+              "p1": 0,
+              "p2": 0,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "made",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613860000
+          },
+          {
+            "index": 1,
+            "cards": 4,
+            "trump": "diamonds",
+            "dealerIndex": 1,
+            "firstPlayerIndex": 2,
+            "bids": {
+              "p0": 2,
+              "p1": 0,
+              "p2": 0,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "made",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613920000
+          },
+          {
+            "index": 2,
+            "cards": 5,
+            "trump": "clubs",
+            "dealerIndex": 2,
+            "firstPlayerIndex": 3,
+            "bids": {
+              "p0": 3,
+              "p1": 0,
+              "p2": 0,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "made",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791613980000
+          },
+          {
+            "index": 3,
+            "cards": 6,
+            "trump": "hearts",
+            "dealerIndex": 3,
+            "firstPlayerIndex": 0,
+            "bids": {
+              "p0": 4,
+              "p1": 0,
+              "p2": 0,
+              "p3": 1
+            },
+            "results": {
+              "p0": "missed",
+              "p1": "made",
+              "p2": "made",
+              "p3": "missed"
+            },
+            "tricks": null,
+            "hookHits": 0,
+            "phase": "done",
+            "doneAt": 1791614040000
+          }
+        ],
+        "status": "finished",
+        "ui": {
+          "view": "round",
+          "bidIdx": 0
+        },
+        "finishedAt": 1791614100000
+      },
+      "held": {
+        "d": {
+          "medal": 1,
+          "defending": false
+        }
+      },
+      "places": {
+        "b": 1,
+        "c": 1,
+        "d": 3,
+        "a": 4
+      },
+      "expect": [
+        {
+          "code": "giant_killer",
+          "playerId": "b",
+          "gameId": "50000000-0000-4000-8000-000000000002",
+          "roundIndex": null,
+          "period": null,
+          "earnedAt": 1791614100000,
+          "data": {
+            "badshah": "d"
+          }
+        },
+        {
+          "code": "giant_killer",
+          "playerId": "c",
+          "gameId": "50000000-0000-4000-8000-000000000002",
+          "roundIndex": null,
+          "period": null,
+          "earnedAt": 1791614100000,
+          "data": {
+            "badshah": "d"
+          }
+        }
+      ]
+    }
+  ]
+}

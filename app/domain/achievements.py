@@ -1,7 +1,7 @@
 """Achievements (plan §8.1-8.3; app: src/domain/achievements.ts). Ties earn together."""
 
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -70,6 +70,7 @@ CATALOGUE: dict[str, AchievementDef] = {
                 ("marathon", "🏃‍♂️", "Marathon"),
                 ("full_house", "🏠", "Full house"),
                 ("night_owl", "🦉", "Night owl"),
+                ("giant_killer", "🗡️", "Giant killer"),
             ],
         ),
         *_defs(
@@ -226,6 +227,29 @@ def _finish_moments(
         if 1 <= hour < 5:
             out.append(_fin(p, "night_owl"))
     return out
+
+
+GIANT_KILLER_MIN_TABLE = 3
+BADSHAH_MEDAL = 1
+
+
+def giant_killers(players: Iterable[GameFact], held: Mapping[str, int]) -> list[Earned]:
+    """One ended game's Giant Killers (the app's `giantKillers`): at a table of three or more
+    placed players, everyone holding no medal who finished strictly above every seated Badshah.
+    `held` is each medal holder's medal (1-3) as the game ended, before it counted."""
+    placed = [p for p in players if p.place is not None and p.ended_at is not None]
+    if len(placed) < GIANT_KILLER_MIN_TABLE:
+        return []
+    kings = [p for p in placed if held.get(p.player_id) == BADSHAH_MEDAL]
+    if not kings:
+        return []
+    top = min(p.place for p in kings if p.place is not None)
+    badshah = min(p.player_id for p in kings if p.place == top)
+    return [
+        _fin(p, "giant_killer", {"badshah": badshah})
+        for p in placed
+        if p.player_id not in held and p.place is not None and p.place < top
+    ]
 
 
 def game_finishes(facts: Facts, tz: ZoneInfo) -> list[Earned]:
