@@ -29,6 +29,7 @@ from app.repositories.derived import derived_repository
 from app.repositories.games import games_repository
 from app.repositories.ishaara import CLUE_GIVER, IshaaraListRow, ListScope, ishaara_repository
 from app.repositories.ishaara_derived import ishaara_derived_repository
+from app.repositories.wardrobe import wardrobe_repository
 from app.schemas.ishaara import (
     ActionIn,
     CreateIshaaraIn,
@@ -168,6 +169,13 @@ class IshaaraGamesService:
         out: list[dict[str, Any]] = resolved["players"]
         return out
 
+    async def _with_looks(self, seats: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """Seats with each player's worn look as the game starts (null when none), like a photo."""
+        looks = await wardrobe_repository.looks(
+            self.session, [uuid.UUID(s["playerId"]) for s in seats]
+        )
+        return [{**s, "look": looks.get(uuid.UUID(s["playerId"]))} for s in seats]
+
     async def start(
         self,
         *,
@@ -190,7 +198,7 @@ class IshaaraGamesService:
         key, first = deal_key(starting)
         state = new_game(
             game_id=str(game_id),
-            players=seats,
+            players=await self._with_looks(seats),
             words=words,
             rules=rules,
             starting=first,

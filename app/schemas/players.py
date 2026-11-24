@@ -6,6 +6,7 @@ from typing import Literal
 from pydantic import Field
 
 from app.schemas.common import CamelModel
+from app.schemas.looks import Look
 
 
 class AliasOut(CamelModel):
@@ -36,6 +37,7 @@ class PlayerOut(CamelModel):
     anonymised: bool = Field(
         default=False, description="The account behind it was deleted; its name is gone"
     )
+    look: Look | None = Field(default=None, description="The worn look; null when never set")
     created_at: int = Field(..., description="Epoch ms")
     updated_at: int = Field(..., description="Epoch ms; the sync cursor")
 

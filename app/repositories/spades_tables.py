@@ -19,6 +19,7 @@ from app.db.models import (
     SpadesHand,
     SpadesTableSeat,
     User,
+    WardrobeLook,
 )
 from app.domain.enums import GameKind
 
@@ -46,6 +47,7 @@ class PlayerCard:
     color: str
     photo_rev: int
     has_photo: bool
+    look: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -76,11 +78,14 @@ _CARD_COLUMNS = (
     Player.color,
     Player.photo_rev,
     exists().where(PlayerPhoto.player_id == Player.id),
+    select(WardrobeLook.look).where(WardrobeLook.player_id == Player.id).scalar_subquery(),
 )
 
 
 def _card(row: Sequence[Any]) -> PlayerCard:
-    return PlayerCard(row[0], row[1], row[2] or "", row[3] or "", row[4] or "", row[5] or 0, row[6])
+    return PlayerCard(
+        row[0], row[1], row[2] or "", row[3] or "", row[4] or "", row[5] or 0, row[6], row[7]
+    )
 
 
 class SpadesTablesRepository:

@@ -50,7 +50,7 @@ class Bundle:
 
 
 def who_of(card: PlayerCard) -> dict[str, Any]:
-    """SpWho: the account in a seat."""
+    """SpWho: the account in a seat; the photo and look are as they were when it sat down."""
     return {
         "userId": str(card.user_id),
         "playerId": str(card.player_id),
@@ -58,6 +58,7 @@ def who_of(card: PlayerCard) -> dict[str, Any]:
         "emoji": card.emoji,
         "color": card.color,
         "photoUrl": photo_url(card.player_id, card.photo_rev) if card.has_photo else None,
+        "look": card.look,
     }
 
 

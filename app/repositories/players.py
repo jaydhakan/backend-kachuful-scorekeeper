@@ -32,6 +32,7 @@ from app.db.models import (
     PlayerAlias,
     PlayerPhoto,
     User,
+    WardrobeLook,
 )
 from app.repositories.seats import seat_rows, seated_anywhere
 
@@ -54,6 +55,7 @@ class PlayerView:
     created_by_name: str
     has_photo: bool = False
     aliases: tuple[AliasView, ...] = ()
+    look: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -89,7 +91,7 @@ def _aliases_json() -> Any:
     )
 
 
-def _view_query() -> Select[Player, uuid.UUID | None, str, bool, Any]:
+def _view_query() -> Select[Player, uuid.UUID | None, str, bool, Any, Any]:
     # Joins only the photo's key: the image bytes are never loaded here.
     return (
         select(
@@ -98,11 +100,13 @@ def _view_query() -> Select[Player, uuid.UUID | None, str, bool, Any]:
             func.coalesce(_creator_player.display_name, ""),
             PlayerPhoto.player_id.is_not(None),
             _aliases_json(),
+            WardrobeLook.look,
         )
         .outerjoin(_linked, _linked.player_id == Player.id)
         .outerjoin(_creator, _creator.id == Player.created_by)
         .outerjoin(_creator_player, _creator_player.id == _creator.player_id)
         .outerjoin(PlayerPhoto, PlayerPhoto.player_id == Player.id)
+        .outerjoin(WardrobeLook, WardrobeLook.player_id == Player.id)
     )
 
 
@@ -114,6 +118,7 @@ def _to_views(rows: Sequence[Any]) -> list[PlayerView]:
             created_by_name=r[2],
             has_photo=bool(r[3]),
             aliases=tuple(AliasView(**a) for a in r[4] or ()),
+            look=r[5],
         )
         for r in rows
     ]
