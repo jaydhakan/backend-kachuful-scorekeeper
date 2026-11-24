@@ -195,9 +195,10 @@ def level_gifts(level: int) -> list[Pair]:
 
 def owned_items(facts: OwnershipFacts, level: int) -> list[Owned]:
     """Every owned pair once, with its earliest source: bought and gifts first (oldest first), then
-    level gifts and honours."""
+    level gifts and honours. Variant 0 comes with the item, so any variant brings it too."""
     stored = [Owned(i, v, Source.BOUGHT, at) for i, v, at in facts.bought]
     stored += [Owned(i, v, Source.GIFT, at) for i, v, at in facts.gifts]
+    stored += [Owned(o.item_id, 0, o.source, o.at) for o in list(stored) if o.variant > 0]
     stored.sort(key=lambda o: (o.at or 0, o.item_id, o.variant))
     derived = [Owned(i, v, Source.LEVEL, None) for i, v in level_gifts(level)]
     if facts.champion:
@@ -227,16 +228,12 @@ def base_price(item: Item) -> int:
     return PRICES[item.rarity]
 
 
-def purchase_price(item: Item, variant: int, *, owns_item: bool) -> int:
-    """What buying a pair costs: a further variant of an owned item costs `VARIANT_PRICE`, a new item
-    its price, plus `VARIANT_PRICE` when the variant isn't the one it comes with."""
+def price_of(item: Item, variant: int, *, owns_item: bool) -> int:
+    """What a pair costs a player (bought, or given to them): a new item costs its price, plus
+    `VARIANT_PRICE` for a variant other than 0 (which comes with it); a further variant of an owned
+    item costs `VARIANT_PRICE`. The app's `priceOf`."""
     if owns_item:
         return VARIANT_PRICE
-    return gift_price(item, variant)
-
-
-def gift_price(item: Item, variant: int) -> int:
-    """What giving a pair costs: the item's price, variant included."""
     return base_price(item) + (VARIANT_PRICE if variant > 0 else 0)
 
 

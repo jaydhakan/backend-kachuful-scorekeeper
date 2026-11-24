@@ -14,14 +14,13 @@ from app.domain.wardrobe import (
     Rarity,
     Source,
     always_stock,
-    gift_price,
     in_stock,
     look_problem,
     owned_items,
     owned_look,
     owned_pairs,
     pehle_waale_cutoff_ms,
-    purchase_price,
+    price_of,
     week_of,
     weekly_stock,
 )
@@ -86,19 +85,19 @@ def test_honour_items_are_not_sellable() -> None:
 def test_a_new_item_costs_its_rarity_price_and_a_further_variant_adds_fifty() -> None:
     sherwani = ITEMS["sherwani"]
 
-    assert purchase_price(sherwani, 0, owns_item=False) == 750
-    assert purchase_price(sherwani, 2, owns_item=False) == 800
-    assert purchase_price(sherwani, 2, owns_item=True) == 50
+    assert price_of(sherwani, 0, owns_item=False) == 750
+    assert price_of(sherwani, 2, owns_item=False) == 800
+    assert price_of(sherwani, 2, owns_item=True) == 50
 
 
-def test_a_gift_costs_the_price_with_the_variant() -> None:
-    assert gift_price(ITEMS["kurta"], 0) == 100
-    assert gift_price(ITEMS["lungi_banian"], 1) == 1850
+def test_a_pair_for_someone_without_the_item_costs_its_price_with_the_variant() -> None:
+    assert price_of(ITEMS["kurta"], 0, owns_item=False) == 100
+    assert price_of(ITEMS["lungi_banian"], 1, owns_item=False) == 1850
 
 
 def test_an_honour_item_has_no_price() -> None:
     with pytest.raises(ValueError, match="not for sale"):
-        gift_price(ITEMS["champions_shaal"], 0)
+        price_of(ITEMS["champions_shaal"], 0, owns_item=False)
 
 
 # --- Ownership ------------------------------------------------------------------------------------
@@ -117,6 +116,7 @@ def test_owned_items_combine_purchases_gifts_level_gifts_and_honours() -> None:
 
     assert [(o.item_id, o.variant, o.source, o.at) for o in owned] == [
         ("shades", 0, Source.GIFT, 1_000),
+        ("sherwani", 0, Source.BOUGHT, 2_000),
         ("sherwani", 1, Source.BOUGHT, 2_000),
         ("kurta", 0, Source.LEVEL, None),
         ("cricket_cap", 0, Source.LEVEL, None),
@@ -132,6 +132,19 @@ def test_a_pair_owned_twice_is_listed_once_with_its_first_source() -> None:
     owned = owned_items(facts, level=2)
 
     assert [(o.item_id, o.source) for o in owned] == [("kurta", Source.BOUGHT)]
+
+
+def test_a_variant_brings_variant_zero_with_it() -> None:
+    facts = _facts(bought=(("sherwani", 2, 3_000),), gifts=(("shades", 1, 4_000),))
+
+    owned = owned_items(facts, level=1)
+
+    assert [(o.item_id, o.variant, o.source, o.at) for o in owned] == [
+        ("sherwani", 0, Source.BOUGHT, 3_000),
+        ("sherwani", 2, Source.BOUGHT, 3_000),
+        ("shades", 0, Source.GIFT, 4_000),
+        ("shades", 1, Source.GIFT, 4_000),
+    ]
 
 
 def test_level_one_owns_nothing_derived() -> None:
