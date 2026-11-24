@@ -14,7 +14,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Achievement, User
 from app.db.models import Game as GameRow
-from app.domain.crowns import CrownChange
 from app.domain.derive import (
     Ended,
     GameFact,
@@ -24,14 +23,13 @@ from app.domain.derive import (
     game_facts,
     round_facts,
 )
-from app.domain.enums import GameKind
+from app.domain.enums import GameKind, ProgressionGame
 from app.domain.game import Game, game_from_payload, sync_id
 from app.domain.rules import standings
-from app.domain.sikke import SikkeEarned
 from app.domain.time import day_of, from_ms, now_utc, to_ms
 from app.domain.validate import validate
 from app.exceptions import ApiError, ErrorCode
-from app.live.hub import notify, notify_user
+from app.live.hub import notify
 from app.logger import get_logger
 from app.repositories.achievements import achievements_repository
 from app.repositories.app_state import app_state_repository
@@ -39,7 +37,6 @@ from app.repositories.derived import derived_repository
 from app.repositories.games import SummaryRow, games_repository
 from app.repositories.players import players_repository
 from app.repositories.share_links import share_links_repository
-from app.repositories.users import users_repository
 from app.schemas.crowns import StatusOut
 from app.schemas.games import (
     GameDetailOut,
@@ -51,16 +48,17 @@ from app.schemas.games import (
 )
 from app.services.achievements import AchievementsEngine
 from app.services.achievements_read import achievement_out, achievements_for_game
-from app.services.crowns import CrownsService
 from app.services.nights import NightsService
 from app.services.pagination import decode_cursor, encode_cursor
 from app.services.presenters import summary_out
+from app.services.rewards import Rewards, reward_game, rewards_status, tell_status
 from app.services.sikke import SikkeService
 from app.settings import settings
 
 logger = get_logger(__name__)
 
 MAX_JSON_DEPTH = 12
+KACHUFUL = ProgressionGame.KACHUFUL
 
 
 @dataclass(frozen=True)
@@ -194,20 +192,14 @@ def _round_score_rows(rounds: list[RoundFact]) -> list[dict[str, Any]]:
 
 
 @dataclass(frozen=True)
-class Rewards:
-    """Titles that changed hands and bounties newly paid by one write."""
-
-    changes: list[CrownChange] = field(default_factory=list)
-    bounties: list[SikkeEarned] = field(default_factory=list)
-
-
-@dataclass(frozen=True)
 class Stored:
     """What a store touched: the players involved, achievements newly earned, titles moved."""
 
     players: set[uuid.UUID]
     earned: list[Achievement]
     rewards: Rewards = field(default_factory=Rewards)
+    # Other kinds' writes come back with their status already built (`progress_game`).
+    status: StatusOut = field(default_factory=lambda: StatusOut(changes=[], bounties=[]))
 
 
 def game_info(derived: Derived) -> GameInfo:
@@ -345,10 +337,8 @@ class GamesService:
         was_ended = row.ended_at is not None
         _apply_to_row(row, stored, derived, digest)
         result = await self.store(row, derived, was_ended=was_ended)
-        status = await CrownsService(self.session).status(
-            result.rewards.changes, result.rewards.bounties
-        )
-        await self._tell_status(game_id, result.players, status)
+        status = await rewards_status(self.session, result.rewards)
+        await tell_status(self.session, KACHUFUL, game_id, result.players, status)
         await self.session.commit()
         logger.info("game uploaded", extra={"game_id": str(game_id), "rev": game.rev})
         return KachufulUploadOut(
@@ -357,22 +347,6 @@ class GamesService:
             remap=remap or None,
             status=status,
         )
-
-    async def _tell_status(
-        self, game_id: uuid.UUID, players: set[uuid.UUID], status: StatusOut
-    ) -> None:
-        """Send the write's status to every account seated in the game (when anything moved)."""
-        if not status.changes and not status.bounties:
-            return
-        frame = {
-            "type": "status",
-            "game": GameKind.KACHUFUL.value,
-            "gameId": str(game_id),
-            # Null fields left out, exactly as the PUT's response sends the same status.
-            **status.model_dump(mode="json", exclude_none=True),
-        }
-        for user_id in await users_repository.ids_for_players(self.session, players):
-            await notify_user(self.session, user_id, "status", frame)
 
     async def store(
         self, row: GameRow, derived: Derived, *, was_ended: bool, career: bool = True
@@ -430,8 +404,8 @@ class GamesService:
         void: bool = False,
     ) -> Rewards:
         """Sikke and crowns after a write. A running game only adds achievements (a lost one's
-        entry cascades); an ended one pays finishes, may move every title, and pays
-        bounties. A merge (no `career`) runs its own.
+        entry cascades); an ended one pays finishes, may move every title, pays bounties and
+        may reach a milestone. A merge (no `career`) runs its own.
         """
         if not career:
             return Rewards()
@@ -439,13 +413,9 @@ class GamesService:
         await sikke.after_write(players, earned, finished=ended)
         if not ended:
             return Rewards()
-        crowns = CrownsService(self.session)
-        # Crowns first: a bounty reads the Taj's reigns, which this write may have closed.
-        changes = await crowns.recompute(game_id=None if void else game_id)
-        bounties = await sikke.recompute_bounties()
-        mine = [b for b in bounties if b.game_id == str(game_id)]
+        rewards = await reward_game(self.session, KACHUFUL, game_id, void=void)
         await NightsService(self.session).after_write({game_id})
-        return Rewards(changes=changes, bounties=mine)
+        return rewards
 
     async def rederive(
         self, row: GameRow, payload: dict[str, Any], *, career: bool = True

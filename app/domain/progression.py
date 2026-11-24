@@ -141,6 +141,16 @@ class StandingRow:
     wins: int
 
 
+def without_seats(tallies: Iterable[WinTally], seats: Iterable[tuple[str, bool]]) -> list[WinTally]:
+    """Tallies with some finished seats (player, won) taken out; a player left with none goes."""
+    out = {t.player_id: t for t in tallies}
+    for player_id, won in seats:
+        t = out.get(player_id)
+        if t is not None:
+            out[player_id] = WinTally(player_id, t.games - 1, t.wins - int(won))
+    return [t for t in out.values() if t.games > 0]
+
+
 def win_rate_standings(tallies: Iterable[WinTally], min_games: int) -> list[StandingRow]:
     """Qualified (at least `min_games`) first, by win rate, then more games; ties share (1, 1, 3)."""
     rows = [

@@ -1,12 +1,13 @@
-"""Crowns (rewards plan §6): recompute who holds each Kachuful title after a write, and read them.
+"""Crowns (rewards plan §6): recompute who holds each game's titles after a write, and read them.
 
 A recompute diffs the rules' holders with `crowns`: a change closes the old reign, writes the new
 row and posts a `crown` feed item (not for a clear). A reign starts when a recompute first sees
-its holders. Callers commit.
+its holders. Kachuful ranks its points board; every other game its win-rate season standings.
+Callers commit.
 """
 
 import uuid
-from collections.abc import Iterable, Sequence
+from collections.abc import Awaitable, Callable, Iterable, Sequence
 from datetime import datetime
 from typing import Any
 
@@ -22,11 +23,19 @@ from app.domain.crowns import (
     crown_changes,
     legend_of,
     medal_holders,
+    podium_holders,
     sitara_of,
+    win_sitara_of,
+    win_tallies,
 )
 from app.domain.enums import ProgressionGame
+from app.domain.ishaara.awards import SEASON_MIN_GAMES as ISHAARA_MIN_GAMES
+from app.domain.kaali_teeri.awards import SEASON_MIN_GAMES as KT_MIN_GAMES
 from app.domain.leaderboard import leaderboard
+from app.domain.milestones import Milestone
+from app.domain.progression import StandingRow, WinTally, win_rate_standings
 from app.domain.sikke import SikkeEarned
+from app.domain.spades.awards import SEASON_MIN_GAMES as SPADES_MIN_GAMES
 from app.domain.time import (
     day_of,
     day_range_ms,
@@ -40,13 +49,17 @@ from app.exceptions import ApiError, ErrorCode
 from app.repositories.achievements import achievements_repository
 from app.repositories.boards import boards_repository
 from app.repositories.crowns import crowns_repository
+from app.repositories.ishaara_progression import ishaara_progression_repository
+from app.repositories.kt_progression import kt_progression_repository
 from app.repositories.players import PlayerView, players_repository
+from app.repositories.spades_progression import spades_progression_repository
 from app.schemas.common import Page
 from app.schemas.crowns import (
     BountyOut,
     CrownOut,
     CrownReignOut,
     CrownsOut,
+    MilestoneOut,
     StatusChangeOut,
     StatusOut,
 )
@@ -56,7 +69,17 @@ from app.services.pagination import decode_cursor, encode_cursor
 from app.services.presenters import player_summary_out
 from app.settings import settings
 
-GAME = ProgressionGame.KACHUFUL.value
+KACHUFUL = ProgressionGame.KACHUFUL
+
+type MonthTallies = Callable[[AsyncSession, int, int], Awaitable[list[WinTally]]]
+
+# Each win-rate game's season board, as its `WinRateSeasons` in the progression registry ranks it
+# (not imported from there: the registry imports Kachuful's games service, which imports this).
+_SEASONS: dict[ProgressionGame, tuple[MonthTallies, int]] = {
+    ProgressionGame.SPADES: (spades_progression_repository.month_tallies, SPADES_MIN_GAMES),
+    ProgressionGame.KAALI_TEERI: (kt_progression_repository.month_tallies, KT_MIN_GAMES),
+    ProgressionGame.ISHAARA: (ishaara_progression_repository.month_tallies, ISHAARA_MIN_GAMES),
+}
 
 
 def _ids(raw: Iterable[uuid.UUID]) -> tuple[str, ...]:
@@ -77,10 +100,12 @@ def _uuid(raw: str | None) -> uuid.UUID | None:
     return None if raw is None else uuid.UUID(raw)
 
 
-def _row(crown: Crown, now: int, game_id: uuid.UUID | None) -> dict[str, Any]:
+def _row(
+    game: ProgressionGame, crown: Crown, now: int, game_id: uuid.UUID | None
+) -> dict[str, Any]:
     """A title as a `crowns` row, held since this write."""
     return {
-        "game": GAME,
+        "game": game.value,
         "kind": crown.kind.value,
         "holders": [uuid.UUID(h) for h in crown.holders],
         "since": from_ms(now),
@@ -89,9 +114,11 @@ def _row(crown: Crown, now: int, game_id: uuid.UUID | None) -> dict[str, Any]:
     }
 
 
-def _reign_row(have: Crown, now: int, game_id: uuid.UUID | None) -> dict[str, Any]:
+def _reign_row(
+    game: ProgressionGame, have: Crown, now: int, game_id: uuid.UUID | None
+) -> dict[str, Any]:
     return {
-        "game": GAME,
+        "game": game.value,
         "kind": have.kind.value,
         "holders": [uuid.UUID(h) for h in have.holders],
         "since": from_ms(have.since if have.since is not None else now),
@@ -102,9 +129,11 @@ def _reign_row(have: Crown, now: int, game_id: uuid.UUID | None) -> dict[str, An
     }
 
 
-def _activity(change: CrownChange, game_id: uuid.UUID | None) -> dict[str, Any]:
+def _activity(
+    game: ProgressionGame, change: CrownChange, game_id: uuid.UUID | None
+) -> dict[str, Any]:
     return {
-        "game": GAME,
+        "game": game.value,
         "kind": "crown",
         "player_id": uuid.UUID(change.to[0]),
         "game_id": game_id,
@@ -136,18 +165,26 @@ class CrownsService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def desired(self) -> dict[CrownKind, Crown]:
-        """Who should hold each title now (since and game are the write's)."""
+    async def desired(self, game: ProgressionGame) -> dict[CrownKind, Crown]:
+        """Who should hold each of a game's titles now (since and game are the write's)."""
         now = to_ms(now_utc())
+        if game == KACHUFUL:
+            holders = await self._kachuful_holders(now)
+        else:
+            holders = await self._win_rate_holders(game, now)
+        holders[CrownKind.LEGEND] = legend_of(
+            await crowns_repository.season_champions(self.session, game)
+        )
+        return {kind: Crown(kind, ids) for kind, ids in holders.items()}
+
+    async def _kachuful_holders(self, now: int) -> dict[CrownKind, tuple[str, ...]]:
+        """The medals on this month's points board; the Sitara on today's points."""
         start, end = month_range_ms(month_of(now, settings.tz), settings.tz)
         month = await boards_repository.tallies(self.session, make_window(start, end))
         board = leaderboard(month.values(), None, SEASON_METRIC, SEASON_MIN_ROUNDS)
         holders = medal_holders(board)
         holders[CrownKind.SITARA] = await self._sitara(now)
-        holders[CrownKind.LEGEND] = legend_of(
-            await crowns_repository.season_champions(self.session)
-        )
-        return {kind: Crown(kind, ids) for kind, ids in holders.items()}
+        return holders
 
     async def _sitara(self, now: int) -> tuple[str, ...]:
         """Today's points leaders, as `GET /api/medals` `today` counts them."""
@@ -156,38 +193,61 @@ class CrownsService:
         games = await boards_repository.games_on(self.session, from_ms(start), from_ms(end), None)
         return sitara_of({t.player_id: t.points for t in day.values() if t.rounds > 0}, games)
 
-    async def recompute(
-        self, *, game_id: uuid.UUID | None, announce: bool = True
-    ) -> list[CrownChange]:
-        """Diff every title with the stored row and write what changed (nothing when nothing did).
+    async def _win_rate_holders(
+        self, game: ProgressionGame, now: int
+    ) -> dict[CrownKind, tuple[str, ...]]:
+        """The medals on this month's win-rate standings (the season champion's board); the
+        Sitara on today's wins, then games."""
+        start, end = month_range_ms(month_of(now, settings.tz), settings.tz)
+        holders = podium_holders(await season_standings(self.session, game, start, end))
+        day_start, day_end = day_range_ms(day_of(now, settings.tz), settings.tz)
+        today, games = await day_results(self.session, game, day_start, day_end, exclude=None)
+        holders[CrownKind.SITARA] = win_sitara_of(today, games)
+        return holders
 
-        `game_id` is the write's game (null for jobs and merges); `announce` posts feed items.
-        """
+    async def recompute(
+        self, game: ProgressionGame, *, game_id: uuid.UUID | None, announce: bool = True
+    ) -> list[CrownChange]:
+        """Diff every title of one game with the stored row and write what changed (nothing when
+        nothing did). `game_id` is the write's game (null for jobs and merges); `announce` posts
+        feed items."""
         stored = {
-            CrownKind(r.kind): _stored(r) for r in await crowns_repository.all(self.session, GAME)
+            CrownKind(r.kind): _stored(r) for r in await crowns_repository.all(self.session, game)
         }
-        desired = await self.desired()
+        desired = await self.desired(game)
         changes = crown_changes(stored, desired)
         now = to_ms(now_utc())
         rows, reigns, feed = [], [], []
         for change in changes:
             have = stored.get(change.kind)
             if have is not None and have.holders:
-                reigns.append(_reign_row(have, now, game_id))
-            rows.append(_row(desired[change.kind], now, game_id))
+                reigns.append(_reign_row(game, have, now, game_id))
+            rows.append(_row(game, desired[change.kind], now, game_id))
             if change.to and announce:
-                feed.append(_activity(change, game_id))
+                feed.append(_activity(game, change, game_id))
         await crowns_repository.upsert(self.session, rows)
         await crowns_repository.add_reigns(self.session, reigns)
         await achievements_repository.add_activity(self.session, feed)
         return changes
 
+    async def recompute_all(self, *, announce: bool = True) -> int:
+        """Every game's titles (jobs and merges); returns how many changed hands."""
+        changed = 0
+        for game in ProgressionGame:
+            changed += len(await self.recompute(game, game_id=None, announce=announce))
+        return changed
+
     async def status(
-        self, changes: Sequence[CrownChange], bounties: Sequence[SikkeEarned]
+        self,
+        changes: Sequence[CrownChange],
+        bounties: Sequence[SikkeEarned],
+        milestones: Sequence[Milestone] = (),
     ) -> StatusOut:
-        """A write's changes and bounties with players filled in (no query when both are empty)."""
+        """A write's changes, bounties and milestones with players filled in (no query when all
+        are empty)."""
         ids = {h for c in changes for h in (*c.from_, *c.to)}
         ids |= {b.player_id for b in bounties} | {str(b.data["holder"]) for b in bounties}
+        ids |= {p for m in milestones for p in m.players}
         views = await player_views(self.session, ids)
         return StatusOut(
             changes=[
@@ -207,6 +267,7 @@ class CrownsService:
                 )
                 for b in bounties
             ],
+            milestones=[milestone_out(m, views) for m in milestones],
         )
 
     async def crowns(self, game: ProgressionGame) -> CrownsOut:
@@ -271,6 +332,49 @@ class CrownsService:
 
 def _summaries(views: dict[str, PlayerView], ids: Iterable[str]) -> list[PlayerSummaryOut]:
     return [player_summary_out(views[i]) for i in ids if i in views]
+
+
+def milestone_out(m: Milestone, views: dict[str, PlayerView]) -> MilestoneOut:
+    """A milestone on the wire; players follow merges (a merged-away pair shows once)."""
+    seen = list(dict.fromkeys(views[p].player.id for p in m.players if p in views))
+    by_id = {views[p].player.id: views[p] for p in m.players if p in views}
+    return MilestoneOut(
+        key=m.key,
+        kind=m.kind.value,
+        game=m.game,
+        game_id=uuid.UUID(m.game_id),
+        n=m.n,
+        players=[player_summary_out(by_id[i]) for i in seen],
+        at=m.at,
+    )
+
+
+async def season_standings(
+    session: AsyncSession, game: ProgressionGame, start_ms: int, end_ms: int
+) -> list[StandingRow]:
+    """A win-rate game's standings over [start, end): its season board."""
+    load, min_games = _SEASONS[game]
+    return win_rate_standings(await load(session, start_ms, end_ms), min_games)
+
+
+def season_min_games(game: ProgressionGame) -> int:
+    """Finished games a win-rate game's season needs to qualify."""
+    return _SEASONS[game][1]
+
+
+async def day_results(
+    session: AsyncSession,
+    game: ProgressionGame,
+    start_ms: int,
+    end_ms: int,
+    *,
+    exclude: uuid.UUID | None,
+) -> tuple[list[WinTally], int]:
+    """A win-rate game's finished games and wins per player in a window, and how many games."""
+    rows = await crowns_repository.results(
+        session, game, exclude=exclude, range_from=from_ms(start_ms), range_to=from_ms(end_ms)
+    )
+    return win_tallies((g, p, won) for g, _, p, _, won, _ in rows)
 
 
 async def player_views(session: AsyncSession, ids: set[str]) -> dict[str, PlayerView]:

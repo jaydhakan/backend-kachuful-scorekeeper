@@ -122,7 +122,7 @@ async def test_recomputing_twice_changes_nothing_and_keeps_earned_at(
 
     for _ in range(2):
         await service.recompute_players({uuid.UUID(p) for p in ids})
-        await service.recompute_bounties()
+        await service.recompute_all_bounties()
 
     assert await _snapshot(session) == before
     assert {row[4] for row in before} == {marked}

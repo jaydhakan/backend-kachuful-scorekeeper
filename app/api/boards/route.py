@@ -12,6 +12,7 @@ from app.domain.enums import ProgressionGame
 from app.domain.leaderboard import Metric
 from app.schemas.awards import (
     DailyAwardsOut,
+    GameMedalsOut,
     GameSeasonOut,
     MedalsOut,
     PlacesOut,
@@ -21,13 +22,14 @@ from app.schemas.awards import (
 )
 from app.schemas.boards import ActivityItemOut, BootstrapOut, LaddersOut, LeaderboardOut
 from app.schemas.common import Page
-from app.schemas.crowns import CrownReignOut, CrownsOut
+from app.schemas.crowns import CrownReignOut, CrownsOut, MilestoneOut
 from app.schemas.games import AchievementOut
 from app.services.achievements_read import achievements_page
 from app.services.activity import ActivityService
 from app.services.awards import AwardsService
 from app.services.boards import ALL_TIME_TO, BoardsService
 from app.services.crowns import CrownsService
+from app.services.milestones import MilestonesService
 from app.services.pagination import DEFAULT_LIMIT, MAX_LIMIT
 from app.services.progression.ladders import ladders
 
@@ -167,30 +169,30 @@ async def get_season(
     return respond(cached, response, cache_control=IMMUTABLE if final else REVALIDATE)
 
 
-@boards_router.get("/medals", response_model=MedalsOut)
+@boards_router.get("/medals", response_model=MedalsOut | GameMedalsOut)
 async def get_medals(
     _: CurrentAuth,
     session: SessionDep,
+    game: _Game = ProgressionGame.KACHUFUL,
     exclude_game: Annotated[
         uuid.UUID | None,
-        Query(
-            alias="excludeGame", description="A Kachuful game to leave out (the one at the table)"
-        ),
+        Query(alias="excludeGame", description="A game to leave out (the one at the table)"),
     ] = None,
-) -> MedalsOut:
-    """Kachuful's medals: this month's board without the game in progress, and last month's top
-    three (who keep their medals until three players qualify this month)."""
-    return await AwardsService(session).medals(exclude_game)
+) -> MedalsOut | GameMedalsOut:
+    """A game's medals: this month's board without the game in progress, last month's top three
+    (who keep their medals until three players qualify this month), and today's Sitara rows.
+
+    Kachuful ranks its points board (`MedalsOut`, `minRounds`); every other game its win-rate
+    season standings (`GameMedalsOut`, `minGames`), and its `today` counts finished games and wins.
+    """
+    return await AwardsService(session).medals(game, exclude_game)
 
 
 @boards_router.get("/crowns", response_model=CrownsOut)
 async def get_crowns(
     _: CurrentAuth, session: SessionDep, game: _Game = ProgressionGame.KACHUFUL
 ) -> CrownsOut:
-    """Every title of a game now: medal1-3, sitara, legend (holders empty when nobody).
-
-    Kachuful only so far; other games list all five titles with nobody holding them.
-    """
+    """Every title of a game now: medal1-3, sitara, legend (holders empty when nobody)."""
     return await CrownsService(session).crowns(game)
 
 
@@ -212,20 +214,33 @@ async def list_crown_reigns(
     )
 
 
+@boards_router.get("/milestones", response_model=Page[MilestoneOut])
+async def list_milestones(
+    _: CurrentAuth,
+    session: SessionDep,
+    cursor: Annotated[str | None, Query(max_length=200)] = None,
+    limit: Annotated[int, Query(ge=1, le=MAX_LIMIT)] = DEFAULT_LIMIT,
+) -> Page[MilestoneOut]:
+    """The group's milestones and firsts, app-wide, newest first."""
+    return await MilestonesService(session).page(cursor=cursor, limit=limit)
+
+
 @boards_router.get("/places", response_model=PlacesOut)
 async def get_places(
     _: CurrentAuth,
     session: SessionDep,
+    game: _Game = ProgressionGame.KACHUFUL,
     exclude_game: Annotated[
         uuid.UUID | None,
-        Query(
-            alias="excludeGame", description="A Kachuful game to leave out (the one at the table)"
-        ),
+        Query(alias="excludeGame", description="A game to leave out (the one at the table)"),
     ] = None,
     limit: Annotated[int, Query(ge=1, le=1000)] = 500,
 ) -> PlacesOut:
-    """Ended Kachuful games' places, newest first: the app finds rivalries and milestones in them."""
-    return await AwardsService(session).places(exclude_game, limit)
+    """A game's ended games' places, newest first: the app finds rivalries and milestones in them.
+
+    A team game (Spades, Ishaara) places a side: 1 for the winners, 2 for the rest (a draw: both 2).
+    """
+    return await AwardsService(session).places(game, exclude_game, limit)
 
 
 @boards_router.get("/wrapped/{year}/{player_id}", response_model=WrappedOut)

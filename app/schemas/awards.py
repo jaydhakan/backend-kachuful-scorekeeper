@@ -38,8 +38,9 @@ class SeasonOut(CamelModel):
 
 
 class MedalsOut(CamelModel):
-    """`GET /api/medals`: Kachuful's month without one game, and last month's top three (rewards §6.7)."""
+    """`GET /api/medals` (Kachuful): its month without one game, and last month's top three."""
 
+    game: ProgressionGame = Field(..., description="Always kachuful")
     season: str = Field(..., description="This month, YYYY-MM in APP_TZ")
     min_rounds: int
     standings: list[LeaderboardRowOut] = Field(
@@ -47,6 +48,19 @@ class MedalsOut(CamelModel):
     )
     last_season: list[LeaderboardRowOut] = Field(..., description="Last month's ranks 1-3")
     today: "TodayOut"
+
+
+class GameMedalsOut(CamelModel):
+    """`GET /api/medals?game=` for every game but Kachuful: its win-rate month without one game."""
+
+    game: ProgressionGame = Field(..., description="spades | kaali-teeri | ishaara")
+    season: str = Field(..., description="This month, YYYY-MM in APP_TZ")
+    min_games: int = Field(..., description="Finished games in the month a player needs to rank")
+    standings: "list[StandingOut]" = Field(
+        ..., description="This month's season standings without `excludeGame`"
+    )
+    last_season: "list[StandingOut]" = Field(..., description="Last month's ranks 1-3")
+    today: "GameTodayOut"
 
 
 class TodayPointsOut(CamelModel):
@@ -65,6 +79,22 @@ class TodayOut(CamelModel):
     rows: list[TodayPointsOut]
 
 
+class TodayWinsOut(CamelModel):
+    """One player's finished games and wins today, for another game's Sitara."""
+
+    player: PlayerSummaryOut = Field(..., description="The player")
+    wins: int = Field(..., description="Games won today")
+    games: int = Field(..., description="Games finished today")
+
+
+class GameTodayOut(CamelModel):
+    """Today (APP_TZ) of a game other than Kachuful, without `excludeGame`: most wins, then games."""
+
+    day: str = Field(..., description="YYYY-MM-DD")
+    games: int = Field(..., description="Games finished today")
+    rows: list[TodayWinsOut] = Field(..., description="Most wins first, then most games")
+
+
 class PlaceOut(CamelModel):
     player_id: uuid.UUID
     place: int
@@ -78,7 +108,8 @@ class PlacedGameOut(CamelModel):
 
 
 class PlacesOut(CamelModel):
-    """`GET /api/places`: ended Kachuful games' places, newest first, for the table intel line (rewards §6.5)."""
+    """`GET /api/places?game=`: a game's ended games' places, newest first, for the table intel
+    line (rewards §6.5). A team game gives the whole side its place: 1 for the winners, else 2."""
 
     games: list[PlacedGameOut]
 

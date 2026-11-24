@@ -13,7 +13,7 @@ from tests.factories import make_player, make_user, sign_in
 from tests.game_builder import MINUTE, make_payload
 
 HOUR = 60 * MINUTE
-NO_STATUS = {"changes": [], "bounties": []}
+NO_STATUS = {"changes": [], "bounties": [], "milestones": []}
 
 
 async def _table(session: AsyncSession, n: int = 3) -> list[Player]:

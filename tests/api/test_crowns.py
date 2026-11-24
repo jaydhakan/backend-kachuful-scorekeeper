@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models import CrownReign
 from app.domain.time import now_utc, to_ms
 from app.jobs.fake_games import MINUTE
-from app.services import games as games_service
+from app.services import rewards as rewards_service
 from tests.factories import make_player, make_user, sign_in
 from tests.placed_games import backdate_taj, placed_payload, taj_payload
 
@@ -65,7 +65,7 @@ async def test_the_put_reports_its_bounty(
     async def record(_: AsyncSession, user_id: object, event: str, data: dict[str, Any]) -> None:
         sent.append((user_id, event, data))
 
-    monkeypatch.setattr(games_service, "notify_user", record)
+    monkeypatch.setattr(rewards_service, "notify_user", record)
     now = to_ms(now_utc())
     await _put(client, taj_payload([a, b, c], start_ms=now - 5 * HOUR))
     await backdate_taj(session, now - 5 * HOUR)
@@ -93,7 +93,7 @@ async def test_the_status_frame_goes_to_seated_accounts(
     async def record(_: AsyncSession, user_id: object, event: str, data: dict[str, Any]) -> None:
         sent.append((user_id, event, data))
 
-    monkeypatch.setattr(games_service, "notify_user", record)
+    monkeypatch.setattr(rewards_service, "notify_user", record)
     order = [str(scorer.player_id), *others]
     now = to_ms(now_utc())
     await _put(client, placed_payload(order, start_ms=now - 30 * MINUTE))
@@ -120,7 +120,7 @@ async def test_an_unchanged_put_has_an_empty_status(
 
     again = await _put(client, game)
 
-    assert again["status"] == {"changes": [], "bounties": []}
+    assert again["status"] == {"changes": [], "bounties": [], "milestones": []}
 
 
 async def test_crowns_show_the_holder_since_the_game(
@@ -139,7 +139,7 @@ async def test_crowns_show_the_holder_since_the_game(
     assert sitara["since"] >= now and sitara["sinceGame"] == game["syncId"]
 
 
-async def test_other_games_have_no_holders_yet(
+async def test_other_games_have_nobody_before_any_game(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
     await _table(client, session)

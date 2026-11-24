@@ -11,7 +11,7 @@ from app.domain.ishaara import achievements as ishaara
 from app.domain.ishaara import awards as ishaara_awards
 from app.domain.kaali_teeri import achievements as kaali_teeri
 from app.domain.kaali_teeri import awards as kt_awards
-from app.domain.placed import PlacedGame, PlacedSeat
+from app.domain.placed import PlacedGame, PlacedSeat, placed_results
 from app.domain.sikke import (
     ACHIEVEMENT_SIKKE,
     BOUNTY,
@@ -214,6 +214,8 @@ def test_a_streak_runs_across_a_year_boundary() -> None:
 
 DAY = 24 * 3600 * 1000
 MONDAY = to_ms(datetime(2026, 11, 16, 12, tzinfo=UTC))
+KACHUFUL = ProgressionGame.KACHUFUL
+SPADES = ProgressionGame.SPADES
 
 
 def _at(k: int, at: int, places: list[tuple[str, int]]) -> PlacedGame:
@@ -238,11 +240,11 @@ def test_a_bounty_pays_whoever_finishes_above_the_taj_once_a_week() -> None:
         TajReign(("b",), MONDAY + 3 * HOUR, None),
     ]
     created = {g.game_id: g.ended_at - 60_000 for g in games}
-    out = bounty_entries(games, created, taj, TZ)
+    out = bounty_entries(KACHUFUL, games, created, taj, TZ)
     assert _bounty_rows(out) == [
-        ("a", "bounty:b:2026-W47", "b4"),
-        ("a", "bounty:b:2026-W48", "b5"),
-        ("b", "bounty:a:2026-W47", "b1"),
+        ("a", "bounty:kachuful:b:a:2026-W47", "b4"),
+        ("a", "bounty:kachuful:b:a:2026-W48", "b5"),
+        ("b", "bounty:kachuful:a:b:2026-W47", "b1"),
     ]
     assert {(e.amount, e.kind, e.game) for e in out} == {
         (BOUNTY, SikkeKind.BOUNTY, ProgressionGame.KACHUFUL)
@@ -256,7 +258,9 @@ def test_a_bounty_needs_three_seats_and_a_seated_holder() -> None:
         _at(3, MONDAY + 2000, [("b", 1), ("c", 2), ("d", 3)]),  # holder not seated
     ]
     created = {g.game_id: g.ended_at - 60_000 for g in games}
-    assert bounty_entries(games, created, [TajReign(("a",), MONDAY - DAY, None)], TZ) == []
+    assert (
+        bounty_entries(KACHUFUL, games, created, [TajReign(("a",), MONDAY - DAY, None)], TZ) == []
+    )
 
 
 def test_a_winner_without_the_taj_holds_no_bounty() -> None:
@@ -265,13 +269,65 @@ def test_a_winner_without_the_taj_holds_no_bounty() -> None:
         _at(2, MONDAY + HOUR, [("b", 1), ("a", 2), ("c", 3)]),
     ]
     created = {g.game_id: g.ended_at - 60_000 for g in games}
-    assert bounty_entries(games, created, [], TZ) == []
+    assert bounty_entries(KACHUFUL, games, created, [], TZ) == []
+
+
+def test_a_team_game_pays_the_winning_side_above_a_losing_holder() -> None:
+    # Spades: a and c beat the Taj t and d; a draw puts nobody above anybody.
+    rows = [
+        ("g1", MONDAY, "a", None, True, 0),
+        ("g1", MONDAY, "t", None, False, 1),
+        ("g1", MONDAY, "c", None, True, 2),
+        ("g1", MONDAY, "d", None, False, 3),
+        ("g2", MONDAY + HOUR, "x", None, False, 0),
+        ("g2", MONDAY + HOUR, "t", None, False, 1),
+        ("g2", MONDAY + HOUR, "y", None, False, 2),
+        ("g2", MONDAY + HOUR, "z", None, False, 3),
+    ]
+    games = placed_results(rows)
+    created = {g.game_id: g.ended_at - 60_000 for g in games}
+    out = bounty_entries(SPADES, games, created, [TajReign(("t",), MONDAY - DAY, None)], TZ)
+    assert _bounty_rows(out) == [
+        ("a", "bounty:spades:t:a:2026-W47", "g1"),
+        ("c", "bounty:spades:t:c:2026-W47", "g1"),
+    ]
+    assert {e.game for e in out} == {SPADES}
+
+
+def test_a_holder_on_the_winning_side_pays_nobody() -> None:
+    rows = [
+        ("g1", MONDAY, "t", None, True, 0),
+        ("g1", MONDAY, "b", None, True, 1),
+        ("g1", MONDAY, "c", None, False, 2),
+        ("g1", MONDAY, "d", None, False, 3),
+    ]
+    games = placed_results(rows)
+    created = {"g1": MONDAY - 60_000}
+    taj = [TajReign(("t",), MONDAY - DAY, None)]
+    assert bounty_entries(ProgressionGame.ISHAARA, games, created, taj, TZ) == []
+
+
+def test_kaali_teeri_places_stand_as_stored() -> None:
+    rows = [
+        ("g1", MONDAY, "a", 1, True, 0),
+        ("g1", MONDAY, "t", 2, False, 1),
+        ("g1", MONDAY, "c", 3, False, 2),
+    ]
+    games = placed_results(rows)
+    out = bounty_entries(
+        ProgressionGame.KAALI_TEERI,
+        games,
+        {"g1": MONDAY - 1},
+        [TajReign(("t",), MONDAY - DAY, None)],
+        TZ,
+    )
+    assert _bounty_rows(out) == [("a", "bounty:kaali-teeri:t:a:2026-W47", "g1")]
 
 
 def test_the_taj_at_the_games_start_has_a_bounty_too() -> None:
     games = [_at(1, MONDAY + 5000, [("c", 1), ("t", 2), ("d", 3)])]
     taj = [TajReign(("t",), MONDAY - DAY, MONDAY), TajReign(("t",), MONDAY + 1000, None)]
-    early = bounty_entries(games, {"b1": MONDAY + 500}, taj, TZ)
-    late = bounty_entries(games, {"b1": MONDAY + 2000}, taj, TZ)
+    early = bounty_entries(KACHUFUL, games, {"b1": MONDAY + 500}, taj, TZ)
+    late = bounty_entries(KACHUFUL, games, {"b1": MONDAY + 2000}, taj, TZ)
     assert early == []
-    assert _bounty_rows(late) == [("c", "bounty:t:2026-W47", "b1")]
+    assert _bounty_rows(late) == [("c", "bounty:kachuful:t:c:2026-W47", "b1")]

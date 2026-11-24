@@ -20,7 +20,7 @@ ONLINE_BONUS = 10
 """On top of `FINISH`, for a game every player played on their own phone."""
 WIN = 25
 BOUNTY = 40
-"""For finishing above a holder of the Taj, once per holder per ISO week."""
+"""For finishing above a holder of a game's Taj, once per holder per ISO week."""
 SITARA = 30
 """For each of a closed night's Aaj ka Sitara."""
 BOUNTY_MIN_TABLE = 3
@@ -50,7 +50,7 @@ PLAYER_KINDS = frozenset({SikkeKind.FINISH, SikkeKind.WIN, SikkeKind.ACHIEVEMENT
 PLAY_KINDS = PLAYER_KINDS - {SikkeKind.ACHIEVEMENT}
 """The player kinds that replay a player's finished games (finishes, wins, streaks)."""
 BOUNTY_KINDS = frozenset({SikkeKind.BOUNTY})
-"""Recomputed from Kachuful's ended games and the Taj's reigns at once."""
+"""Recomputed per game from its ended games and its Taj's reigns at once."""
 SITARA_KINDS = frozenset({SikkeKind.SITARA})
 """Recomputed from the stored nights."""
 
@@ -465,7 +465,9 @@ def _taj_at(reigns: list[TajReign], at: int) -> set[str]:
     }
 
 
-def _bounties(g: PlacedGame, holders: set[str], week: str) -> list[SikkeEarned]:
+def _bounties(
+    game: ProgressionGame, g: PlacedGame, holders: set[str], week: str
+) -> list[SikkeEarned]:
     """Everyone strictly above a seated holder earns that holder's bounty for the week."""
     out = []
     for holder in sorted(holders):
@@ -477,11 +479,11 @@ def _bounties(g: PlacedGame, holders: set[str], week: str) -> list[SikkeEarned]:
                 out.append(
                     SikkeEarned(
                         player_id=s.player_id,
-                        key=f"bounty:{holder}:{week}",
+                        key=f"bounty:{game}:{holder}:{s.player_id}:{week}",
                         kind=SikkeKind.BOUNTY,
                         amount=BOUNTY,
                         earned_at=g.ended_at,
-                        game=ProgressionGame.KACHUFUL,
+                        game=game,
                         game_id=g.game_id,
                         data={"holder": holder},
                     )
@@ -490,15 +492,19 @@ def _bounties(g: PlacedGame, holders: set[str], week: str) -> list[SikkeEarned]:
 
 
 def bounty_entries(
-    games: list[PlacedGame], created_at: dict[str, int], taj: list[TajReign], tz: ZoneInfo
+    game: ProgressionGame,
+    games: list[PlacedGame],
+    created_at: dict[str, int],
+    taj: list[TajReign],
+    tz: ZoneInfo,
 ) -> list[SikkeEarned]:
-    """Bounties from Kachuful's ended games: the holders are the Taj's at each game's start; the
-    first qualifying game of an ISO week (APP_TZ) pays each key."""
+    """One game's bounties: the holders are its Taj's at each game's start; the first qualifying
+    game of an ISO week (APP_TZ) pays each challenger once per holder."""
     out: dict[tuple[str, str], SikkeEarned] = {}
     for g in sorted(games, key=lambda x: (x.ended_at, x.game_id)):
         if len(g.seats) >= BOUNTY_MIN_TABLE:
             week = _week_label(day_of(g.ended_at, tz))
-            for e in _bounties(g, _taj_at(taj, created_at[g.game_id]), week):
+            for e in _bounties(game, g, _taj_at(taj, created_at[g.game_id]), week):
                 out.setdefault((e.player_id, e.key), e)
     return list(out.values())
 

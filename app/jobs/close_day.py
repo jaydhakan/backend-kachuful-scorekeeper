@@ -51,12 +51,12 @@ async def _close(day: date, game: ProgressionGame) -> None:
 
 
 async def recompute_crowns() -> None:
-    """Kachuful's titles after a close: the Sitara clears after midnight, a season moves the Legend."""
+    """Every game's titles after a close: the Sitara clears after midnight, a season moves the
+    medals and the Legend."""
     async with get_session_factory()() as session:
-        crowns = CrownsService(session)
-        changes = await crowns.recompute(game_id=None)
+        changes = await CrownsService(session).recompute_all()
         await session.commit()
-    logger.info("crowns recomputed", extra={"changes": len(changes)})
+    logger.info("crowns recomputed", extra={"changes": changes})
 
 
 async def run(args: argparse.Namespace) -> int:

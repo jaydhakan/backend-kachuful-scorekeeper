@@ -7,9 +7,13 @@ from app.domain.crowns import (
     crown_changes,
     legend_of,
     medal_holders,
+    podium_holders,
     sitara_of,
+    win_sitara_of,
+    win_tallies,
 )
 from app.domain.leaderboard import Board, BoardRow
+from app.domain.progression import WinTally, win_rate_standings
 
 
 def _row(pid: str, rank: int | None, *, qualified: bool = True) -> BoardRow:
@@ -69,3 +73,38 @@ def test_sitara_ties_share_sorted() -> None:
 def test_sitara_goes_to_nobody_without_points_above_zero() -> None:
     assert sitara_of({"riya": 0, "asha": -10}, 3) == ()
     assert sitara_of({}, 3) == ()
+
+
+def test_a_win_rate_podium_is_the_season_champions_board() -> None:
+    tallies = [
+        WinTally("a", 10, 7),
+        WinTally("b", 10, 7),
+        WinTally("c", 12, 6),
+        WinTally("d", 4, 4),  # too few games to qualify
+    ]
+    assert podium_holders(win_rate_standings(tallies, 10)) == {
+        CrownKind.MEDAL1: ("a", "b"),
+        CrownKind.MEDAL2: (),
+        CrownKind.MEDAL3: ("c",),
+    }
+
+
+def test_a_win_rate_sitara_has_most_wins_then_most_games() -> None:
+    today = [WinTally("a", 3, 2), WinTally("b", 2, 2), WinTally("c", 5, 1)]
+    assert win_sitara_of(today, 5) == ("a",)
+    assert win_sitara_of([WinTally("a", 2, 1), WinTally("b", 2, 1)], 2) == ("a", "b")
+
+
+def test_a_win_rate_sitara_needs_two_games_each_and_two_today() -> None:
+    assert win_sitara_of([WinTally("a", 1, 1), WinTally("b", 2, 1)], 2) == ("b",)
+    assert win_sitara_of([WinTally("a", 1, 1)], 1) == ()
+    assert win_sitara_of([WinTally("a", 1, 1), WinTally("b", 1, 0)], 3) == ()
+
+
+def test_win_tallies_count_games_and_wins() -> None:
+    seats = [("g1", "a", True), ("g1", "b", False), ("g2", "a", False), ("g2", "b", True)]
+    assert win_tallies(seats) == ([WinTally("a", 2, 1), WinTally("b", 2, 1)], 2)
+
+
+def test_a_win_rate_sitara_needs_a_win() -> None:
+    assert win_sitara_of([WinTally("a", 3, 0), WinTally("b", 2, 0)], 3) == ()

@@ -1,16 +1,18 @@
 """Crowns (rewards plan §6): who holds each title now, and what changed since the stored holders.
 
-Medals are this month's podium, the Sitara tonight's points leader, the Legend the most season
-titles. Pure: the service stores the rows, reigns and feed items.
+Medals are this month's podium, the Sitara today's leader (Kachuful: points; every other game:
+wins, then games), the Legend the most season titles. Pure: the service stores the rows, reigns
+and feed items.
 """
 
 from collections import Counter
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Literal
+from typing import Literal, Protocol
 
 from app.domain.leaderboard import Board
+from app.domain.progression import WinTally
 
 SITARA_MIN_GAMES = 2
 """The Sitara needs this many games, so the only game of a night crowns nobody."""
@@ -55,12 +57,31 @@ class CrownChange:
     defences: int
 
 
-def medal_holders(board: Board) -> dict[CrownKind, tuple[str, ...]]:
-    """Ranks 1-3 of a season board, qualified rows only (ties share a medal)."""
+class Ranked(Protocol):
+    """A season row: a points board's or a win-rate standing's."""
+
+    @property
+    def player_id(self) -> str: ...
+
+    @property
+    def qualified(self) -> bool: ...
+
+    @property
+    def rank(self) -> int | None: ...
+
+
+def podium_holders(rows: Iterable[Ranked]) -> dict[CrownKind, tuple[str, ...]]:
+    """Ranks 1-3 of a season's rows, qualified rows only (ties share a medal)."""
+    ranked = list(rows)
     return {
-        kind: tuple(sorted(r.player_id for r in board.rows if r.qualified and r.rank == n))
+        kind: tuple(sorted(r.player_id for r in ranked if r.qualified and r.rank == n))
         for n, kind in enumerate(MEDALS, start=1)
     }
+
+
+def medal_holders(board: Board) -> dict[CrownKind, tuple[str, ...]]:
+    """Ranks 1-3 of a Kachuful season board (ties share a medal)."""
+    return podium_holders(board.rows)
 
 
 def sitara_of(points: Mapping[str, int], games: int) -> tuple[str, ...]:
@@ -69,6 +90,26 @@ def sitara_of(points: Mapping[str, int], games: int) -> tuple[str, ...]:
         return ()
     best = max([0, *points.values()])
     return tuple(sorted(pid for pid, v in points.items() if v == best)) if best > 0 else ()
+
+
+def win_sitara_of(tallies: Iterable[WinTally], games: int) -> tuple[str, ...]:
+    """Today's leaders of a win-rate game: most wins, then most games, among players with two or
+    more finished games and a win; ties share; nobody on a day of fewer than two games."""
+    if games < SITARA_MIN_GAMES:
+        return ()
+    rows = [t for t in tallies if t.games >= SITARA_MIN_GAMES and t.wins > 0]
+    best = max(((t.wins, t.games) for t in rows), default=None)
+    return tuple(sorted(t.player_id for t in rows if (t.wins, t.games) == best))
+
+
+def win_tallies(seats: Iterable[tuple[str, str, bool]]) -> tuple[list[WinTally], int]:
+    """Finished games and wins per player from (game, player, won) seats, and how many games."""
+    won: dict[str, list[bool]] = {}
+    games: set[str] = set()
+    for game_id, player_id, w in seats:
+        won.setdefault(player_id, []).append(w)
+        games.add(game_id)
+    return [WinTally(p, len(w), sum(w)) for p, w in sorted(won.items())], len(games)
 
 
 def legend_of(champions: Iterable[str]) -> tuple[str, ...]:

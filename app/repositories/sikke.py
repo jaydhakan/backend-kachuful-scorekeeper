@@ -140,9 +140,14 @@ class SikkeRepository:
             ),
         )
 
-    async def of_kinds(self, session: AsyncSession, kinds: Iterable[str]) -> list[StoredEntry]:
-        """Everyone's entries of some kinds (bounties, the Sitara's)."""
-        return await _stored(session, _STORED.where(SikkeEntry.kind.in_(set(kinds))))
+    async def of_kinds(
+        self, session: AsyncSession, kinds: Iterable[str], *, game: str | None = None
+    ) -> list[StoredEntry]:
+        """Everyone's entries of some kinds (bounties, the Sitara's), of one game if given."""
+        stmt = _STORED.where(SikkeEntry.kind.in_(set(kinds)))
+        if game is not None:
+            stmt = stmt.where(SikkeEntry.game == game)
+        return await _stored(session, stmt)
 
     async def by_keys(self, session: AsyncSession, keys: Iterable[str]) -> list[StoredEntry]:
         """Everyone's entries with some keys (a night's Sitara pay)."""

@@ -5,20 +5,59 @@ from collections.abc import Sequence
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import select, text, tuple_
+from sqlalchemy import TextClause, select, text, tuple_
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Achievement, Crown, CrownReign
 from app.domain.crowns import ReignSort
+from app.domain.enums import ProgressionGame, kinds_of
 from app.domain.time import to_ms
 
 _ENDED_CREATED = text(
     """
     SELECT id, created_at FROM games
-    WHERE kind = 'kachuful' AND ended_at IS NOT NULL AND deleted_at IS NULL
+    WHERE kind = ANY(CAST(:kinds AS text[])) AND ended_at IS NOT NULL AND deleted_at IS NULL
     """
 )
+
+# Every other game's finished seats (place: Kaali Teeri's own; null for a team game), as the
+# Sikke ledger counts them: a void game has no rows, a replaced Spades seat (`result` null) none.
+_RESULTS = {
+    ProgressionGame.KAALI_TEERI: """
+        SELECT s.game_id, s.ended_at, s.player_id, s.place, s.won, s.seat
+        FROM kt_game_players s
+        WHERE s.ended_at IS NOT NULL AND s.place IS NOT NULL
+    """,
+    ProgressionGame.SPADES: """
+        SELECT s.game_id, s.finished_at, s.player_id, NULL::smallint, s.result = 'win', s.seat
+        FROM spades_game_players s
+        WHERE s.result IS NOT NULL
+    """,
+    ProgressionGame.ISHAARA: """
+        SELECT s.game_id, s.finished_at, s.player_id, NULL::smallint, s.won, 0
+        FROM ishaara_game_players s
+    """,
+}
+
+
+def _results(game: ProgressionGame) -> TextClause:
+    # Only constant SQL is joined (the game picks one of `_RESULTS`); values are bound.
+    return text(
+        f"""
+        SELECT r.* FROM ({_RESULTS[game]}) r (game_id, ended_at, player_id, place, won, seat)
+        JOIN games g ON g.id = r.game_id
+        WHERE g.deleted_at IS NULL
+          AND (CAST(:exclude AS uuid) IS NULL OR r.game_id <> :exclude)
+          AND (CAST(:only AS uuid) IS NULL OR r.game_id = :only)
+          AND (CAST(:range_from AS timestamptz) IS NULL OR r.ended_at >= :range_from)
+          AND (CAST(:range_to AS timestamptz) IS NULL OR r.ended_at < :range_to)
+        """  # noqa: S608
+    )
+
+
+ResultRow = tuple[str, int, str, int | None, bool, int]
+"""A finished seat: (game, ended ms, player, stored place or null, won, seat)."""
 
 
 class CrownsRepository:
@@ -81,17 +120,39 @@ class CrownsRepository:
         stmt = stmt.order_by(CrownReign.id.desc()).limit(limit)
         return list((await session.execute(stmt)).scalars())
 
-    async def season_champions(self, session: AsyncSession) -> list[str]:
-        """One id per closed Kachuful season title (the Legend counts them)."""
+    async def season_champions(self, session: AsyncSession, game: ProgressionGame) -> list[str]:
+        """One id per closed season title of one game (the Legend counts them)."""
         stmt = select(Achievement.player_id).where(
-            Achievement.game == "kachuful", Achievement.code == "season_champion"
+            Achievement.game == game.value, Achievement.code == "season_champion"
         )
         return [str(p) for p in (await session.execute(stmt)).scalars()]
 
-    async def ended_created_at(self, session: AsyncSession) -> dict[str, int]:
-        """When each ended Kachuful game started (ms): the Taj a bounty counts is the one then."""
-        rows = await session.execute(_ENDED_CREATED)
+    async def ended_created_at(
+        self, session: AsyncSession, game: ProgressionGame
+    ) -> dict[str, int]:
+        """When each ended game of one game started (ms): the Taj a bounty counts is the one then."""
+        kinds = [k.value for k in kinds_of(game)]
+        rows = await session.execute(_ENDED_CREATED, {"kinds": kinds})
         return {str(gid): to_ms(at) for gid, at in rows}
+
+    async def results(
+        self,
+        session: AsyncSession,
+        game: ProgressionGame,
+        *,
+        exclude: uuid.UUID | None = None,
+        only: uuid.UUID | None = None,
+        range_from: datetime | None = None,
+        range_to: datetime | None = None,
+    ) -> list[ResultRow]:
+        """Every finished seat of a game other than Kachuful, optionally in [from, to), without
+        one game (`exclude`) or of one game only (`only`)."""
+        params = {"exclude": exclude, "only": only, "range_from": range_from, "range_to": range_to}
+        rows = await session.execute(_results(game), params)
+        return [
+            (str(g), to_ms(at), str(p), place, bool(won), seat)
+            for g, at, p, place, won, seat in rows
+        ]
 
 
 crowns_repository = CrownsRepository()

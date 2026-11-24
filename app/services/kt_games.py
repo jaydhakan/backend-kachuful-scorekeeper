@@ -206,17 +206,21 @@ class KtGamesService:
         if row is None:
             row = GameRow(id=game_id, kind=KIND, owner_id=user.id)
         derived = derive(game)
+        was_ended = row.ended_at is not None
         _apply_to_row(row, stored, derived, digest)
-        result = await self.store(row, derived)
+        result = await self.store(row, derived, was_ended=was_ended)
         await self.session.commit()
         logger.info("kaali teeri game uploaded", extra={"game_id": str(game_id), "rev": game.rev})
         return UploadOut(
             rev=game.rev,
             earned=[achievement_out(a) for a in result.earned],
             remap=remap or None,
+            status=result.status,
         )
 
-    async def store(self, row: GameRow, derived: KtDerived, *, career: bool = True) -> Stored:
+    async def store(
+        self, row: GameRow, derived: KtDerived, *, career: bool = True, was_ended: bool = False
+    ) -> Stored:
         """Save the row and rebuild everything derived from it, achievements included."""
         if row.kind != KIND:
             raise ApiError(409, ErrorCode.KIND_MISMATCH, "This id belongs to another game.")
@@ -236,17 +240,18 @@ class KtGamesService:
         await kt_derived_repository.rebuild_player_days(self.session, pairs, settings.APP_TZ)
         players = old_players | {uuid.UUID(p.player_id) for p in derived.players}
         await derived_repository.refresh_player_counters(self.session, players)
-        earned = await progress_game(
+        progressed = await progress_game(
             self.session,
             KIND,
             row.id,
             players,
             finished=derived.ended_at is not None,
             career=career,
+            settled=was_ended or derived.ended_at is not None,
         )
         await app_state_repository.bump(self.session)
         await notify(self.session, row.id, "game")
-        return Stored(players=players, earned=earned)
+        return Stored(players=players, earned=progressed.earned, status=progressed.status)
 
     async def reseat(self, row: GameRow, from_id: uuid.UUID, into_id: uuid.UUID) -> None:
         """Move a seat to another registry player (admin merge); careers are the caller's."""

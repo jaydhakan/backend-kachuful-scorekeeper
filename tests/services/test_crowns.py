@@ -9,6 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Achievement, Activity, Crown, CrownReign, SikkeEntry
+from app.domain.enums import ProgressionGame
 from app.domain.time import day_of, from_ms, now_utc, to_ms
 from app.jobs import recompute_crowns
 from app.jobs.fake_games import MINUTE
@@ -19,6 +20,7 @@ from tests.factories import make_player, make_user, sign_in
 from tests.placed_games import backdate_taj, placed_payload, split_payload, taj_payload
 
 HOUR = 60 * MINUTE
+KACHUFUL = ProgressionGame.KACHUFUL
 
 
 async def _table(client: httpx.AsyncClient, session: AsyncSession, n: int = 3) -> list[str]:
@@ -106,7 +108,7 @@ async def test_beating_the_taj_pays_a_bounty_once_a_week(
 
     # b beat the Taj a in the second game; a third win over a that week pays nothing more.
     week = _week(second["finishedAt"])
-    assert await _bounties(session) == [(b, f"bounty:{a}:{week}", second["syncId"])]
+    assert await _bounties(session) == [(b, f"bounty:kachuful:{a}:{b}:{week}", second["syncId"])]
 
 
 async def test_recomputing_without_a_change_writes_nothing(
@@ -120,8 +122,8 @@ async def test_recomputing_without_a_change_writes_nothing(
     crowns = CrownsService(session)
 
     for _ in range(2):
-        assert await crowns.recompute(game_id=None) == []
-        assert await SikkeService(session).recompute_bounties() == []
+        assert await crowns.recompute(KACHUFUL, game_id=None) == []
+        assert await SikkeService(session).recompute_bounties(KACHUFUL) == []
 
     assert await _snapshot(session) == before
 
@@ -157,7 +159,7 @@ async def test_a_voided_bounty_goes_to_the_next_qualifying_game_that_week(
     await client.delete(f"/api/games/{second['syncId']}")
 
     week = _week(third["finishedAt"])
-    assert await _bounties(session) == [(b, f"bounty:{a}:{week}", third["syncId"])]
+    assert await _bounties(session) == [(b, f"bounty:kachuful:{a}:{b}:{week}", third["syncId"])]
 
 
 async def test_the_medals_rank_by_accuracy_not_by_average(
@@ -190,7 +192,7 @@ async def test_the_legend_needs_two_season_titles(
     await session.flush()
     crowns = CrownsService(session)
 
-    changes = await crowns.recompute(game_id=None)
+    changes = await crowns.recompute(KACHUFUL, game_id=None)
 
     assert [(c.kind.value, c.to) for c in changes] == [("legend", (a,))]
     assert (await _crowns(session))["legend"] == [a]
@@ -219,8 +221,9 @@ async def test_recompute_crowns_rebuilds_the_titles_without_feed_items(
     before = await _snapshot(session)
     await session.execute(Crown.__table__.delete())
 
-    assert await recompute_crowns.run(argparse.Namespace(dry_run=False)) == 0
+    assert await recompute_crowns.run(argparse.Namespace(dry_run=False, game=None)) == 0
 
     crowns, _, feed, _ = await _snapshot(session)
     assert [(k, h, d) for k, h, _, _, d in crowns] == [(k, h, d) for k, h, _, _, d in before[0]]
     assert feed == before[2]
+

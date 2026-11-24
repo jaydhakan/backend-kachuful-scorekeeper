@@ -131,22 +131,21 @@ class AchievementOut(CamelModel):
 
 
 class UploadOut(CamelModel):
-    """`PUT /api/games/{id}`."""
+    """`PUT` of a synced game (Kaali Teeri, Spades table mode); Kachuful's is `KachufulUploadOut`."""
 
     rev: int = Field(..., description="The stored rev")
     earned: list[AchievementOut] = Field(..., description="Rows newly earned by this upload")
     remap: dict[str, str] | None = Field(
         default=None, description="Merged registry ids rewritten in the stored payload"
     )
+    status: StatusOut = Field(
+        default_factory=lambda: StatusOut(changes=[], bounties=[]),
+        description="Titles, bounties and milestones this write moved (empty lists when nothing did)",
+    )
 
 
 class KachufulUploadOut(UploadOut):
-    """`PUT /api/games/{id}` (Kachuful): also the titles and bounties this write moved."""
-
-    status: StatusOut = Field(
-        default_factory=lambda: StatusOut(changes=[], bounties=[]),
-        description="Titles and bounties this write moved (empty lists when nothing did)",
-    )
+    """`PUT /api/games/{id}` (Kachuful)."""
 
 
 class GameDetailOut(CamelModel):

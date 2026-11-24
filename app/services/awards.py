@@ -16,7 +16,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.domain.awards import SEASON_METRIC, SEASON_MIN_ROUNDS, season_awards
 from app.domain.enums import ProgressionGame
 from app.domain.leaderboard import Board, BoardRow, Metric, Tally, leaderboard
-from app.domain.progression import Award, Earned, StandingRow, win_rate_standings
+from app.domain.placed import placed_rows
+from app.domain.progression import (
+    Award,
+    Earned,
+    StandingRow,
+    win_rate_standings,
+    without_seats,
+)
 from app.domain.time import (
     day_of,
     day_range_ms,
@@ -31,6 +38,7 @@ from app.exceptions import ApiError, ErrorCode
 from app.repositories.achievements import achievements_repository
 from app.repositories.app_state import app_state_repository
 from app.repositories.boards import boards_repository
+from app.repositories.crowns import crowns_repository
 from app.repositories.players import PlayerView, players_repository
 from app.schemas.awards import (
     AwardOut,
@@ -38,7 +46,9 @@ from app.schemas.awards import (
     DailyAwardsOut,
     DayPointsOut,
     DayRoundsOut,
+    GameMedalsOut,
     GameSeasonOut,
+    GameTodayOut,
     MedalsOut,
     MonthPointsOut,
     NemesisOut,
@@ -51,6 +61,7 @@ from app.schemas.awards import (
     StandingOut,
     TodayOut,
     TodayPointsOut,
+    TodayWinsOut,
     TrumpOut,
     WrappedOut,
     WrappedRankOut,
@@ -59,6 +70,7 @@ from app.schemas.players import PlayerSummaryOut
 from app.services.achievements import activity_rows
 from app.services.boards import BoardsService, make_window
 from app.services.cache import Cached, etag_for, etag_matches
+from app.services.crowns import day_results
 from app.services.presenters import player_summary_out
 from app.services.progression.base import WinRateSeasons
 from app.services.progression.registry import progression_of, seasons_of
@@ -200,8 +212,12 @@ class AwardsService:
         last = await self.boards.board(prev_start, prev_end, SEASON_METRIC, SEASON_MIN_ROUNDS)
         return board, season_awards(board, last)
 
-    async def medals(self, exclude_game: uuid.UUID | None) -> MedalsOut:
+    async def medals(
+        self, game: ProgressionGame, exclude_game: uuid.UUID | None
+    ) -> MedalsOut | GameMedalsOut:
         """`GET /api/medals`: this month's board without one game, and last month's top three."""
+        if game != KACHUFUL:
+            return await self._game_medals(seasons_of(game), exclude_game)
         month = month_of(to_ms(now_utc()), settings.tz)
         start, end = month_range_ms(month, settings.tz)
         current = await boards_repository.tallies(self.session, make_window(start, end))
@@ -216,11 +232,71 @@ class AwardsService:
         last = await self._season_board(previous_month(month))
         podium = [r for r in last.rows if r.qualified and r.rank is not None and r.rank <= 3]
         return MedalsOut(
+            game=KACHUFUL,
             season=month,
             min_rounds=SEASON_MIN_ROUNDS,
             standings=(await self.boards.board_out(board)).rows,
             last_season=(await self.boards.board_out(Board(podium, last.min_rounds))).rows,
             today=tonight,
+        )
+
+    async def _game_medals(
+        self, rules: WinRateSeasons, exclude_game: uuid.UUID | None
+    ) -> GameMedalsOut:
+        """A win-rate game's medals: its season standings without one game, last month's podium."""
+        month = month_of(to_ms(now_utc()), settings.tz)
+        start, end = month_range_ms(month, settings.tz)
+        tallies = await rules.month_tallies(self.session, start, end)
+        if exclude_game is not None:
+            gone = await crowns_repository.results(
+                self.session,
+                rules.game,
+                only=exclude_game,
+                range_from=from_ms(start),
+                range_to=from_ms(end),
+            )
+            tallies = without_seats(tallies, [(p, won) for _, _, p, _, won, _ in gone])
+        standings = win_rate_standings(tallies, rules.min_games)
+        last = await self._closed_or_live_standings(rules, previous_month(month))
+        podium = [r for r in last if r.qualified and r.rank is not None and r.rank <= 3]
+        today = await self._game_today(rules.game, exclude_game)
+        views = await self._views({r.player_id for r in [*standings, *podium]})
+        return GameMedalsOut(
+            game=rules.game,
+            season=month,
+            min_games=rules.min_games,
+            standings=[_standing_out(views[r.player_id], r) for r in standings],
+            last_season=[_standing_out(views[r.player_id], r) for r in podium],
+            today=today,
+        )
+
+    async def _closed_or_live_standings(
+        self, rules: WinRateSeasons, month: str
+    ) -> list[StandingRow]:
+        """A month's standings: frozen once closed, else live."""
+        closed = await achievements_repository.closed(self.session, rules.game, month)
+        if closed is not None:
+            return [StandingRow(**r) for r in closed.data["standings"]]
+        return await self.standings(rules, month)
+
+    async def _game_today(
+        self, game: ProgressionGame, exclude_game: uuid.UUID | None
+    ) -> GameTodayOut:
+        """Today's finished games and wins per player, one game left out (the game's Sitara)."""
+        day = today()
+        start, end = day_range_ms(day, settings.tz)
+        tallies, games = await day_results(self.session, game, start, end, exclude=exclude_game)
+        rows = sorted(tallies, key=lambda t: (-t.wins, -t.games, t.player_id))
+        views = await self._views({t.player_id for t in rows}) if rows else {}
+        return GameTodayOut(
+            day=day.isoformat(),
+            games=games,
+            rows=[
+                TodayWinsOut(
+                    player=player_summary_out(views[t.player_id]), wins=t.wins, games=t.games
+                )
+                for t in rows
+            ],
         )
 
     async def _today(self, exclude_game: uuid.UUID | None) -> TodayOut:
@@ -249,12 +325,17 @@ class AwardsService:
             ],
         )
 
-    async def places(self, exclude_game: uuid.UUID | None, limit: int) -> PlacesOut:
-        """`GET /api/places`: the newest ended Kachuful games' places, one game left out."""
+    async def places(
+        self, game: ProgressionGame, exclude_game: uuid.UUID | None, limit: int
+    ) -> PlacesOut:
+        """`GET /api/places`: the newest ended games' places of one game, one game left out."""
+        if game == KACHUFUL:
+            rows = await boards_repository.ended_places(self.session, exclude_game)
+        else:
+            results = await crowns_repository.results(self.session, game, exclude=exclude_game)
+            rows = placed_rows(results)
         games: dict[str, tuple[int, list[PlaceOut]]] = {}
-        for gid, ended, pid, place, seat in await boards_repository.ended_places(
-            self.session, exclude_game
-        ):
+        for gid, ended, pid, place, seat in rows:
             games.setdefault(gid, (ended, []))[1].append(
                 PlaceOut(player_id=uuid.UUID(pid), place=place, seat=seat)
             )

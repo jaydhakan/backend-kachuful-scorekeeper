@@ -152,7 +152,7 @@ async def test_recomputing_keeps_the_same_rows_and_times(
 
     session.expire_all()
     after = {(r.id, r.code, r.player_id, r.earned_at) for r in await _rows(session, state["id"])}
-    assert added == [] and after == before
+    assert added.earned == [] and after == before
 
 
 async def test_deleting_the_game_removes_its_rows_and_careers(

@@ -88,7 +88,7 @@ async def test_recomputing_a_stored_game_keeps_every_row(
         session, GameKind.SPADES, uuid.UUID(payload["syncId"]), players, finished=True
     )
 
-    assert added == []
+    assert added.earned == []
     assert {(r.id, r.earned_at) for r in await _stored(session, payload["syncId"])} == before
 
 

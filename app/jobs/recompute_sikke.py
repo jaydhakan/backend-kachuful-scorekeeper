@@ -1,6 +1,6 @@
 """`recompute-sikke [--dry-run]`: rebuild every player's Sikke from what is stored (run at deploy).
 
-Players go in batches, each its own transaction, then Kachuful's bounties, and the closed
+Players go in batches, each its own transaction, then every game's bounties, and the closed
 nights' Sitara pay. Idempotent: a kept
 entry keeps its `earned_at`. `--dry-run` writes nothing and prints each player's lifetime total,
 level and weekly average over their active weeks, to check the prices against real history.
@@ -13,6 +13,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 from app.db.session import get_session_factory
+from app.domain.enums import ProgressionGame
 from app.domain.sikke import SikkeEarned, level_of
 from app.domain.time import day_of
 from app.logger import get_logger
@@ -56,7 +57,7 @@ async def _write(player_ids: Sequence[uuid.UUID]) -> None:
             await app_state_repository.bump(session)
             await session.commit()
     async with get_session_factory()() as session:
-        await SikkeService(session).recompute_bounties()
+        await SikkeService(session).recompute_all_bounties()
         await SikkeService(session).recompute_all_sitara()
         await session.commit()
 
@@ -71,7 +72,8 @@ async def _totals(player_ids: Sequence[uuid.UUID]) -> list[_Total]:
     async with get_session_factory()() as session:
         service = SikkeService(session)
         by_player: dict[str, list[SikkeEarned]] = {}
-        for e in await service.desired_bounties() + await service.desired_sitara():
+        bounties = [e for game in ProgressionGame for e in await service.desired_bounties(game)]
+        for e in bounties + await service.desired_sitara():
             by_player.setdefault(e.player_id, []).append(e)
         for batch in _batches(player_ids):
             players = await players_repository.get_many(session, batch)
