@@ -902,7 +902,7 @@ class Activity(Base):
     __table_args__ = (
         CheckConstraint(
             "kind IN ('achievement', 'game_finished', 'season_closed', 'player_joined', 'crown', "
-            "'night', 'gift')",
+            "'night', 'gift', 'milestone')",
             name="kind",
         ),
         CheckConstraint(_GAMES, name="game"),
@@ -1118,6 +1118,28 @@ class Night(Base):
     games: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
     data: Mapped[dict[str, Any]] = mapped_column(JSONB)
     closed_at: Mapped[datetime | None]
+
+
+class Milestone(Base):
+    """A group milestone or a first (rewards finish §6): derived, recomputed with every write
+    that changes the finished games or their achievements."""
+
+    __tablename__ = "milestones"
+    __table_args__ = (
+        CheckConstraint("kind IN ('group', 'first')", name="kind"),
+        CheckConstraint(f"game IS NULL OR {_GAMES}", name="game"),
+        Index("ix_milestones_at_key", text("at DESC"), text("key DESC")),
+    )
+
+    key: Mapped[str] = mapped_column(Text, primary_key=True)
+    kind: Mapped[str] = mapped_column(Text)
+    # Null for `group:all`; both Spades kinds are `spades`.
+    game: Mapped[str | None] = mapped_column(Text)
+    game_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("games.id", ondelete="CASCADE"))
+    # Sorted registry ids; no FK on an array, so reads follow merges.
+    players: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
+    at: Mapped[datetime]
+    data: Mapped[dict[str, Any]] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
 
 
 class ClosedPeriod(Base):
