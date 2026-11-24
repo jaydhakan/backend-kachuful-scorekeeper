@@ -12,10 +12,12 @@ from app.security.cookies import SESSION_COOKIE, set_session_cookie
 from app.services.admin import AdminService
 from app.services.appearance import AppearanceService
 from app.services.auth import AuthContext, AuthService
+from app.services.bazaar import BazaarService
 from app.services.boards import BoardsService
 from app.services.claims import ClaimsService
 from app.services.core import CoreService
 from app.services.games import GamesService
+from app.services.gifts import GiftsService
 from app.services.ishaara_boards import IshaaraBoardsService
 from app.services.ishaara_games import IshaaraGamesService
 from app.services.ishaara_rematch import IshaaraRematchService
@@ -31,6 +33,7 @@ from app.services.sikke import SikkeService
 from app.services.spades_boards import SpadesBoardsService
 from app.services.spades_games import SpadesGamesService
 from app.services.spades_tables import SpadesTablesService
+from app.services.wardrobe import WardrobeService
 
 
 async def get_session() -> AsyncIterator[AsyncSession]:
@@ -121,6 +124,21 @@ def get_merge_service(session: SessionDep) -> MergeService:
 def get_sikke_service(session: SessionDep) -> SikkeService:
     """SikkeService for a request."""
     return SikkeService(session)
+
+
+def get_wardrobe_service(session: SessionDep) -> WardrobeService:
+    """WardrobeService for a request."""
+    return WardrobeService(session)
+
+
+def get_bazaar_service(session: SessionDep) -> BazaarService:
+    """BazaarService for a request."""
+    return BazaarService(session)
+
+
+def get_gifts_service(session: SessionDep) -> GiftsService:
+    """GiftsService for a request."""
+    return GiftsService(session)
 
 
 def get_games_service(session: SessionDep) -> GamesService:

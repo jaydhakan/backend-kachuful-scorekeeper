@@ -51,6 +51,7 @@ async def test_a_player_with_no_entries_has_zeros_and_level_one(
     assert body == {
         "playerId": ids[0],
         "balance": 0,
+        "spent": 0,
         "lifetime": 0,
         "level": {"n": 1, "from": 0, "next": 500},
     }

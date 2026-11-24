@@ -58,6 +58,13 @@ class ErrorCode(StrEnum):
     TOO_LARGE = "too_large"
     UNSUPPORTED_MEDIA_TYPE = "unsupported_media_type"
     METHOD_NOT_ALLOWED = "method_not_allowed"
+    NO_PLAYER = "no_player"
+    INVALID_LOOK = "invalid_look"
+    NOT_IN_STOCK = "not_in_stock"
+    ALREADY_OWNED = "already_owned"
+    NOT_ENOUGH_SIKKE = "not_enough_sikke"
+    NOT_FOR_SALE = "not_for_sale"
+    SELF_GIFT = "self_gift"
     INTERNAL = "internal"
 
 

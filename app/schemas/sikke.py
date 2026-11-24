@@ -19,7 +19,10 @@ class SikkeOut(CamelModel):
     """`GET /api/players/{id}/sikke`: a player's wallet."""
 
     player_id: uuid.UUID = Field(..., description="The player (the kept one, after a merge)")
-    balance: int = Field(..., description="Earned minus spent (nothing is spent yet)")
+    balance: int = Field(
+        ..., description="Lifetime less spent; negative when a recompute lowered the lifetime"
+    )
+    spent: int = Field(..., description="Every Sikke spent on items, bought or given")
     lifetime: int = Field(..., description="Every Sikke ever earned")
     level: LevelOut = Field(..., description="The level `lifetime` reaches")
 

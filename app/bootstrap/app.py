@@ -5,10 +5,12 @@ from fastapi import FastAPI
 from app.api.admin import admin_router
 from app.api.appearance import appearance_router
 from app.api.auth import auth_router, me_router
+from app.api.bazaar import bazaar_router
 from app.api.boards import boards_router
 from app.api.claims import claims_router
 from app.api.core import core_router
 from app.api.games import games_router, me_data_router
+from app.api.gifts import gifts_router, me_gifts_router
 from app.api.ishaara import ishaara_router
 from app.api.kaali_teeri import kaali_teeri_router
 from app.api.nights import nights_router
@@ -17,6 +19,7 @@ from app.api.players import players_router
 from app.api.public import public_router
 from app.api.seat_invites import me_circle_router, seat_invites_router
 from app.api.spades import spades_router
+from app.api.wardrobe import wardrobe_router
 from app.bootstrap.lifespan import lifespan
 from app.bootstrap.middleware import AccessLogMiddleware, BodySizeLimitMiddleware
 from app.exceptions import register_exception_handlers
@@ -57,6 +60,10 @@ def create_app() -> FastAPI:
         me_circle_router,
         boards_router,
         nights_router,
+        wardrobe_router,
+        bazaar_router,
+        gifts_router,
+        me_gifts_router,
         public_router,
     ):
         app.include_router(router, prefix="/api")

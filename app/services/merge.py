@@ -16,6 +16,7 @@ from app.repositories.derived import derived_repository
 from app.repositories.games import games_repository
 from app.repositories.players import players_repository
 from app.repositories.users import users_repository
+from app.repositories.wardrobe import wardrobe_repository
 from app.schemas.admin import MergeKeepIn, PlayerEnvelopeOut
 from app.services.achievements import AchievementsEngine
 from app.services.crowns import CrownsService
@@ -204,3 +205,5 @@ class MergeService:
             await RESEAT_BY_KIND[GameKind(row.kind)](self.session, row, from_id, into_id)
         # Counters span every kind, so they are recounted once whatever each reseat did.
         await derived_repository.refresh_player_counters(self.session, {from_id, into_id})
+        # Purchases, gifts and the look follow the person (the one re-point of `sikke_spends`).
+        await wardrobe_repository.move_player(self.session, from_id, into_id)

@@ -40,6 +40,7 @@ from app.repositories.games import games_repository
 from app.repositories.nights import nights_repository
 from app.repositories.players import players_repository
 from app.repositories.sikke import EntryRow, StoredEntry, sikke_repository
+from app.repositories.wardrobe import wardrobe_repository
 from app.schemas.common import Page
 from app.schemas.sikke import (
     GameSikkeEntryOut,
@@ -278,12 +279,14 @@ class SikkeService:
         return player.merged_into or player.id
 
     async def wallet(self, player_id: uuid.UUID) -> SikkeOut:
-        """`GET /api/players/{id}/sikke`: balance, lifetime and level."""
+        """`GET /api/players/{id}/sikke`: balance (lifetime less spent), spent, lifetime and level."""
         kept = await self._kept_id(player_id)
         lifetime = (await sikke_repository.lifetimes(self.session, [kept])).get(kept, 0)
+        spent = (await wardrobe_repository.spent(self.session, [kept])).get(kept, 0)
         return SikkeOut(
             player_id=kept,
-            balance=lifetime,
+            balance=lifetime - spent,
+            spent=spent,
             lifetime=lifetime,
             level=level_out(level_of(lifetime)),
         )
