@@ -902,7 +902,7 @@ class Activity(Base):
     __table_args__ = (
         CheckConstraint(
             "kind IN ('achievement', 'game_finished', 'season_closed', 'player_joined', 'crown', "
-            "'night')",
+            "'night', 'gift')",
             name="kind",
         ),
         CheckConstraint(_GAMES, name="game"),
@@ -960,6 +960,100 @@ class SikkeEntry(Base):
     # The source's time: the game's end or the achievement's earning.
     earned_at: Mapped[datetime]
     data: Mapped[dict[str, Any]] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
+
+
+class Gift(Base):
+    """An item one player sent another (rewards finish §5); the receiver owns it at once.
+
+    The id is the sender's `giftId`, so a resend finds the first gift.
+    """
+
+    __tablename__ = "gifts"
+    __table_args__ = (
+        CheckConstraint("variant >= 0", name="variant"),
+        Index(
+            "ix_gifts_to_player_id_sent_at_id",
+            "to_player_id",
+            text("sent_at DESC"),
+            text("id DESC"),
+        ),
+        Index(
+            "ix_gifts_from_player_id_sent_at_id",
+            "from_player_id",
+            text("sent_at DESC"),
+            text("id DESC"),
+        ),
+        Index(
+            "ix_gifts_to_player_id_unopened",
+            "to_player_id",
+            postgresql_where=text("opened_at IS NULL"),
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    from_player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id", ondelete="CASCADE"))
+    to_player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id", ondelete="CASCADE"))
+    sent_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    item_id: Mapped[str] = mapped_column(Text)
+    variant: Mapped[int] = mapped_column(SmallInteger)
+    sent_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    opened_at: Mapped[datetime | None]
+
+
+class SikkeSpend(Base):
+    """Sikke spent on an item, bought or given (rewards finish §4). Append-only: no recompute
+    touches it; a balance is lifetime earned minus these amounts."""
+
+    __tablename__ = "sikke_spends"
+    __table_args__ = (
+        CheckConstraint("kind IN ('purchase', 'gift')", name="kind"),
+        CheckConstraint("amount > 0", name="amount"),
+        CheckConstraint("variant >= 0", name="variant"),
+        CheckConstraint("kind = 'gift' OR gift_id IS NULL", name="gift_id"),
+        Index(
+            "uq_sikke_spends_player_id_idempotency_key", "player_id", "idempotency_key", unique=True
+        ),
+        Index("ix_sikke_spends_gift_id", "gift_id"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, server_default=func.gen_random_uuid())
+    player_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("players.id", ondelete="CASCADE"))
+    kind: Mapped[str] = mapped_column(Text)
+    item_id: Mapped[str] = mapped_column(Text)
+    variant: Mapped[int] = mapped_column(SmallInteger)
+    amount: Mapped[int] = mapped_column(Integer)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    # Null on a gift spend once the gift went with its receiver (an erased player).
+    gift_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("gifts.id", ondelete="SET NULL"))
+    # The client's purchaseId or giftId: the same key returns the first result.
+    idempotency_key: Mapped[str] = mapped_column(Text)
+
+
+class WardrobeLook(Base):
+    """The look a player wears: the wire's Look, camelCase."""
+
+    __tablename__ = "wardrobe_looks"
+
+    player_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("players.id", ondelete="CASCADE"), primary_key=True
+    )
+    look: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+
+class WardrobeSavedLook(Base):
+    """One of a player's three saved looks (it may hold items not owned yet)."""
+
+    __tablename__ = "wardrobe_saved_looks"
+    __table_args__ = (CheckConstraint("slot BETWEEN 0 AND 2", name="slot"),)
+
+    player_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("players.id", ondelete="CASCADE"), primary_key=True
+    )
+    slot: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
+    name: Mapped[str] = mapped_column(Text)
+    look: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
 
 _CROWN_KINDS = "kind IN ('medal1', 'medal2', 'medal3', 'sitara', 'legend')"
