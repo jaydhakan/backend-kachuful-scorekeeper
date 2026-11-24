@@ -1,0 +1,394 @@
+{
+  "version": 1,
+  "prices": {
+    "common": 100,
+    "rare": 300,
+    "epic": 750,
+    "legendary": 1800
+  },
+  "variantPrice": 50,
+  "levelGifts": {
+    "2": {
+      "id": "kurta",
+      "v": 0
+    },
+    "3": {
+      "id": "cricket_cap",
+      "v": 0
+    },
+    "4": {
+      "id": "bow_tie",
+      "v": 0
+    },
+    "5": {
+      "id": "neon_ring",
+      "v": 0
+    },
+    "6": {
+      "id": "starfield",
+      "v": 0
+    }
+  },
+  "items": [
+    {
+      "id": "kurta",
+      "slot": "outfit",
+      "rarity": "common",
+      "variants": 6,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "hoodie",
+      "slot": "outfit",
+      "rarity": "common",
+      "variants": 4,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "office_shirt",
+      "slot": "outfit",
+      "rarity": "common",
+      "variants": 3,
+      "set": "office",
+      "sellable": true
+    },
+    {
+      "id": "cricket_whites",
+      "slot": "outfit",
+      "rarity": "common",
+      "variants": 1,
+      "set": "cricket",
+      "sellable": true
+    },
+    {
+      "id": "jersey",
+      "slot": "outfit",
+      "rarity": "rare",
+      "variants": 4,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "nehru_jacket",
+      "slot": "outfit",
+      "rarity": "rare",
+      "variants": 4,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "knit_sweater",
+      "slot": "outfit",
+      "rarity": "rare",
+      "variants": 4,
+      "set": "sardi",
+      "sellable": true
+    },
+    {
+      "id": "raincoat",
+      "slot": "outfit",
+      "rarity": "rare",
+      "variants": 3,
+      "set": "monsoon",
+      "sellable": true
+    },
+    {
+      "id": "shawl",
+      "slot": "outfit",
+      "rarity": "epic",
+      "variants": 4,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "dupatta",
+      "slot": "outfit",
+      "rarity": "epic",
+      "variants": 4,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "sherwani",
+      "slot": "outfit",
+      "rarity": "epic",
+      "variants": 3,
+      "set": "shaadi",
+      "sellable": true
+    },
+    {
+      "id": "lungi_banian",
+      "slot": "outfit",
+      "rarity": "legendary",
+      "variants": 3,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "champions_shaal",
+      "slot": "outfit",
+      "rarity": "honour",
+      "variants": 1,
+      "set": null,
+      "sellable": false
+    },
+    {
+      "id": "safa",
+      "slot": "headwear",
+      "rarity": "epic",
+      "variants": 3,
+      "set": "shaadi",
+      "sellable": true
+    },
+    {
+      "id": "cricket_cap",
+      "slot": "headwear",
+      "rarity": "common",
+      "variants": 3,
+      "set": "cricket",
+      "sellable": true
+    },
+    {
+      "id": "umbrella_hat",
+      "slot": "headwear",
+      "rarity": "rare",
+      "variants": 3,
+      "set": "monsoon",
+      "sellable": true
+    },
+    {
+      "id": "monkey_cap",
+      "slot": "headwear",
+      "rarity": "rare",
+      "variants": 3,
+      "set": "sardi",
+      "sellable": true
+    },
+    {
+      "id": "shades",
+      "slot": "headwear",
+      "rarity": "rare",
+      "variants": 2,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "headphones",
+      "slot": "headwear",
+      "rarity": "common",
+      "variants": 3,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "gold_chain",
+      "slot": "neckwear",
+      "rarity": "epic",
+      "variants": 1,
+      "set": "shaadi",
+      "sellable": true
+    },
+    {
+      "id": "whistle",
+      "slot": "neckwear",
+      "rarity": "common",
+      "variants": 1,
+      "set": "cricket",
+      "sellable": true
+    },
+    {
+      "id": "muffler",
+      "slot": "neckwear",
+      "rarity": "rare",
+      "variants": 4,
+      "set": "monsoon+sardi",
+      "sellable": true
+    },
+    {
+      "id": "id_lanyard",
+      "slot": "neckwear",
+      "rarity": "common",
+      "variants": 3,
+      "set": "office",
+      "sellable": true
+    },
+    {
+      "id": "marigold_mala",
+      "slot": "neckwear",
+      "rarity": "rare",
+      "variants": 1,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "bow_tie",
+      "slot": "neckwear",
+      "rarity": "common",
+      "variants": 4,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "marigold_frame",
+      "slot": "frame",
+      "rarity": "rare",
+      "variants": 1,
+      "set": "shaadi",
+      "sellable": true
+    },
+    {
+      "id": "stumps_frame",
+      "slot": "frame",
+      "rarity": "common",
+      "variants": 1,
+      "set": "cricket",
+      "sellable": true
+    },
+    {
+      "id": "raindrop_frame",
+      "slot": "frame",
+      "rarity": "rare",
+      "variants": 1,
+      "set": "monsoon",
+      "sellable": true
+    },
+    {
+      "id": "grid_frame",
+      "slot": "frame",
+      "rarity": "common",
+      "variants": 1,
+      "set": "office",
+      "sellable": true
+    },
+    {
+      "id": "frost_frame",
+      "slot": "frame",
+      "rarity": "rare",
+      "variants": 1,
+      "set": "sardi",
+      "sellable": true
+    },
+    {
+      "id": "gold_ring",
+      "slot": "frame",
+      "rarity": "epic",
+      "variants": 1,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "neon_ring",
+      "slot": "frame",
+      "rarity": "rare",
+      "variants": 3,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "smoke",
+      "slot": "aura",
+      "rarity": "common",
+      "variants": 2,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "sunburst",
+      "slot": "aura",
+      "rarity": "rare",
+      "variants": 2,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "diya_glow",
+      "slot": "aura",
+      "rarity": "rare",
+      "variants": 1,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "starfield",
+      "slot": "aura",
+      "rarity": "epic",
+      "variants": 1,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "pehle_waale",
+      "slot": "badge",
+      "rarity": "honour",
+      "variants": 1,
+      "set": null,
+      "sellable": false
+    },
+    {
+      "id": "chai_cup",
+      "slot": "badge",
+      "rarity": "common",
+      "variants": 1,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "spade_pin",
+      "slot": "badge",
+      "rarity": "common",
+      "variants": 1,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "lucky_seven",
+      "slot": "badge",
+      "rarity": "rare",
+      "variants": 1,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "last_bench",
+      "slot": "title",
+      "rarity": "common",
+      "variants": 1,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "chai_pe_charcha",
+      "slot": "title",
+      "rarity": "common",
+      "variants": 1,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "pakka_player",
+      "slot": "title",
+      "rarity": "rare",
+      "variants": 1,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "card_shark",
+      "slot": "title",
+      "rarity": "rare",
+      "variants": 1,
+      "set": null,
+      "sellable": true
+    },
+    {
+      "id": "taash_ustaad",
+      "slot": "title",
+      "rarity": "epic",
+      "variants": 1,
+      "set": null,
+      "sellable": true
+    }
+  ]
+}
